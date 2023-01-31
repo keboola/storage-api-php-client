@@ -84,7 +84,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
-        $this->_client->createTable(
+        $this->_client->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile(self::SOURCE_DATA_FILE_PATH)
@@ -153,7 +153,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             $this->client2
         );
 
-        $this->client2->createTable(
+        $this->client2->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile(self::SOURCE_DATA_FILE_PATH)
@@ -255,7 +255,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
 
         $this->assertSame('testsize', $workspace['backendSize']);
 
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(self::SOURCE_DATA_FILE_PATH)

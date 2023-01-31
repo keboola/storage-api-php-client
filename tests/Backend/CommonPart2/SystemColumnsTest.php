@@ -34,7 +34,7 @@ class SystemColumnsTest extends StorageApiTestCase
         $csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/system-columns.csv');
 
         // sync
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'system', $csvFile);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'system', $csvFile);
         $table = $this->_client->getTable($tableId);
         $this->assertEquals($excpectedColumns, $table['columns']);
 
@@ -53,7 +53,7 @@ class SystemColumnsTest extends StorageApiTestCase
 
         $csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/languages.csv');
 
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'system', $csvFile);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'system', $csvFile);
         $this->_client->addTableColumn($tableId, 'oid');
         $this->_client->addTableColumn($tableId, 'CTID');
         $table = $this->_client->getTable($tableId);
@@ -70,7 +70,7 @@ class SystemColumnsTest extends StorageApiTestCase
     public function testSystemColumnImport(): void
     {
         $csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/system-columns.csv');
-        $tableId = $this->_client->createTable($this->getTestBucketId(self::STAGE_IN), 'system', $csvFile);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'system', $csvFile);
 
         $csvImportFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/system-columns-sanitized.csv');
 
@@ -96,7 +96,7 @@ class SystemColumnsTest extends StorageApiTestCase
         ], 'Column add not supported');
 
         $csvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/languages.csv');
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'system', $csvFile);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'system', $csvFile);
 
         $importCsvFile = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/system-column-added.csv');
         $this->_client->writeTableAsync($tableId, $importCsvFile);

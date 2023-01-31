@@ -124,7 +124,7 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
 
         // load tables into workspace
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($importFile)

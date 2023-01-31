@@ -590,7 +590,7 @@ class SharingTest extends StorageApiSharingTestCase
         $bucketId = reset($this->_bucketIds);
 
         $expectedTableName = 'numbers';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $bucketId,
             $expectedTableName,
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
@@ -725,7 +725,7 @@ class SharingTest extends StorageApiSharingTestCase
         $bucketId = reset($this->_bucketIds);
 
         $tableName = 'numbers';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $bucketId,
             $tableName,
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
@@ -950,7 +950,7 @@ class SharingTest extends StorageApiSharingTestCase
         $displayName = 'display-name-first';
         $this->_client->updateTable($tableId, ['displayName' => $displayName]);
 
-        $table2Id = $this->_client->createTable(
+        $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_OUT),
             'languages-out',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
@@ -1194,13 +1194,13 @@ class SharingTest extends StorageApiSharingTestCase
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $secondBucketId = $this->getTestBucketId(self::STAGE_OUT);
 
-        $table1Id = $this->_client->createTable(
+        $table1Id = $this->_client->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
-        $table2Id = $this->_client->createTable(
+        $table2Id = $this->_client->createTableAsync(
             $bucketId,
             'numbers',
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
@@ -1312,7 +1312,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         // now we'll load another table and use the preserve parameters to check that all tables are present
         // lets create it now to see if the table permissions are correctly propagated
-        $table3Id = $this->_client->createTable(
+        $table3Id = $this->_client->createTableAsync(
             $bucketId,
             'numbersLater',
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
@@ -1369,20 +1369,20 @@ class SharingTest extends StorageApiSharingTestCase
 
         // prepare source data
         $sourceBucketId = $this->getTestBucketId();
-        $table1Id = $this->_client->createTable(
+        $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languagesDetails',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
         $this->_client->shareBucket($sourceBucketId, ['async'=>$isAsync]);
 
-        $table2Id = $this->_client->createTable(
+        $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'numbers',
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
         );
 
-        $table3Id = $this->_client->createTable(
+        $table3Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_OUT),
             'languages-out',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
@@ -1578,7 +1578,7 @@ class SharingTest extends StorageApiSharingTestCase
         $bucketId = reset($this->_bucketIds);
 
         $tableName = 'languages';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $bucketId,
             $tableName,
             new CsvFile(__DIR__ . '/../../_data/languages.csv')

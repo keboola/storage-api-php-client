@@ -21,7 +21,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         //setup test tables
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
@@ -61,13 +61,13 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         //setup test tables
-        $table1_id = $this->_client->createTable(
+        $table1_id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
-        $table2_id = $this->_client->createTable(
+        $table2_id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'numbers',
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
@@ -262,7 +262,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         //setup test tables
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languagesColumns',
             new CsvFile(__DIR__ . '/../../_data/languages-more-columns.csv')
@@ -323,7 +323,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $bucketId,
             'languagesDetails',
             new CsvFile($importFile),
@@ -372,7 +372,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($importFile)
@@ -421,7 +421,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($importFile)
@@ -474,7 +474,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $importFile = __DIR__ . "/../../_data/$table.more-columns.csv";
         //   $importFile = __DIR__ . "/../../_data/$table.csv";
 
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             $table,
             new CsvFile($importFile)
@@ -527,7 +527,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($importFile)
@@ -566,7 +566,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($importFile)
@@ -634,7 +634,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $importFile = __DIR__ . '/../../_data/languages.camel-case-columns.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($importFile)
@@ -681,7 +681,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($importFile)
@@ -749,7 +749,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         $importFile = __DIR__ . '/../../_data/languages.camel-case-columns.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($importFile)
@@ -808,7 +808,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($importFile)
@@ -844,7 +844,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($importFile)
@@ -886,12 +886,12 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         //setup test tables
-        $table1_id = $this->_client->createTable(
+        $table1_id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
-        $table2_id = $this->_client->createTable(
+        $table2_id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'numbers',
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
@@ -915,7 +915,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
 
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'Languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
@@ -978,7 +978,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         //setup test tables
-        $table1_id = $this->_client->createTable(
+        $table1_id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
@@ -1029,7 +1029,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testInvalidBucketPermissions(): void
     {
         // make a test table
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
@@ -1073,7 +1073,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages_dotted',
             new CsvFile($importFile)
@@ -1102,7 +1102,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($importFile)
@@ -1133,7 +1133,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function testWorkspaceExportFilters($exportOptions, $expectedResult): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'users', new CsvFile($importFile));
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();

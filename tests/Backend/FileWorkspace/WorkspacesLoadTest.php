@@ -21,14 +21,14 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
 
         //setup test tables
         $table1Csv = __DIR__ . '/../../_data/languages.csv';
-        $table1Id = $this->_client->createTable(
+        $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($table1Csv)
         );
 
         $table2Csv = __DIR__ . '/../../_data/numbers.csv';
-        $table2Id = $this->_client->createTable(
+        $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'numbers',
             new CsvFile($table2Csv)
@@ -250,7 +250,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
 
         //setup test tables
         $table1Csv = __DIR__ . '/../../_data/languages.csv';
-        $table1Id = $this->_client->createTable(
+        $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($table1Csv),
@@ -344,7 +344,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $backend = new Abs($workspace['connection']);
 
         //setup test tables
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languagesColumns',
             new CsvFile(__DIR__ . '/../../_data/languages-more-columns.csv')
@@ -449,7 +449,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $backend = new Abs($workspace['connection']);
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($importFile)
@@ -492,7 +492,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
     public function testWorkspaceExportFilters($exportOptions, $expectedResult): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $tableId = $this->_client->createTable($this->getTestBucketId(), 'users', new CsvFile($importFile));
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'users', new CsvFile($importFile));
 
         $workspaces = new Workspaces($this->_client);
         $workspace = $this->createFileWorkspace($workspaces);
@@ -822,12 +822,12 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $workspace = $this->createFileWorkspace($workspaces);
 
         //setup test tables
-        $table1_id = $this->_client->createTable(
+        $table1_id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
-        $table2_id = $this->_client->createTable(
+        $table2_id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'numbers',
             new CsvFile(__DIR__ . '/../../_data/numbers.csv')
@@ -953,7 +953,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $workspace = $this->createFileWorkspace($workspaces);
 
         //setup test tables
-        $table1_id = $this->_client->createTable(
+        $table1_id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
@@ -1073,7 +1073,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
     public function testInvalidBucketPermissions(): void
     {
         // make a test table
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
@@ -1130,7 +1130,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
 
         // Create a table of sample data
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages_dotted',
             new CsvFile($importFile)
@@ -1187,14 +1187,14 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $workspace = $this->createFileWorkspace($workspaces);
 
         $table1Csv = __DIR__ . '/../../_data/languages.csv';
-        $table1Id = $this->_client->createTable(
+        $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile($table1Csv)
         );
 
         $table2Csv = __DIR__ . '/../../_data/users.csv';
-        $table2Id = $this->_client->createTable(
+        $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
             new CsvFile($table2Csv)
@@ -1276,7 +1276,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         );
 
         $table3Csv = __DIR__ . '/../../_data/languages.more-rows-no-duplicates.csv';
-        $table3Id = $this->_client->createTable(
+        $table3Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languagesMoreRows',
             new CsvFile($table3Csv)

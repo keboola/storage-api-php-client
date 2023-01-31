@@ -652,7 +652,7 @@ class Client
     }
 
     /**
-     * @deprecated Use createTable
+     * @deprecated Use createTableAsync
      * @param $bucketId
      * @param $name
      * @param CsvFile $csvFile

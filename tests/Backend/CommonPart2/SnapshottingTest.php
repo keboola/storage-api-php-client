@@ -109,7 +109,7 @@ class SnapshottingTest extends StorageApiTestCase
      */
     private function initTestTable()
     {
-        $tableId = $this->_client->createTable(
+        $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.camel-case-columns.csv'),
