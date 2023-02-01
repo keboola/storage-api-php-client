@@ -61,10 +61,12 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration([
-                'migrations' => [
-                    [
-                        'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ("id" integer, "name" varchar(100), [_timestamp] DATETIME2)',
-                        'description' => 'first ever',
+                'parameters' => [
+                    'migrations' => [
+                        [
+                            'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ("id" integer, "name" varchar(100), [_timestamp] DATETIME2)',
+                            'description' => 'first ever',
+                        ],
                     ],
                 ],
             ]);
@@ -144,14 +146,16 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration([
-                'migrations' => [
-                    [
-                        'sql' => 'SELECT 1',
-                        'description' => 'first ever',
-                    ],
-                    [
-                        'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} (id integer, name varchar(100), [_timestamp] DATETIME2)',
-                        'description' => 'second query',
+                'parameters' => [
+                    'migrations' => [
+                        [
+                            'sql' => 'SELECT 1',
+                            'description' => 'first ever',
+                        ],
+                        [
+                            'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} (id integer, name varchar(100), [_timestamp] DATETIME2)',
+                            'description' => 'second query',
+                        ],
                     ],
                 ],
             ]);
@@ -223,9 +227,11 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration([
-                'migrations' => [
-                    [
-                        'sql' => 'SELECT 1',
+                'parameters' => [
+                    'migrations' => [
+                        [
+                            'sql' => 'SELECT 1',
+                        ],
                     ],
                 ],
             ]);
@@ -327,13 +333,15 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration([
-                'migrations' => [
-                    [
-                        'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} (id integer, name varchar(100), [_timestamp] DATETIME2)',
-                        'description' => 'first ever',
-                    ],
-                    [
-                        'sql' => 'ASD',
+                'parameters' => [
+                    'migrations' => [
+                        [
+                            'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} (id integer, name varchar(100), [_timestamp] DATETIME2)',
+                            'description' => 'first ever',
+                        ],
+                        [
+                            'sql' => 'ASD',
+                        ],
                     ],
                 ],
             ]);
@@ -402,10 +410,12 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration([
-                'migrations' => [
-                    [
-                        'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} (id integer, name varchar(100), [_timestamp] DATETIME2)',
-                        'description' => 'first ever',
+                'parameters' => [
+                    'migrations' => [
+                        [
+                            'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} (id integer, name varchar(100), [_timestamp] DATETIME2)',
+                            'description' => 'first ever',
+                        ],
                     ],
                 ],
             ]);
@@ -438,10 +448,12 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration([
-                'migrations' => [
-                    [
-                        'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} (id integer, name varchar(100), [_timestamp] DATETIME2)',
-                        'description' => 'first ever',
+                'parameters' => [
+                    'migrations' => [
+                        [
+                            'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} (id integer, name varchar(100), [_timestamp] DATETIME2)',
+                            'description' => 'first ever',
+                        ],
                     ],
                 ],
             ]);
