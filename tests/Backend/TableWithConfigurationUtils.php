@@ -96,8 +96,10 @@ trait TableWithConfigurationUtils
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration([
-                'migrations' => $migrations ?? self::$DEFAULT_CONFIGURATION_MIGRATIONS,
-                'queriesOverride' => $queriesOverride,
+                'parameters' => [
+                    'migrations' => $migrations ?? self::$DEFAULT_CONFIGURATION_MIGRATIONS,
+                    'queriesOverride' => $queriesOverride,
+                ],
             ]);
 
         return [
@@ -127,10 +129,12 @@ trait TableWithConfigurationUtils
             ->setConfigurationId($this->configId)
             ->setName($this->configId)
             ->setConfiguration([
-                'migrations' => [
-                    [
-                        'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ("id" integer, "name" varchar(100))',
-                        'description' => 'first ever',
+                'parameters' => [
+                    'migrations' => [
+                        [
+                            'sql' => 'CREATE TABLE {{ id(bucketName) }}.{{ id(tableName) }} ("id" integer, "name" varchar(100))',
+                            'description' => 'first ever',
+                        ],
                     ],
                 ],
             ]);

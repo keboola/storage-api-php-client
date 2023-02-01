@@ -263,9 +263,11 @@ JSON;
          * Test if tables are cleared
          */
         $configuration->setConfiguration([
-            'migrations' => [/** we don't care about migrations they can be empty */],
-            'queriesOverride' => [
-                'importFromFileFull' => $testConfig,
+            'parameters' => [
+                'migrations' => [/** we don't care about migrations they can be empty */],
+                'queriesOverride' => [
+                    'importFromFileFull' => $testConfig,
+                ],
             ],
         ]);
         $this->componentsClient->updateConfiguration($configuration);
@@ -329,9 +331,11 @@ JSON;
         )['output'];
 
         $configuration->setConfiguration([
-            'migrations' => [/** we don't care about migrations they can be empty */],
-            'queriesOverride' => [
-                'importFromFileFull' => $configOnError,
+            'parameters' => [
+                'migrations' => [/** we don't care about migrations they can be empty */],
+                'queriesOverride' => [
+                    'importFromFileFull' => $configOnError,
+                ],
             ],
         ]);
         $this->componentsClient->updateConfiguration($configuration);
@@ -347,9 +351,11 @@ JSON;
          * Test if tables are cleared
          */
         $configuration->setConfiguration([
-            'migrations' => [/** we don't care about migrations they can be empty */],
-            'queriesOverride' => [
-                'importFromFileFull' => $testConfig,
+            'parameters' => [
+                'migrations' => [/** we don't care about migrations they can be empty */],
+                'queriesOverride' => [
+                    'importFromFileFull' => $testConfig,
+                ],
             ],
         ]);
         $this->componentsClient->updateConfiguration($configuration);
