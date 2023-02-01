@@ -90,6 +90,12 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertEquals($sourceTable['lastImportDate'], $secondAlias['lastImportDate']);
         $this->assertEquals($sourceTable['lastImportDate'], $thirdAlias['lastImportDate']);
 
+        $tokenData = $this->_client->verifyToken();
+        $defaultBackend = $tokenData['owner']['defaultBackend'];
+        // changing columns during import is disabled for following backends
+        if (in_array($defaultBackend, [self::BACKEND_TERADATA, self::BACKEND_BIGQUERY])) {
+            return;
+        }
         // columns auto-create
         $this->_client->writeTableAsync($sourceTableId, new CsvFile(__DIR__ . '/../../_data/languages.more-columns.csv'));
         $sourceTable = $this->_client->getTable($sourceTableId);
