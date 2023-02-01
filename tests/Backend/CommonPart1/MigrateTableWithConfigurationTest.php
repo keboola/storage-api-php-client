@@ -3,10 +3,8 @@
 namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\StorageApi\Client;
-use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
-use Keboola\StorageApi\Options\TableWithConfigurationOptions;
 use Keboola\Test\Backend\TableWithConfigurationUtils;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
@@ -62,15 +60,17 @@ class MigrateTableWithConfigurationTest extends StorageApiTestCase
 
         $configurationArray = $this->componentsClient->getConfiguration(StorageApiTestCase::CUSTOM_QUERY_MANAGER_COMPONENT_ID, $this->configId);
         $configuration->setConfiguration([
-            'migrations' => [
-                ...$configurationArray['configuration']['migrations'],
-                [
-                    'sql' => 'ALTER TABLE {{ id(bucketName) }}.{{ id(tableName) }} DROP COLUMN "name"',
-                    'description' => 'drop name',
-                ],
-                [
-                    'sql' => 'ALTER TABLE {{ id(bucketName) }}.{{ id(tableName) }} ADD "name_another" VARCHAR(50)',
-                    'description' => 'add name another',
+            'parameters' => [
+                'migrations' => [
+                    ...$configurationArray['configuration']['parameters']['migrations'],
+                    [
+                        'sql' => 'ALTER TABLE {{ id(bucketName) }}.{{ id(tableName) }} DROP COLUMN "name"',
+                        'description' => 'drop name',
+                    ],
+                    [
+                        'sql' => 'ALTER TABLE {{ id(bucketName) }}.{{ id(tableName) }} ADD "name_another" VARCHAR(50)',
+                        'description' => 'add name another',
+                    ],
                 ],
             ],
         ]);
