@@ -264,21 +264,21 @@
 		<directory>tests/Backend/Exasol</directory>
 	</testsuite>
 
-	<testsuite name="paratest-teradata">
+	<testsuite name="paratest-teradata-part-1">
 
 		<directory>tests/Backend/CommonPart1</directory>
 		<exclude>tests/Backend/CommonPart1/TimeTravelTest.php</exclude>
 		<!--	excluded test is only for BQ specific -->
 		<exclude>tests/Backend/CommonPart1/BigqueryTableExporterTest.php</exclude>
 		<!--		TD does not support TWC-->
+		<exclude>tests/Backend/CommonPart1/TableWithConfigurationLoadFromWorkspaceTest.php</exclude>
+		<exclude>tests/Backend/CommonPart1/TableWithConfigurationLoadTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/CreateTableWithConfigurationTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/MigrateTableWithConfigurationTest.php</exclude>
-		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
+	</testsuite>
 
+	<testsuite name="paratest-teradata-part-2">
 		<directory>tests/Backend/CommonPart2</directory>
-		<!--		requires add/delete column-->
-		<!--		requires export filters-->
-		<exclude>tests/Backend/CommonPart2/SimpleAliasTest.php</exclude>
 
 		<!--BUCKET-->
 		<file>tests/Backend/Export/ExportSimpleTest.php</file>
@@ -292,6 +292,7 @@
 <!--		External buckets-->
 		<file>tests/Backend/ExternalBuckets/TeradataRegisterBucketTest.php</file>
 	</testsuite>
+
 	<testsuite name="paratest-bigquery">
 
 		<directory>tests/Backend/CommonPart1</directory>
