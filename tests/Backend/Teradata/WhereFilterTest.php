@@ -226,7 +226,7 @@ class WhereFilterTest extends StorageApiTestCase
 
     private function prepareTable(): string
     {
-        $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csvFile = $this->createTempCsv();
         $csvFile->writeRow(['column_string', 'column_string_number', 'column_double']);
         $csvFile->writeRow(['first', '1', '003.123']);
         $csvFile->writeRow(['second', '4', '3.123']);

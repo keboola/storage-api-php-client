@@ -21,7 +21,7 @@ class WhereFilterTest extends StorageApiTestCase
      */
     public function testForbiddenWhereOperators(array $where): void
     {
-        $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csvFile = $this->createTempCsv();
         $csvFile->writeRow(['test']);
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'conditions', $csvFile);
 
