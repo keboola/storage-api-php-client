@@ -67,7 +67,7 @@ class FulltextSearchTest extends StorageApiTestCase
 
     private function prepareTable()
     {
-        $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csvFile = $this->createTempCsv();
         $csvFile->writeRow(['column_1', 'column_2', 'column_3']);
         $csvFile->writeRow(['AcontainsAA', 'BcontainsBB', 'CcontainsCC']);
         $csvFile->writeRow(['AcontainsAA', 'DcontainsDD', 'EcontainsEE']);

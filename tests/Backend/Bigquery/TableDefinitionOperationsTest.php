@@ -143,7 +143,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             ],
         ];
 
-        $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csvFile = $this->createTempCsv();
         $csvFile->writeRow([
             'id',
             'column_decimal',
@@ -271,7 +271,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             ],
         ];
 
-        $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csvFile = $this->createTempCsv();
         $csvFile->writeRow([
             'id',
             'column_decimal',
@@ -393,7 +393,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             ],
         ];
 
-        $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csvFile = $this->createTempCsv();
         $csvFile->writeRow([
             'id',
             'column_decimal',

@@ -488,7 +488,7 @@ abstract class StorageApiTestCase extends ClientTestCase
 
     protected function createTableWithRandomData($tableName, $rows = 5, $columns = 10, $charsInCell = 20)
     {
-        $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csvFile = $this->createTempCsv();
         $header = [];
         for ($i = 0; $i++ < $columns;) {
             $header[] = 'col_' . $i;
@@ -502,6 +502,13 @@ abstract class StorageApiTestCase extends ClientTestCase
             $csvFile->writeRow($row);
         }
         return $this->_client->createTableAsync($this->getTestBucketId(), $tableName, $csvFile);
+    }
+
+    protected function createTempCsv(): CsvFile
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), 'keboola');
+        assert($tempFile !== false);
+        return new CsvFile($tempFile);
     }
 
     /**

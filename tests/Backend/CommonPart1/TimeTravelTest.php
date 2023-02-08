@@ -83,7 +83,7 @@ class TimeTravelTest extends StorageApiTestCase
             ],
         ];
 
-        $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csvFile = $this->createTempCsv();
         $csvFile->writeRow([
             'id',
             'column_decimal',
@@ -114,7 +114,7 @@ class TimeTravelTest extends StorageApiTestCase
         $timestamp = date(DATE_ATOM);
         sleep(25);
 
-        $csvFile = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csvFile = $this->createTempCsv();
         $csvFile->writeRow([
             'id',
             'column_decimal',
