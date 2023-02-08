@@ -30,7 +30,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         if ($tokenData['owner']['defaultBackend'] === self::BACKEND_REDSHIFT) {
             $this->markTestSkipped('Redshift backend doesn\'t support order in preview.');
         }
-        $csv = new CsvFile(tempnam(sys_get_temp_dir(), 'keboola'));
+        $csv = $this->createTempCsv();
         $csv->writeRow(['Name', 'Id']);
         $csv->writeRow(['aabb', 'test']);
         $csv->writeRow(['ccdd', 'test2']);
@@ -150,8 +150,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
 
     private function generateCsv($rowsCount, $collsCount = 2)
     {
-        $importFilePath = tempnam(sys_get_temp_dir(), 'keboola');
-        $csvFile = new CsvFile($importFilePath);
+        $csvFile = $this->createTempCsv();
         $header = [];
         for ($i = 0; $i < $collsCount; $i++) {
             array_push($header, 'col' . $i);
