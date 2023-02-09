@@ -59,8 +59,10 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
 
         $ws = new Workspaces($this->_client);
 
+        // prepare workspace
         $workspace = $ws->createWorkspace();
 
+        // register workspace as external bucket
         $runId = $this->setRunId();
         $idOfBucket = $this->_client->registerBucket(
             'test-bucket-registration',
@@ -79,6 +81,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             ->setRunId($runId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
+        // check external bucket
         $bucket = $this->_client->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
         $this->assertSame($workspace['connection']['database'], $bucket['databaseName']);
@@ -86,11 +89,13 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(0, $tables);
 
+        // add first table to workspace
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $db->createTable('TEST', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
         $db->executeQuery('INSERT INTO "TEST" VALUES (1, \'test\')');
 
+        // refresh external bucket
         $runId = $this->setRunId();
         $this->_client->refreshBucket($idOfBucket);
 
@@ -112,6 +117,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             ->setRunId($runId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
+        // check external bucket
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(1, $tables);
         $tableDetail = $this->_client->getTable($tables[0]['id']);
@@ -137,14 +143,17 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             $tableDetail['columnMetadata']['DESCRIPTION']
         );
 
+        // export table from external bucket
         $this->_client->exportTableAsync($tables[0]['id']);
 
         $preview = $this->_client->getTableDataPreview($tables[0]['id']);
         // expect two lines in preview because of the header
         $this->assertCount(2, Client::parseCsv($preview, false));
 
+        // add second table to workspace
         $db->createTable('TEST2', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
 
+        // refresh external bucket
         $runId = $this->setRunId();
         $this->_client->refreshBucket($idOfBucket);
 
@@ -166,14 +175,17 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             ->setRunId($runId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
+        // check external bucket
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(2, $tables);
 
+        // alter first table, drop second table, add third table to workspace
         $db->dropTable('TEST2');
         $db->executeQuery('ALTER TABLE "TEST" DROP COLUMN "AMOUNT"');
         $db->executeQuery('ALTER TABLE "TEST" ADD COLUMN "XXX" FLOAT');
         $db->createTable('TEST3', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
 
+        // refresh external bucket
         $runId = $this->setRunId();
         $this->_client->refreshBucket($idOfBucket);
 
@@ -213,6 +225,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             ->setRunId($runId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
+        // check external bucket
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(2, $tables);
 
@@ -276,6 +289,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             );
         }
 
+        // drop external bucket
         $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
     }
 
@@ -313,6 +327,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             ->setRunId($runId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
+        // check external bucket
         $bucket = $this->_client->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
         $this->assertSame('TEST_EXTERNAL_BUCKETS', $bucket['databaseName']);
@@ -328,12 +343,12 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(1, $tables);
 
+        // check that workspace user CAN READ from table in external bucket directly
         $ws = new Workspaces($this->_client);
 
         $workspace = $ws->createWorkspace();
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        // check that workspace user can read from table in external bucket directly
         assert($db instanceof SnowflakeWorkspaceBackend);
         $result = $db->getDb()->fetchAll(
             'SELECT COUNT(*) AS CNT FROM "TEST_EXTERNAL_BUCKETS"."TEST_SCHEMA"."TEST_TABLE"'
@@ -344,6 +359,21 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             ],
         ], $result);
 
+        // drop external bucket
         $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
+
+        // check that workspace user CANNOT READ from table in external bucket directly
+        try {
+            $db->getDb()->fetchAll(
+                'SELECT COUNT(*) AS CNT FROM "TEST_EXTERNAL_BUCKETS"."TEST_SCHEMA"."TEST_TABLE"'
+            );
+            $this->fail('Database should not be authorized');
+        } catch (\RuntimeException $e) {
+            // produce WARNING
+            $this->assertMatchesRegularExpression(
+                "/Database 'TEST_EXTERNAL_BUCKETS' does not exist or not authorized/",
+                $e->getMessage(),
+            );
+        }
     }
 }
