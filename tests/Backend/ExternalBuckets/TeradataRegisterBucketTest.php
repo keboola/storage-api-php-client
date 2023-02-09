@@ -224,6 +224,7 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
             ->setObjectId('in.test-bucket-registration-ext.TEST_TABLE');
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
+        // check external bucket
         $bucket = $this->_client->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
         // todo schema name should be asserted as soon as it appears in response
@@ -240,7 +241,6 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
         $this->assertCount(1, $tables);
 
         // check that workspace user can read from table in external bucket directly
-
         $ws = new Workspaces($this->_client);
 
         $workspace = $ws->createWorkspace();
@@ -260,6 +260,29 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
             ],
         ], $result);
 
+        // drop external bucket
         $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
+
+        // check that workspace user CANNOT READ from table in external bucket directly
+        try {
+            $db->getDb()->fetchAllAssociative(
+                sprintf(
+                    'SELECT COUNT(*) AS CNT FROM %s.%s',
+                    TeradataQuote::quoteSingleIdentifier($dbName),
+                    TeradataQuote::quoteSingleIdentifier('TEST_TABLE')
+                )
+            );
+            $this->fail('Database should not be authorized');
+        } catch (\Doctrine\DBAL\Exception\DriverException $e) {
+            // TODO check correct message
+            $this->assertMatchesRegularExpression(
+                "/Database 'TEST_EXTERNAL_BUCKETS' does not exist or not authorized/",
+                $e->getMessage(),
+            );
+        } catch (\Throwable $e) {
+            // TODO check correct message
+            dump(get_class($e));
+            dump($e->getMessage());
+        }
     }
 }
