@@ -354,10 +354,9 @@ class CreateTableTest extends StorageApiTestCase
     }
 
     /**
-     * @param $async
      * @dataProvider syncAsyncData
      */
-    public function testTableColumnNamesSanitize($async): void
+    public function testTableColumnNamesSanitize(bool $async): void
     {
         $csv = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/filtering.csv');
 
@@ -375,11 +374,9 @@ class CreateTableTest extends StorageApiTestCase
     }
 
     /**
-     * @param $backend
-     * @param $async
      * @dataProvider syncAsyncData
      */
-    public function testTableWithLongColumnNamesShouldNotBeCreated($async): void
+    public function testTableWithLongColumnNamesShouldNotBeCreated(bool $async): void
     {
         try {
             $method = $async ? 'createTableAsync' : 'createTable';
@@ -394,7 +391,10 @@ class CreateTableTest extends StorageApiTestCase
         }
     }
 
-    public function syncAsyncData()
+    /**
+     * @return bool[][]
+     */
+    public function syncAsyncData(): array
     {
         return [
             [false],

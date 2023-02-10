@@ -2386,22 +2386,12 @@ parameters:
 			path: tests/Backend/CommonPart1/CreateTableTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:syncAsyncData\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/CreateTableTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:tableCreateData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/CreateTableTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:testCreateTableFromSlicedFile\\(\\) has parameter \\$fileName with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/CreateTableTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:testTableColumnNamesSanitize\\(\\) has parameter \\$async with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/CreateTableTest.php
 
@@ -2432,11 +2422,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:testTableCreateWithInvalidPK\\(\\) has parameter \\$primaryKey with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/CreateTableTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:testTableWithLongColumnNamesShouldNotBeCreated\\(\\) has parameter \\$async with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/CreateTableTest.php
 
