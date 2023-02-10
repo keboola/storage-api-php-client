@@ -188,7 +188,7 @@ class AlterTableTest extends StorageApiTestCase
     /**
      * Tests: https://github.com/keboola/connection/issues/218
      */
-    public function testTooManyColumns(): void
+    public function testTooManyColumnsOrRowSizeFailed(): void
     {
         $importFile = __DIR__ . '/../../_data/many-more-columns.csv';
 
@@ -205,6 +205,97 @@ class AlterTableTest extends StorageApiTestCase
                 []
             );
             $this->fail('There were 5000 columns man. fail.');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tables.validation.tooManyColumns', $e->getStringCode());
+        }
+    }
+
+    public function testTooManyColumnsCountFailed(): void
+    {
+        $this->skipTestForBackend([
+            self::BACKEND_EXASOL,
+            self::BACKEND_BIGQUERY,
+        ], 'Other backends does have other limits');
+
+        try {
+            $data = [
+                'name' => 'tooManyColumns',
+                'primaryKeysNames' => [],
+                'columns' => [],
+            ];
+            // generate table definition with too many columns - over limit on every backend
+            for ($i = 1; $i <= 5000; $i++) {
+                $data['columns'][] = [
+                    'name' => 'col' . $i,
+                    'definition' => [
+                        'type' => 'BYTEINT',
+                        'nullable' => true,
+                    ],
+                ];
+            }
+            $this->_client->createTableDefinition(
+                $this->getTestBucketId(),
+                $data,
+            );
+            $this->fail('There were 5000 columns man. fail.');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tables.validation.tooManyColumns', $e->getStringCode());
+        }
+    }
+
+    public function testTooManyColumnsCountAddAnotherColumnOverLimitFailed(): void
+    {
+        $this->skipTestForBackend([
+            self::BACKEND_EXASOL,
+            self::BACKEND_BIGQUERY,
+        ], 'Other backends does have other limits');
+
+        /** @see \Keboola\TableBackendUtils\Column\ColumnCollection::$limits */
+        switch ($this->getDefaultBackend($this->_client)) {
+            case 'snowflake':
+                $limit = 1201;
+                break;
+            case 'synapse':
+                $limit = 1024;
+                break;
+            case 'redshift':
+                $limit = 1600;
+                break;
+            case 'teradata':
+                $limit = 2048;
+                break;
+            default:
+                $this->fail('Backend limit should be defined.');
+        }
+
+        // generate table definition with `$limit - 1` columns in limit on given backend
+        $data = [
+            'name' => 'tooManyColumns',
+            'primaryKeysNames' => [],
+            'columns' => [],
+        ];
+        for ($i = 1; $i <= ($limit - 1); $i++) {
+            $data['columns'][] = [
+                'name' => 'col' . $i,
+                'basetype' => 'BOOLEAN',
+                'definition' => [
+                    'type' => 'BYTEINT',
+                    'nullable' => true,
+                ],
+            ];
+        }
+        $tableId = $this->_client->createTableDefinition(
+            $this->getTestBucketId(),
+            $data,
+        );
+
+        // add another column over limit
+        try {
+            $this->_client->addTableColumn($tableId, 'col' . $limit, [
+                'type' => 'BYTEINT',
+                'nullable' => true,
+            ]);
+            $this->fail(sprintf('There were %s columns man. fail.', $limit));
         } catch (ClientException $e) {
             $this->assertEquals('storage.tables.validation.tooManyColumns', $e->getStringCode());
         }
