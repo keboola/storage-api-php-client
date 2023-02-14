@@ -223,7 +223,8 @@ class AlterTableTest extends StorageApiTestCase
             'columns' => [],
         ];
         // generate table definition with too many columns - over limit on every backend
-        for ($i = 1; $i <= 5000; $i++) {
+        // don't make that number ridiculously big. RequestObject won't make it...
+        for ($i = 1; $i <= 2100; $i++) {
             $data['columns'][] = [
                 'name' => 'col' . $i,
                 'basetype' => 'BOOLEAN',
@@ -234,7 +235,7 @@ class AlterTableTest extends StorageApiTestCase
                 $this->getTestBucketId(),
                 $data,
             );
-            $this->fail('There were 5000 columns which should fail.');
+            $this->fail('There were 2100 columns which should fail.');
         } catch (ClientException $e) {
             $this->assertEquals('storage.tables.definitionValidation.tooManyColumns', $e->getStringCode());
         }
