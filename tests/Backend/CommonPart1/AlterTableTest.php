@@ -204,7 +204,7 @@ class AlterTableTest extends StorageApiTestCase
                 new CsvFile($importFile),
                 []
             );
-            $this->fail('There were 5000 columns man. fail.');
+            $this->fail('There were 5000 columns which should fail.');
         } catch (ClientException $e) {
             $this->assertEquals('storage.tables.validation.tooManyColumns', $e->getStringCode());
         }
@@ -215,31 +215,28 @@ class AlterTableTest extends StorageApiTestCase
         $this->skipTestForBackend([
             self::BACKEND_EXASOL,
             self::BACKEND_BIGQUERY,
-        ], 'Other backends does have other limits');
+        ], 'Backend has no limit regarding number of columns');
 
-        try {
-            $data = [
-                'name' => 'tooManyColumns',
-                'primaryKeysNames' => [],
-                'columns' => [],
+        $data = [
+            'name' => 'tooManyColumns',
+            'primaryKeysNames' => [],
+            'columns' => [],
+        ];
+        // generate table definition with too many columns - over limit on every backend
+        for ($i = 1; $i <= 5000; $i++) {
+            $data['columns'][] = [
+                'name' => 'col' . $i,
+                'basetype' => 'BOOLEAN',
             ];
-            // generate table definition with too many columns - over limit on every backend
-            for ($i = 1; $i <= 5000; $i++) {
-                $data['columns'][] = [
-                    'name' => 'col' . $i,
-                    'definition' => [
-                        'type' => 'BYTEINT',
-                        'nullable' => true,
-                    ],
-                ];
-            }
+        }
+        try {
             $this->_client->createTableDefinition(
                 $this->getTestBucketId(),
                 $data,
             );
-            $this->fail('There were 5000 columns man. fail.');
+            $this->fail('There were 5000 columns which should fail.');
         } catch (ClientException $e) {
-            $this->assertEquals('storage.tables.validation.tooManyColumns', $e->getStringCode());
+            $this->assertEquals('storage.tables.definitionValidation.tooManyColumns', $e->getStringCode());
         }
     }
 
@@ -248,8 +245,9 @@ class AlterTableTest extends StorageApiTestCase
         $this->skipTestForBackend([
             self::BACKEND_EXASOL,
             self::BACKEND_BIGQUERY,
-        ], 'Other backends does have other limits');
+        ], 'Backend has no limit regarding number of columns');
 
+        $type = null;
         /** @see \Keboola\TableBackendUtils\Column\ColumnCollection::$limits */
         switch ($this->getDefaultBackend($this->_client)) {
             case 'snowflake':
@@ -257,6 +255,7 @@ class AlterTableTest extends StorageApiTestCase
                 break;
             case 'synapse':
                 $limit = 1024;
+                $type = 'BIT'; // Synapse doesn't support basetype in Add Column
                 break;
             case 'redshift':
                 $limit = 1600;
@@ -278,10 +277,6 @@ class AlterTableTest extends StorageApiTestCase
             $data['columns'][] = [
                 'name' => 'col' . $i,
                 'basetype' => 'BOOLEAN',
-                'definition' => [
-                    'type' => 'BYTEINT',
-                    'nullable' => true,
-                ],
             ];
         }
         $tableId = $this->_client->createTableDefinition(
@@ -291,11 +286,16 @@ class AlterTableTest extends StorageApiTestCase
 
         // add another column over limit
         try {
-            $this->_client->addTableColumn($tableId, 'col' . $limit, [
-                'type' => 'BYTEINT',
-                'nullable' => true,
-            ]);
-            $this->fail(sprintf('There were %s columns man. fail.', $limit));
+            if ($type === null) {
+                $this->_client->addTableColumn($tableId, 'col' . $limit, null, 'BOOLEAN');
+            } else {
+                // Synapse doesn't support basetype in Add Column
+                $this->_client->addTableColumn($tableId, 'col' . $limit, [
+                    'type' => $type,
+                    'nullable' => true,
+                ]);
+            }
+            $this->fail(sprintf('There were %s columns which should fail.', $limit));
         } catch (ClientException $e) {
             $this->assertEquals('storage.tables.validation.tooManyColumns', $e->getStringCode());
         }
