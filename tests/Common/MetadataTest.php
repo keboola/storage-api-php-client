@@ -362,9 +362,10 @@ class MetadataTest extends StorageApiTestCase
             }
         }
     }
+
     public function testColumnMetadataWithColumnsWithIntegers(): void
     {
-        $this->_client->createTable($this->getTestBucketId(), 'tableWithIntColumns', new CsvFile(__DIR__ . '/../_data/numbers.two-cols.csv'));
+        $this->_client->createTableAsync($this->getTestBucketId(), 'tableWithIntColumns', new CsvFile(__DIR__ . '/../_data/numbers.two-cols.csv'));
 
         $tableId = $this->getMetadataTestTableId('tableWithIntColumns');
         $column1 = '0';
@@ -405,7 +406,7 @@ class MetadataTest extends StorageApiTestCase
 
     public function testTableMetadataWithColumnsWithIntegers(): void
     {
-        $this->_client->createTable($this->getTestBucketId(), 'tableWithIntColumns', new CsvFile(__DIR__ . '/../_data/numbers.two-cols.csv'));
+        $this->_client->createTableAsync($this->getTestBucketId(), 'tableWithIntColumns', new CsvFile(__DIR__ . '/../_data/numbers.two-cols.csv'));
 
         $tableId = $this->getMetadataTestTableId('tableWithIntColumns');
         $column1 = '0';
