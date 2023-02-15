@@ -237,6 +237,67 @@ class AlterTableTest extends StorageApiTestCase
             );
             $this->fail('There were 2100 columns which should fail.');
         } catch (ClientException $e) {
+            $this->assertEquals('storage.tables.definitionValidation.tooManyColumns', $e->getStringCode());
+        }
+    }
+
+    public function testTooManyColumnsCountAddAnotherColumnOverLimitFailed(): void
+    {
+        $this->skipTestForBackend([
+            self::BACKEND_EXASOL,
+            self::BACKEND_BIGQUERY,
+        ], 'Backend has no limit regarding number of columns');
+
+        $type = null;
+        /** @see \Keboola\TableBackendUtils\Column\ColumnCollection::$limits */
+        switch ($this->getDefaultBackend($this->_client)) {
+            case 'snowflake':
+                $limit = 1201;
+                break;
+            case 'synapse':
+                $limit = 1024;
+                $type = 'BIT'; // Synapse doesn't support basetype in Add Column
+                break;
+            case 'redshift':
+                $limit = 1600;
+                break;
+            case 'teradata':
+                $limit = 2048;
+                break;
+            default:
+                $this->fail('Backend limit should be defined.');
+        }
+
+        // generate table definition with `$limit - 1` columns in limit on given backend
+        $data = [
+            'name' => 'tooManyColumns',
+            'primaryKeysNames' => [],
+            'columns' => [],
+        ];
+        for ($i = 1; $i <= ($limit - 1); $i++) {
+            $data['columns'][] = [
+                'name' => 'col' . $i,
+                'basetype' => 'BOOLEAN',
+            ];
+        }
+        $tableId = $this->_client->createTableDefinition(
+            $this->getTestBucketId(),
+            $data,
+        );
+
+        // add another column over limit
+        try {
+            if ($type === null) {
+                $this->_client->addTableColumn($tableId, 'col' . $limit, null, 'BOOLEAN');
+            } else {
+                // Synapse doesn't support basetype in Add Column
+                $this->_client->addTableColumn($tableId, 'col' . $limit, [
+                    'type' => $type,
+                    'nullable' => true,
+                ]);
+            }
+            $this->fail(sprintf('There were %s columns which should fail.', $limit));
+        } catch (ClientException $e) {
             $this->assertEquals('storage.tables.validation.tooManyColumns', $e->getStringCode());
         }
     }
