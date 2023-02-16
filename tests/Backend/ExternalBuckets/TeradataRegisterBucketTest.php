@@ -84,6 +84,7 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
 
         //create table in the WS
         $this->initEvents($this->_client);
+        /** @var TeradataWorkspaceBackend $db */
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $db->createTable('TEST', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'VARCHAR']);
@@ -190,6 +191,8 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
         );
 
         $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
+        $db->dropTableIfExists('TEST');
+        $ws->deleteWorkspace($workspace['id']);
     }
 
     public function testRegisterExternalDB(): void
@@ -245,6 +248,7 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
         $ws = new Workspaces($this->_client);
 
         $workspace = $ws->createWorkspace();
+        /** @var TeradataWorkspaceBackend $db */
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         assert($db instanceof TeradataWorkspaceBackend);
@@ -280,5 +284,6 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
                 $e->getMessage(),
             );
         }
+        $ws->deleteWorkspace($workspace['id']);
     }
 }
