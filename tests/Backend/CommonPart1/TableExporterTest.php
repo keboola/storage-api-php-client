@@ -98,11 +98,6 @@ class TableExporterTest extends StorageApiTestCase
 
     public function testLimitParameter(): void
     {
-        $this->skipTestForBackend([
-            self::BACKEND_TERADATA,
-            self::BACKEND_BIGQUERY,
-        ], 'Not all preview params are supported');
-
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', $importFile);
         $this->_client->writeTableAsync($tableId, $importFile);
