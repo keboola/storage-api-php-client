@@ -363,6 +363,134 @@ class MetadataTest extends StorageApiTestCase
         }
     }
 
+    public function testColumnMetadataWithColumnsWithIntegers(): void
+    {
+        $this->_client->createTableAsync($this->getTestBucketId(), 'tableWithIntColumns', new CsvFile(__DIR__ . '/../_data/numbers.two-cols.csv'));
+
+        $tableId = $this->getMetadataTestTableId('tableWithIntColumns');
+        $column1 = '0';
+        $columnId = $this->getMetadataTestColumnId('tableWithIntColumns', $column1);
+
+        $metadataApi = new Metadata($this->_client);
+
+        $mdForTable = [
+            'key' => self::TEST_METADATA_KEY_1,
+            'value' => 'tableValue',
+        ];
+
+        $mdForColumn = [
+            'key' => self::TEST_METADATA_KEY_2,
+            'value' => 'columnValue',
+        ];
+
+        $provider = self::TEST_PROVIDER;
+
+        $metadataApi->postTableMetadata($tableId, $provider, [$mdForTable]);
+        $tableDetail = $this->_client->getTable($tableId);
+
+        $this->assertNotEmpty($tableDetail['metadata']);
+        $this->assertCount(1, $tableDetail['metadata']);
+        $this->assertCount(0, $tableDetail['columnMetadata']);
+
+        $metadataApi->postColumnMetadata($columnId, $provider, [$mdForColumn]);
+        $tableDetail = $this->_client->getTable($tableId);
+
+        $this->assertNotEmpty($tableDetail['metadata']);
+        $this->assertCount(1, $tableDetail['metadata']);
+
+        $this->assertArrayEqualsExceptKeys($mdForTable, $tableDetail['metadata'][0], ['id', 'provider', 'timestamp']);
+
+        $this->assertCount(1, $tableDetail['columnMetadata']);
+        $this->assertArrayEqualsExceptKeys($mdForColumn, $tableDetail['columnMetadata'][0][0], ['id', 'provider', 'timestamp']);
+    }
+
+    public function testTableMetadataWithColumnsWithIntegers(): void
+    {
+        $this->_client->createTableAsync($this->getTestBucketId(), 'tableWithIntColumns', new CsvFile(__DIR__ . '/../_data/numbers.two-cols.csv'));
+
+        $tableId = $this->getMetadataTestTableId('tableWithIntColumns');
+        $column1 = '0';
+        $column2 = '45';
+        $metadataApi = new Metadata($this->_client);
+
+        $md = [
+            'key' => self::TEST_METADATA_KEY_1,
+            'value' => 'testvalA',
+        ];
+
+        $md2 = [
+            'key' => self::TEST_METADATA_KEY_2,
+            'value' => 'testvalB',
+        ];
+
+        $testMetadata = [
+            $md,
+            $md2,
+        ];
+        $testColumnsMetadata = [
+            $column1 => [
+                $md,
+                $md2,
+            ],
+            $column2 => [
+                [
+                    'key' => self::TEST_METADATA_KEY_1,
+                    'value' => 'testvalA',
+                    'columnName' => '45',
+                ],
+            ],
+        ];
+
+        $provider = self::TEST_PROVIDER;
+
+        // post metadata
+        $options = new TableMetadataUpdateOptions($tableId, $provider, $testMetadata, $testColumnsMetadata);
+        /** @var array $metadatas */
+        $metadatas = $metadataApi->postTableMetadataWithColumns($options);
+
+        $this->assertEquals(2, count($metadatas));
+        $this->assertArrayHasKey('metadata', $metadatas);
+        $this->assertArrayHasKey('columnsMetadata', $metadatas);
+        // check table metadata
+        $metadata = $metadatas['metadata'];
+        $this->assertEquals(2, count($metadata));
+        $this->assertArrayHasKey('key', $metadata[0]);
+        $this->assertArrayHasKey('value', $metadata[0]);
+        $this->assertArrayHasKey('provider', $metadata[0]);
+        $this->assertArrayHasKey('timestamp', $metadata[0]);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
+        $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
+        // check columns metadata
+        $columns = $metadatas['columnsMetadata'];
+        $this->assertEquals(2, count($columns));
+        $this->assertArrayHasKey($column1, $columns);
+        $this->assertArrayHasKey($column2, $columns);
+        // check column 1
+        $metadata = $metadatas['columnsMetadata'][$column1];
+        $this->assertEquals(2, count($metadata));
+        $this->assertArrayHasKey('key', $metadata[0]);
+        $this->assertArrayHasKey('value', $metadata[0]);
+        $this->assertArrayHasKey('provider', $metadata[0]);
+        $this->assertArrayHasKey('timestamp', $metadata[0]);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
+        $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
+        $this->assertArrayHasKey('key', $metadata[1]);
+        $this->assertArrayHasKey('value', $metadata[1]);
+        $this->assertArrayHasKey('provider', $metadata[1]);
+        $this->assertArrayHasKey('timestamp', $metadata[1]);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadata[1]['timestamp']);
+        $this->assertEquals(self::TEST_PROVIDER, $metadata[1]['provider']);
+        // check column 2
+        $metadata = $metadatas['columnsMetadata'][$column2];
+        $this->assertEquals(1, count($metadata));
+        $this->assertArrayHasKey('key', $metadata[0]);
+        $this->assertArrayHasKey('value', $metadata[0]);
+        $this->assertArrayHasKey('provider', $metadata[0]);
+        $this->assertArrayHasKey('timestamp', $metadata[0]);
+        $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadata[0]['timestamp']);
+        $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
+    }
+
     public function testTableMetadataForTokenWithReadPrivilege(): void
     {
         $testMetadataValue = 'testval';
