@@ -3869,8 +3869,11 @@ When turning `aliasColumnsAutoSync` back on, the columns will be immediately syn
     + bucket_id (required) - Id of a bucket in which the alias table will be created.
 
 + Attributes
-    + name (required) - Name of the new table alias
     + sourceTable (required) - Id of the source table
+    + name (optional) - Name of the new table alias; If not set, will use source table name.
+    + aliasColumns[] (optional) - List of alias columns; this disables column synchronization with the source table.
+    + aliasColumnsAutosync (optional, boolean) - **DEPRECATED** (It is set automatically depends on `aliasColumns` is filled or not.) Disables column synchronization with the source table.
+        Default: false
     + aliasFilter[column] (optional) - Name of the column for filtering
     + aliasFilter[operator] (optional, enum[string]) - Comparison operator
         + Members
@@ -3878,9 +3881,6 @@ When turning `aliasColumnsAutoSync` back on, the columns will be immediately syn
             + ne - Not equal to
         + Default: eq
     + aliasFilter[values][] (optional) - Values for the filter
-    + aliasColumnsAutosync (optional, boolean) - Disables column synchronization with the source table.
-        Default: false
-    + aliasColumns[] (optional) - List of alias columns; this disables column synchronization with the source table.
 
 + Request (application/x-www-form-urlencoded)
     + Headers
