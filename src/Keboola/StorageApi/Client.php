@@ -818,8 +818,8 @@ class Client
     }
 
     /**
-     * @param $bucketId
-     * @param $sourceTableId
+     * @param string $bucketId
+     * @param string $sourceTableId
      * @param string|null $name
      * @param array $options
      *  - sourceTable
@@ -843,9 +843,8 @@ class Client
             $filteredOptions['aliasColumns'] = (array) $options['aliasColumns'];
         }
 
-        // TODO use apiPostJson after endpoint is ready
         /** @var array{id:string} $result */
-        $result = $this->apiPost('buckets/' . $bucketId . '/table-aliases', $filteredOptions);
+        $result = $this->apiPostJson('buckets/' . $bucketId . '/table-aliases', $filteredOptions);
         $this->log("Table alias {$result["id"]}  created", ['options' => $filteredOptions, 'result' => $result]);
         return $result['id'];
     }
