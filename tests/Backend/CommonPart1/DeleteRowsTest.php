@@ -24,8 +24,6 @@ class DeleteRowsTest extends StorageApiTestCase
 
     /**
      * @dataProvider tableDeleteRowsByFiltersData
-     * @param $filterParams
-     * @param $expectedTableContent
      */
     public function testTableDeleteRowsByFilter(array $filterParams, array $expectedTableContent): void
     {
@@ -45,8 +43,6 @@ class DeleteRowsTest extends StorageApiTestCase
 
     /**
      * @dataProvider tableDeleteRowsByFiltersData
-     * @param $filterParams
-     * @param $expectedTableContent
      */
     public function testTableDeleteRowsByFilterAsQuery(array $filterParams, array $expectedTableContent): void
     {
