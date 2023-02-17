@@ -51,7 +51,7 @@ class TablesDefinitionCommonTest extends StorageApiTestCase
             );
             $this->fail('There were 2100 columns which should fail.');
         } catch (ClientException $e) {
-            $this->assertEquals('storage.tables.validation.tooManyColumns', $e->getStringCode());
+            $this->assertEquals('storage.tables.definitionValidation.tooManyColumns', $e->getStringCode());
         }
     }
 }
