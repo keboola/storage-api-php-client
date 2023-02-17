@@ -188,7 +188,7 @@ class AlterTableTest extends StorageApiTestCase
     /**
      * Tests: https://github.com/keboola/connection/issues/218
      */
-    public function testTooManyColumns(): void
+    public function testTooManyColumnsOrRowSizeFailed(): void
     {
         $importFile = __DIR__ . '/../../_data/many-more-columns.csv';
 
@@ -204,7 +204,7 @@ class AlterTableTest extends StorageApiTestCase
                 new CsvFile($importFile),
                 []
             );
-            $this->fail('There were 5000 columns man. fail.');
+            $this->fail('There were 5000 columns which should fail.');
         } catch (ClientException $e) {
             $this->assertEquals('storage.tables.validation.tooManyColumns', $e->getStringCode());
         }
