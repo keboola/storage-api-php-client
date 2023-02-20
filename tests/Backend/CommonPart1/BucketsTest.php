@@ -202,10 +202,6 @@ class BucketsTest extends StorageApiTestCase
     {
         $tokenData = $this->_client->verifyToken();
 
-        if ($tokenData['owner']['defaultBackend'] === self::BACKEND_TERADATA) {
-            $this->markTestSkipped('Allow when create table for TD is implemented.');
-        }
-
         $bucketData = [
             'name' => 'test',
             'displayName' => 'test-display-name',

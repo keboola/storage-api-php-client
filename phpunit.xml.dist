@@ -286,8 +286,7 @@
 		<directory>tests/Backend/CommonPart2</directory>
 
 		<!--BUCKET-->
-		<file>tests/Backend/Export/ExportSimpleTest.php</file>
-		<file>tests/Backend/Export/SnapshotSimpleTest.php</file>
+		<file>tests/Backend/Export/ExportParamsTest.php</file>
 
 		<directory>tests/Backend/Teradata</directory>
 		<!--WORKSPACE-->
@@ -314,8 +313,7 @@
 		<exclude>tests/Backend/CommonPart2/SimpleAliasTest.php</exclude>
 
 		<directory>tests/Backend/Bigquery</directory>
-		<file>tests/Backend/Export/ExportSimpleTest.php</file>
-		<file>tests/Backend/Export/SnapshotSimpleTest.php</file>
+		<file>tests/Backend/Export/ExportParamsTest.php</file>
 		<!--		Workspaces-->
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/BigqueryWorkspacesUnloadTest.php</file>
