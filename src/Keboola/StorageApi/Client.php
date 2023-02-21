@@ -856,9 +856,8 @@ class Client
      */
     public function createTableSnapshot($tableId, $snapshotDescription = null)
     {
-        // TODO use apiPostJson after endpoint is ready
         /** @var array{id: int} $result */
-        $result = $this->apiPost("tables/{$tableId}/snapshots", [
+        $result = $this->apiPostJson("tables/{$tableId}/snapshots", [
             'description' => $snapshotDescription,
         ]);
         $this->log("Snapthos {$result['id']} of table {$tableId} created.");
