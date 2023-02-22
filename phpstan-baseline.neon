@@ -2566,26 +2566,6 @@ parameters:
 			path: tests/Backend/CommonPart2/MetricsTest.php
 
 		-
-			message: "#^Cannot access offset 'aliasFilter' on mixed\\.$#"
-			count: 3
-			path: tests/Backend/CommonPart2/SimpleAliasTest.php
-
-		-
-			message: "#^Cannot access offset 'column' on mixed\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SimpleAliasTest.php
-
-		-
-			message: "#^Cannot access offset 'operator' on mixed\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SimpleAliasTest.php
-
-		-
-			message: "#^Cannot access offset 'values' on mixed\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SimpleAliasTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\SimpleAliasTest\\:\\:assertAliasMetadataAndExport\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart2/SimpleAliasTest.php
@@ -3744,6 +3724,16 @@ parameters:
 			message: "#^Parameter \\#1 \\$filename of function file_get_contents expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/Backend/Synapse/WhereFilterTest.php
+
+		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Teradata\\\\OrderByTest\\:\\:getExportedTable\\(\\) is unused\\.$#"
+			count: 1
+			path: tests/Backend/Teradata/OrderByTest.php
+
+		-
+			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Teradata\\\\TableDefinitionOperationsTest\\:\\:createTableDefinition\\(\\) is unused\\.$#"
+			count: 1
+			path: tests/Backend/Teradata/TableDefinitionOperationsTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\ExasolWorkspaceBackend\\:\\:__construct\\(\\) has parameter \\$workspace with no type specified\\.$#"
@@ -4936,6 +4926,11 @@ parameters:
 			path: tests/Common/ComponentsTest.php
 
 		-
+			message: "#^Method Keboola\\\\Test\\\\Common\\\\ComponentsTest\\:\\:dumpTable\\(\\) is unused\\.$#"
+			count: 1
+			path: tests/Common/ComponentsTest.php
+
+		-
 			message: "#^Parameter \\#2 \\$return of function print_r expects bool, int given\\.$#"
 			count: 1
 			path: tests/Common/ComponentsTest.php
@@ -5152,21 +5147,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchComponentsConfigurationsTest\\:\\:filterIdAndTimestampFromMetadataArray\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/SearchComponentsConfigurationsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchComponentsConfigurationsTest\\:\\:sortResponse\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/SearchComponentsConfigurationsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchComponentsConfigurationsTest\\:\\:sortResponse\\(\\) has parameter \\$expected with no type specified\\.$#"
-			count: 1
-			path: tests/Common/SearchComponentsConfigurationsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchComponentsConfigurationsTest\\:\\:sortResponse\\(\\) has parameter \\$sortKey with no type specified\\.$#"
 			count: 1
 			path: tests/Common/SearchComponentsConfigurationsTest.php
 

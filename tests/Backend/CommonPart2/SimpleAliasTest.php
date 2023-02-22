@@ -223,6 +223,8 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertNull($aliasTable['dataSizeBytes'], 'Filtered alias should have unknown size');
         $this->assertNull($aliasTable['rowsCount'], 'Filtered alias should have unknown rows count');
 
+        // update filter
+        /** @var array $aliasTable */
         $aliasTable = $this->_client->setAliasTableFilter($aliasTableId, [
             'values' => ['VAN'],
         ]);
@@ -231,6 +233,14 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertEquals(['VAN'], $aliasTable['aliasFilter']['values']);
         $this->assertEquals('eq', $aliasTable['aliasFilter']['operator']);
 
+        // update filter without params -> nothing changed
+        $aliasTable = $this->_client->setAliasTableFilter($aliasTableId, []);
+
+        $this->assertEquals('city', $aliasTable['aliasFilter']['column']);
+        $this->assertEquals(['VAN'], $aliasTable['aliasFilter']['values']);
+        $this->assertEquals('eq', $aliasTable['aliasFilter']['operator']);
+
+        // remove filter
         $this->_client->removeAliasTableFilter($aliasTableId);
         $aliasTable = $this->_client->getTable($aliasTableId);
 

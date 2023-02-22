@@ -907,12 +907,11 @@ class Client
     /**
      * @param $tableId
      * @param array $filter
-     * @return mixed|string
+     * @return array
      */
     public function setAliasTableFilter($tableId, array $filter)
     {
-        // TODO use apiPostJson after endpoint is ready
-        $result = $this->apiPost("tables/$tableId/alias-filter", $filter);
+        $result = $this->apiPostJson("tables/$tableId/alias-filter", $filter);
         $this->log("Table $tableId  filter set", [
             'filter' => $filter,
             'result' => $result,
