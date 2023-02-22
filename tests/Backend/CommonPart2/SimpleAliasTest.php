@@ -224,6 +224,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertNull($aliasTable['rowsCount'], 'Filtered alias should have unknown rows count');
 
         // update filter
+        /** @var array $aliasTable */
         $aliasTable = $this->_client->setAliasTableFilter($aliasTableId, [
             'values' => ['VAN'],
         ]);

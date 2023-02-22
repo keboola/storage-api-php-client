@@ -2566,26 +2566,6 @@ parameters:
 			path: tests/Backend/CommonPart2/MetricsTest.php
 
 		-
-			message: "#^Cannot access offset 'aliasFilter' on mixed\\.$#"
-			count: 3
-			path: tests/Backend/CommonPart2/SimpleAliasTest.php
-
-		-
-			message: "#^Cannot access offset 'column' on mixed\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SimpleAliasTest.php
-
-		-
-			message: "#^Cannot access offset 'operator' on mixed\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SimpleAliasTest.php
-
-		-
-			message: "#^Cannot access offset 'values' on mixed\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart2/SimpleAliasTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\SimpleAliasTest\\:\\:assertAliasMetadataAndExport\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart2/SimpleAliasTest.php
