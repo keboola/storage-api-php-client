@@ -130,7 +130,10 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
             new CsvFile($importFile)
         );
 
-        $branchWorkspaces->loadWorkspaceData($branchWorkspace['id'], [
+        /** @var int $branchWorkspaceId */
+        $branchWorkspaceId = $branchWorkspace['id'];
+
+        $branchWorkspaces->loadWorkspaceData($branchWorkspaceId, [
             'input' => [
                 [
                     'source' => $tableId,
@@ -139,7 +142,7 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
             ],
         ]);
 
-        $branchWorkspaces->cloneIntoWorkspace($branchWorkspace['id'], [
+        $branchWorkspaces->cloneIntoWorkspace($branchWorkspaceId, [
             'preserve' => true,
             'input' => [
                 [
