@@ -189,7 +189,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
         ];
     }
 
-    public function sharingBackendDataWithAsync()
+    public function sharingBackendDataWithAsync(): \Generator
     {
         foreach ([true, false] as $async) {
             yield sprintf('snowflake backend async=%b', $async) => [
