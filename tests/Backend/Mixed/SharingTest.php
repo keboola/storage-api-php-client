@@ -932,7 +932,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
-    public function testLinkedBucket($backend, $isAsync): void
+    public function testLinkedBucket(string $backend, bool $isAsync): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
