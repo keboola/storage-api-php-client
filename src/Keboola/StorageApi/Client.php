@@ -907,7 +907,7 @@ class Client
     /**
      * @param $tableId
      * @param array $filter
-     * @return mixed|string
+     * @return array
      */
     public function setAliasTableFilter($tableId, array $filter)
     {
