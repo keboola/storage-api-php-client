@@ -368,17 +368,6 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
         self::assertArrayHasKey('timestamp', $listConfigurationMetadata['metadata'][0]);
     }
 
-    private function sortResponse($expected, $sortKey)
-    {
-        $comparsion = function ($attrLeft, $attrRight) use ($sortKey) {
-            if ($attrLeft[$sortKey] == $attrRight[$sortKey]) {
-                return 0;
-            }
-            return $attrLeft[$sortKey] < $attrRight[$sortKey] ? -1 : 1;
-        };
-        return usort($expected, $comparsion);
-    }
-
     private function assertSearchResponseEquals($expected, $actual)
     {
         $filteredListConfigurationMetadata = $this->filterIdAndTimestampFromMetadataArray($actual);

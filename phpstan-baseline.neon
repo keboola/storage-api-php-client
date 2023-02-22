@@ -5156,21 +5156,6 @@ parameters:
 			path: tests/Common/SearchComponentsConfigurationsTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchComponentsConfigurationsTest\\:\\:sortResponse\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/SearchComponentsConfigurationsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchComponentsConfigurationsTest\\:\\:sortResponse\\(\\) has parameter \\$expected with no type specified\\.$#"
-			count: 1
-			path: tests/Common/SearchComponentsConfigurationsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchComponentsConfigurationsTest\\:\\:sortResponse\\(\\) has parameter \\$sortKey with no type specified\\.$#"
-			count: 1
-			path: tests/Common/SearchComponentsConfigurationsTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\SearchTablesTest\\:\\:_initTable\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Common/SearchTablesTest.php
