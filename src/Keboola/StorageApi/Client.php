@@ -1550,8 +1550,7 @@ class Client
     {
         $filteredOptions = $this->deleteTableRowsPrepareOptions($options);
 
-        // TODO use apiDeleteParamsJson after endpoint is ready
-        return $this->apiDeleteParams("tables/{$tableId}/rows", $filteredOptions);
+        return $this->apiDeleteParamsJson("tables/{$tableId}/rows", $filteredOptions);
     }
 
     /**
