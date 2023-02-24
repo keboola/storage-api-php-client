@@ -573,8 +573,7 @@ class Client
             $url .= '?' . http_build_query(['async' => $async]);
         }
 
-        // TODO use apiPutJson after endpoint is ready
-        $result = $this->apiPut($url, $data);
+        $result = $this->apiPutJson($url, $data);
 
         $this->log("Bucket {$bucketId} sharing changed to {$sharing}", ['result' => $result]);
 
