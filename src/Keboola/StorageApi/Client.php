@@ -318,7 +318,7 @@ class Client
      */
     public function updateBucket(BucketUpdateOptions $options)
     {
-        return $this->apiPut('buckets/' . $options->getBucketId(), $options->toParamsArray());
+        return $this->apiPutJson('buckets/' . $options->getBucketId(), $options->toParamsArray());
     }
 
     /**
@@ -354,7 +354,7 @@ class Client
         }
 
         /** @var array{id: string} $result */
-        $result = $this->apiPost('buckets', $options);
+        $result = $this->apiPostJson('buckets', $options);
 
         $this->log("Bucket {$result["id"]} created", ['options' => $options, 'result' => $result]);
 
@@ -401,7 +401,7 @@ class Client
     {
         $url = 'buckets/' . $bucketId . '/refresh';
 
-        return $this->apiPut($url);
+        return $this->apiPutJson($url);
     }
 
     /**
@@ -433,7 +433,7 @@ class Client
         }
 
         /** @var array{id: string} $result */
-        $result = $this->apiPost($url, $options, $async);
+        $result = $this->apiPostJson($url, $options, $async);
 
         $this->log("Shared bucket {$result["id"]} linked to the project", ['options' => $options, 'result' => $result]);
 
@@ -482,6 +482,7 @@ class Client
 
         $url .= '?' . http_build_query($options);
 
+        // TODO use apiPostJson after endpoint is ready
         $result = $this->apiPost($url, [], $isAsync);
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
@@ -497,7 +498,7 @@ class Client
             $url .= '?' . http_build_query(['async' => $async]);
         }
 
-        $result = $this->apiPost($url, [], $async);
+        $result = $this->apiPostJson($url, [], $async);
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
 
@@ -512,7 +513,7 @@ class Client
             $url .= '?' . http_build_query(['async' => $async]);
         }
 
-        $result = $this->apiPost($url, [], $async);
+        $result = $this->apiPostJson($url, [], $async);
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
 
@@ -532,7 +533,7 @@ class Client
         }
 
         $url .= '?' . http_build_query($data);
-        $result = $this->apiPost($url, [], $async);
+        $result = $this->apiPostJson($url, [], $async);
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
 
@@ -553,7 +554,7 @@ class Client
 
         $url .= '?' . http_build_query($data);
 
-        $result = $this->apiPost($url, [], $async);
+        $result = $this->apiPostJson($url, [], $async);
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
 
@@ -572,6 +573,7 @@ class Client
             $url .= '?' . http_build_query(['async' => $async]);
         }
 
+        // TODO use apiPutJson after endpoint is ready
         $result = $this->apiPut($url, $data);
 
         $this->log("Bucket {$bucketId} sharing changed to {$sharing}", ['result' => $result]);
