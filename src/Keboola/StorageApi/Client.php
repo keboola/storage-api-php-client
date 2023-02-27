@@ -546,7 +546,7 @@ class Client
      * @param string $bucketId
      * @param array $targetProjectIds
      * @param bool $async
-     * @retur array
+     * @return array
      */
     public function shareBucketToProjects($bucketId, $targetProjectIds, $async = false)
     {
