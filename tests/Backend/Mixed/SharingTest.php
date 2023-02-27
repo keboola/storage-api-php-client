@@ -541,7 +541,7 @@ class SharingTest extends StorageApiSharingTestCase
         $bucket = $this->shareRoleClient->shareOrganizationProjectBucket($bucketId, $isAsync);
         $this->assertSame('organization-project', $bucket['sharing']);
 
-        $bucket = $this->shareRoleClient->shareBucketToUsers($bucketId, [
+        $bucket = $this->shareRoleClient->shareBucketToUsersAsQuery($bucketId, [
             $targetUser['admin']['id'],
         ], $isAsync);
         $this->assertSame('specific-users', $bucket['sharing']);
