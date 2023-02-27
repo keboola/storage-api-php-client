@@ -524,7 +524,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @dataProvider syncAsyncProvider
      * @throws ClientException
      */
-    public function testAdminWithShareRoleSharesBucketAsQuery($isAsync): void
+    public function testAdminWithShareRoleSharesBucketAsQuery(bool $isAsync): void
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
