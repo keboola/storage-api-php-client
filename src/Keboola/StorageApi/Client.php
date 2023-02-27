@@ -520,20 +520,71 @@ class Client
         return $result;
     }
 
-    public function shareBucketToProjects($bucketId, $targetProjectIds, $async = false)
+    /**
+     * @param array $targetProjectIds
+     * @param bool $async
+     * @return array{0: array, 1: array}
+     */
+    private function shareBucketToProjectsPrepareOptions($targetProjectIds, $async): array
     {
-        $url = 'buckets/' . $bucketId . '/share-to-projects';
+        $query = [];
+        if ($async) {
+            $query['async'] = $async;
+        }
 
         $data = [
             'targetProjectIds' => $targetProjectIds,
         ];
 
-        if ($async) {
-            $data = array_merge($data, ['async' => $async]);
+        return [
+            $query,
+            $data,
+        ];
+    }
+
+    /**
+     * @param string $bucketId
+     * @param array $targetProjectIds
+     * @param bool $async
+     * @retur array
+     */
+    public function shareBucketToProjects($bucketId, $targetProjectIds, $async = false)
+    {
+        [$query, $data] = $this->shareBucketToProjectsPrepareOptions($targetProjectIds, $async);
+
+        $url = sprintf('buckets/%s/share-to-projects', $bucketId);
+        if ($query) {
+            $url .= '?' . http_build_query($query);
         }
 
-        $url .= '?' . http_build_query($data);
-        $result = $this->apiPostJson($url, [], $async);
+        $result = $this->apiPostJson($url, $data, $async);
+        assert(is_array($result));
+
+        $this->log("Bucket {$bucketId} shared", ['result' => $result]);
+
+        return $result;
+    }
+
+    /**
+     * @deprecated use self::shareBucketToProjects instead
+     * @param string $bucketId
+     * @param array $targetProjectIds
+     * @param bool $async
+     * @return array
+     */
+    public function shareBucketToProjectsAsQuery($bucketId, $targetProjectIds, $async = false)
+    {
+        [$query, $data] = $this->shareBucketToProjectsPrepareOptions($targetProjectIds, $async);
+
+        $query = array_merge($query, $data);
+
+        $url = sprintf('buckets/%s/share-to-projects', $bucketId);
+        if ($query) {
+            $url .= '?' . http_build_query($query);
+        }
+
+        $result = $this->apiPost($url, [], $async);
+        assert(is_array($result));
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
 

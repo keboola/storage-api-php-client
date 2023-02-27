@@ -521,6 +521,44 @@ class SharingTest extends StorageApiSharingTestCase
     }
 
     /**
+     * @dataProvider syncAsyncProvider
+     * @throws ClientException
+     */
+    public function testAdminWithShareRoleSharesBucketAsQuery($isAsync): void
+    {
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketId = reset($this->_bucketIds);
+
+        $tokenData = $this->shareRoleClient->verifyToken();
+        $this->assertSame('share', $tokenData['admin']['role']);
+
+        $targetUser = $this->clientAdmin2InSameOrg->verifyToken();
+
+        /** @var array $bucket */
+        $bucket = $this->shareRoleClient->shareBucket($bucketId, ['async' => $isAsync]);
+        $this->assertSame('organization', $bucket['sharing']);
+
+        $bucket = $this->shareRoleClient->shareOrganizationProjectBucket($bucketId, $isAsync);
+        $this->assertSame('organization-project', $bucket['sharing']);
+
+        $bucket = $this->shareRoleClient->shareBucketToUsers($bucketId, [
+            $targetUser['admin']['id'],
+        ], $isAsync);
+        $this->assertSame('specific-users', $bucket['sharing']);
+
+        $bucket = $this->shareRoleClient->shareBucketToProjectsAsQuery($bucketId, [
+            $targetUser['owner']['id'],
+        ], $isAsync);
+        $this->assertSame('specific-projects', $bucket['sharing']);
+
+        $bucket = $this->shareRoleClient->shareOrganizationBucket($bucketId);
+        $this->assertSame('organization', $bucket['sharing']);
+
+        $this->shareRoleClient->unshareBucket($bucketId, $isAsync);
+        $this->assertFalse($this->shareRoleClient->isSharedBucket($bucketId));
+    }
+
+    /**
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
      */
