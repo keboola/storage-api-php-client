@@ -114,6 +114,7 @@ class SharingTest extends StorageApiSharingTestCase
         ]);
 
         $this->assertArrayHasKey('displayName', $response);
+        $this->assertEquals('organization-project', $response['sharing']);
 
         $token = $this->tokensInLinkingProject->createToken($this->createTestTokenOptions(true));
 
