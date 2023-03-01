@@ -41,11 +41,11 @@ class SharingTest extends StorageApiSharingTestCase
         switch ($shareMethod) {
             case 'shareBucketToProjects':
                 $targetProjectId = $this->_client2->verifyToken()['owner']['id'];
-                $this->_client->shareBucketToProjects($bucketId, [$targetProjectId], $async);
+                $this->_client->shareBucketToProjects($bucketId, [$targetProjectId], $async ?? false);
                 break;
             case 'shareBucketToUsers':
                 $targetUser = $this->_client2->verifyToken()['admin'];
-                $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']], $async);
+                $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']], $async ?? false);
                 break;
             default:
                 // deprecated method shareBucket use as parameter array of options
