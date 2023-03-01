@@ -112,7 +112,7 @@ parameters:
 
 		-
 			message: "#^Cannot access offset 'id' on mixed\\.$#"
-			count: 2
+			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
 		-
@@ -381,11 +381,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:exportTableAsync\\(\\) should return array but returns mixed\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:forceUnlinkBucket\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -592,11 +587,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:queueTableExport\\(\\) has parameter \\$tableId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:queueTableExport\\(\\) should return int but returns mixed\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
