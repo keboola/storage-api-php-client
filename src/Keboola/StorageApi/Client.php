@@ -1495,7 +1495,6 @@ class Client
             'limit',
             'changedSince',
             'changedUntil',
-            'escape',
             'format',
             'whereColumn',
             'whereOperator',
