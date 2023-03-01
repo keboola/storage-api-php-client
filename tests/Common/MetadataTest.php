@@ -931,7 +931,7 @@ class MetadataTest extends StorageApiTestCase
             $this->fail('Should throw invalid key exception');
         } catch (ClientException $e) {
             $this->assertEquals('storage.metadata.invalidKey', $e->getStringCode());
-            $this->assertEquals("Invalid Metadata Key (metadata[0][key])", $e->getMessage());
+            $this->assertEquals('Invalid Metadata Key (metadata[0][key])', $e->getMessage());
         }
 
         $md = [
