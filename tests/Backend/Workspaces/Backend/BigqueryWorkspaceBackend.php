@@ -3,6 +3,7 @@
 namespace Keboola\Test\Backend\Workspaces\Backend;
 
 use Google\Cloud\BigQuery\BigQueryClient;
+use GuzzleHttp\Client;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\StorageApi\Exception;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
@@ -23,8 +24,11 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
      */
     public function __construct(array $workspace)
     {
+        $handler = new BigQueryClientHandler(new Client());
+
         $bqClient = new BigQueryClient([
             'keyFile' => $workspace['connection']['credentials'],
+            'httpHandler' => $handler,
         ]);
 
         assert($bqClient instanceof BigQueryClient);
