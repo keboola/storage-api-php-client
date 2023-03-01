@@ -1086,8 +1086,11 @@ class Client
      */
     public function queueTableExport($tableId, $options = [])
     {
-        // TODO use apiPostJson after endpoint is ready
-        $job = $this->apiPost("tables/{$tableId}/export-async", $this->prepareExportOptions($options), false);
+        $job = $this->apiPostJson(
+            "tables/{$tableId}/export-async",
+            $this->prepareExportOptions($options),
+            false
+        );
         return $job['id'];
     }
 
@@ -1480,10 +1483,9 @@ class Client
      */
     public function exportTableAsync($tableId, $options = [])
     {
-        // TODO use apiPostJson after endpoint is ready
-        return $this->apiPost(
+        return $this->apiPostJson(
             "tables/{$tableId}/export-async",
-            $this->prepareExportOptions($options)
+            $this->prepareExportOptions($options),
         );
     }
 
