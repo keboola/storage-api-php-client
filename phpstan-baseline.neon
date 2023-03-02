@@ -4731,31 +4731,6 @@ parameters:
 			path: tests/Common/ComponentsTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ComponentsTest\\:\\:dumpTable\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/ComponentsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ComponentsTest\\:\\:dumpTable\\(\\) has parameter \\$expandNestedTables with no type specified\\.$#"
-			count: 1
-			path: tests/Common/ComponentsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ComponentsTest\\:\\:dumpTable\\(\\) has parameter \\$out with no type specified\\.$#"
-			count: 1
-			path: tests/Common/ComponentsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ComponentsTest\\:\\:dumpTable\\(\\) has parameter \\$tableData with no type specified\\.$#"
-			count: 1
-			path: tests/Common/ComponentsTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$return of function print_r expects bool, int given\\.$#"
-			count: 1
-			path: tests/Common/ComponentsTest.php
-
-		-
 			message: "#^Cannot access property \\$changeDescription on mixed\\.$#"
 			count: 1
 			path: tests/Common/ConfigurationRowTest.php

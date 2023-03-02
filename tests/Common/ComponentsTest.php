@@ -3740,38 +3740,4 @@ class ComponentsTest extends StorageApiTestCase
 
         $this->assertSame($configuration, $components->getConfiguration($componentId, $configurationId));
     }
-
-    private function dumpTable($tableData, $expandNestedTables = 'table', $out = true)
-    {
-        if (!is_array(reset($tableData))) {
-            return print_r($tableData, 1);
-        }
-        $dumpData = array_map(function ($row) use ($expandNestedTables) {
-            if (!is_array($row)) {
-                var_dump($row);
-            }
-            foreach ($row as $key => $value) {
-                if (is_array($value)) {
-                    if ($expandNestedTables === 'table') {
-                        $row[$key] = $this->dumpTable($value, $expandNestedTables, false);
-                    } elseif ($expandNestedTables === 'print_r') {
-                        $row[$key] = print_r($value, true);
-                    } else {
-                        $row[$key] = 'array';
-                    }
-                }
-            }
-            return $row;
-        }, $tableData);
-        $output = new BufferedOutput();
-        $helper = new Table($output);
-        $helper->addRows($dumpData);
-        $helper->setHeaders(array_keys($tableData[0]));
-        $helper->render();
-        if ($out) {
-            echo PHP_EOL . $output->fetch();
-        } else {
-            return $output->fetch();
-        }
-    }
 }
