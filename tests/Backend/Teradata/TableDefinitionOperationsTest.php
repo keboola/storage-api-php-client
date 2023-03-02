@@ -21,36 +21,36 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->initEmptyTestBucketsForParallelTests();
     }
-
-    private function createTableDefinition(): string
-    {
-        $bucketId = $this->getTestBucketId();
-
-        $data = [
-            'name' => 'my_new_table',
-            'primaryKeysNames' => ['id'],
-            'columns' => [
-                [
-                    'name' => 'id',
-                    'definition' => [
-                        'type' => 'INT',
-                        'nullable' => false,
-                    ],
-                ],
-                [
-                    'name' => 'name',
-                    'definition' => [
-                        'type' => 'VARCHAR',
-                    ],
-                ],
-            ],
-        ];
-
-        $runId = $this->_client->generateRunId();
-        $this->_client->setRunId($runId);
-
-        return $this->_client->createTableDefinition($bucketId, $data);
-    }
+//
+//    private function createTableDefinition(): string
+//    {
+//        $bucketId = $this->getTestBucketId();
+//
+//        $data = [
+//            'name' => 'my_new_table',
+//            'primaryKeysNames' => ['id'],
+//            'columns' => [
+//                [
+//                    'name' => 'id',
+//                    'definition' => [
+//                        'type' => 'INT',
+//                        'nullable' => false,
+//                    ],
+//                ],
+//                [
+//                    'name' => 'name',
+//                    'definition' => [
+//                        'type' => 'VARCHAR',
+//                    ],
+//                ],
+//            ],
+//        ];
+//
+//        $runId = $this->_client->generateRunId();
+//        $this->_client->setRunId($runId);
+//
+//        return $this->_client->createTableDefinition($bucketId, $data);
+//    }
 
     public function testPrimaryKeys(): void
     {

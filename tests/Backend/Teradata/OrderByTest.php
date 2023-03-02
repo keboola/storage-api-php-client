@@ -178,17 +178,16 @@ class OrderByTest extends StorageApiTestCase
         $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
     }
 
-
-    private function getExportedTable(string $tableId, array $exportOptions): array
-    {
-        $tableExporter = new TableExporter($this->_client);
-        $path = tempnam(sys_get_temp_dir(), 'keboola-export');
-        $this->assertIsString($path);
-        $tableExporter->exportTable($tableId, $path, $exportOptions);
-        $fileContents = file_get_contents($path);
-        $this->assertIsString($fileContents);
-        return Client::parseCsv($fileContents);
-    }
+//    private function getExportedTable(string $tableId, array $exportOptions): array
+//    {
+//        $tableExporter = new TableExporter($this->_client);
+//        $path = tempnam(sys_get_temp_dir(), 'keboola-export');
+//        $this->assertIsString($path);
+//        $tableExporter->exportTable($tableId, $path, $exportOptions);
+//        $fileContents = file_get_contents($path);
+//        $this->assertIsString($fileContents);
+//        return Client::parseCsv($fileContents);
+//    }
 
     private function prepareTable(): string
     {
