@@ -936,37 +936,6 @@ class SharingTest extends StorageApiSharingTestCase
         }
     }
 
-    private function validateTablesMetadata($sharedBucketId, $linkedBucketId)
-    {
-        $fieldNames = [
-            'name',
-            'columns',
-            'primaryKey',
-            'displayName',
-            'dataSizeBytes',
-            'rowsCount',
-            'lastImportDate',
-        ];
-
-        $tables = $this->_client->listTables($sharedBucketId, ['include' => 'columns']);
-        $linkedTables = $this->_client2->listTables($linkedBucketId, ['include' => 'columns']);
-
-        foreach ($tables as $i => $table) {
-            foreach ($fieldNames as $fieldName) {
-                $this->assertEquals(
-                    $table[$fieldName],
-                    $linkedTables[$i][$fieldName],
-                    sprintf('Bad value for `%s` metadata attribute', $fieldName)
-                );
-            }
-
-            $data = $this->_client->getTableDataPreview($table['id']);
-            $linkedData = $this->_client2->getTableDataPreview($linkedTables[$i]['id']);
-
-            $this->assertLinesEqualsSorted($data, $linkedData);
-        }
-    }
-
     /**
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
@@ -1042,7 +1011,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertEquals($bucket['backend'], $linkedBucket['backend']);
         $this->assertEquals($bucket['description'], $linkedBucket['description']);
 
-        $this->validateTablesMetadata($bucketId, $linkedBucketId);
+        $this->assertTablesMetadata($bucketId, $linkedBucketId);
 
         // new import
         $this->_client->writeTableAsync(
@@ -1054,26 +1023,26 @@ class SharingTest extends StorageApiSharingTestCase
             ]
         );
 
-        $this->validateTablesMetadata($bucketId, $linkedBucketId);
+        $this->assertTablesMetadata($bucketId, $linkedBucketId);
 
         // remove primary key
         $this->_client->removeTablePrimaryKey($tableId);
-        $this->validateTablesMetadata($bucketId, $linkedBucketId);
+        $this->assertTablesMetadata($bucketId, $linkedBucketId);
 
         // add primary key
         $this->_client->createTablePrimaryKey($tableId, ['id', 'name']);
-        $this->validateTablesMetadata($bucketId, $linkedBucketId);
+        $this->assertTablesMetadata($bucketId, $linkedBucketId);
 
         // add column
         $this->_client->addTableColumn($tableId, 'fake');
-        $this->validateTablesMetadata($bucketId, $linkedBucketId);
+        $this->assertTablesMetadata($bucketId, $linkedBucketId);
 
         // delete rows
         $this->_client->deleteTableRows($tableId, [
             'whereColumn' => 'id',
             'whereValues' => ['new'],
         ]);
-        $this->validateTablesMetadata($bucketId, $linkedBucketId);
+        $this->assertTablesMetadata($bucketId, $linkedBucketId);
 
         // aditional table
         $this->_client->createTableAsync(
@@ -1089,7 +1058,7 @@ class SharingTest extends StorageApiSharingTestCase
             $table2Id,
             'languages-alias-2'
         );
-        $this->validateTablesMetadata($bucketId, $linkedBucketId);
+        $this->assertTablesMetadata($bucketId, $linkedBucketId);
         $aliasTable = $this->_client->getTable($aliasId, ['include' => 'columnMetadata']);
         $this->assertSame($expectedMetadata, $aliasTable['sourceTable']['columnMetadata']['id']);
     }
@@ -1158,7 +1127,7 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertEquals('storage.buckets.alreadyLinked', $e->getStringCode());
         }
 
-        $this->validateTablesMetadata($bucketId, $linkedBucketId);
+        $this->assertTablesMetadata($bucketId, $linkedBucketId);
     }
 
     /**
@@ -1207,7 +1176,7 @@ class SharingTest extends StorageApiSharingTestCase
             $detail = $this->_client->getTable($table['id']);
             $this->assertEquals(['id'], $detail['columns']);
 
-            $this->validateTablesMetadata($bucketId, $linkedBucketId);
+            $this->assertTablesMetadata($bucketId, $linkedBucketId);
 
             // table drop
             $this->_client->dropTable($table['id'], ['force' =>  true]);
