@@ -250,8 +250,7 @@ abstract class StorageApiTestCase extends ClientTestCase
     public function tableExportFiltersData()
     {
         return [
-            // first test
-            [
+            'single value + columns' => [
                 [
                     'whereColumn' => 'city',
                     'whereValues' => ['PRG'],
@@ -270,8 +269,7 @@ abstract class StorageApiTestCase extends ClientTestCase
                     ],
                 ],
             ],
-            // first test with defined operator
-            [
+            'single value + operator eq' => [
                 [
                     'whereColumn' => 'city',
                     'whereValues' => ['PRG'],
@@ -292,8 +290,7 @@ abstract class StorageApiTestCase extends ClientTestCase
                     ],
                 ],
             ],
-            // second test
-            [
+            'multiple values' => [
                 [
                     'whereColumn' => 'city',
                     'whereValues' => ['PRG', 'VAN'],
@@ -319,8 +316,7 @@ abstract class StorageApiTestCase extends ClientTestCase
                     ],
                 ],
             ],
-            // third test
-            [
+            'single value + operator ne' => [
                 [
                     'whereColumn' => 'city',
                     'whereValues' => ['PRG'],
@@ -347,8 +343,7 @@ abstract class StorageApiTestCase extends ClientTestCase
                     ],
                 ],
             ],
-            // fourth test
-            [
+            'multiple values + operator ne' => [
                 [
                     'whereColumn' => 'city',
                     'whereValues' => ['PRG', 'VAN'],
@@ -369,8 +364,7 @@ abstract class StorageApiTestCase extends ClientTestCase
                     ],
                 ],
             ],
-            // fifth test
-            [
+            'single empty value + operator eq' => [
                 [
                     'whereColumn' => 'city',
                     'whereValues' => [''],
@@ -385,8 +379,7 @@ abstract class StorageApiTestCase extends ClientTestCase
                     ],
                 ],
             ],
-            // sixth test
-            [
+            'single empty value + operator ne' => [
                 [
                     'whereColumn' => 'city',
                     'whereValues' => [''],

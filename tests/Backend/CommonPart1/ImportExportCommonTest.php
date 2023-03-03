@@ -263,10 +263,10 @@ class ImportExportCommonTest extends StorageApiTestCase
     public function tableImportInvalidData(): array
     {
         return [
-            ['languages.invalid.csv'],
-            ['languages.invalid.gzip'],
-            ['languages.invalid.zip'],
-            ['languages.invalid.duplicateColumns.csv'],
+            'invalid.csv' => ['languages.invalid.csv'],
+            'invalid.gzip' => ['languages.invalid.gzip'],
+            'invalid.zip' => ['languages.invalid.zip'],
+            'duplicateColumns.csv' => ['languages.invalid.duplicateColumns.csv'],
         ];
     }
 

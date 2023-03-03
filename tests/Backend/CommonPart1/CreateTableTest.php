@@ -266,18 +266,57 @@ class CreateTableTest extends StorageApiTestCase
     public function tableCreateData(): array
     {
         return [
-            ['Languages', __DIR__ . '/../../_data/languages.csv', __DIR__ . '/../../_data/languages.csv', false],
-            ['Languages', __DIR__ . '/../../_data/languages.csv', __DIR__ . '/../../_data/languages.csv', true],
+            'plain csv - sync' => [
+                'Languages',
+                __DIR__ . '/../../_data/languages.csv',
+                __DIR__ . '/../../_data/languages.csv',
+                false,
+            ],
+            'plain csv - async' => [
+                'Languages',
+                __DIR__ . '/../../_data/languages.csv',
+                __DIR__ . '/../../_data/languages.csv',
+                true,
+            ],
 
-            ['Languages', __DIR__ . '/../../_data/languages.csv.gz', __DIR__ . '/../../_data/languages.csv', false],
-            ['Languages', __DIR__ . '/../../_data/languages.csv.gz', __DIR__ . '/../../_data/languages.csv', true],
+            'gzipped csv - sync' => [
+                'Languages',
+                __DIR__ . '/../../_data/languages.csv.gz',
+                __DIR__ . '/../../_data/languages.csv',
+                false,
+            ],
+            'gzipped csv - async' => [
+                'Languages',
+                __DIR__ . '/../../_data/languages.csv.gz',
+                __DIR__ . '/../../_data/languages.csv',
+                true,
+            ],
 
-            ['Languages', __DIR__ . '/../../_data/languages.camel-case-columns.csv', __DIR__ . '/../../_data/languages.camel-case-columns.csv', false],
-            ['Languages', __DIR__ . '/../../_data/languages.camel-case-columns.csv', __DIR__ . '/../../_data/languages.camel-case-columns.csv', true],
+            'csv with camel case columns - sync ' => [
+                'Languages',
+                __DIR__ . '/../../_data/languages.camel-case-columns.csv',
+                __DIR__ . '/../../_data/languages.camel-case-columns.csv',
+                false,
+            ],
+            'csv with camel case columns - async ' => [
+                'Languages',
+                __DIR__ . '/../../_data/languages.camel-case-columns.csv',
+                __DIR__ . '/../../_data/languages.camel-case-columns.csv',
+                true,
+            ],
 
-            // only numeric table and column names
-            ['1', __DIR__ . '/../../_data/numbers.csv', __DIR__ . '/../../_data/numbers.csv', false],
-            ['1', __DIR__ . '/../../_data/numbers.csv', __DIR__ . '/../../_data/numbers.csv', true],
+            'csv with numeric table name and numeric columns names - sync' => [
+                '1',
+                __DIR__ . '/../../_data/numbers.csv',
+                __DIR__ . '/../../_data/numbers.csv',
+                false,
+            ],
+            'csv with numeric table name and numeric columns names - async' => [
+                '1',
+                __DIR__ . '/../../_data/numbers.csv',
+                __DIR__ . '/../../_data/numbers.csv',
+                true,
+            ],
         ];
     }
 
@@ -416,8 +455,8 @@ class CreateTableTest extends StorageApiTestCase
     public function syncAsyncData(): array
     {
         return [
-            [false],
-            [true],
+            'sync' => [false],
+            'async' => [true],
         ];
     }
 
@@ -575,8 +614,8 @@ class CreateTableTest extends StorageApiTestCase
     public function invalidPrimaryKeys()
     {
         return [
-            ['ID'],
-            ['idus'],
+            'same name but uppercase' => ['ID'],
+            'different name' => ['idus'],
         ];
     }
 
