@@ -35,6 +35,12 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
      */
     public function testWorkspaceCreate(bool $async): void
     {
+        if ($async === false) {
+            $this->allowTestForBackendsOnly(
+                [self::BACKEND_SNOWFLAKE],
+                'Test sync actions only on Snowflake'
+            );
+        }
         $this->initEvents($this->workspaceSapiClient);
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -197,6 +203,12 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
      */
     public function testDropWorkspace(array $dropOptions, bool $async): void
     {
+        if ($async === false) {
+            $this->allowTestForBackendsOnly(
+                [self::BACKEND_SNOWFLAKE],
+                'Test sync actions only on Snowflake'
+            );
+        }
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
         foreach ($this->listTestWorkspaces($this->_client) as $workspace) {
@@ -284,6 +296,12 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
      */
     public function testDropNonExistingWorkspace(array $dropOptions, bool $async): void
     {
+        if ($async === false) {
+            $this->allowTestForBackendsOnly(
+                [self::BACKEND_SNOWFLAKE],
+                'Test sync actions only on Snowflake'
+            );
+        }
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
         try {
