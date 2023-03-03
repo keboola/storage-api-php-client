@@ -3631,16 +3631,6 @@ parameters:
 			path: tests/Backend/Synapse/WhereFilterTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Teradata\\\\OrderByTest\\:\\:getExportedTable\\(\\) is unused\\.$#"
-			count: 1
-			path: tests/Backend/Teradata/OrderByTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Teradata\\\\TableDefinitionOperationsTest\\:\\:createTableDefinition\\(\\) is unused\\.$#"
-			count: 1
-			path: tests/Backend/Teradata/TableDefinitionOperationsTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\ExasolWorkspaceBackend\\:\\:__construct\\(\\) has parameter \\$workspace with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/Backend/ExasolWorkspaceBackend.php
@@ -4808,36 +4798,6 @@ parameters:
 		-
 			message: "#^Cannot access property \\$state on mixed\\.$#"
 			count: 2
-			path: tests/Common/ComponentsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ComponentsTest\\:\\:dumpTable\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/ComponentsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ComponentsTest\\:\\:dumpTable\\(\\) has parameter \\$expandNestedTables with no type specified\\.$#"
-			count: 1
-			path: tests/Common/ComponentsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ComponentsTest\\:\\:dumpTable\\(\\) has parameter \\$out with no type specified\\.$#"
-			count: 1
-			path: tests/Common/ComponentsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ComponentsTest\\:\\:dumpTable\\(\\) has parameter \\$tableData with no type specified\\.$#"
-			count: 1
-			path: tests/Common/ComponentsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\ComponentsTest\\:\\:dumpTable\\(\\) is unused\\.$#"
-			count: 1
-			path: tests/Common/ComponentsTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$return of function print_r expects bool, int given\\.$#"
-			count: 1
 			path: tests/Common/ComponentsTest.php
 
 		-
