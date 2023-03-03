@@ -31,6 +31,12 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
      */
     public function testWorkspace(bool $async, ?bool $roStorageAccess): void
     {
+        if ($async === false) {
+            $this->allowTestForBackendsOnly(
+                [self::BACKEND_SNOWFLAKE],
+                'Test sync actions only on Snowflake'
+            );
+        }
         $componentId = 'wr-db';
         $configurationId = 'main-1';
 

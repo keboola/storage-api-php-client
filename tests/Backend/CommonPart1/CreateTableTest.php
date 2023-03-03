@@ -138,6 +138,12 @@ class CreateTableTest extends StorageApiTestCase
         if ($tableName === '1' && $this->getDefaultBackend($this->_client) === self::BACKEND_BIGQUERY) {
             $this->markTestSkipped('Bigquery doesn\'t support number as column name');
         }
+        if ($async === false) {
+            $this->allowTestForBackendsOnly(
+                [self::BACKEND_SNOWFLAKE],
+                'Test sync actions only on Snowflake'
+            );
+        }
         $createMethod = $async ? 'createTableAsync' : 'createTable';
         $tableId = $this->_client->{$createMethod}(
             $this->getTestBucketId(self::STAGE_IN),
@@ -361,7 +367,12 @@ class CreateTableTest extends StorageApiTestCase
     public function testTableColumnNamesSanitize(bool $async): void
     {
         $csv = new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/filtering.csv');
-
+        if ($async === false) {
+            $this->allowTestForBackendsOnly(
+                [self::BACKEND_SNOWFLAKE],
+                'Test sync actions only on Snowflake'
+            );
+        }
         $method = $async ? 'createTableAsync' : 'createTable';
         $tableId = $this->_client->{$method}(
             $this->getTestBucketId(self::STAGE_IN),
@@ -380,6 +391,12 @@ class CreateTableTest extends StorageApiTestCase
      */
     public function testTableWithLongColumnNamesShouldNotBeCreated(bool $async): void
     {
+        if ($async === false) {
+            $this->allowTestForBackendsOnly(
+                [self::BACKEND_SNOWFLAKE],
+                'Test sync actions only on Snowflake'
+            );
+        }
         try {
             $method = $async ? 'createTableAsync' : 'createTable';
             $this->_client->{$method}(
