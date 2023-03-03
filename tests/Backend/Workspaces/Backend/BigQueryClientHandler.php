@@ -14,7 +14,7 @@ class BigQueryClientHandler
     private Client $client;
     private int $maxRetries;
 
-    public function __construct(Client $client, int $maxRetries = 3)
+    public function __construct(Client $client, int $maxRetries = 10)
     {
         $this->client = $client;
         $this->maxRetries = $maxRetries;
