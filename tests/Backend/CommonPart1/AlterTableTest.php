@@ -54,15 +54,15 @@ class AlterTableTest extends StorageApiTestCase
     public function webalizeColumnNameProvider(): array
     {
         return [
-            [
+            'dashes + underscores' => [
                 '_abc-def----ghi_',
                 'abc_def_ghi',
             ],
-            [
+            'diacritics + spaces' => [
                 'žluťoučký    kůň',
                 'zlutoucky_kun',
             ],
-            [
+            'more underscores' => [
                 'lot__of_____underscores____',
                 'lot__of_____underscores',
             ],
