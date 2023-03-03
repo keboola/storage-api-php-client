@@ -176,10 +176,10 @@ class WorkspacesTest extends FileWorkspaceTestCase
     public function dropOptions()
     {
         return [
-            [
+            'no options - sync' => [
                 [],
             ],
-            [
+            'with options - async' => [
                 [
                     'async' => true,
                 ],
