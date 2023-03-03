@@ -1152,8 +1152,7 @@ class Client
      */
     public function writeTableAsyncDirect($tableId, $options = [])
     {
-        // TODO use apiPostJson after endpoint is ready
-        return $this->apiPost("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options));
+        return $this->apiPostJson("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options));
     }
 
     /**
@@ -1174,8 +1173,7 @@ class Client
      */
     public function queueTableImport($tableId, $options = [])
     {
-        // TODO use apiPostJson after endpoint is ready
-        $job = $this->apiPost("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options), false);
+        $job = $this->apiPostJson("tables/{$tableId}/import-async", $this->writeTableOptionsPrepare($options), false);
         return $job['id'];
     }
 
