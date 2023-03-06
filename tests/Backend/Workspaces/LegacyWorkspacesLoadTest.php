@@ -54,8 +54,6 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
 
     public function testWorkspaceLoadData(): void
     {
-        $this->initEvents($this->workspaceSapiClient);
-
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
         $workspace = $this->initTestWorkspace();
@@ -89,8 +87,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $lastJob = reset($afterJobs);
         $this->assertEquals('workspaceLoad', $lastJob['operationName']);
 
-        // block until async events are processed, processing in order is not guaranteed but it should work most of time
-        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
+        $this->initEvents($this->workspaceSapiClient);
 
         $stats = $this->_client->getStats((new \Keboola\StorageApi\Options\StatsOptions())->setRunId($runId));
 
