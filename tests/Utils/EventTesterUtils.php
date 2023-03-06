@@ -80,7 +80,7 @@ trait EventTesterUtils
     protected function retryWithCallback(callable $apiCall, callable $callback = null)
     {
         sleep(2); // wait for ES to refresh
-        $retryPolicy = new SimpleRetryPolicy(20);
+        $retryPolicy = new SimpleRetryPolicy(30);
         $proxy = new RetryProxy($retryPolicy, new LinearBackOffPolicy(
             250,
             250,
@@ -98,7 +98,7 @@ trait EventTesterUtils
         Client $client,
         callable $assertCallback,
         EventsQueryBuilder $query,
-        int $limit = 10
+        int $limit = 20
     ): void {
         $query = $query->generateQuery();
 
