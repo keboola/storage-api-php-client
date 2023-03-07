@@ -962,14 +962,18 @@ existing bucket from another project (see below).
             + bigquery
     + displayName (optional) - Bucket displayName, this name is displayed in UI and can be changed anytime; only alphanumeric characters,underscores and dashes are allowed.
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            name=my-new-bucket&stage=in&description=Some Description
+            {
+                "name": "my-new-bucket",
+                "stage": "in",
+                "description": "Some Description"
+            }
 
 + Response 201 (application/json)
     + Body
@@ -1015,14 +1019,19 @@ Linking a bucket from another project is only possible if it has been
             + out
         + Default: in
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            name=organizationData&stage=in&sourceProjectId=123&sourceBucketId=in.c-shared-bucket
+            {
+                "name": "organizationData",
+                "stage": "in",
+                "sourceProjectId": 123,
+                "sourceBucketId": "in.c-shared-bucket"
+            }
 
 + Response 201 (application/json)
 Synchronous call response (async=false)
@@ -1217,14 +1226,16 @@ Update an existing bucket
 + Attributes
     + displayName (required, string) - Bucket displayName, this name is displayed in UI and can be changed anytime; only alphanumeric characters,underscores and dashes are allowed.
 
-+ Request
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            displayName=my-display-name-for-bucket
+            {
+                "displayName": "my-display-name-for-bucket"
+            }
 
 + Response 200 (application/json)
 Synchronous call response (async=false)
@@ -1291,6 +1302,7 @@ Refresh external bucket. For **Snowflake** and **Teradata** backends only
 
 + Parameters
     + bucket_id (required) - Bucket Id
+
 + Request
     + Headers
 
@@ -1405,7 +1417,7 @@ This operations is available only for organization administrators.
             + `organization-project` - Bucket is shared to organization. Any member of a project within the organization will be able to link to this bucket from their project.
         + Default: organization
 
-+ Request
++ Request (application/x-www-form-urlencoded)
     + Headers
 
             X-StorageApi-Token: your_token
@@ -1626,13 +1638,19 @@ This operations is available only for organization administrators.
 + Attributes
     + targetProjectIds[] (required, array) - array of projects id
 
-+ Request
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
     + Body
 
-            targetProjectIds%5B0%5D=1&targetProjectIds%5B1%5D=2&targetProjectIds%5B2%5D=3
+            {
+                "targetProjectIds": [
+                    "1",
+                    "2",
+                    "3"
+                ]
+            }
 
 + Response 201 (application/json)
 Synchronous call response (async=false)
@@ -1725,13 +1743,19 @@ This operations is available only for organization administrators.
 + Attributes
     + targetUsers[] (required, array) - array of users id or user emails. Users must be member of at least one project in the organization.
 
-+ Request
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
     + Body
 
-            targetUsers%5B0%5D=dev%40keboola.com&targetUsers%5B1%5D=dev2%40keboola.com&targetUsers%5B2%5D=dev3%40keboola.com
+            {
+                "targetUsers": [
+                    "dev@keboola.com",
+                    "dev2@keboola.com",
+                    "dev3@keboola.com"
+                ]
+            }
 
 + Response 201 (application/json)
 Synchronous call response (async=false)
@@ -1830,7 +1854,7 @@ This operations is available only for organization administrators.
             + `organization` - Bucket is shared to organization. Any organization member will be able to link to this bucket from any project within the organization.
             + `organization-project` - Bucket is shared to organization. Any member of a project within the organization will be able to link to this bucket from their project.
 
-+ Request
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
