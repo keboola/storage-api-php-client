@@ -2527,14 +2527,19 @@ The create request is created and added to a queue, the job resource url for sta
 
 + Attributes(CreateTableDefinitionAsyncFile)
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            name=table_name&dataFileId=234&delimiter=%2C&enclosure=%22
+            {
+                "dataFileId": 234,
+                "name": "table_name",
+                "delimiter": ",",
+                "enclosure": "\""
+            }
 
 + Response 202 (application/json)
 
@@ -2583,14 +2588,19 @@ The create request is created and added to a queue, the job resource url for sta
 
 + Attributes(CreateTableDefinitionAsyncSnapshot)
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            name=table_name&snapshotId=234&delimiter=%2C&enclosure=%22
+            {
+                "snapshotId": 234,
+                "name": "table_name",
+                "delimiter": ",",
+                "enclosure": "\""
+            }
 
 + Response 202 (application/json)
 
@@ -2606,8 +2616,8 @@ The create request is created and added to a queue, the job resource url for sta
                     "escapedBy": "",
                 },
                 "source": {
-                    "fileId": "234",
-                    "type": "file"
+                    "snapshotId": 234,
+                    "type": "snapshot"
                 }
             },
             "createdTime": "2013-05-31T16:11:05+0200",
@@ -2639,14 +2649,20 @@ The create request is created and added to a queue, the job resource url for sta
 
 + Attributes(CreateTableDefinitionAsyncWorkspace)
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            name=table_name&dataWorkspaceId=234&dataObject=84353&delimiter=%2C&enclosure=%22
+            {
+                "dataWorkspaceId": 234,
+                "dataObject": "84353",
+                "name": "table_name",
+                "delimiter": ",",
+                "enclosure": "\""
+            }
 
 + Response 202 (application/json)
 
@@ -2662,8 +2678,10 @@ The create request is created and added to a queue, the job resource url for sta
                     "escapedBy": "",
                 },
                 "source": {
-                    "fileId": "234",
-                    "type": "file"
+                    "workspaceId": 234,
+                    "dataObject": "84353",
+                    "tableName": "84353",
+                    "type": "workspace"
                 }
             },
             "createdTime": "2013-05-31T16:11:05+0200",
@@ -2697,14 +2715,19 @@ The create request is created and added to a queue, the job resource url for sta
 
 + Attributes(CreateTableDefinitionAsyncTimeTravel)
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            name=table_name&sourceTableId=234&timestamp=2022-08-01%2012:00:00%2B0200
+            {
+                "sourceTableId": "234",
+                "name": "table_name",
+                "timestamp": "2022-08-01 12:00:00+0200"
+            }
+
 
 + Response 202 (application/json)
 
@@ -2720,8 +2743,10 @@ The create request is created and added to a queue, the job resource url for sta
                     "escapedBy": "",
                 },
                 "source": {
-                    "fileId": "234",
-                    "type": "file"
+                    "sourceTableId": "234",
+                    "destinationTableName": "table_name",
+                    "timestamp": "2022-08-01 12:00:00+0200",
+                    "type": "timeTravel"
                 }
             },
             "createdTime": "2013-05-31T16:11:05+0200",
@@ -3029,7 +3054,8 @@ To enable compression of API response traffic, please include the following HTTP
                 + DECIMAL - for numbers (Exasol, Bigquery)
     + fulltextSearch (optional, string) - Makes fulltext search over all data in table. It cannot be combined with `whereFilters`. On Teradata search only over char-base columns. Snowflake/Synapse/Teradata/Bigquery only
 
-+ Request
++ Request with default `rfc` format (`CSV` data)
+
     + Headers
 
             X-StorageApi-Token: your_token
@@ -3049,9 +3075,7 @@ To enable compression of API response traffic, please include the following HTTP
             "24","french"
 
 
-+ Request
-
-    Request with &format=json.
++ Request with `&format=json`
 
     + Headers
 
@@ -3102,33 +3126,120 @@ This task is asynchronous; Id of the created file is stored in the `results` of 
 #### Rows filtering
 Exported rows can be filtered by a single filter. Examples of filtering by `userId` column:
 
-- `whereFilters[0][column]=UserID&whereFilters[0][values][0]=123` - Single value filter is used on one column.
-Equals to `UsedId = 123`.
-- `whereFilters[0][column]=UserID&whereFilters[0][values][0]=123&whereFilters[0][values][1]=234` - Multiple value
-filter is used on one column. Equals to `UserId IN (123,234)`.
-- `whereFilters[0][column]=UserID&whereFilters[0][values][0]=123&whereFilter[0][operator]=ne` - Uses a non equals operator.
-Equals to `UserId != 123`.
-- `whereFilters[0][column]=Price&whereFilters[0][values][0]=40.3&whereFilters[operator]=gt&dataType=DOUBLE` - Uses greater than operator and cast value as double
-Equals to `try_to_double(Price) > 40.3`.
-
- - For multiple filters use `whereFilters[0]...&whereFilters[1]...&whereFilters[2]...`. All filters are joined by AND expression.
+- Single value filter is used on one column. Equals to `UserId = 123`.
+    ```
+    {
+        "whereFilters": [
+            {
+                "column": "UserID",
+                "values": [
+                    "123"
+                ]
+            }
+        ]
+    }
+    ```
+- Multiple value filter is used on one column. Equals to `UserId IN (123,234)`.
+    ```
+    {
+        "whereFilters": [
+            {
+                "column": "UserID",
+                "values": [
+                    "123",
+                    "234"
+                ]
+            }
+        ]
+    }
+    ```
+- Uses a non equals operator. Equals to `UserId != 123`.
+    ```
+    {
+        "whereFilters": [
+            {
+                "column": "UserID",
+                "values": [
+                    "123"
+                ],
+                "operator": "ne"
+            }
+        ]
+    }
+    ```
+- Uses greater than operator and cast value as double. Equals to `try_to_double(Price) > 40.3`.
+    ```
+    {
+        "whereFilters": [
+            {
+                "column": "Price",
+                "values": [
+                    "40.3"
+                ],
+                "operator": "gt",
+                "dataType": "DOUBLE"
+            }
+        ]
+    }
+    ```
+ - For multiple filters use multiple objects. All filters are joined by AND expression.
+    ```
+    {
+        "whereFilters": [
+            {...},
+            {...},
+            {...}
+        ]
+    }
+    ```
 
 #### Rows sorting
 Exported rows can be sorted by multiple columns. Examples of sorting:
 
-- `orderBy[0][column]=UserId`
-Sorting ascending by column UserId.
-Equals to `ORDER BY UserId ASC`.
+- Sorting ascending by column UserId. Equals to `ORDER BY UserId ASC`.
+    ```
+    {
+        "orderBy": [
+            {
+                "column": "UserId"
+            }
+        ]
+    }
+    ```
+- Sorting descending by column UserId. Equals to `ORDER BY UserId DESC`.
+    ```
+    {
+        "orderBy": [
+            {
+                "column": "UserId",
+                "order": "DESC"
+            }
+        ]
+    }
+    ```
+- Sorting descending by column Price with casting column Price to DOUBLE. Equals to `ORDER BY try_to_double(Price) DESC`.
+    ```
+    {
+        "orderBy": [
+            {
+                "column": "Price",
+                "order": "DESC",
+                "dataType": "DOUBLE"
+            }
+        ]
+    }
+    ```
 
-- `orderBy[0][column]=UserId&orderBy[0][order]=DESC`
-Sorting descending by column UserId.
-Equals to `ORDER BY UserId DESC`.
-
-- `orderBy[0][column]=Price&orderBy[0][order]=DESC&orderBy[0][dataType]=DOUBLE`
-Sorting descending by column Price with casting column Price to DOUBLE
-Equals to `ORDER BY try_to_double(Price) DESC`.
-
- - For multiple sort condititions use `orderBy[0]...&orderBy[1]...&orderBy[2]`.
+- For multiple sort condititions use multiple objects.
+    ```
+    {
+        "orderBy": [
+            {...},
+            {...},
+            {...}
+        ]
+    }
+    ```
 
 The comparison operator essentially behaves like the [SQL IN](http://www.w3schools.com/sql/sql_in.asp) (and NOT IN) operator. That is, the
 `eq` value matches if any `whereValues` match, and the `new` value matches if none `whereValues` match.
@@ -3144,12 +3255,12 @@ The response contains a link to job results. Once the job is finished, the job r
 will show information about the created file and caching:
 
 ```
-    {
-        "file": {
-            "id": 234
-        },
-        "cacheHit": false
-    }
+{
+    "file": {
+        "id": 234
+    },
+    "cacheHit": false
+}
 ```
 
 + Parameters
@@ -3157,7 +3268,7 @@ will show information about the created file and caching:
 
 + Attributes
     + limit (optional, number) - Limit the number of returned rows.
-    + days (optional, number) - **DEPRECATED will be removed in the future.** It returns rows created or updated in the last X days.
+    + days (optional, number) - **Deprecated** (use changedSince instead). ~~It returns rows created or updated in the last X days.~~
     + format (optional, enum[string]) - File format
         + Members
             + rfc - According to [RFC](http://www.ietf.org/rfc/rfc4180.txt).
@@ -3167,9 +3278,9 @@ will show information about the created file and caching:
     + changedUntil (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
         Examples: `-2 days`, `1360138863`, `2013-02-12T15:19:21+00:00`
     + columns (optional) - Comma separated list of columns to export; by default all columns are exported.
-    + whereColumn (optional) - **Deprecated** (use whereFilters instead). Column for exporting only matching rows; see more in the rows filtering section.
-    + whereValues[] (optional) - **Deprecated** (use whereFilters instead). Values for exporting only matching rows; see more in the rows filtering section.
-    + whereOperator (optional, enum[string]) - **Deprecated** (use whereFilters instead). Operator for value comparison.
+    + whereColumn (optional) - **Deprecated** (use whereFilters instead). ~~Column for exporting only matching rows; see more in the rows filtering section.~~
+    + whereValues[] (optional) - **Deprecated** (use whereFilters instead). ~~Values for exporting only matching rows; see more in the rows filtering section.~~
+    + whereOperator (optional, enum[string]) - **Deprecated** (use whereFilters instead). ~~Operator for value comparison.~~
         + Members
             + eq - Equals - can be used with multiple values.
             + ne - Not equals - can be used with multiple values.
@@ -3203,7 +3314,7 @@ will show information about the created file and caching:
                 + DOUBLE - for number with a decimal point
     + gzip (optional, boolean) - The response will be gzipped if set to true.
 
-+ Request
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
@@ -3352,14 +3463,16 @@ Update an existing table
 + Attributes
     + displayName (required, string) - Table displayName, this name is displayed in UI and can be changed anytime; only alphanumeric characters,underscores and dashes are allowed.
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            displayName=updated-table-display-name
+            {
+                "displayName": "updated-table-display-name"
+            }
 
 + Response 200 (application/json)
 Synchronous call response (async=false)
@@ -3709,14 +3822,16 @@ Adds a new column to an existing table. This request is [asynchronous](#introduc
             + STRING
             + TIMESTAMP
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            name=new-column
+            {
+                "name": "new-column"
+            }
 
 + Response 202 (application/json)
     + Body
@@ -3792,14 +3907,18 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
 + Attributes
     + columns[] (required) - Array of columns used as the primary key
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            columns[]=id
+            {
+                "columns": [
+                    "id"
+                ]
+            }
 
 + Response 202 (application/json)
     + Body
@@ -3870,9 +3989,9 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
 + Attributes
     + changedSince - (optional) filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php). Examples: `-2 days`, `1360138863`, `2013-02-12T15:19:21+00:00`
     + changedUntil - (optional) filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php). Examples: `-2 days`, `1360138863`, `2013-02-12T15:19:21+00:00`
-    + whereColumn (optional) - **Deprecated** (use whereFilters instead). Column for exporting only matching rows, see more in the [rows filtering section](#reference/tables/unload-data-asynchronously/asynchronous-export).
-    + whereValues[] (optional) - **Deprecated** (use whereFilters instead). Values for exporting only matching rows, see more in the [rows filtering section](#reference/tables/unload-data-asynchronously/asynchronous-export).
-    + whereOperator (optional, enum[string]) - **Deprecated** (use whereFilters instead). Operator for value comparison.
+    + whereColumn (optional) - **Deprecated** (use whereFilters instead). ~~Column for exporting only matching rows, see more in the [rows filtering section](#reference/tables/unload-data-asynchronously/asynchronous-export).~~
+    + whereValues[] (optional) - **Deprecated** (use whereFilters instead). ~~Values for exporting only matching rows, see more in the [rows filtering section](#reference/tables/unload-data-asynchronously/asynchronous-export).~~
+    + whereOperator (optional, enum[string]) - **Deprecated** (use whereFilters instead). ~~Operator for value comparison.~~
         + Members
             + eq - Equals - can be used with multiple values.
             + ne - Not equals - can be used with multiple values.
@@ -3897,23 +4016,39 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
                 + REAL - for number with a decimal point (Synapse, Teradata, Bigquery)
                 + DECIMAL - for numbers (Exasol, Bigquery)
 
-+ Request using whereFilters, send as form-data (application/x-www-form-urlencoded)
++ Request using whereFilters, send as form-data (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            whereFilters%5B0%5D%5Bcolumn%5D=id&whereFilters%5B0%5D%5Boperator%5D=eq&whereFilters%5B0%5D%5Bvalues%5D%5B0%5D=12344
+            {
+                "whereFilters": [
+                    {
+                        "column": "id",
+                        "operator": "eq",
+                        "values": [
+                            "12344"
+                        ]
+                    }
+                ]
+            }
 
-+ Request using **deprecated** attributes, send as form-data (application/x-www-form-urlencoded)
++ Request using deprecated attributes, send as form-data (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            whereColumn=id&whereOperator=eq&whereValues%5B0%5D=12344
+            {
+                "whereColumn": "id",
+                "whereOperator": "eq",
+                "whereValues": [
+                    "12344"
+                ]
+            }
 
 + Response 202 (application/json)
     + Body
@@ -3931,7 +4066,7 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
                       "whereFilters": [
                           {
                               "column": "id,
-                              "values": [12344],
+                              "values": ["12344"],
                               "operator": "eq"
                           }
                       ]
@@ -3979,7 +4114,7 @@ When turning `aliasColumnsAutoSync` back on, the columns will be immediately syn
     + sourceTable (required) - Id of the source table
     + name (optional) - Name of the new table alias; If not set, will use source table name.
     + aliasColumns[] (optional) - List of alias columns; this disables column synchronization with the source table.
-    + aliasColumnsAutosync (optional, boolean) - **DEPRECATED** (It is set automatically depends on `aliasColumns` is filled or not.) Disables column synchronization with the source table.
+    + aliasColumnsAutosync (optional, boolean) - **Deprecated** (It is set automatically depends on `aliasColumns` is filled or not.) ~~Disables column synchronization with the source table.~~
         Default: false
     + aliasFilter[column] (optional) - Name of the column for filtering
     + aliasFilter[operator] (optional, enum[string]) - Comparison operator
@@ -3989,14 +4124,29 @@ When turning `aliasColumnsAutoSync` back on, the columns will be immediately syn
         + Default: eq
     + aliasFilter[values][] (optional) - Values for the filter
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            sourceTable=in.c-main.data&name=test-alias2&aliasFilter%5Bcolumn%5D=campaign_id&aliasFilter%5Bvalues%5D%5B%5D=68abf5473f&aliasFilter%5Bvalues%5D%5B%5D=03e9b81530&aliasFilter%5Boperator%5D=eq&aliasColumns%5B%5D=campaign_id&aliasColumns%5B%5D=email
+            {
+                "sourceTable": "in.c-main.data",
+                "name": "test-alias2",
+                "aliasFilter": {
+                    "column": "campaign_id",
+                    "values": [
+                        "68abf5473f",
+                        "03e9b81530"
+                    ],
+                    "operator": "eq"
+                },
+                "aliasColumns": [
+                    "campaign_id",
+                    "email"
+                ]
+            }
 
 + Response 201 (application/json)
     + Body
@@ -4074,14 +4224,19 @@ alias must be created with the `aliasFilter` parameter.
             + ne - Not equal to
         + Default: eq
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            column=campaign_id&values%5B%5D=68abf5473f
+            {
+                "column": "campaign_id",
+                "values": [
+                    "68abf5473f"
+                ]
+            }
 
 + Response 200 (application/json)
     + Body
@@ -4188,14 +4343,16 @@ Snapshots of an alias table contain only alias settings, actual data are not sto
 + Attributes
     + description (optional) - Snapshot description
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            description=My first snapshot
+            {
+                "description": "My first snapshot"
+            }
 
 + Response 202 (application/json)
     + Body
@@ -8440,12 +8597,12 @@ other buckets (production buckets or buckets belongs the other development branc
 ### CreateTableDefinitionAsyncWorkspace(CreateTableDefinitionAsyncBase)
 
 + dataWorkspaceId (required, number) - Load from the table [workspace](#reference/workspaces). Use with the **dataObject** attribute.
-+ dataTableName (optional, string) - (deprecated - use dataObject) Load from the table in the [workspace](#reference/workspaces).
++ dataTableName (optional, string) - (deprecated - use dataObject) ~~Load from the table in the [workspace](#reference/workspaces).~~
 + dataObject (optional, string) - Load from the table/file in the [workspace](#reference/workspaces).
 
 ### CreateTableDefinitionAsyncSnapshot(CreateTableDefinitionAsyncBase)
 
-+ snapshotId (required, string) - Id of a table snapshot - a table will be created from the snapshot.
++ snapshotId (required, number) - Id of a table snapshot - a table will be created from the snapshot.
 
 ### CreateTableDefinitionAsyncTimeTravel(CreateTableDefinitionAsyncBase)
 
