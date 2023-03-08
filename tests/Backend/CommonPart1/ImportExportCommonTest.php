@@ -282,6 +282,7 @@ class ImportExportCommonTest extends StorageApiTestCase
     public function testTableImportInvalidCsvParams(): void
     {
         try {
+            // sync create table is deprecated and does not support JSON
             $this->_client->apiPost("buckets/{$this->getTestBucketId()}/tables", [
                 'name' => 'invalidTable',
                 'dataString' => 'id,name',
@@ -293,7 +294,7 @@ class ImportExportCommonTest extends StorageApiTestCase
 
         $fileId = $this->_client->uploadFile(__DIR__ . '/../../_data/languages.csv', (new FileUploadOptions())->setFileName('test.csv'));
         try {
-            $this->_client->apiPost("buckets/{$this->getTestBucketId()}/tables-async", [
+            $this->_client->apiPostJson("buckets/{$this->getTestBucketId()}/tables-async", [
                 'name' => 'invalidTable',
                 'dataFileId' => $fileId,
                 'delimiter' => '/t',
@@ -303,6 +304,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         }
 
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
+        // sync table import is deprecated and does not support JSON
         try {
             $this->_client->apiPost("tables/{$tableId}/import", [
                 'name' => 'invalidTable',
@@ -314,7 +316,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         }
 
         try {
-            $this->_client->apiPost("tables/{$tableId}/import-async", [
+            $this->_client->apiPostJson("tables/{$tableId}/import-async", [
                 'name' => 'invalidTable',
                 'dataFileId' => $fileId,
                 'delimiter' => '/t',
@@ -439,6 +441,7 @@ class ImportExportCommonTest extends StorageApiTestCase
 
         $lines = '"id","name"';
         $lines .= "\n" . '"first","second"' . "\n";
+        // sync table import is deprecated and does not support JSON
         $this->_client->apiPost("tables/$tableId/import", [
             'dataString' => $lines,
         ]);
