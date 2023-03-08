@@ -232,4 +232,49 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
             ];
         }
     }
+
+    protected function assertTablesMetadata(string $sharedBucketId, string $linkedBucketId, bool $assertColumnMetadata = false): void
+    {
+        $fieldNames = [
+            'name',
+            'columns',
+            'primaryKey',
+            'displayName',
+            'dataSizeBytes',
+            'rowsCount',
+            'isTyped',
+            'lastImportDate',
+        ];
+        $listOptions = ['include' => 'columns'];
+
+        if ($assertColumnMetadata === true) {
+            $listOptions['include'] .= ',columnMetadata';
+        }
+
+        $tables = $this->_client->listTables($sharedBucketId, $listOptions);
+        $linkedTables = $this->_client2->listTables($linkedBucketId, $listOptions);
+
+        foreach ($tables as $i => $table) {
+            foreach ($fieldNames as $fieldName) {
+                $this->assertEquals(
+                    $table[$fieldName],
+                    $linkedTables[$i][$fieldName],
+                    sprintf('Bad value for `%s` metadata attribute', $fieldName)
+                );
+            }
+
+            if ($assertColumnMetadata === true) {
+                $this->assertEquals(
+                    $table['isAlias'] === false ? $table['columnMetadata'] : $table['sourceTable']['columnMetadata'],
+                    $linkedTables[$i]['sourceTable']['columnMetadata'],
+                    'Bad value for `columnMetadata` metadata attribute'
+                );
+            }
+
+            $data = $this->_client->getTableDataPreview($table['id']);
+            $linkedData = $this->_client2->getTableDataPreview($linkedTables[$i]['id']);
+
+            $this->assertLinesEqualsSorted($data, $linkedData);
+        }
+    }
 }

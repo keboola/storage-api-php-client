@@ -2946,53 +2946,8 @@ parameters:
 			path: tests/Backend/Mixed/SharingTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:validateTablesMetadata\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Mixed/SharingTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:validateTablesMetadata\\(\\) has parameter \\$linkedBucketId with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Mixed/SharingTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:validateTablesMetadata\\(\\) has parameter \\$sharedBucketId with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Mixed/SharingTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$bucketId of method Keboola\\\\StorageApi\\\\Client\\:\\:bucketExists\\(\\) expects string, mixed given\\.$#"
-			count: 3
-			path: tests/Backend/Mixed/SharingTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$bucketId of method Keboola\\\\StorageApi\\\\Client\\:\\:dropBucket\\(\\) expects string, mixed given\\.$#"
-			count: 6
-			path: tests/Backend/Mixed/SharingTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$bucketId of method Keboola\\\\StorageApi\\\\Client\\:\\:getBucket\\(\\) expects string, mixed given\\.$#"
-			count: 4
-			path: tests/Backend/Mixed/SharingTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$bucketId of method Keboola\\\\StorageApi\\\\Client\\:\\:listTables\\(\\) expects string\\|null, mixed given\\.$#"
-			count: 1
-			path: tests/Backend/Mixed/SharingTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$bucketId of method Keboola\\\\StorageApi\\\\Options\\\\TokenAbstractOptions\\:\\:addBucketPermission\\(\\) expects string, mixed given\\.$#"
-			count: 1
-			path: tests/Backend/Mixed/SharingTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$csvString of static method Keboola\\\\StorageApi\\\\Client\\:\\:parseCsv\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
-			path: tests/Backend/Mixed/SharingTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$replace of function str_replace expects array\\|string, mixed given\\.$#"
-			count: 7
 			path: tests/Backend/Mixed/SharingTest.php
 
 		-
@@ -3053,11 +3008,6 @@ parameters:
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificProjectsTest\\:\\:testUpdateShareBucketToProject\\(\\) has parameter \\$isAsync with no type specified\\.$#"
 			count: 1
-			path: tests/Backend/Mixed/SharingToSpecificProjectsTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$bucketId of method Keboola\\\\StorageApi\\\\Client\\:\\:getBucket\\(\\) expects string, mixed given\\.$#"
-			count: 4
 			path: tests/Backend/Mixed/SharingToSpecificProjectsTest.php
 
 		-
@@ -3128,11 +3078,6 @@ parameters:
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingToSpecificUsersTest\\:\\:testUpdateShareBucketToUser\\(\\) has parameter \\$isAsync with no type specified\\.$#"
 			count: 1
-			path: tests/Backend/Mixed/SharingToSpecificUsersTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$bucketId of method Keboola\\\\StorageApi\\\\Client\\:\\:getBucket\\(\\) expects string, mixed given\\.$#"
-			count: 2
 			path: tests/Backend/Mixed/SharingToSpecificUsersTest.php
 
 		-
@@ -3341,23 +3286,8 @@ parameters:
 			path: tests/Backend/MixedSnowflakeSynapse/SharingTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$bucketId of method Keboola\\\\StorageApi\\\\Client\\:\\:dropBucket\\(\\) expects string, mixed given\\.$#"
-			count: 1
-			path: tests/Backend/MixedSnowflakeSynapse/SharingTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$bucketId of method Keboola\\\\StorageApi\\\\Client\\:\\:listTables\\(\\) expects string\\|null, mixed given\\.$#"
-			count: 1
-			path: tests/Backend/MixedSnowflakeSynapse/SharingTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$csvString of static method Keboola\\\\StorageApi\\\\Client\\:\\:parseCsv\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
-			path: tests/Backend/MixedSnowflakeSynapse/SharingTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$replace of function str_replace expects array\\|string, mixed given\\.$#"
-			count: 7
 			path: tests/Backend/MixedSnowflakeSynapse/SharingTest.php
 
 		-

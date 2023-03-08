@@ -412,7 +412,7 @@ class Client
      * @param int $sourceProjectId
      * @param string $sourceBucketId
      * @param string|null $displayName bucket display name
-     * @return mixed
+     * @return string
      */
     public function linkBucket($name, $stage, $sourceProjectId, $sourceBucketId, $displayName = null, $async = false)
     {
