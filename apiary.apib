@@ -5633,15 +5633,22 @@ with the bucket are returned in the response.
             + key (required)
             + value (required)
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            provider=test-component&metadata%5B0%5D%5Bkey%5D=some-key&metadata%5B0%5D%5Bvalue%5D=Some+value
-
+            {
+                "provider": "test-component",
+                "metadata": [
+                    {
+                        "key": "some-key",
+                        "value": "Some value"
+                    }
+                ]
+            }
 
 + Response 201 (application/json)
     + Body
@@ -5877,15 +5884,22 @@ with the column are returned in the response.
             + key (required)
             + value (required)
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            provider=test-component&metadata%5B0%5D%5Bkey%5D=some-key&metadata%5B0%5D%5Bvalue%5D=Some+value
-
+            {
+                "provider": "test-component",
+                "metadata": [
+                    {
+                        "key": "some-key",
+                        "value": "Some value"
+                    }
+                ]
+            }
 
 + Response 201 (application/json)
     + Body
@@ -5965,15 +5979,21 @@ with the configuration are returned in the response.
             + key (required)
             + value (required)
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            metadata%5B0%5D%5Bkey%5D=some-key&metadata%5B0%5D%5Bvalue%5D=Some+value
-
+            {
+                "metadata": [
+                    {
+                        "key": "some-key",
+                        "value": "Some value"
+                    }
+                ]
+            }
 
 + Response 201 (application/json)
     + Body
@@ -6055,15 +6075,21 @@ with the branch are returned.
             + key (required)
             + value (required)
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            metadata%5B0%5D%5Bkey%5D=some-key&metadata%5B0%5D%5Bvalue%5D=Some+value
-
+            {
+                "metadata": [
+                    {
+                        "key": "some-key",
+                        "value": "Some value"
+                    }
+                ]
+            }
 
 + Response 201 (application/json)
     + Body
