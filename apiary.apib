@@ -5357,14 +5357,18 @@ the HTTP 400 response code is returned.
     + duration (optional, number) - Duration of the associated task in seconds
     + runId (optional) - Id of the associated component job
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            component=keboola.test-component&message=This+is+a+word+of+warning&type=warn
+            {
+                "component": "keboola.test-component",
+                "message": "This is a word of warning",
+                "type": "warn"
+            }
 
 + Response 201 (application/json)
     + Body
@@ -5397,14 +5401,18 @@ the HTTP 400 response code is returned.
     + duration (optional, number) - Duration of the associated task in seconds
     + runId (optional) - Id of the associated component job
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            component=keboola.test-component&message=This+is+a+word+of+warning&type=warn
+            {
+                "component": "keboola.test-component",
+                "message": "This is a word of warning",
+                "type": "warn"
+            }
 
 + Response 201 (application/json)
     + Body
