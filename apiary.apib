@@ -6916,22 +6916,26 @@ Creates a new component configuration for [Development Branch](#reference/develo
     + component_id (required) - Id of the Component
 
 + Attributes
-    + name (required) - Configuration name
-    + configurationId (optional) - Configuration Id (must be unique for each component type). If not set, it will be auto-generated.
-    + description (optional) - Configuration description
-    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + state (optional) - Serialized state configuration JSON; the maximum allowed size is 4MB
-    + changeDescription (optional) - Description of the configuration modification
+    + name (required, string) - Configuration name
+    + configurationId (optional, number) - Configuration Id (must be unique for each component type). If not set, it will be auto-generated.
+    + description (optional, string) - Configuration description
+    + configuration (optional, string) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + state (optional, string) - Serialized state configuration JSON; the maximum allowed size is 4MB
+    + changeDescription (optional, string) - Description of the configuration modification
     + isDisabled (optional, boolean) - Disabled flag
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            name=My+new+configuration&configuration=%7B%22key%22%3A%22value%22%2C+%22key2%22%3A%22value2%22%7D&changeDescription=Initial+configuration
+            {
+                "name": "My new configuration",
+                "configuration": "{\"key\":\"value\", \"key2\":\"value2\"}",
+                "changeDescription": "Initial configuration"
+            }
 
 + Response 201 (application/json)
     + Body
@@ -7030,22 +7034,25 @@ Updates an existing configuration for [Development Branch](#reference/developmen
     + config_id (required) - Id of the configuration
 
 + Attributes
-    + name (required) - Configuration name
-    + description (optional) - Configuration description
-    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + changeDescription (optional) - Description of the configuration modification
+    + name (required, string) - Configuration name
+    + description (optional, string) - Configuration description
+    + configuration (optional, string) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + state (optional, string) - Serialized state configuration JSON; the maximum allowed size is 4MB
+    + changeDescription (optional, string) - Description of the configuration modification
     + isDisabled (optional, boolean) - Disabled flag
-    + rowsSortOrder (optional) - Array of row ids in desired order, you have to specify all row ids
+    + rowsSortOrder[] (optional, string) - Array of row ids in desired order, you have to specify all row ids
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            configuration=%7B%22key%22%3A%22value%22%2C+%22key2%22%3A%22value2%22%2C+%22key3%22%3A+%22value3%22%7D&changeDescription=Added+new+key
-
+            {
+                "configuration": "{\"key\":\"value\", \"key2\":\"value2\", \"key3\": \"value3\"}",
+                "changeDescription": "Added new key"
+            }
 
 + Response 200 (application/json)
     + Body
@@ -7090,17 +7097,18 @@ Updates state of an existing configuration for [Development Branch](#reference/d
     + config_id (required) - Id of the configuration
 
 + Attributes
-    + state (required) - Serialized configuration state JSON; the maximum allowed size is 4MB
+    + state (required, string) - Serialized configuration state JSON; the maximum allowed size is 4MB
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            state=%7B%22lastId%22%3A123%7D
-
+            {
+                "state": "{\"lastId\":123}"
+            }
 
 + Response 200 (application/json)
     + Body
@@ -7145,7 +7153,7 @@ Updates an existing configuration for [Development Branch](#reference/developmen
     + component_id (required) - Id of the component
     + config_id (required) - Id of the configuration
 
-+ Request (application/x-www-form-urlencoded)
++ Request
     + Headers
 
             X-StorageApi-Token: your_token
@@ -7348,16 +7356,18 @@ one you specified. `state` attributes of the config and rows is preserved, if an
     + version_id (required, number) - Version number to rollback to
 
 + Attributes
-    + changeDescription (optional) - Description of a version change
+    + changeDescription (optional, string) - Description of a version change
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            changeDescription=change+description
+            {
+                "changeDescription": "change description"
+            }
 
 + Response 201 (application/json)
 
@@ -7382,18 +7392,21 @@ Creates a new configuration from the specified configuration version in [Develop
     + version_id (required, number) - Version number to copy
 
 + Attributes
-    + name (required) - Name of the new configuration
-    + description (optional) - Description of the new configuration
-    + changeDescription (optional) - Version change description
+    + name (required, string) - Name of the new configuration
+    + description (optional, string) - Description of the new configuration
+    + changeDescription (optional, string) - Version change description
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            name=Configuration+copy&changeDescription=Testing+Copying
+            {
+                "name": "Configuration copy",
+                "changeDescription": "Testing Copying"
+            }
 
 + Response 201 (application/json)
 
@@ -7417,22 +7430,25 @@ Creates a new row (item) of an existing configuration in [Development Branch](#r
     + config_id (required) - Id of the configuration
 
 + Attributes
-    + rowId (optional) - Row id (must be unique for each configuration); if not set, it will be generated
-    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + state (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
+    + rowId (optional, string) - Row id (must be unique for each configuration); if not set, it will be generated
+    + configuration (optional, string) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + state (optional, string) - Serialized configuration state JSON; the maximum allowed size is 4MB
     + name (optional, string) - Row name
     + description (optional, string) - Row description
     + isDisabled (optional, boolean) - Disabled flag
-    + changeDescription (optional) - Version change description
+    + changeDescription (optional, string) - Version change description
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            configuration=%7B%22host%22%3A+%22localhost%22%2C+%22port%22%3A+4406%7D&changeDescription=Added+new+row
+            {
+                "configuration": "{\"host\": \"localhost\", \"port\": 4406}",
+                "changeDescription": "Added new row"
+            }
 
 + Response 201 (application/json)
 
@@ -7564,20 +7580,24 @@ independently on the configurations.
     + row_id (required) - Id of the configuration row
 
 + Attributes
-    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + configuration (optional, string) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + state (optional, string) - Serialized configuration state JSON; the maximum allowed size is 4MB
     + name (optional, string) - Row name
     + description (optional, string) - Row description
     + isDisabled (optional, boolean) - Disabled flag
-    + changeDescription (optional) - Version change description
+    + changeDescription (optional, string) - Version change description
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            configuration=%7B%22host%22%3A+%22localhost%22%2C+%22port%22%3A+null%7D&changeDescription=change+description
+            {
+                "configuration": "{\"host\": \"localhost\", \"port\": null}",
+                "changeDescription": "change description"
+            }
 
 + Response 200 (application/json)
 
@@ -7610,16 +7630,18 @@ Updates state of an existing configuration for [Development Branch](#reference/d
     + row_id (required) - Id of the configuration row
 
 + Attributes
-    + state (required) - Serialized configuration state JSON; the maximum allowed size is 4MB
+    + state (required, string) - Serialized configuration state JSON; the maximum allowed size is 4MB
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            state=%7B%22lastId%22%3A123%7D
+            {
+                "state": "{\"lastId\":123}"
+            }
 
 + Response 200 (application/json)
 
@@ -7655,16 +7677,18 @@ A configuration row is deleted permanently and cannot be restored.
     + row_id (required) - Id of the configuration row
 
 + Attributes
-    + changeDescription (optional) - Version change description
+    + changeDescription (optional, string) - Version change description
 
-+ Request
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            changeDescription=change+description
+            {
+                "changeDescription": "change description"
+            }
 
 + Response 204
 
@@ -7805,16 +7829,18 @@ content to be rollbacked to.
     + version_id (required) - Id of the configuration row version to rollback to
 
 + Attributes
-    + changeDescription (optional) - Version change description
+    + changeDescription (optional, string) - Version change description
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            changeDescription=Rollback+to+previous+version
+            {
+                "changeDescription": "Rollback to previous version"
+            }
 
 + Response 201 (application/json)
 
@@ -7855,17 +7881,20 @@ Creates a new configuration row from an existing row version in [Development Bra
     + version_id (required) - Id of the configuration row version to copy from
 
 + Attributes
-    + targetConfigId (optional) - Copy the row to another existing configuration. If not provided, the row will be copied to the original configuration.
-    + changeDescription (optional) - Version change description
+    + targetConfigId (optional, string) - Copy the row to another existing configuration. If not provided, the row will be copied to the original configuration.
+    + changeDescription (optional, string) - Version change description
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            changeDescription=Copy+to+another+row&targetConfigId=236606822
+            {
+                "targetConfigId": 236606822,
+                "changeDescription": "Copy to another row"
+            }
 
 + Response 201 (application/json)
 
@@ -7915,21 +7944,24 @@ Creates a new workspace for an existing configuration in [Development Branch](#r
             + medium
             + large
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            backend=snowflake
+            {
+                "backend": "snowflake"
+            }
 
 + Response 201 (application/json)
+    Synchronous call response (async=false)
 
    + Attributes (WorkspaceCreated)
 
 + Response 202 (application/json)
-Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
     + Body
 
             {
