@@ -6330,16 +6330,25 @@ For a more detailed guide on the file upload, see the corresponding part of the
     + isEncrypted (optional, boolean) - If true, the file content will be encrypted in the provided storage. Azure and Google Cloud always create encrypted file regardless this setting.
         Default: false
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-                name=someFile.csv&tags%5B0%5D=tag1&tags%5B1%5D=tag2&sizeBytes=12345&federationToken=true
+            {
+                "name": "someFile.csv",
+                "tags": [
+                    "tag1",
+                    "tag2"
+                ],
+                "sizeBytes": 12345,
+                "federationToken": true
+            }
 
 + Response 201 (application/json)
+    for Azure provider
     + Body
 
             {
@@ -6378,6 +6387,7 @@ For a more detailed guide on the file upload, see the corresponding part of the
             }
 
 + Response 201 (application/json)
+    for Azure provider
     + Body
 
             {
@@ -6414,6 +6424,7 @@ For a more detailed guide on the file upload, see the corresponding part of the
             }
 
 + Response 201 (application/json)
+    for GCP provider
     + Body
 
             {
@@ -6570,14 +6581,16 @@ Adds a new tag to a file.
 + Attributes
     + tag (required) - Tag name
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            tag=image
+            {
+                "tag": "image"
+            }
 
 + Response 204
 
