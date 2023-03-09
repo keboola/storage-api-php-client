@@ -19,6 +19,22 @@
 		<exclude>tests/Common/BranchBucketsTest.php</exclude>
 		<exclude>tests/Common/BranchWorkspacesTest.php</exclude>
 		<file>tests/Backend/Workspaces/BranchComponentsWorkspacesTest.php</file>
+
+		<exclude>tests/Common/ComponentsEventsTest.php</exclude>
+		<exclude>tests/Common/ComponentsTest.php</exclude>
+		<exclude>tests/Common/ConfigurationMetadataTest.php</exclude>
+		<exclude>tests/Common/ConfigurationRowStateTest.php</exclude>
+		<exclude>tests/Common/ConfigurationRowTest.php</exclude>
+		<exclude>tests/Common/ConfigurationRowsSortOrderTest.php</exclude>
+	</testsuite>
+
+	<testsuite name="common-components">
+		<file>tests/Common/ComponentsEventsTest.php</file>
+		<file>tests/Common/ComponentsTest.php</file>
+		<file>tests/Common/ConfigurationMetadataTest.php</file>
+		<file>tests/Common/ConfigurationRowStateTest.php</file>
+		<file>tests/Common/ConfigurationRowTest.php</file>
+		<file>tests/Common/ConfigurationRowsSortOrderTest.php</file>
 	</testsuite>
 
 	<testsuite name="azure-common">
