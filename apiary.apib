@@ -4558,14 +4558,16 @@ Creates a new workspace and return its credentials.
             + small
             + medium
             + large
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            backend=snowflake
+            {
+                "backend": "snowflake"
+            }
 
 + Response 201 (application/json)
 Synchronous call response (async=false)
@@ -4628,14 +4630,16 @@ Creates a new workspace for [Development Branch](#reference/development-branches
             + medium
             + large
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            backend=snowflake
+            {
+                "backend": "snowflake"
+            }
 
 + Response 201 (application/json)
 Synchronous call response (async=false)
@@ -4833,14 +4837,25 @@ Loads tables from Storage into a Workspace. Not supported for Teradata and Bigqu
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
         Default: false
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            input%5B0%5D%5Bsource%5D=in.c-application-testing.carseats&input%5B0%5D%5Bdestination%5D=table1&input%5B1%5D%5Bsource%5D=in.c-application-testing.cashier-data&input%5B1%5D%5Bdestination%5D=table2
+            {
+                "input": [
+                    {
+                        "source": "in.c-application-testing.carseats",
+                        "destination": "table1"
+                    },
+                    {
+                        "source": "in.c-application-testing.cashier-data",
+                        "destination": "table2"
+                    }
+                ]
+            }
 
 + Response 201 (application/json)
     + Body
@@ -4952,14 +4967,25 @@ Loads tables from Storage into a Workspace in [Development Branch](#reference/de
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
         Default: false
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            input%5B0%5D%5Bsource%5D=in.c-application-testing.carseats&input%5B0%5D%5Bdestination%5D=table1&input%5B1%5D%5Bsource%5D=in.c-application-testing.cashier-data&input%5B1%5D%5Bdestination%5D=table2
+            {
+                "input": [
+                    {
+                        "source": "in.c-application-testing.carseats",
+                        "destination": "table1"
+                    },
+                    {
+                        "source": "in.c-application-testing.cashier-data",
+                        "destination": "table2"
+                    }
+                ]
+            }
 
 + Response 201 (application/json)
     + Body
@@ -5032,14 +5058,21 @@ when any of the row values were changed during an incremental import.
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
         Default: false
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            input%5B0%5D%5Bsource%5D=in.c-application-testing.cashier-data&input%5B0%5D%5Bdestination%5D=my-table
+            {
+                "input": [
+                    {
+                        "source": "in.c-application-testing.cashier-data",
+                        "destination": "my-table"
+                    }
+                ]
+            }
 
 + Response 201 (application/json)
     + Body
@@ -5107,14 +5140,21 @@ when any of the row values were changed during an incremental import.
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
         Default: false
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            input%5B0%5D%5Bsource%5D=in.c-application-testing.cashier-data&input%5B0%5D%5Bdestination%5D=my-table
+            {
+                "input": [
+                    {
+                        "source": "in.c-application-testing.cashier-data",
+                        "destination": "my-table"
+                    }
+                ]
+            }
 
 + Response 201 (application/json)
     + Body
