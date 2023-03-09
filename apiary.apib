@@ -8469,7 +8469,7 @@ For example, you want to list configurations ([common](#reference/components-and
 
 ### List branches [GET]
 
-+ Request (application/x-www-form-urlencoded)
++ Request
 
     + Headers
 
@@ -8518,7 +8518,7 @@ For example, you want to list configurations ([common](#reference/components-and
     + name (required, string) - name of the branch
     + description (optional, string) - description of the branch
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
 
     + Headers
 
@@ -8526,7 +8526,9 @@ For example, you want to list configurations ([common](#reference/components-and
 
     + Body
 
-            name=Refactor+DB+extractors
+            {
+                "name": "Refactor DB extractors"
+            }
 
 + Response 202
 
@@ -8570,7 +8572,7 @@ For example, you want to list configurations ([common](#reference/components-and
 + Parameters
     + id (required, number) - id of the branch
 
-+ Request (application/x-www-form-urlencoded)
++ Request
 
     + Headers
 
@@ -8603,11 +8605,16 @@ Update of a default branch name is not allowed.
     + name (optional, string) - new name
     + description (optional, string) - new description
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
 
     + Headers
 
             X-StorageApi-Token: your_token
+    + Body
+
+            {
+                "description": "Some description"
+            }
 
 + Response 200
 
@@ -8616,7 +8623,7 @@ Update of a default branch name is not allowed.
             {
                 "id": 123,
                 "name": "My branch",
-                "description": "",
+                "description": "Some description",
                 "created": "2020-09-17T12:17:32+0200",
                 "isDefault": false,
                 "creatorToken": {
@@ -8632,7 +8639,7 @@ other buckets (production buckets or buckets belongs the other development branc
 + Parameters
     + id (required, number) - id of the branch
 
-+ Request (application/x-www-form-urlencoded)
++ Request
 
     + Headers
 
