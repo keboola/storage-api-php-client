@@ -2753,48 +2753,35 @@ The create request is created and added to a queue, the job resource url for sta
 
 ## Load data asynchronously [/v2/storage/tables/{table_id}/import-async]
 
-### Import data [POST]
 The method of asynchronous importing should be used for larger imports (everything with 100 lines and more).
 The import request is created and added to a queue; the job resource url for status polling is returned.
 Asynchronous imports requested on the same table will be serialized.
 
-The actual data must be provided in one of the following attributes:
+### Import data from CSV file asynchronously [POST]
 
-- **dataFileId**,
-- **dataWorkspaceId** and **dataObject** (older "dataTableName" is deprecated)
+The actual data must be provided in the following attributes:
+- **dataFileId**
 
 An imported file can be sliced into multiple chunks; the conditions described in [File Uploads](#reference/files) must be satisfied.
 The CSV file can be raw or gzipped. Gzipped files must have the extension `.gz`. A typical asynchronous import negotiation consists of these steps:
 
 1. Upload a CSV file using [File Upload](#reference/files).
-2. Submit an [asynchronous import request](#reference/tables/load-data-asynchronously/imports-data) with `dataFileId` set to the File Id returned in the previous step.
+2. Submit an [asynchronous import request](#reference/tables/load-data-asynchronously/imports-data-from-csv-file-asynchronously) with `dataFileId` set to the File ID returned in the previous step.
 3. Poll job resource returned in the previous step until the `status` is `success` or `error`.
-
-Import from table and file workspace is supported.
-
-- For table workspace use dataWorkspaceId and set dataObject with name of source table.
-- For file workspace use dataWorkspaceId and dataObject can be:
-  - single file `file.csv`
-  - folder `folder/` (mind the trailing slash)
-  - manifest `file.csvmanifest`
-- For file workspace always use `columns[]` attribute with lost of imported columns
 
 Further information can be found in the [Developers Documentation](https://developers.keboola.com/integrate/storage/api/import-export/).
 
 + Parameters
-    + table_id (required) - Table Id
+    + table_id (required) - Target table ID
 
 + Attributes
-    + dataFileId (optional) - Id of the file stored in [File Uploads](#reference/files); all gzipped and sliced files are supported.
-    + dataWorkspaceId (optional) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
-    + dataTableName (optional) - (deprecated use dataObject) Load from the table in the [workspace](#reference/workspaces).
-    + dataObject (optional) - Load from the table/file in the [workspace](#reference/workspaces).
-    + incremental (optional, boolean) - If `incremental` is a non-zero value, the import adds data to the existing data in the table. If `incremental` is 0, the target table will be truncated before the import.
-    + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for tabulator.
-    + enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
-    + escapedBy (optional) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
-    + columns[] (optional) - List of columns present in the CSV file; the first line of the file will not be treated as a header!
-    + withoutHeaders (optional) - The CSV file doesn't contain headers, columns are matched by their order. If this option is used, columns option is ignored.
+    + dataFileId (required, number) - ID of the file stored in [File Uploads](#reference/files); all gzipped and sliced files are supported.
+    + incremental (optional, boolean) - If `incremental` is a non-zero value, the import adds data to the existing data in the table. If `incremental` is `false`, the target table will be truncated before the import.
+    + delimiter (optional, string) - Field delimiter used in the CSV file. The default value is `,`.  Use '\t' or type the tab char for tabulator.
+    + enclosure (optional, string) - Field enclosure used in the CSV file. The default value is `"`. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
+    + escapedBy (optional, string) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
+    + columns[] (optional, string) - List of columns present in the CSV file; the first line of the file will not be treated as a header!
+    + withoutHeaders (optional, boolean) - The CSV file doesn't contain headers, columns are matched by their order. If this option is used, columns option is ignored.
 
 + Request (application/x-www-form-urlencoded)
     + Headers
@@ -2816,8 +2803,6 @@ Further information can be found in the [Developers Documentation](https://devel
                 "operationParams": {
                     "params": {
                         "incremental": false,
-                        "partial": false,
-                        "transaction": null,
                         "source": [],
                         "withoutHeaders": false,
                         "columns": [],
@@ -2826,6 +2811,87 @@ Further information can be found in the [Developers Documentation](https://devel
                     },
                     "source": {
                         "fileId": "12345",
+                        "type": "file"
+                    },
+                    "queue": "main_fast"
+                },
+                "createdTime": "2017-02-13T12:51:48+0100",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
+### Import data from workspace asynchronously [POST]
+
+The actual data must be provided in the following attributes:
+- **dataWorkspaceId** and **dataObject** (older "dataTableName" is deprecated)
+
+Import from table and file workspace is supported.
+
+- For **table workspace** use `dataWorkspaceId` and set `dataObject` with name of source table.
+- For **file workspace** use `dataWorkspaceId` and `dataObject` can be:
+  - single file `file.csv`
+  - folder `folder/` (mind the trailing slash)
+  - manifest `file.csvmanifest`
+- For **file workspace** always use `columns[]` attribute with list of imported columns.
+
+Further information can be found in the [Developers Documentation](https://developers.keboola.com/integrate/storage/api/import-export/).
+
++ Parameters
+    + table_id (required) - Target table ID
+
++ Attributes
+    + dataWorkspaceId (required) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
+    + dataTableName (optional) - (deprecated use dataObject) ~~Load from the table in the [workspace](#reference/workspaces).~~
+    + dataObject (optional) - Load from the table/file in the [workspace](#reference/workspaces).
+    + incremental (optional, boolean) - If `incremental` is a non-zero value, the import adds data to the existing data in the table. If `incremental` is `false`, the target table will be truncated before the import.
+    + delimiter (optional, string) - Field delimiter used in the CSV file. The default value is `,`.  Use '\t' or type the tab char for tabulator.
+    + enclosure (optional, string) - Field enclosure used in the CSV file. The default value is `"`. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
+    + escapedBy (optional, string) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
+    + columns[] (optional, string) - List of columns present in the CSV file; the first line of the file will not be treated as a header!
+    + withoutHeaders (optional, boolean) - The CSV file doesn't contain headers, columns are matched by their order. If this option is used, columns option is ignored.
+
++ Request (application/x-www-form-urlencoded)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            dataWorkspaceId=12345&dataObject=myTable&incremental=0
+
++ Response 202 (application/json)
+
+            {
+                "id": 22070846,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/22070846",
+                "tableId": "in.c-main.test",
+                "operationName": "tableImport",
+                "operationParams": {
+                    "params": {
+                        "incremental": false,
+                        "source": [],
+                        "withoutHeaders": false,
+                        "columns": [],
+                    },
+                    "source": {
+                        "workspaceId": "12345",
+                        "dataObject": "myTable",
+                        "tableName": "myTable",
                         "type": "file"
                     },
                     "queue": "main_fast"
