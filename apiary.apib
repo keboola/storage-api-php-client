@@ -8252,11 +8252,11 @@ When updating the component of trigger you need permissions for both the current
 + Attributes
     + runWithTokenId (required, number) - ID of token used for running configured component
     + component: `orchestration` (required, enum[string]) - For now we support only 'orchestration'
-    + configurationId (required, string) - Id of component configuration
+    + configurationId (required, number) - Id of component configuration
     + coolDownPeriodMinutes (required, number) - Minimal cool down period before firing action again in minutes (min is 1 minute)
     + tabledIds (required, object) - Array of tables ids
         + tableId (string) - Id of table (like "in.c-test.watched")
-+ Request
++ Request (application/json)
 
     + Headers
 
@@ -8264,7 +8264,16 @@ When updating the component of trigger you need permissions for both the current
 
     + Body
 
-            runWithTokenId=123&component=orchestration&configurationId=123&coolDownPeriodMinutes=20&tableIds[0]=in.c-test.watched-1&tableIds[1]=in.c-prod.watched-5
+            {
+                "runWithTokenId": 123,
+                "component": "orchestration",
+                "configurationId": 123,
+                "coolDownPeriodMinutes": 20,
+                "tableIds": [
+                    "in.c-test.watched-1",
+                    "in.c-prod.watched-5"
+                ]
+            }
 
 + Response 201 (application/json)
 
@@ -8372,7 +8381,7 @@ Updates an existing trigger
     + tabledIds (optional, object) - Array of tables ids
         + tableId (string) - Id of table (like "in.c-test.watched")
 
-+ Request
++ Request (application/json)
 
     + Headers
 
@@ -8380,7 +8389,9 @@ Updates an existing trigger
 
     + Body
 
-            runWithTokenId=100
+            {
+                "runWithTokenId": 100
+            }
 
 + Response 200 (application/json)
 
