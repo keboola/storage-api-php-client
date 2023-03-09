@@ -21,6 +21,10 @@
 		<file>tests/Backend/Workspaces/BranchComponentsWorkspacesTest.php</file>
 	</testsuite>
 
+	<testsuite name="common-components">
+		<directory>tests/Components</directory>
+	</testsuite>
+
 	<testsuite name="azure-common">
 		<file>tests/Common/QueueJobsTest.php</file>
 		<file>tests/Common/BranchEventsTest.php</file>

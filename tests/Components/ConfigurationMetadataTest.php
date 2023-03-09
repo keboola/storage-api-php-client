@@ -1,6 +1,6 @@
 <?php
 
-namespace Keboola\Test\Common;
+namespace Keboola\Test\Components;
 
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
@@ -8,8 +8,8 @@ use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationMetadata;
 use Keboola\StorageApi\Options\Components\ListConfigurationMetadataOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
-use Keboola\Test\Utils\ComponentsConfigurationUtils;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\ComponentsConfigurationUtils;
 use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\EventTesterUtils;
 use Keboola\Test\Utils\MetadataUtils;
