@@ -37,8 +37,8 @@ class Components
             'name' => $options->getName(),
             'description' => $options->getDescription(),
             'configurationId' => $options->getConfigurationId(),
-            'configuration' => $options->getConfiguration() ? json_encode($options->getConfiguration()) : null,
-            'state' => $options->getState() ? json_encode($options->getState()) : null,
+            'configuration' => $options->getConfiguration() ?: null,
+            'state' => $options->getState() ?: null,
             'changeDescription' => $options->getChangeDescription(),
             'isDisabled' => $options->getIsDisabled(),
         ]);
@@ -206,8 +206,8 @@ class Components
             ),
             [
                 'rowId' => $options->getRowId(),
-                'configuration' => $options->getConfiguration() ? json_encode($options->getConfiguration()) : null,
-                'state' => $options->getState() ? json_encode($options->getState()) : null,
+                'configuration' => $options->getConfiguration() ?: null,
+                'state' => $options->getState() ?: null,
                 'changeDescription' => $options->getChangeDescription(),
                 'name' => $options->getName(),
                 'description' => $options->getDescription(),
