@@ -164,7 +164,7 @@ class S3Uploader
              * @var S3MultipartUploadException $reason
              */
             foreach ($rejected as $filePath => $reason) {
-                $this->logger->notice(sprintf(sprintf('Uploadfailed: %s, %s, %s, %s', $filePath, $reason->getMessage(), $reason->getCode(), $reason->getKey())));
+                $this->logger->notice(sprintf('Uploadfailed: %s, %s, %s, %s', $filePath, $reason->getMessage(), $reason->getCode(), $reason->getKey()));
                 $uploader = $this->multipartUploaderFactory(
                     $filePath,
                     $bucket,
