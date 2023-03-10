@@ -37,8 +37,8 @@ class Components
             'name' => $options->getName(),
             'description' => $options->getDescription(),
             'configurationId' => $options->getConfigurationId(),
-            'configuration' => $options->getConfiguration() ? json_encode($options->getConfiguration()) : null,
-            'state' => $options->getState() ? json_encode($options->getState()) : null,
+            'configuration' => $options->getConfiguration() ?: null,
+            'state' => $options->getState() ?: null,
             'changeDescription' => $options->getChangeDescription(),
             'isDisabled' => $options->getIsDisabled(),
         ]);
@@ -57,14 +57,14 @@ class Components
 
         if ($options->getConfiguration() !== null) {
             if ($options->getConfiguration() === []) {
-                $data['configuration'] = '{}';
+                $data['configuration'] = (object) [];
             } else {
-                $data['configuration'] = json_encode($options->getConfiguration());
+                $data['configuration'] = $options->getConfiguration();
             }
         }
 
-        if (!is_null($options->getState())) {
-            $data['state'] = json_encode($options->getState());
+        if ($options->getState() !== null) {
+            $data['state'] = $options->getState();
         }
 
         if ($options->getChangeDescription()) {
@@ -91,9 +91,9 @@ class Components
 
         if ($options->getState() !== null) {
             if ($options->getState() === []) {
-                $data['state'] = '{}';
+                $data['state'] = (object) [];
             } else {
-                $data['state'] = json_encode($options->getState());
+                $data['state'] = $options->getState();
             }
         }
 
@@ -206,8 +206,8 @@ class Components
             ),
             [
                 'rowId' => $options->getRowId(),
-                'configuration' => $options->getConfiguration() ? json_encode($options->getConfiguration()) : null,
-                'state' => $options->getState() ? json_encode($options->getState()) : null,
+                'configuration' => $options->getConfiguration() ?: null,
+                'state' => $options->getState() ?: null,
                 'changeDescription' => $options->getChangeDescription(),
                 'name' => $options->getName(),
                 'description' => $options->getDescription(),
@@ -239,17 +239,17 @@ class Components
 
         if ($options->getConfiguration() !== null) {
             if ($options->getConfiguration() === []) {
-                $data['configuration'] = '{}';
+                $data['configuration'] = (object) [];
             } else {
-                $data['configuration'] = json_encode($options->getConfiguration());
+                $data['configuration'] = $options->getConfiguration();
             }
         }
 
         if ($options->getState() !== null) {
             if ($options->getState() === []) {
-                $data['state'] = '{}';
+                $data['state'] = (object) [];
             } else {
-                $data['state'] = json_encode($options->getState());
+                $data['state'] = $options->getState();
             }
         }
 
@@ -278,9 +278,9 @@ class Components
 
         if ($options->getState() !== null) {
             if ($options->getState() === []) {
-                $data['state'] = '{}';
+                $data['state'] = (object) [];
             } else {
-                $data['state'] = json_encode($options->getState());
+                $data['state'] = $options->getState();
             }
         }
 
