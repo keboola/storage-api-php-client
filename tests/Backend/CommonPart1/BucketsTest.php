@@ -48,7 +48,6 @@ class BucketsTest extends StorageApiTestCase
         $this->assertTrue($outBucketFound);
 
         $firstBucket = reset($buckets);
-        $this->assertArrayHasKey('attributes', $firstBucket);
         $this->assertArrayHasKey('displayName', $firstBucket);
         $this->assertNotEquals('', $firstBucket['displayName']);
     }
@@ -145,7 +144,7 @@ class BucketsTest extends StorageApiTestCase
         ]);
 
         $firstBucket = reset($buckets);
-        $this->assertArrayNotHasKey('attributes', $firstBucket);
+        $this->assertArrayNotHasKey('metadata', $firstBucket);
     }
 
     public function testBucketsListWithIncludeMetadata(): void
@@ -159,7 +158,6 @@ class BucketsTest extends StorageApiTestCase
 
         $firstBucket = reset($firstBucket);
 
-        self::assertArrayNotHasKey('attributes', $firstBucket);
         self::assertArrayHasKey('metadata', $firstBucket);
         self::assertEmpty($firstBucket['metadata']);
 
