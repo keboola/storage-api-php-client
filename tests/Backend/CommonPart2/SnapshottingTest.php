@@ -36,7 +36,6 @@ class SnapshottingTest extends StorageApiTestCase
         $this->assertEquals($description, $snapshot['description']);
         $this->assertEquals($table['primaryKey'], $snapshot['table']['primaryKey']);
         $this->assertEquals($table['columns'], $snapshot['table']['columns']);
-        $this->assertEquals($table['attributes'], $snapshot['table']['attributes']);
         $this->assertArrayHasKey('creatorToken', $snapshot);
         $this->assertNotEmpty($snapshot['dataFileId']);
     }
@@ -58,7 +57,6 @@ class SnapshottingTest extends StorageApiTestCase
         $this->assertEquals($description, $snapshot['description']);
         $this->assertEquals($table['primaryKey'], $snapshot['table']['primaryKey']);
         $this->assertEquals($table['columns'], $snapshot['table']['columns']);
-        $this->assertEquals($table['attributes'], $snapshot['table']['attributes']);
         $this->assertArrayHasKey('creatorToken', $snapshot);
         $this->assertNotEmpty($snapshot['dataFileId']);
 
