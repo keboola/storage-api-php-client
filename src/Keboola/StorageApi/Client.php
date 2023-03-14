@@ -1253,59 +1253,6 @@ class Client
 
     /**
      *
-     * Set a table attribute
-     *
-     * @deprecated
-     * @param string $tableId
-     * @param string $key
-     * @param string $value
-     * @param bool null $protected
-     */
-    public function setTableAttribute($tableId, $key, $value, $protected = null)
-    {
-        $data = [
-            'value' => $value,
-        ];
-        if ($protected !== null) {
-            $data['protected'] = (bool) $protected;
-        }
-        // Keep form-data, doesn't support JSON - endpoint will be removed
-        $this->apiPost("tables/$tableId/attributes/$key", $data);
-    }
-
-    /**
-     * @deprecated
-     * @param $tableId
-     * @param array $attributes array of objects with `name`, `value`, `protected` keys
-     */
-    public function replaceTableAttributes($tableId, $attributes = [])
-    {
-        $params = [];
-        if (!empty($attributes)) {
-            $params['attributes'] = $attributes;
-        }
-        // Keep form-data, doesn't support JSON - endpoint will be removed
-        $this->apiPost("tables/$tableId/attributes", $params);
-    }
-
-    /**
-     *
-     * Delete a table attribute
-     *
-     * @deprecated
-     * @param string $tableId
-     * @param string $key
-     * @return mixed|string
-     */
-    public function deleteTableAttribute($tableId, $key)
-    {
-        $result = $this->apiDelete("tables/$tableId/attributes/$key");
-        $this->log("Table $tableId attribute $key deleted");
-        return $result;
-    }
-
-    /**
-     *
      * Add column to table
      *
      * @param string $tableId
@@ -1328,7 +1275,7 @@ class Client
 
     /**
      *
-     * Delete a table attribute
+     * Delete a table column
      *
      * @param string $tableId
      * @param string $name
