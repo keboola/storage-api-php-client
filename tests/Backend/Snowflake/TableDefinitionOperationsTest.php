@@ -810,4 +810,126 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             ]);
         }
     }
+
+
+    public function testDataPreviewOnTypedTableWithWhereFilters(): void
+    {
+        // TODO - dopsat tam jeste dalsi kombinace typu, staci do tabulky
+        $bucketId = $this->getTestBucketId();
+        $tableDefinition = [
+            'name' => 'tryCastTable',
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'basetype' => 'INTEGER',
+                ],
+                [
+                    'name' => 'column_float',
+                    'basetype' => 'FLOAT',
+                ],
+                [
+                    'name' => 'column_boolean',
+                    'basetype' => 'BOOLEAN',
+                ],
+                [
+                    'name' => 'column_date',
+                    'basetype' => 'DATE',
+                ],
+                [
+                    'name' => 'column_timestamp',
+                    'basetype' => 'TIMESTAMP',
+                ],
+                [
+                    'name' => 'column_varchar',
+                    'basetype' => 'STRING',
+                ],
+            ],
+        ];
+
+        $csvFile = $this->createTempCsv();
+        $csvFile->writeRow([
+            'id',
+            'column_float',
+            'column_boolean',
+            'column_date',
+            'column_timestamp',
+            'column_varchar',
+        ]);
+        $csvFile->writeRow([
+            '1',
+            3.14,
+            0,
+            '1989-08-31',
+            '1989-08-31 00:00:00.000',
+            'roman',
+        ]);
+        $csvFile->writeRow([
+            '2',
+            4.14,
+            0,
+            '1989-08-31',
+            '1989-08-31 00:00:00.000',
+            'roman',
+        ]);
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        $this->_client->writeTableAsync($tableId, $csvFile);
+
+        /** @var array $data */
+        $data = $this->_client->getTableDataPreview($tableId,
+            [
+                'format' => 'json',
+                'whereFilters' => [
+                    [
+                        'column' => 'column_float',
+                        'operator' => 'lt',
+                        'values' => [4],
+                        'dataType' => 'DOUBLE',
+                    ],
+                ],
+            ],
+        );
+
+        $expectedPreview = [
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_float',
+                    'value' => '3.14',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_boolean',
+                    'value' => 'false',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_date',
+                    'value' => '1989-08-31',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_timestamp',
+                    'value' => '1989-08-31 00:00:00.000',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_varchar',
+                    'value' => 'roman',
+                    'isTruncated' => false,
+                ],
+            ],
+        ];
+
+        $this->assertSame(
+            $expectedPreview,
+            $data['rows']
+        );
+    }
 }
