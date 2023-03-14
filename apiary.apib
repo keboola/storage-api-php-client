@@ -7051,7 +7051,7 @@ Updates an existing configuration for [Development Branch](#reference/developmen
     + state (optional, string) - Serialized state configuration JSON; the maximum allowed size is 4MB
     + changeDescription (optional, string) - Description of the configuration modification
     + isDisabled (optional, boolean) - Disabled flag
-    + rowsSortOrder[] (optional, string) - Array of row ids in desired order, you have to specify all row ids
+    + rowsSortOrder (optional, array[string]) - Array of row ids in desired order, you have to specify all row ids
 
 + Request (application/json)
     + Headers
@@ -7903,7 +7903,7 @@ Creates a new configuration row from an existing row version in [Development Bra
     + Body
 
             {
-                "targetConfigId": 236606822,
+                "targetConfigId": "236606822",
                 "changeDescription": "Copy to another row"
             }
 
