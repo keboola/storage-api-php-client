@@ -2849,14 +2849,19 @@ Further information can be found in the [Developers Documentation](https://devel
     + columns[] (optional, string) - List of columns present in the CSV file; the first line of the file will not be treated as a header!
     + withoutHeaders (optional, boolean) - The CSV file doesn't contain headers, columns are matched by their order. If this option is used, columns option is ignored.
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            dataFileId=12345&incremental=0&delimiter=%2C&enclosure=%22
+            {
+                "dataFileId": 12345,
+                "incremental": false,
+                "delimiter": ",",
+                "enclosure": "\""
+            }
 
 + Response 202 (application/json)
 
@@ -2876,7 +2881,7 @@ Further information can be found in the [Developers Documentation](https://devel
                         "enclosure": "\""
                     },
                     "source": {
-                        "fileId": "12345",
+                        "fileId": 12345,
                         "type": "file"
                     },
                     "queue": "main_fast"
@@ -2920,9 +2925,9 @@ Further information can be found in the [Developers Documentation](https://devel
     + table_id (required) - Target table ID
 
 + Attributes
-    + dataWorkspaceId (required) - Load from the table [workspace](#reference/workspaces). Use with the **dataTableName** attribute.
-    + dataTableName (optional) - (deprecated use dataObject) ~~Load from the table in the [workspace](#reference/workspaces).~~
-    + dataObject (optional) - Load from the table/file in the [workspace](#reference/workspaces).
+    + dataWorkspaceId (required, number) - Load from the table [workspace](#reference/workspaces). Use with the **dataObject** attribute.
+    + dataTableName (optional, string) - **Deprecated** (use dataObject instead) ~~Load from the table in the [workspace](#reference/workspaces).~~
+    + dataObject (optional, string) - Load from the table/file in the [workspace](#reference/workspaces).
     + incremental (optional, boolean) - If `incremental` is a non-zero value, the import adds data to the existing data in the table. If `incremental` is `false`, the target table will be truncated before the import.
     + delimiter (optional, string) - Field delimiter used in the CSV file. The default value is `,`.  Use '\t' or type the tab char for tabulator.
     + enclosure (optional, string) - Field enclosure used in the CSV file. The default value is `"`. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
@@ -2930,14 +2935,18 @@ Further information can be found in the [Developers Documentation](https://devel
     + columns[] (optional, string) - List of columns present in the CSV file; the first line of the file will not be treated as a header!
     + withoutHeaders (optional, boolean) - The CSV file doesn't contain headers, columns are matched by their order. If this option is used, columns option is ignored.
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            dataWorkspaceId=12345&dataObject=myTable&incremental=0
+            {
+                "dataWorkspaceId": 12345,
+                "dataObject": "myTable",
+                "incremental": false
+            }
 
 + Response 202 (application/json)
 
@@ -4558,14 +4567,16 @@ Creates a new workspace and return its credentials.
             + small
             + medium
             + large
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            backend=snowflake
+            {
+                "backend": "snowflake"
+            }
 
 + Response 201 (application/json)
 Synchronous call response (async=false)
@@ -4628,14 +4639,16 @@ Creates a new workspace for [Development Branch](#reference/development-branches
             + medium
             + large
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            backend=snowflake
+            {
+                "backend": "snowflake"
+            }
 
 + Response 201 (application/json)
 Synchronous call response (async=false)
@@ -4833,14 +4846,25 @@ Loads tables from Storage into a Workspace. Not supported for Teradata and Bigqu
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
         Default: false
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            input%5B0%5D%5Bsource%5D=in.c-application-testing.carseats&input%5B0%5D%5Bdestination%5D=table1&input%5B1%5D%5Bsource%5D=in.c-application-testing.cashier-data&input%5B1%5D%5Bdestination%5D=table2
+            {
+                "input": [
+                    {
+                        "source": "in.c-application-testing.carseats",
+                        "destination": "table1"
+                    },
+                    {
+                        "source": "in.c-application-testing.cashier-data",
+                        "destination": "table2"
+                    }
+                ]
+            }
 
 + Response 201 (application/json)
     + Body
@@ -4952,14 +4976,25 @@ Loads tables from Storage into a Workspace in [Development Branch](#reference/de
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
         Default: false
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            input%5B0%5D%5Bsource%5D=in.c-application-testing.carseats&input%5B0%5D%5Bdestination%5D=table1&input%5B1%5D%5Bsource%5D=in.c-application-testing.cashier-data&input%5B1%5D%5Bdestination%5D=table2
+            {
+                "input": [
+                    {
+                        "source": "in.c-application-testing.carseats",
+                        "destination": "table1"
+                    },
+                    {
+                        "source": "in.c-application-testing.cashier-data",
+                        "destination": "table2"
+                    }
+                ]
+            }
 
 + Response 201 (application/json)
     + Body
@@ -5032,14 +5067,21 @@ when any of the row values were changed during an incremental import.
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
         Default: false
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            input%5B0%5D%5Bsource%5D=in.c-application-testing.cashier-data&input%5B0%5D%5Bdestination%5D=my-table
+            {
+                "input": [
+                    {
+                        "source": "in.c-application-testing.cashier-data",
+                        "destination": "my-table"
+                    }
+                ]
+            }
 
 + Response 201 (application/json)
     + Body
@@ -5107,14 +5149,21 @@ when any of the row values were changed during an incremental import.
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
         Default: false
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            input%5B0%5D%5Bsource%5D=in.c-application-testing.cashier-data&input%5B0%5D%5Bdestination%5D=my-table
+            {
+                "input": [
+                    {
+                        "source": "in.c-application-testing.cashier-data",
+                        "destination": "my-table"
+                    }
+                ]
+            }
 
 + Response 201 (application/json)
     + Body
@@ -5317,14 +5366,18 @@ the HTTP 400 response code is returned.
     + duration (optional, number) - Duration of the associated task in seconds
     + runId (optional) - Id of the associated component job
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            component=keboola.test-component&message=This+is+a+word+of+warning&type=warn
+            {
+                "component": "keboola.test-component",
+                "message": "This is a word of warning",
+                "type": "warn"
+            }
 
 + Response 201 (application/json)
     + Body
@@ -5357,14 +5410,18 @@ the HTTP 400 response code is returned.
     + duration (optional, number) - Duration of the associated task in seconds
     + runId (optional) - Id of the associated component job
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            component=keboola.test-component&message=This+is+a+word+of+warning&type=warn
+            {
+                "component": "keboola.test-component",
+                "message": "This is a word of warning",
+                "type": "warn"
+            }
 
 + Response 201 (application/json)
     + Body
@@ -5585,15 +5642,22 @@ with the bucket are returned in the response.
             + key (required)
             + value (required)
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            provider=test-component&metadata%5B0%5D%5Bkey%5D=some-key&metadata%5B0%5D%5Bvalue%5D=Some+value
-
+            {
+                "provider": "test-component",
+                "metadata": [
+                    {
+                        "key": "some-key",
+                        "value": "Some value"
+                    }
+                ]
+            }
 
 + Response 201 (application/json)
     + Body
@@ -5730,6 +5794,8 @@ At least one of the `metadata` or `columnsMetadata` object is required. Indexing
             }
 
 ### Create or Update (deprecated) [POST /v2/storage/tables/{table_id}/metadata]
+***DEPRECATED**, use the endpoint [Create or Update](#reference/metadata/table-metadata/create-or-update).*
+
 Sets multiple metadata with one call. If the given key and provider combination already exist
 for the table, the data will be updated with the new value and timestamp. All metadata associated
 with the table are returned to the response.
@@ -5829,15 +5895,22 @@ with the column are returned in the response.
             + key (required)
             + value (required)
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            provider=test-component&metadata%5B0%5D%5Bkey%5D=some-key&metadata%5B0%5D%5Bvalue%5D=Some+value
-
+            {
+                "provider": "test-component",
+                "metadata": [
+                    {
+                        "key": "some-key",
+                        "value": "Some value"
+                    }
+                ]
+            }
 
 + Response 201 (application/json)
     + Body
@@ -5917,15 +5990,21 @@ with the configuration are returned in the response.
             + key (required)
             + value (required)
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            metadata%5B0%5D%5Bkey%5D=some-key&metadata%5B0%5D%5Bvalue%5D=Some+value
-
+            {
+                "metadata": [
+                    {
+                        "key": "some-key",
+                        "value": "Some value"
+                    }
+                ]
+            }
 
 + Response 201 (application/json)
     + Body
@@ -6007,15 +6086,21 @@ with the branch are returned.
             + key (required)
             + value (required)
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            metadata%5B0%5D%5Bkey%5D=some-key&metadata%5B0%5D%5Bvalue%5D=Some+value
-
+            {
+                "metadata": [
+                    {
+                        "key": "some-key",
+                        "value": "Some value"
+                    }
+                ]
+            }
 
 + Response 201 (application/json)
     + Body
@@ -6256,16 +6341,25 @@ For a more detailed guide on the file upload, see the corresponding part of the
     + isEncrypted (optional, boolean) - If true, the file content will be encrypted in the provided storage. Azure and Google Cloud always create encrypted file regardless this setting.
         Default: false
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-                name=someFile.csv&tags%5B0%5D=tag1&tags%5B1%5D=tag2&sizeBytes=12345&federationToken=true
+            {
+                "name": "someFile.csv",
+                "tags": [
+                    "tag1",
+                    "tag2"
+                ],
+                "sizeBytes": 12345,
+                "federationToken": true
+            }
 
 + Response 201 (application/json)
+    for Azure provider
     + Body
 
             {
@@ -6304,6 +6398,7 @@ For a more detailed guide on the file upload, see the corresponding part of the
             }
 
 + Response 201 (application/json)
+    for Azure provider
     + Body
 
             {
@@ -6340,6 +6435,7 @@ For a more detailed guide on the file upload, see the corresponding part of the
             }
 
 + Response 201 (application/json)
+    for GCP provider
     + Body
 
             {
@@ -6496,14 +6592,16 @@ Adds a new tag to a file.
 + Attributes
     + tag (required) - Tag name
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            tag=image
+            {
+                "tag": "image"
+            }
 
 + Response 204
 
@@ -6829,22 +6927,26 @@ Creates a new component configuration for [Development Branch](#reference/develo
     + component_id (required) - Id of the Component
 
 + Attributes
-    + name (required) - Configuration name
-    + configurationId (optional) - Configuration Id (must be unique for each component type). If not set, it will be auto-generated.
-    + description (optional) - Configuration description
-    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + state (optional) - Serialized state configuration JSON; the maximum allowed size is 4MB
-    + changeDescription (optional) - Description of the configuration modification
+    + name (required, string) - Configuration name
+    + configurationId (optional, number) - Configuration Id (must be unique for each component type). If not set, it will be auto-generated.
+    + description (optional, string) - Configuration description
+    + configuration (optional, string) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + state (optional, string) - Serialized state configuration JSON; the maximum allowed size is 4MB
+    + changeDescription (optional, string) - Description of the configuration modification
     + isDisabled (optional, boolean) - Disabled flag
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            name=My+new+configuration&configuration=%7B%22key%22%3A%22value%22%2C+%22key2%22%3A%22value2%22%7D&changeDescription=Initial+configuration
+            {
+                "name": "My new configuration",
+                "configuration": "{\"key\":\"value\", \"key2\":\"value2\"}",
+                "changeDescription": "Initial configuration"
+            }
 
 + Response 201 (application/json)
     + Body
@@ -6943,22 +7045,25 @@ Updates an existing configuration for [Development Branch](#reference/developmen
     + config_id (required) - Id of the configuration
 
 + Attributes
-    + name (required) - Configuration name
-    + description (optional) - Configuration description
-    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + changeDescription (optional) - Description of the configuration modification
+    + name (required, string) - Configuration name
+    + description (optional, string) - Configuration description
+    + configuration (optional, string) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + state (optional, string) - Serialized state configuration JSON; the maximum allowed size is 4MB
+    + changeDescription (optional, string) - Description of the configuration modification
     + isDisabled (optional, boolean) - Disabled flag
-    + rowsSortOrder (optional) - Array of row ids in desired order, you have to specify all row ids
+    + rowsSortOrder (optional, array[string]) - Array of row ids in desired order, you have to specify all row ids
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            configuration=%7B%22key%22%3A%22value%22%2C+%22key2%22%3A%22value2%22%2C+%22key3%22%3A+%22value3%22%7D&changeDescription=Added+new+key
-
+            {
+                "configuration": "{\"key\":\"value\", \"key2\":\"value2\", \"key3\": \"value3\"}",
+                "changeDescription": "Added new key"
+            }
 
 + Response 200 (application/json)
     + Body
@@ -7003,17 +7108,18 @@ Updates state of an existing configuration for [Development Branch](#reference/d
     + config_id (required) - Id of the configuration
 
 + Attributes
-    + state (required) - Serialized configuration state JSON; the maximum allowed size is 4MB
+    + state (required, string) - Serialized configuration state JSON; the maximum allowed size is 4MB
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            state=%7B%22lastId%22%3A123%7D
-
+            {
+                "state": "{\"lastId\":123}"
+            }
 
 + Response 200 (application/json)
     + Body
@@ -7058,7 +7164,7 @@ Updates an existing configuration for [Development Branch](#reference/developmen
     + component_id (required) - Id of the component
     + config_id (required) - Id of the configuration
 
-+ Request (application/x-www-form-urlencoded)
++ Request
     + Headers
 
             X-StorageApi-Token: your_token
@@ -7261,16 +7367,18 @@ one you specified. `state` attributes of the config and rows is preserved, if an
     + version_id (required, number) - Version number to rollback to
 
 + Attributes
-    + changeDescription (optional) - Description of a version change
+    + changeDescription (optional, string) - Description of a version change
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            changeDescription=change+description
+            {
+                "changeDescription": "change description"
+            }
 
 + Response 201 (application/json)
 
@@ -7295,18 +7403,21 @@ Creates a new configuration from the specified configuration version in [Develop
     + version_id (required, number) - Version number to copy
 
 + Attributes
-    + name (required) - Name of the new configuration
-    + description (optional) - Description of the new configuration
-    + changeDescription (optional) - Version change description
+    + name (required, string) - Name of the new configuration
+    + description (optional, string) - Description of the new configuration
+    + changeDescription (optional, string) - Version change description
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            name=Configuration+copy&changeDescription=Testing+Copying
+            {
+                "name": "Configuration copy",
+                "changeDescription": "Testing Copying"
+            }
 
 + Response 201 (application/json)
 
@@ -7330,22 +7441,25 @@ Creates a new row (item) of an existing configuration in [Development Branch](#r
     + config_id (required) - Id of the configuration
 
 + Attributes
-    + rowId (optional) - Row id (must be unique for each configuration); if not set, it will be generated
-    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + state (optional) - Serialized configuration state JSON; the maximum allowed size is 4MB
+    + rowId (optional, string) - Row id (must be unique for each configuration); if not set, it will be generated
+    + configuration (optional, string) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + state (optional, string) - Serialized configuration state JSON; the maximum allowed size is 4MB
     + name (optional, string) - Row name
     + description (optional, string) - Row description
     + isDisabled (optional, boolean) - Disabled flag
-    + changeDescription (optional) - Version change description
+    + changeDescription (optional, string) - Version change description
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            configuration=%7B%22host%22%3A+%22localhost%22%2C+%22port%22%3A+4406%7D&changeDescription=Added+new+row
+            {
+                "configuration": "{\"host\": \"localhost\", \"port\": 4406}",
+                "changeDescription": "Added new row"
+            }
 
 + Response 201 (application/json)
 
@@ -7477,20 +7591,24 @@ independently on the configurations.
     + row_id (required) - Id of the configuration row
 
 + Attributes
-    + configuration (optional) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + configuration (optional, string) - Serialized configuration JSON; the maximum allowed size is 4MB
+    + state (optional, string) - Serialized configuration state JSON; the maximum allowed size is 4MB
     + name (optional, string) - Row name
     + description (optional, string) - Row description
     + isDisabled (optional, boolean) - Disabled flag
-    + changeDescription (optional) - Version change description
+    + changeDescription (optional, string) - Version change description
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            configuration=%7B%22host%22%3A+%22localhost%22%2C+%22port%22%3A+null%7D&changeDescription=change+description
+            {
+                "configuration": "{\"host\": \"localhost\", \"port\": null}",
+                "changeDescription": "change description"
+            }
 
 + Response 200 (application/json)
 
@@ -7523,16 +7641,18 @@ Updates state of an existing configuration for [Development Branch](#reference/d
     + row_id (required) - Id of the configuration row
 
 + Attributes
-    + state (required) - Serialized configuration state JSON; the maximum allowed size is 4MB
+    + state (required, string) - Serialized configuration state JSON; the maximum allowed size is 4MB
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            state=%7B%22lastId%22%3A123%7D
+            {
+                "state": "{\"lastId\":123}"
+            }
 
 + Response 200 (application/json)
 
@@ -7568,16 +7688,18 @@ A configuration row is deleted permanently and cannot be restored.
     + row_id (required) - Id of the configuration row
 
 + Attributes
-    + changeDescription (optional) - Version change description
+    + changeDescription (optional, string) - Version change description
 
-+ Request
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            changeDescription=change+description
+            {
+                "changeDescription": "change description"
+            }
 
 + Response 204
 
@@ -7718,16 +7840,18 @@ content to be rollbacked to.
     + version_id (required) - Id of the configuration row version to rollback to
 
 + Attributes
-    + changeDescription (optional) - Version change description
+    + changeDescription (optional, string) - Version change description
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            changeDescription=Rollback+to+previous+version
+            {
+                "changeDescription": "Rollback to previous version"
+            }
 
 + Response 201 (application/json)
 
@@ -7768,17 +7892,20 @@ Creates a new configuration row from an existing row version in [Development Bra
     + version_id (required) - Id of the configuration row version to copy from
 
 + Attributes
-    + targetConfigId (optional) - Copy the row to another existing configuration. If not provided, the row will be copied to the original configuration.
-    + changeDescription (optional) - Version change description
+    + targetConfigId (optional, string) - Copy the row to another existing configuration. If not provided, the row will be copied to the original configuration.
+    + changeDescription (optional, string) - Version change description
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            changeDescription=Copy+to+another+row&targetConfigId=236606822
+            {
+                "targetConfigId": "236606822",
+                "changeDescription": "Copy to another row"
+            }
 
 + Response 201 (application/json)
 
@@ -7828,21 +7955,24 @@ Creates a new workspace for an existing configuration in [Development Branch](#r
             + medium
             + large
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Headers
 
             X-StorageApi-Token: your_token
 
     + Body
 
-            backend=snowflake
+            {
+                "backend": "snowflake"
+            }
 
 + Response 201 (application/json)
+    Synchronous call response (async=false)
 
    + Attributes (WorkspaceCreated)
 
 + Response 202 (application/json)
-Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
     + Body
 
             {
@@ -8165,11 +8295,11 @@ When updating the component of trigger you need permissions for both the current
 + Attributes
     + runWithTokenId (required, number) - ID of token used for running configured component
     + component: `orchestration` (required, enum[string]) - For now we support only 'orchestration'
-    + configurationId (required, string) - Id of component configuration
+    + configurationId (required, number) - Id of component configuration
     + coolDownPeriodMinutes (required, number) - Minimal cool down period before firing action again in minutes (min is 1 minute)
     + tabledIds (required, object) - Array of tables ids
         + tableId (string) - Id of table (like "in.c-test.watched")
-+ Request
++ Request (application/json)
 
     + Headers
 
@@ -8177,7 +8307,16 @@ When updating the component of trigger you need permissions for both the current
 
     + Body
 
-            runWithTokenId=123&component=orchestration&configurationId=123&coolDownPeriodMinutes=20&tableIds[0]=in.c-test.watched-1&tableIds[1]=in.c-prod.watched-5
+            {
+                "runWithTokenId": 123,
+                "component": "orchestration",
+                "configurationId": 123,
+                "coolDownPeriodMinutes": 20,
+                "tableIds": [
+                    "in.c-test.watched-1",
+                    "in.c-prod.watched-5"
+                ]
+            }
 
 + Response 201 (application/json)
 
@@ -8285,7 +8424,7 @@ Updates an existing trigger
     + tabledIds (optional, object) - Array of tables ids
         + tableId (string) - Id of table (like "in.c-test.watched")
 
-+ Request
++ Request (application/json)
 
     + Headers
 
@@ -8293,7 +8432,9 @@ Updates an existing trigger
 
     + Body
 
-            runWithTokenId=100
+            {
+                "runWithTokenId": 100
+            }
 
 + Response 200 (application/json)
 
@@ -8341,11 +8482,7 @@ and [buckets](https://keboola.docs.apiary.io/#reference/buckets/manage-bucket/bu
 + Attributes
     + displayName (required, string)
 
-+ Request
-
-    + Headers
-
-            Content-Type: application/json
++ Request (application/json)
 
     + Body
 
@@ -8375,7 +8512,7 @@ For example, you want to list configurations ([common](#reference/components-and
 
 ### List branches [GET]
 
-+ Request (application/x-www-form-urlencoded)
++ Request
 
     + Headers
 
@@ -8424,7 +8561,7 @@ For example, you want to list configurations ([common](#reference/components-and
     + name (required, string) - name of the branch
     + description (optional, string) - description of the branch
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
 
     + Headers
 
@@ -8432,7 +8569,9 @@ For example, you want to list configurations ([common](#reference/components-and
 
     + Body
 
-            name=Refactor+DB+extractors
+            {
+                "name": "Refactor DB extractors"
+            }
 
 + Response 202
 
@@ -8476,7 +8615,7 @@ For example, you want to list configurations ([common](#reference/components-and
 + Parameters
     + id (required, number) - id of the branch
 
-+ Request (application/x-www-form-urlencoded)
++ Request
 
     + Headers
 
@@ -8509,11 +8648,16 @@ Update of a default branch name is not allowed.
     + name (optional, string) - new name
     + description (optional, string) - new description
 
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
 
     + Headers
 
             X-StorageApi-Token: your_token
+    + Body
+
+            {
+                "description": "Some description"
+            }
 
 + Response 200
 
@@ -8522,7 +8666,7 @@ Update of a default branch name is not allowed.
             {
                 "id": 123,
                 "name": "My branch",
-                "description": "",
+                "description": "Some description",
                 "created": "2020-09-17T12:17:32+0200",
                 "isDefault": false,
                 "creatorToken": {
@@ -8538,7 +8682,7 @@ other buckets (production buckets or buckets belongs the other development branc
 + Parameters
     + id (required, number) - id of the branch
 
-+ Request (application/x-www-form-urlencoded)
++ Request
 
     + Headers
 
