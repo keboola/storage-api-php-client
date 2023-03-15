@@ -57,9 +57,9 @@ class Components
 
         if ($options->getConfiguration() !== null) {
             if ($options->getConfiguration() === []) {
-                $data['configuration'] = '{}';
+                $data['configuration'] = (object) [];
             } else {
-                $data['configuration'] = json_encode($options->getConfiguration());
+                $data['configuration'] = $options->getConfiguration();
             }
         }
 
@@ -91,9 +91,9 @@ class Components
 
         if ($options->getState() !== null) {
             if ($options->getState() === []) {
-                $data['state'] = '{}';
+                $data['state'] = (object) [];
             } else {
-                $data['state'] = json_encode($options->getState());
+                $data['state'] = $options->getState();
             }
         }
 
@@ -239,17 +239,17 @@ class Components
 
         if ($options->getConfiguration() !== null) {
             if ($options->getConfiguration() === []) {
-                $data['configuration'] = '{}';
+                $data['configuration'] = (object) [];
             } else {
-                $data['configuration'] = json_encode($options->getConfiguration());
+                $data['configuration'] = $options->getConfiguration();
             }
         }
 
         if ($options->getState() !== null) {
             if ($options->getState() === []) {
-                $data['state'] = '{}';
+                $data['state'] = (object) [];
             } else {
-                $data['state'] = json_encode($options->getState());
+                $data['state'] = $options->getState();
             }
         }
 
@@ -278,9 +278,9 @@ class Components
 
         if ($options->getState() !== null) {
             if ($options->getState() === []) {
-                $data['state'] = '{}';
+                $data['state'] = (object) [];
             } else {
-                $data['state'] = json_encode($options->getState());
+                $data['state'] = $options->getState();
             }
         }
 
