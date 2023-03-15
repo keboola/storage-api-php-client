@@ -63,8 +63,8 @@ class Components
             }
         }
 
-        if (!is_null($options->getState())) {
-            $data['state'] = json_encode($options->getState());
+        if ($options->getState() !== null) {
+            $data['state'] = $options->getState();
         }
 
         if ($options->getChangeDescription()) {
