@@ -2,6 +2,8 @@
 
 namespace Keboola\Test\Backend\Snowflake;
 
+use Generator;
+use http\Exception\RuntimeException;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
@@ -23,6 +25,145 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
 
         $this->initEmptyTestBucketsForParallelTests();
     }
+
+    /**
+     * @dataProvider importEmptyValuesProvider
+     */
+    public function testImportEmptyValues(string $loadFile, array $expectedPreview): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $payload = [
+            'name' => 'with-empty',
+            'primaryKeysNames' => [],
+            'columns' => [
+                ['name' => 'col', 'definition' => ['type' => 'NUMBER']],
+                ['name' => 'str', 'definition' => ['type' => 'VARCHAR']],
+            ],
+        ];
+        $tableId = $this->_client->createTableDefinition($bucketId, $payload);
+
+        $csvFile = new CsvFile($loadFile);
+        $this->_client->writeTableAsync(
+            $tableId,
+            $csvFile,
+            [
+                'incremental' => false,
+            ]
+        );
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertNotEmpty($table['dataSizeBytes']);
+        $this->assertEquals($csvFile->getHeader(), $table['columns']);
+
+        /** @var array $data */
+        $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
+
+        $this->assertSame(
+            $expectedPreview,
+            $data['rows']
+        );
+    }
+
+    public function importEmptyValuesProvider(): Generator
+    {
+        yield 'empty values in quotes' => [
+            __DIR__ . '/../../_data/empty-with-quotes-numeric.csv',
+            [
+                [
+                    [
+                        'columnName' => 'col',
+                        'value' => '9',
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'str',
+                        'value' => '4',
+                        'isTruncated' => false,
+                    ],
+                ],
+                [
+                    [
+                        'columnName' => 'col',
+                        'value' => '23',
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'str',
+                        'value' => '4',
+                        'isTruncated' => false,
+                    ],
+                ],
+                [
+                    [
+                        'columnName' => 'col',
+                        'value' => null,
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'str',
+                        'value' => null,
+                        'isTruncated' => false,
+                    ],
+                ],
+                [
+                    [
+                        'columnName' => 'col',
+                        'value' => '6',
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'str',
+                        'value' => '6',
+                        'isTruncated' => false,
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'empty values without quotes' => [
+            __DIR__ . '/../../_data/empty-without-quotes-numeric.csv',
+            [
+                [
+                    [
+                        'columnName' => 'col',
+                        'value' => '2',
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'str',
+                        'value' => '6',
+                        'isTruncated' => false,
+                    ],
+                ],
+                [
+                    [
+                        'columnName' => 'col',
+                        'value' => null,
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'str',
+                        'value' => null,
+                        'isTruncated' => false,
+                    ],
+                ],
+                [
+                    [
+                        'columnName' => 'col',
+                        'value' => '1',
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'str',
+                        'value' => '3',
+                        'isTruncated' => false,
+                    ],
+                ],
+            ],
+        ];
+    }
+
 
     public function testLoadTypedTablesConversionError(): void
     {
