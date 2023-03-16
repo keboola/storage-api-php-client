@@ -814,15 +814,18 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
     public function testDataPreviewOnTypedTableWithWhereFilters(): void
     {
-        // TODO - dopsat tam jeste dalsi kombinace typu, staci do tabulky
         $bucketId = $this->getTestBucketId();
         $tableDefinition = [
             'name' => 'tryCastTable',
             'primaryKeysNames' => [],
             'columns' => [
                 [
-                    'name' => 'id',
+                    'name' => 'column_int',
                     'basetype' => 'INTEGER',
+                ],
+                [
+                    'name' => 'column_decimal',
+                    'basetype' => 'NUMERIC',
                 ],
                 [
                     'name' => 'column_float',
@@ -849,7 +852,8 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $csvFile = $this->createTempCsv();
         $csvFile->writeRow([
-            'id',
+            'column_int',
+            'column_decimal',
             'column_float',
             'column_boolean',
             'column_date',
@@ -857,20 +861,22 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             'column_varchar',
         ]);
         $csvFile->writeRow([
-            '1',
-            3.14,
-            0,
+            1,
+            1.1, // decimal gets rounded to NUMERIC(38,0) -> 11
+            1.5,
+            'true',
             '1989-08-31',
             '1989-08-31 00:00:00.000',
-            'roman',
+            '1.5',
         ]);
         $csvFile->writeRow([
-            '2',
-            4.14,
-            0,
+            2,
+            2.5,
+            2.5,
+            'true',
             '1989-08-31',
             '1989-08-31 00:00:00.000',
-            'roman',
+            '2.5',
         ]);
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
@@ -878,14 +884,54 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->_client->writeTableAsync($tableId, $csvFile);
 
         /** @var array $data */
-        $data = $this->_client->getTableDataPreview($tableId,
+        $data = $this->_client->getTableDataPreview(
+            $tableId,
             [
                 'format' => 'json',
                 'whereFilters' => [
+                    // no casting
+                    [
+                        'column' => 'column_int',
+                        'operator' => 'lt',
+                        'values' => [2],
+                        'dataType' => 'INTEGER',
+                    ],
+                    [
+                        'column' => 'column_decimal',
+                        'operator' => 'lt',
+                        'values' => [2],
+                        'dataType' => 'DOUBLE',
+                    ],
                     [
                         'column' => 'column_float',
                         'operator' => 'lt',
-                        'values' => [4],
+                        'values' => [2],
+                        'dataType' => 'DOUBLE',
+                    ],
+                    // known bug: value has to be convertible to boolean: 0,TRUE,T... e.g. 2 will fail
+                    [
+                        'column' => 'column_boolean',
+                        'operator' => 'eq',
+                        'values' => ['1'],
+                        'dataType' => 'DOUBLE',
+                    ],
+                    // casting
+                    [
+                        'column' => 'column_date',
+                        'operator' => 'gt',
+                        'values' => [0],
+                        'dataType' => 'DOUBLE',
+                    ],
+                    [
+                        'column' => 'column_timestamp',
+                        'operator' => 'gt',
+                        'values' => [0],
+                        'dataType' => 'INTEGER',
+                    ],
+                    [
+                        'column' => 'column_varchar',
+                        'operator' => 'lt',
+                        'values' => [2],
                         'dataType' => 'DOUBLE',
                     ],
                 ],
@@ -895,18 +941,23 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $expectedPreview = [
             [
                 [
-                    'columnName' => 'id',
+                    'columnName' => 'column_int',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_decimal',
                     'value' => '1',
                     'isTruncated' => false,
                 ],
                 [
                     'columnName' => 'column_float',
-                    'value' => '3.14',
+                    'value' => '1.5',
                     'isTruncated' => false,
                 ],
                 [
                     'columnName' => 'column_boolean',
-                    'value' => 'false',
+                    'value' => 'true',
                     'isTruncated' => false,
                 ],
                 [
@@ -921,7 +972,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 ],
                 [
                     'columnName' => 'column_varchar',
-                    'value' => 'roman',
+                    'value' => '1.5',
                     'isTruncated' => false,
                 ],
             ],
