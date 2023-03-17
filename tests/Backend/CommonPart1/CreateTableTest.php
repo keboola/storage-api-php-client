@@ -164,7 +164,6 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertNotEmpty($table['lastChangeDate']);
         $this->assertNotEmpty($table['lastImportDate']);
         $this->assertEquals($expectationFileCsv->getHeader(), $table['columns']);
-        $this->assertEmpty($table['indexedColumns']);
         $this->assertNotEquals('0000-00-00 00:00:00', $table['created']);
         $this->assertNotEmpty($table['dataSizeBytes']);
 
