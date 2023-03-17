@@ -1,7 +1,6 @@
 <?php
 
 
-
 namespace Keboola\Test\Backend\Snowflake;
 
 use Keboola\Csv\CsvFile;
@@ -9,6 +8,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
+use Symfony\Component\Filesystem\Filesystem;
 use function GuzzleHttp\json_encode;
 
 class WhereFilterTest extends StorageApiTestCase
@@ -142,11 +142,11 @@ class WhereFilterTest extends StorageApiTestCase
         $tableId = $this->prepareTable();
 
         $where = [
-          [
-              'column' => 'column_double',
-              'operator' => 'non-existing',
-              'values' => [123],
-          ],
+            [
+                'column' => 'column_double',
+                'operator' => 'non-existing',
+                'values' => [123],
+            ],
         ];
 
         $this->expectException(ClientException::class);
@@ -159,11 +159,11 @@ class WhereFilterTest extends StorageApiTestCase
         $tableId = $this->prepareTable();
 
         $where = [
-          [
-              'column' => 'column_double',
-              'operator' => 'non-existing',
-              'values' => [123],
-          ],
+            [
+                'column' => 'column_double',
+                'operator' => 'non-existing',
+                'values' => [123],
+            ],
         ];
 
         $this->expectException(ClientException::class);
@@ -233,5 +233,329 @@ class WhereFilterTest extends StorageApiTestCase
         $csvFile->writeRow(['fifth', '5', '4']);
         $csvFile->writeRow(['fifth', '555111', '5.1234']);
         return $this->_client->createTableAsync($this->getTestBucketId(), 'conditions', $csvFile);
+    }
+
+    public function testDataPreviewOnTypedTableWithWhereFilters(): void
+    {
+        $bucketId = $this->getTestBucketId();
+        $tableDefinition = [
+            'name' => 'tryCastTable',
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'column_int',
+                    'basetype' => 'INTEGER',
+                ],
+                [
+                    'name' => 'column_decimal',
+                    'basetype' => 'NUMERIC',
+                ],
+                [
+                    'name' => 'column_float',
+                    'basetype' => 'FLOAT',
+                ],
+                [
+                    'name' => 'column_boolean',
+                    'basetype' => 'BOOLEAN',
+                ],
+                [
+                    'name' => 'column_date',
+                    'basetype' => 'DATE',
+                ],
+                [
+                    'name' => 'column_timestamp',
+                    'basetype' => 'TIMESTAMP',
+                ],
+                [
+                    'name' => 'column_varchar',
+                    'basetype' => 'STRING',
+                ],
+            ],
+        ];
+
+        $csvFile = $this->createTempCsv();
+        $csvFile->writeRow([
+            'column_int',
+            'column_decimal',
+            'column_float',
+            'column_boolean',
+            'column_date',
+            'column_timestamp',
+            'column_varchar',
+        ]);
+        $csvFile->writeRow([
+            1,
+            1.1, // decimal gets rounded to NUMERIC(38,0) -> 1
+            1.5,
+            'true',
+            '1989-08-31',
+            '1989-08-31 00:00:00.000',
+            '1.5',
+        ]);
+        $csvFile->writeRow([
+            2,
+            2.5,
+            2.5,
+            'true',
+            '1989-08-31',
+            '1989-08-31 00:00:00.000',
+            '2.5',
+        ]);
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        $this->_client->writeTableAsync($tableId, $csvFile);
+
+        /** @var array $data */
+        $data = $this->_client->getTableDataPreview(
+            $tableId,
+            [
+                'format' => 'json',
+                'whereFilters' => [
+                    // no casting
+                    [
+                        'column' => 'column_int',
+                        'operator' => 'lt',
+                        'values' => [2],
+                        'dataType' => 'INTEGER',
+                    ],
+                    [
+                        'column' => 'column_decimal',
+                        'operator' => 'lt',
+                        'values' => [2],
+                        'dataType' => 'DOUBLE',
+                    ],
+                    [
+                        'column' => 'column_float',
+                        'operator' => 'lt',
+                        'values' => [2],
+                        'dataType' => 'DOUBLE',
+                    ],
+                    // known bug: value has to be convertible to boolean: 0,TRUE,T... e.g. 2 will fail
+                    [
+                        'column' => 'column_boolean',
+                        'operator' => 'eq',
+                        'values' => ['1'],
+                        'dataType' => 'DOUBLE',
+                    ],
+                    // casting
+                    [
+                        'column' => 'column_date',
+                        'operator' => 'gt',
+                        'values' => [0],
+                        'dataType' => 'DOUBLE',
+                    ],
+                    [
+                        'column' => 'column_timestamp',
+                        'operator' => 'gt',
+                        'values' => [0],
+                        'dataType' => 'INTEGER',
+                    ],
+                    [
+                        'column' => 'column_varchar',
+                        'operator' => 'lt',
+                        'values' => [2],
+                        'dataType' => 'DOUBLE',
+                    ],
+                ],
+            ],
+        );
+
+        $expectedPreview = [
+            [
+                [
+                    'columnName' => 'column_int',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_decimal',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_float',
+                    'value' => '1.5',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_boolean',
+                    'value' => 'true',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_date',
+                    'value' => '1989-08-31',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_timestamp',
+                    'value' => '1989-08-31 00:00:00.000',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_varchar',
+                    'value' => '1.5',
+                    'isTruncated' => false,
+                ],
+            ],
+        ];
+
+        $this->assertSame(
+            $expectedPreview,
+            $data['rows']
+        );
+    }
+
+    public function testExportTableOnTypedTableWithWhereFilters(): void
+    {
+        $bucketId = $this->getTestBucketId();
+        $tableDefinition = [
+            'name' => 'tryCastTable',
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'column_int',
+                    'basetype' => 'INTEGER',
+                ],
+                [
+                    'name' => 'column_decimal',
+                    'basetype' => 'NUMERIC',
+                ],
+                [
+                    'name' => 'column_float',
+                    'basetype' => 'FLOAT',
+                ],
+                [
+                    'name' => 'column_boolean',
+                    'basetype' => 'BOOLEAN',
+                ],
+                [
+                    'name' => 'column_date',
+                    'basetype' => 'DATE',
+                ],
+                [
+                    'name' => 'column_timestamp',
+                    'basetype' => 'TIMESTAMP',
+                ],
+                [
+                    'name' => 'column_varchar',
+                    'basetype' => 'STRING',
+                ],
+            ],
+        ];
+
+        $csvFile = $this->createTempCsv();
+        $csvFile->writeRow([
+            'column_int',
+            'column_decimal',
+            'column_float',
+            'column_boolean',
+            'column_date',
+            'column_timestamp',
+            'column_varchar',
+        ]);
+
+        $csvFile->writeRow([
+            1,
+            1.1, // decimal gets rounded to NUMERIC(38,0) -> 11
+            1.5,
+            'true',
+            '1989-08-31',
+            '1989-08-31 00:00:00.000',
+            '1.5',
+        ]);
+        $csvFile->writeRow([
+            2,
+            2.5,
+            2.5,
+            'true',
+            '1989-08-31',
+            '1989-08-31 00:00:00.000',
+            '2.5',
+        ]);
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        $this->_client->writeTableAsync($tableId, $csvFile);
+
+        /** @var array $data */
+        $data = $this->_client->exportTableAsync(
+            $tableId,
+            [
+                'whereFilters' => [
+                    // no casting
+                    [
+                        'column' => 'column_int',
+                        'operator' => 'lt',
+                        'values' => ['2'],
+                        'dataType' => 'INTEGER',
+                    ],
+                    [
+                        'column' => 'column_decimal',
+                        'operator' => 'lt',
+                        'values' => ['2'],
+                        'dataType' => 'DOUBLE',
+                    ],
+                    [
+                        'column' => 'column_float',
+                        'operator' => 'lt',
+                        'values' => ['2'],
+                        'dataType' => 'DOUBLE',
+                    ],
+                    // known bug: value has to be convertible to boolean: 0,TRUE,T... e.g. 2 will fail
+                    [
+                        'column' => 'column_boolean',
+                        'operator' => 'eq',
+                        'values' => ['1'],
+                        'dataType' => 'DOUBLE',
+                    ],
+                    // casting
+                    [
+                        'column' => 'column_date',
+                        'operator' => 'gt',
+                        'values' => ['0'],
+                        'dataType' => 'DOUBLE',
+                    ],
+                    [
+                        'column' => 'column_timestamp',
+                        'operator' => 'gt',
+                        'values' => ['0'],
+                        'dataType' => 'INTEGER',
+                    ],
+                    [
+                        'column' => 'column_varchar',
+                        'operator' => 'lt',
+                        'values' => ['2'],
+                        'dataType' => 'DOUBLE',
+                    ],
+                ],
+            ],
+        );
+
+        $tmpDestination = __DIR__ . '/../_tmp/testing_file_name';
+        if (file_exists($tmpDestination)) {
+            $fs = new Filesystem();
+            $fs->remove($tmpDestination);
+        }
+
+        $slices = $this->_client->downloadSlicedFile($data['file']['id'], $tmpDestination);
+
+        $csv = '';
+        foreach ($slices as $slice) {
+            $csv .= file_get_contents($slice);
+        }
+        $parsedData = Client::parseCsv($csv, false, ',', '"');
+        $expectedPreview = [
+            '1',
+            '1', // decimal gets rounded to NUMERIC(38,0) -> 1
+            '1.5',
+            'true',
+            '1989-08-31',
+            '1989-08-31 00:00:00',
+            '1.5',
+        ];
+
+        $this->assertArrayEqualsSorted($expectedPreview, $parsedData[0], 0);
     }
 }
