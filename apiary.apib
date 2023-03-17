@@ -882,8 +882,10 @@ Access to buckets can be limited by access tokens. Each bucket has a *backend* i
 All buckets are returned.
 
 + Parameters
-    + include (optional) - Comma-separated list of resources to include for each table. Available resources: 'metadata, linkedBuckets'.
-        + Default: ''
+    + include (optional, enum[string]) - Comma-separated list of resources to include for each table.
+        + Members
+            + metadata
+            + linkedBuckets
 
 + Request
     + Headers
