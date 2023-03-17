@@ -2141,9 +2141,6 @@ tables use the [asynchronous call](#reference/tables/create-table-asynchronously
                     "name_id",
                     "nm_id"
                 ],
-                "indexedColumns": [
-                    "id"
-                ],
                 "bucket": {
                     "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-main",
                     "id": "in.c-main",
@@ -2183,7 +2180,6 @@ Lists tables in a given bucket.
                     "name": "datatypes",
                     "transactional": false,
                     "primaryKey": [],
-                    "indexedColumns": [],
                     "created": "2019-08-12T14:36:00+0200",
                     "lastImportDate": "2019-08-12T21:16:41+0200",
                     "lastChangeDate": "2019-08-12T21:16:41+0200",
@@ -2219,7 +2215,6 @@ Lists tables in a given bucket.
                     "name": "datatypes-alias",
                     "transactional": false,
                     "primaryKey": [],
-                    "indexedColumns": [],
                     "created": "2019-08-14T11:43:17+0200",
                     "lastImportDate": "2019-08-12T21:16:41+0200",
                     "lastChangeDate": "2019-08-12T21:16:41+0200",
@@ -3338,7 +3333,6 @@ Obtains information about a table.
                 "displayName": "cashier-data-alias-displayName",
                 "transactional": false,
                 "primaryKey": [],
-                "indexedColumns": [],
                 "created": "2019-08-14T16:54:06+0200",
                 "lastImportDate": "2015-11-03T10:58:31+0100",
                 "lastChangeDate": "2015-11-03T10:58:32+0100",
@@ -3438,7 +3432,6 @@ Synchronous call response (async=false)
                 "displayName": "my-display-name",
                 "transactional": false,
                 "primaryKey": [],
-                "indexedColumns": [],
                 "created": "2019-08-14T16:54:06+0200",
                 "lastImportDate": "2015-11-03T10:58:31+0100",
                 "lastChangeDate": "2015-11-03T10:58:32+0100",
@@ -3630,7 +3623,6 @@ attributes and information about the containing bucket.
                     "displayName": "cashier-data-displayName",
                     "transactional": false,
                     "primaryKey": [],
-                    "indexedColumns": [],
                     "created": "2016-06-23T20:41:07+0200",
                     "lastImportDate": "2016-07-07T11:25:32+0200",
                     "lastChangeDate": "2016-07-07T11:25:34+0200",
@@ -3686,7 +3678,6 @@ attributes and information about the containing bucket.
                     "displayName": "cashier-data-alias-displayName"
                     "transactional": false,
                     "primaryKey": [],
-                    "indexedColumns": [],
                     "created": "2016-06-23T20:41:38+0200",
                     "lastImportDate": "2016-07-07T11:26:03+0200",
                     "lastChangeDate": "2016-07-07T11:26:05+0200",
@@ -4111,7 +4102,6 @@ When turning `aliasColumnsAutoSync` back on, the columns will be immediately syn
                 "displayName": "test-alias2-displayName",
                 "transactional": false,
                 "primaryKey": [],
-                "indexedColumns": [],
                 "created": "2017-02-13T13:53:31+0100",
                 "lastImportDate": "2016-07-07T11:25:32+0200",
                 "lastChangeDate": "2016-07-07T11:25:34+0200",
@@ -4201,7 +4191,6 @@ alias must be created with the `aliasFilter` parameter.
                 "displayName": "test-alias2-displayName",
                 "transactional": false,
                 "primaryKey": [],
-                "indexedColumns": [],
                 "created": "2017-02-13T13:53:31+0100",
                 "lastImportDate": "2016-07-07T11:25:32+0200",
                 "lastChangeDate": "2016-07-07T11:25:34+0200",
@@ -4285,7 +4274,7 @@ into a new table.
 Creates a snapshot of the current state of the table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 A table snapshot will contain:
 - Table data,
-- Table properties (primary key, indexed columns, etc.),
+- Table properties (primary key, etc.),
 - Table attributes.
 
 Snapshots of an alias table contain only alias settings, actual data are not stored with the snapshot.
@@ -4407,7 +4396,6 @@ Retrieves information about a single table snapshot.
                 "table": {
                     "id": "in.c-dalsi.alias",
                     "primaryKey": [],
-                    "indexedColumns": [],
                     "attributes": [
                         {
                             "name": "afd",
@@ -8035,7 +8023,6 @@ attributes and information about the containing bucket. At least one of paramete
                     "displayName": "cashier-data-displayName",
                     "transactional": false,
                     "primaryKey": [],
-                    "indexedColumns": [],
                     "created": "2016-06-23T20:41:07+0200",
                     "lastImportDate": "2016-07-07T11:25:32+0200",
                     "lastChangeDate": "2016-07-07T11:25:34+0200",
@@ -8084,7 +8071,6 @@ attributes and information about the containing bucket. At least one of paramete
                     "name": "cashier-data-alias",
                     "transactional": false,
                     "primaryKey": [],
-                    "indexedColumns": [],
                     "created": "2016-06-23T20:41:38+0200",
                     "lastImportDate": "2016-07-07T11:26:03+0200",
                     "lastChangeDate": "2016-07-07T11:26:05+0200",

@@ -206,7 +206,6 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertSame(['id'], $table['primaryKey']);
         $this->assertSame('HASH', $table['distributionType']);
         $this->assertSame(['id'], $table['distributionKey']);
-        $this->assertSame(['id'], $table['indexedColumns']);
         $this->assertSame('CLUSTERED INDEX', $table['indexType']);
         $this->assertSame(['id'], $table['indexKey']);
 
