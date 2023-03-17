@@ -137,7 +137,7 @@ class BucketsTest extends StorageApiTestCase
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
     }
 
-    public function testBucketsListWithIncludeParameter(): void
+    public function testBucketsListWithEmptyIncludeParameter(): void
     {
         $buckets = $this->_client->listBuckets([
             'include' => '',
@@ -145,6 +145,7 @@ class BucketsTest extends StorageApiTestCase
 
         $firstBucket = reset($buckets);
         $this->assertArrayNotHasKey('metadata', $firstBucket);
+        $this->assertArrayNotHasKey('linkedBuckets', $firstBucket);
     }
 
     public function testBucketsListWithIncludeMetadata(): void
