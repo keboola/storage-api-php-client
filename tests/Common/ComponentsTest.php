@@ -1588,7 +1588,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $newConfiguration['version']);
         $this->assertEmpty($newConfiguration['state']);
 
-        // version incremented to 2
+        // update config - version incremented to 2
         $newName = 'neco';
         $newDesc = 'some desc';
         $configurationData = ['x' => 'y'];
@@ -1598,18 +1598,23 @@ class ComponentsTest extends StorageApiTestCase
             ->setIsDisabled(true);
         $components->updateConfiguration($config);
 
-        // version incremented to 3
+        // add 1st row - version incremented to 3
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
         $configurationRow->setRowId('main-1-1');
         $components->addConfigurationRow($configurationRow);
 
-        // version incremented to 4
+        // add 2nd row - version incremented to 4
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
         $configurationRow->setRowId('main-1-2');
         $components->addConfigurationRow($configurationRow);
 
-        // rollback to 2 with one row
-        $result = $components->createConfigurationFromVersion($config->getComponentId(), $config->getConfigurationId(), 3, 'New');
+        // add 3rd row - version incremented to 5
+        $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
+        $configurationRow->setRowId('main-1-3');
+        $components->addConfigurationRow($configurationRow);
+
+        // rollback to version 4 (with 2 rows)
+        $result = $components->createConfigurationFromVersion($config->getComponentId(), $config->getConfigurationId(), 4, 'New');
         $this->assertArrayHasKey('id', $result);
         $configuration = $components->getConfiguration($config->getComponentId(), $result['id']);
         $this->assertArrayHasKey('name', $configuration);
@@ -1622,11 +1627,13 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($configurationData, $configuration['configuration']);
         $this->assertArrayHasKey('isDisabled', $configuration);
         $this->assertTrue($configuration['isDisabled']);
+        // check rows
         $this->assertArrayHasKey('rows', $configuration);
-        $this->assertCount(1, $configuration['rows']);
+        $this->assertCount(2, $configuration['rows']);
         $this->assertEquals('main-1-1', $configuration['rows'][0]['id']);
+        $this->assertEquals('main-1-2', $configuration['rows'][1]['id']);
 
-        // rollback to 1 with 0 rows
+        // rollback to version 1 (with 0 rows)
         $result = $components->createConfigurationFromVersion($config->getComponentId(), $config->getConfigurationId(), 1, 'New 2');
         $this->assertArrayHasKey('id', $result);
         $configuration = $components->getConfiguration($config->getComponentId(), $result['id']);
@@ -1640,6 +1647,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEmpty($configuration['configuration']);
         $this->assertArrayHasKey('isDisabled', $configuration);
         $this->assertFalse($configuration['isDisabled']);
+        // check rows
         $this->assertArrayHasKey('rows', $configuration);
         $this->assertCount(0, $configuration['rows']);
     }
