@@ -327,17 +327,17 @@ class EventsTest extends StorageApiTestCase
     public function invalidQueries()
     {
         return [
-            [
+            'colon as prefix' => [
                 ': success',
             ],
-            [
+            'colon as suffix' => [
                 'success:',
             ],
-            [
+            'slash as prefix' => [
                 '/GET',
             ],
-            [
-                '*tables*',
+            'asterisk as prefix+suffix' => [
+                '*tables*', // works fine with ElasticSearch 7
             ],
         ];
     }
