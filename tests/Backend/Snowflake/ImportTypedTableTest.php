@@ -5,9 +5,6 @@ namespace Keboola\Test\Backend\Snowflake;
 use Generator;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\Workspaces;
-use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
-use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 
 class ImportTypedTableTest extends ParallelWorkspacesTestCase
