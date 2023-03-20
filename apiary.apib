@@ -5305,8 +5305,8 @@ the HTTP 400 response code is returned.
             + error
         + Default: info
     + configurationId (optional) - Id of a configuration executed by the component
-    + params (optional, string) - Serialized JSON object with custom data
-    + results (optional, string) - Serialized JSON object with custom data
+    + params (optional, object) - Custom data
+    + results (optional, object) - Custom data
     + duration (optional, number) - Duration of the associated task in seconds
     + runId (optional) - Id of the associated component job
 
@@ -5320,7 +5320,14 @@ the HTTP 400 response code is returned.
             {
                 "component": "keboola.test-component",
                 "message": "This is a word of warning",
-                "type": "warn"
+                "type": "warn",
+                "params": {
+                    "command": "sync-test"
+                },
+                "results": {
+                    "projectId": "123",
+                    "otherId": "456"
+                }
             }
 
 + Response 201 (application/json)
