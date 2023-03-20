@@ -3,7 +3,6 @@
 namespace Keboola\Test\Backend\Snowflake;
 
 use Generator;
-use http\Exception\RuntimeException;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
