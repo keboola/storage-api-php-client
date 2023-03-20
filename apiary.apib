@@ -6874,8 +6874,8 @@ Creates a new component configuration for [Development Branch](#reference/develo
     + name (required, string) - Configuration name
     + configurationId (optional, number) - Configuration Id (must be unique for each component type). If not set, it will be auto-generated.
     + description (optional, string) - Configuration description
-    + configuration (optional, string) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + state (optional, string) - Serialized state configuration JSON; the maximum allowed size is 4MB
+    + configuration (optional, object) - Configuration data; the maximum allowed size is 4MB
+    + state (optional, object) - State configuration data; the maximum allowed size is 4MB
     + changeDescription (optional, string) - Description of the configuration modification
     + isDisabled (optional, boolean) - Disabled flag
 
@@ -6888,7 +6888,10 @@ Creates a new component configuration for [Development Branch](#reference/develo
 
             {
                 "name": "My new configuration",
-                "configuration": "{\"key\":\"value\", \"key2\":\"value2\"}",
+                "configuration": {
+                    "key": "value",
+                    "key2": "value2"
+                },
                 "changeDescription": "Initial configuration"
             }
 
@@ -6991,8 +6994,8 @@ Updates an existing configuration for [Development Branch](#reference/developmen
 + Attributes
     + name (required, string) - Configuration name
     + description (optional, string) - Configuration description
-    + configuration (optional, string) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + state (optional, string) - Serialized state configuration JSON; the maximum allowed size is 4MB
+    + configuration (optional, object) - Configuration data; the maximum allowed size is 4MB
+    + state (optional, object) - State configuration data; the maximum allowed size is 4MB
     + changeDescription (optional, string) - Description of the configuration modification
     + isDisabled (optional, boolean) - Disabled flag
     + rowsSortOrder (optional, array[string]) - Array of row ids in desired order, you have to specify all row ids
@@ -7005,7 +7008,11 @@ Updates an existing configuration for [Development Branch](#reference/developmen
     + Body
 
             {
-                "configuration": "{\"key\":\"value\", \"key2\":\"value2\", \"key3\": \"value3\"}",
+                "configuration": {
+                    "key": "value",
+                    "key2": "value2",
+                    "key3": "value3"
+                },
                 "changeDescription": "Added new key"
             }
 
@@ -7052,7 +7059,7 @@ Updates state of an existing configuration for [Development Branch](#reference/d
     + config_id (required) - Id of the configuration
 
 + Attributes
-    + state (required, string) - Serialized configuration state JSON; the maximum allowed size is 4MB
+    + state (required, object) - Configuration state data; the maximum allowed size is 4MB
 
 + Request (application/json)
     + Headers
@@ -7062,7 +7069,9 @@ Updates state of an existing configuration for [Development Branch](#reference/d
     + Body
 
             {
-                "state": "{\"lastId\":123}"
+                "state": {
+                    "lastId": 123
+                }
             }
 
 + Response 200 (application/json)
@@ -7386,8 +7395,8 @@ Creates a new row (item) of an existing configuration in [Development Branch](#r
 
 + Attributes
     + rowId (optional, string) - Row id (must be unique for each configuration); if not set, it will be generated
-    + configuration (optional, string) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + state (optional, string) - Serialized configuration state JSON; the maximum allowed size is 4MB
+    + configuration (optional, object) - Configuration data; the maximum allowed size is 4MB
+    + state (optional, object) - Configuration state data; the maximum allowed size is 4MB
     + name (optional, string) - Row name
     + description (optional, string) - Row description
     + isDisabled (optional, boolean) - Disabled flag
@@ -7401,7 +7410,10 @@ Creates a new row (item) of an existing configuration in [Development Branch](#r
     + Body
 
             {
-                "configuration": "{\"host\": \"localhost\", \"port\": 4406}",
+                "configuration": {
+                    "host": "localhost",
+                    "port": 4406
+                },
                 "changeDescription": "Added new row"
             }
 
@@ -7535,8 +7547,8 @@ independently on the configurations.
     + row_id (required) - Id of the configuration row
 
 + Attributes
-    + configuration (optional, string) - Serialized configuration JSON; the maximum allowed size is 4MB
-    + state (optional, string) - Serialized configuration state JSON; the maximum allowed size is 4MB
+    + configuration (optional, object) - Configuration data; the maximum allowed size is 4MB
+    + state (optional, object) - Configuration state data; the maximum allowed size is 4MB
     + name (optional, string) - Row name
     + description (optional, string) - Row description
     + isDisabled (optional, boolean) - Disabled flag
@@ -7550,7 +7562,10 @@ independently on the configurations.
     + Body
 
             {
-                "configuration": "{\"host\": \"localhost\", \"port\": null}",
+                "configuration": {
+                    "host": "localhost",
+                    "port": null
+                },
                 "changeDescription": "change description"
             }
 
@@ -7585,7 +7600,7 @@ Updates state of an existing configuration for [Development Branch](#reference/d
     + row_id (required) - Id of the configuration row
 
 + Attributes
-    + state (required, string) - Serialized configuration state JSON; the maximum allowed size is 4MB
+    + state (required, object) - Configuration state data; the maximum allowed size is 4MB
 
 + Request (application/json)
     + Headers
@@ -7595,7 +7610,9 @@ Updates state of an existing configuration for [Development Branch](#reference/d
     + Body
 
             {
-                "state": "{\"lastId\":123}"
+                "state": {
+                    "lastId": 123
+                }
             }
 
 + Response 200 (application/json)
