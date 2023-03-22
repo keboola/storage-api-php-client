@@ -2441,7 +2441,7 @@ class Client
         return $this->apiGet('files?' . http_build_query($options ? $options->toArray() : []));
     }
 
-    protected function prepareDataForCreateEvent(Event $event): array
+    protected function prepareDataForCreateEvent(Event $event, bool $encodeArrayAsJsonString = false): array
     {
         return [
             'component' => $event->getComponent(),
@@ -2450,8 +2450,12 @@ class Client
             'message' => $event->getMessage(),
             'description' => $event->getDescription(),
             'type' => $event->getType(),
-            'params' => json_encode($event->getParams()),
-            'results' => json_encode($event->getResults()),
+            'params' => $encodeArrayAsJsonString
+                ? json_encode($event->getParams())
+                : $event->getParams(),
+            'results' => $encodeArrayAsJsonString
+                ? json_encode($event->getResults())
+                : $event->getResults(),
             'duration' => $event->getDuration(),
         ];
     }
@@ -2477,7 +2481,7 @@ class Client
      */
     public function createEventWithFormData(Event $event)
     {
-        $result = $this->apiPost('events', $this->prepareDataForCreateEvent($event));
+        $result = $this->apiPost('events', $this->prepareDataForCreateEvent($event, true));
         assert(is_array($result));
         return $result['id'];
     }
