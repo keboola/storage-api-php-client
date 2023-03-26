@@ -4,6 +4,7 @@ namespace Keboola\Test\Backend\MixedSnowflakeBigquery;
 
 use Generator;
 use Google\Cloud\BigQuery\BigQueryClient;
+use Google\Cloud\BigQuery\Dataset;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
@@ -96,7 +97,15 @@ class SharingTest extends StorageApiSharingTestCase
         $dataset = $wsDb->datasets();
         // check there is two datasets available in workspace one is linked bucket
         // second is workspace self
-        $this->assertCount(2, $dataset);
+        $datasetCount = 0;
+        /** @var Dataset $item */
+        foreach ($dataset as $item) {
+            if ($item->exists()) {
+                $datasetCount++;
+            }
+        }
+
+        $this->assertSame(2, $datasetCount);
 
         // check is exist manually created table in workspaces
         $wsDataset = $wsDb->dataset($workspace['name']);
