@@ -101,18 +101,47 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
                 ],
             ],
             array_map(
-                function (array $column) {
-                    return [
-                        'name' => $column['name'],
-                        'type' => $column['type'],
-                    ];
-                },
+                static fn(array $column): array => [
+                    'name' => $column['name'],
+                    'type' => $column['type'],
+                ],
                 $workspaceTableColumns
             )
         );
 
         $workspaceTableData = $backend->fetchAll('languagesDetails');
         $this->assertCount(5, $workspaceTableData);
+
+        // clone again but drop timestamp
+        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $sourceTableId,
+                    'destination' => 'languagesDetailsNoTimestamp',
+                    'dropTimestampColumn' => true,
+                ],
+            ],
+        ]);
+        $workspaceTableColumns = $backend->describeTableColumns('languagesDetailsNoTimestamp');
+        $this->assertEquals(
+            [
+                [
+                    'name' => 'id',
+                    'type' => 'VARCHAR(16777216)',
+                ],
+                [
+                    'name' => 'name',
+                    'type' => 'VARCHAR(16777216)',
+                ],
+            ],
+            array_map(
+                static fn(array $column): array => [
+                    'name' => $column['name'],
+                    'type' => $column['type'],
+                ],
+                $workspaceTableColumns
+            )
+        );
     }
 
     public function cloneProvider()
