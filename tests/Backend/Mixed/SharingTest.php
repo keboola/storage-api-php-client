@@ -1428,12 +1428,22 @@ class SharingTest extends StorageApiSharingTestCase
                     'destination' => 'languagesDetails',
                 ],
                 [
+                    'source' => str_replace($sourceBucketId, $linkedId, $table1Id),
+                    'destination' => 'languagesDetailsNoTimestamp',
+                    'dropTimestampColumn' => true,
+                ],
+                [
                     'source' => str_replace($sourceBucketId, $linkedId, $table2Id),
                     'destination' => 'NUMBERS',
                 ],
                 [
                     'source' => str_replace($sourceBucketId, $linkedId, $table4Id),
                     'destination' => 'languagesAlias',
+                ],
+                [
+                    'source' => str_replace($sourceBucketId, $linkedId, $table4Id),
+                    'destination' => 'languagesAliasNoTimestamp',
+                    'dropTimestampColumn' => true,
                 ],
             ],
         ]);
@@ -1469,6 +1479,30 @@ class SharingTest extends StorageApiSharingTestCase
 
         $workspaceTableData = $backend->fetchAll('languagesDetails');
         $this->assertCount(5, $workspaceTableData);
+
+        // assert table 1 columns with drop timestamp flag
+        $workspaceTableColumns = $backend->describeTableColumns('languagesDetailsNoTimestamp');
+        $this->assertEquals(
+            [
+                [
+                    'name' => 'id',
+                    'type' => 'VARCHAR(16777216)',
+                ],
+                [
+                    'name' => 'name',
+                    'type' => 'VARCHAR(16777216)',
+                ],
+            ],
+            array_map(
+                function (array $column) {
+                    return [
+                        'name' => $column['name'],
+                        'type' => $column['type'],
+                    ];
+                },
+                $workspaceTableColumns
+            )
+        );
 
         // assert table 2 data
         $workspaceTableColumns = $backend->describeTableColumns('NUMBERS');
@@ -1543,6 +1577,30 @@ class SharingTest extends StorageApiSharingTestCase
 
         $workspaceTableData = $backend->fetchAll('languagesAlias');
         $this->assertCount(5, $workspaceTableData);
+
+        // assert alias table with drop timestamp flag
+        $workspaceTableColumns = $backend->describeTableColumns('languagesAliasNoTimestamp');
+        $this->assertEquals(
+            [
+                [
+                    'name' => 'id',
+                    'type' => 'VARCHAR(16777216)',
+                ],
+                [
+                    'name' => 'name',
+                    'type' => 'VARCHAR(16777216)',
+                ],
+            ],
+            array_map(
+                function (array $column) {
+                    return [
+                        'name' => $column['name'],
+                        'type' => $column['type'],
+                    ];
+                },
+                $workspaceTableColumns
+            )
+        );
     }
 
     public function invalidSharingTypeData()
