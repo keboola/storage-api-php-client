@@ -112,6 +112,19 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $workspaceTableData = $backend->fetchAll('languagesDetails');
         $this->assertCount(5, $workspaceTableData);
 
+        // try to import table from workspace
+        // table languagesDetails has _timestamp column
+        // but import still works
+        $this->_client->writeTableAsyncDirect(
+            $sourceTableId,
+            [
+                'dataWorkspaceId' => $workspace['id'],
+                'dataObject' => 'languagesDetails',
+                'columns' => ['id', 'name'],
+                'incremental' => true,
+            ]
+        );
+
         // clone again but drop timestamp
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
             'input' => [
