@@ -8,15 +8,12 @@
  */
 
 
-namespace Keboola\Test\Backend\CommonPart1;
+namespace Keboola\Test\Backend\Bigquery;
 
-use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\Exception;
-use Keboola\StorageApi\ProcessPolyfill;
-use Keboola\Test\StorageApiTestCase;
-use Keboola\StorageApi\Client;
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\ProcessPolyfill;
 use Keboola\StorageApi\TableExporter;
+use Keboola\Test\StorageApiTestCase;
 
 class BigqueryTableExporterTest extends StorageApiTestCase
 {
