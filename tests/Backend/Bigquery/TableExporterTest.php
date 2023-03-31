@@ -15,7 +15,7 @@ use Keboola\StorageApi\ProcessPolyfill;
 use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
 
-class BigqueryTableExporterTest extends StorageApiTestCase
+class TableExporterTest extends StorageApiTestCase
 {
     private string $downloadPath;
     private string $downloadPathGZip;
