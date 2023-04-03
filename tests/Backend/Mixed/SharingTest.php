@@ -8,6 +8,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
+use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
@@ -878,6 +879,45 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertEquals($bucket['created'], $sharedBucket['linkedBy'][0]['created']);
         $this->assertArrayHasKey('id', $sharedBucket['linkedBy'][0]);
         $this->assertEquals($id, $sharedBucket['linkedBy'][0]['id']);
+    }
+
+    /**
+     * @dataProvider sharingBackendDataWithAsync
+     */
+    public function testSyncTableDisplayNameInLinkedBucket(string $backend, bool $isAsync): void
+    {
+        $this->initTestBuckets($backend);
+        $bucketId = reset($this->_bucketIds);
+
+        // prepare bucket tables
+        $tableId = $this->_client->createTableAsync(
+            $bucketId,
+            'first',
+            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
+            [
+                'primaryKey' => 'id',
+            ]
+        );
+
+        $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
+
+        $this->assertTrue($this->_client->isSharedBucket($bucketId));
+
+        $response = $this->_client2->listSharedBuckets();
+
+        $sharedBucket = reset($response);
+
+        $id = $this->_client2->linkBucket('linked-' . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id'], null, $isAsync);
+
+        $linkedBucket = $this->_client2->getBucket($id);
+        $table = $this->_client2->getTable(reset($linkedBucket['tables'])['id']);
+
+        $this->assertSame('first', $table['displayName']);
+
+        $this->_client->updateTable($tableId, ['displayName' => 'display-name-first', 'async' => $isAsync]);
+
+        $table = $this->_client2->getTable(reset($linkedBucket['tables'])['id']);
+        $this->assertSame('display-name-first', $table['displayName']);
     }
 
     /**
