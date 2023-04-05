@@ -2416,11 +2416,6 @@ parameters:
 			path: tests/Backend/CommonPart1/TableExporterTest.php
 
 		-
-			message: "#^Cannot access offset 'id' on mixed\\.$#"
-			count: 4
-			path: tests/Backend/CommonPart2/MetricsTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\MetricsTest\\:\\:importMetricsData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart2/MetricsTest.php
@@ -3381,28 +3376,8 @@ parameters:
 			path: tests/Backend/Snowflake/OrderByTest.php
 
 		-
-			message: "#^Cannot access offset 'id' on mixed\\.$#"
-			count: 2
-			path: tests/Backend/Snowflake/TableExportTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$tableId of method Keboola\\\\StorageApi\\\\Client\\:\\:getTableDataPreview\\(\\) expects string, mixed given\\.$#"
-			count: 2
-			path: tests/Backend/Snowflake/TableExportTest.php
-
-		-
-			message: "#^Cannot access offset 'id' on mixed\\.$#"
-			count: 5
-			path: tests/Backend/Snowflake/TimestampTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\TimestampTest\\:\\:assertDataInTable\\(\\) has no return type specified\\.$#"
 			count: 1
-			path: tests/Backend/Snowflake/TimestampTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$tableId of method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\TimestampTest\\:\\:assertDataInTable\\(\\) expects string, mixed given\\.$#"
-			count: 2
 			path: tests/Backend/Snowflake/TimestampTest.php
 
 		-
@@ -4101,11 +4076,6 @@ parameters:
 			path: tests/Backend/Workspaces/ExasolWorkspacesUnloadTest.php
 
 		-
-			message: "#^Cannot access offset 'id' on mixed\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/ExasolWorkspacesUnloadTest.php
-
-		-
 			message: "#^Unreachable statement \\- code above always terminates\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/ExasolWorkspacesUnloadTest.php
@@ -4389,16 +4359,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$csvString of static method Keboola\\\\StorageApi\\\\Client\\:\\:parseCsv\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/SnowflakeDynamicBackendsTest.php
-
-		-
-			message: "#^Cannot access offset 'id' on mixed\\.$#"
-			count: 7
-			path: tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$tableId of method Keboola\\\\StorageApi\\\\Client\\:\\:getTableDataPreview\\(\\) expects string, mixed given\\.$#"
-			count: 3
-			path: tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\WorkspacesExasolTest\\:\\:dataTypesDiffDefinitions\\(\\) has no return type specified\\.$#"
