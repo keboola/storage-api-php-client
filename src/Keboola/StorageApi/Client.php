@@ -483,7 +483,7 @@ class Client
         $url .= '?' . http_build_query($options);
 
         // keep request with form-data because this endpoint deprecated
-        $result = $this->apiPost($url, [], $isAsync);
+        $result = $this->apiPostJson($url, [], $isAsync);
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
 
@@ -583,7 +583,7 @@ class Client
             $url .= '?' . http_build_query($query);
         }
 
-        $result = $this->apiPost($url, [], $async);
+        $result = $this->apiPostJson($url, [], $async);
         assert(is_array($result));
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
@@ -654,7 +654,7 @@ class Client
             $url .= '?' . http_build_query($query);
         }
 
-        $result = $this->apiPost($url, [], $async);
+        $result = $this->apiPostJson($url, [], $async);
         assert(is_array($result));
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
@@ -2481,7 +2481,7 @@ class Client
      */
     public function createEventWithFormData(Event $event)
     {
-        $result = $this->apiPost('events', $this->prepareDataForCreateEvent($event, true));
+        $result = $this->apiPostJson('events', $this->prepareDataForCreateEvent($event, true));
         assert(is_array($result));
         return $result['id'];
     }
