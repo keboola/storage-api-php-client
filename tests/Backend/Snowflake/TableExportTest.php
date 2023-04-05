@@ -25,7 +25,7 @@ class TableExportTest extends StorageApiTestCase
             return "col_{$colNum}";
         }, range(1, 130)));
 
-        $table = $this->_client->apiPostJson('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => $cols,
             'name' => 'langs',
         ]);
@@ -49,7 +49,7 @@ class TableExportTest extends StorageApiTestCase
             }, range(1, 30)));
         }
 
-        $table = $this->_client->apiPostJson('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => implode("\n", $cols),
             'name' => 'langs',
         ]);

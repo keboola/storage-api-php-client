@@ -132,7 +132,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         /** @var array{id:string} $table */
-        $table = $this->_client->apiPostJson('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',
             'name' => 'languages',
             'primaryKey' => 'Id',
@@ -193,7 +193,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $db->query("insert into \"test_Languages3\" (\"Id\", \"Name\", \"_update\") values (1, 'cz', 'x'), (2, 'en', 'z');");
 
         /** @var array{id:string} $table */
-        $table = $this->_client->apiPostJson('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',
             'name' => 'languages',
             'primaryKey' => 'Id',
@@ -218,7 +218,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $testViewLoad = in_array($tokenData['owner']['defaultBackend'], [self::BACKEND_SNOWFLAKE,], true);
 
         /** @var array{id:string} $table */
-        $table = $this->_client->apiPostJson('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
             'primaryKey' => 'Id',

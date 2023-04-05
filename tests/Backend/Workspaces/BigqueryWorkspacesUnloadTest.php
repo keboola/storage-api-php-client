@@ -180,7 +180,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         ));
 
         /** @var array{id:string} $table */
-        $table = $this->_client->apiPostJson('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',
             'name' => 'languages',
             'primaryKey' => 'Id',
