@@ -86,7 +86,7 @@ class TeradataWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         /** @var array $table */
-        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPostJson('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',
             'name' => 'languages',
             'primaryKey' => 'Id',
@@ -148,7 +148,7 @@ class TeradataWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $db->query('INSERT INTO "test_Languages3" ("Id", "Name", "_update") VALUES (2, \'en\', \'z\');');
 
         /** @var array $table */
-        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPostJson('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',
             'name' => 'languages',
             'primaryKey' => 'Id',
@@ -170,7 +170,7 @@ class TeradataWorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testCopyImport(): void
     {
         /** @var array $table */
-        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId() . '/tables', [
+        $table = $this->_client->apiPostJson('buckets/' . $this->getTestBucketId() . '/tables', [
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
             'primaryKey' => 'Id',

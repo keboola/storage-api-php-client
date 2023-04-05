@@ -123,7 +123,7 @@ class ExasolWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $db->query("insert into $quotedTableId ([Id], [Name], [_update]) values (1, 'cz', 'x');");
         $db->query("insert into $quotedTableId ([Id], [Name], [_update]) values (2, 'en', 'z');");
 
-        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPostJson('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',
             'name' => 'languages',
             'primaryKey' => 'Id',
@@ -145,7 +145,7 @@ class ExasolWorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testCopyImport(): void
     {
         $this->markTestSkipped('Needs incremental import');
-        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPostJson('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
             'primaryKey' => 'Id',

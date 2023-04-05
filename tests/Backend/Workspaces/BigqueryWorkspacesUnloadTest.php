@@ -119,7 +119,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         /** @var array{id:string} $table */
-        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPostJson('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',
             'name' => 'languages',
             'primaryKey' => 'Id',
@@ -180,7 +180,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         ));
 
         /** @var array{id:string} $table */
-        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPostJson('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',
             'name' => 'languages',
             'primaryKey' => 'Id',
@@ -202,7 +202,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testCopyImport(): void
     {
         /** @var array{id:string} $table */
-        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPostJson('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
             'primaryKey' => 'Id',

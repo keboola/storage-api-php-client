@@ -171,7 +171,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
     {
         $workspace = $this->initTestWorkspace();
 
-        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPostJson('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
             'primaryKey' => 'Id',

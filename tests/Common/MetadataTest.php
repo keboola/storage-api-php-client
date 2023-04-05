@@ -948,7 +948,7 @@ class MetadataTest extends StorageApiTestCase
     }
 
     /**
-     * $apiEndpoint represents part of URl because it has to call apiPost() directly without postMetadata() because
+     * $apiEndpoint represents part of URl because it has to call apiPostJson() directly without postMetadata() because
      * postMetadata() checks input in on client side, but this test should call it with wrong data in order to test it
      * in connection
      *
@@ -960,7 +960,7 @@ class MetadataTest extends StorageApiTestCase
         $objectId = $bucketId . $object;
 
         try {
-            $this->_client->apiPost("{$apiEndpoint}/{$objectId}/metadata", [
+            $this->_client->apiPostJson("{$apiEndpoint}/{$objectId}/metadata", [
                 'provider' => 'valid',
                 'metadata' => 'not an array',
             ]);
@@ -980,7 +980,7 @@ class MetadataTest extends StorageApiTestCase
         $objectId = $bucketId . $object;
 
         try {
-            $this->_client->apiPost("{$apiEndpoint}/{$objectId}/metadata", [
+            $this->_client->apiPostJson("{$apiEndpoint}/{$objectId}/metadata", [
                 'provider' => 'valid',
             ]);
             $this->fail('Should throw invalid key exception');
