@@ -960,7 +960,7 @@ class MetadataTest extends StorageApiTestCase
         $objectId = $bucketId . $object;
 
         try {
-            $this->_client->apiPostJson("{$apiEndpoint}/{$objectId}/metadata", [
+            $this->_client->apiPost("{$apiEndpoint}/{$objectId}/metadata", [
                 'provider' => 'valid',
                 'metadata' => 'not an array',
             ]);
@@ -980,7 +980,7 @@ class MetadataTest extends StorageApiTestCase
         $objectId = $bucketId . $object;
 
         try {
-            $this->_client->apiPostJson("{$apiEndpoint}/{$objectId}/metadata", [
+            $this->_client->apiPost("{$apiEndpoint}/{$objectId}/metadata", [
                 'provider' => 'valid',
             ]);
             $this->fail('Should throw invalid key exception');

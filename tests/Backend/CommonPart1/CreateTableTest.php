@@ -533,7 +533,7 @@ class CreateTableTest extends StorageApiTestCase
     {
         // sync
         try {
-            $this->_client->apiPostJson(
+            $this->_client->apiPost(
                 sprintf('buckets/%s/tables', $this->getTestBucketId(self::STAGE_IN)),
                 [
                     'name' => 'languages',

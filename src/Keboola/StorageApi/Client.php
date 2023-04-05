@@ -483,7 +483,7 @@ class Client
         $url .= '?' . http_build_query($options);
 
         // keep request with form-data because this endpoint deprecated
-        $result = $this->apiPostJson($url, [], $isAsync);
+        $result = $this->apiPost($url, [], $isAsync);
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
 
