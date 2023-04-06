@@ -147,6 +147,7 @@ class TeradataWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $db->query('INSERT INTO "test_Languages3" ("Id", "Name", "_update") VALUES (1, \'cz\', \'x\');');
         $db->query('INSERT INTO "test_Languages3" ("Id", "Name", "_update") VALUES (2, \'en\', \'z\');');
 
+        // sync create table is deprecated and does not support JSON
         /** @var array $table */
         $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',

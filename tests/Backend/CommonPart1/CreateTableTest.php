@@ -531,7 +531,7 @@ class CreateTableTest extends StorageApiTestCase
 
     public function testTableCreateInvalidPkType(): void
     {
-        // sync
+        // sync create table is deprecated and does not support JSON
         try {
             $this->_client->apiPost(
                 sprintf('buckets/%s/tables', $this->getTestBucketId(self::STAGE_IN)),

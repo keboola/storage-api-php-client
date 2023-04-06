@@ -180,6 +180,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $workspace['connection']['schema']
         ));
 
+        // sync create table is deprecated and does not support JSON
         /** @var array{id:string} $table */
         $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',

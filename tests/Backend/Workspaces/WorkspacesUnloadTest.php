@@ -131,6 +131,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
+        // sync create table is deprecated and does not support JSON
         /** @var array{id:string} $table */
         $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',
@@ -192,6 +193,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 		);');
         $db->query("insert into \"test_Languages3\" (\"Id\", \"Name\", \"_update\") values (1, 'cz', 'x'), (2, 'en', 'z');");
 
+        // sync create table is deprecated and does not support JSON
         /** @var array{id:string} $table */
         $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',
@@ -261,6 +263,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         if ($testViewLoad) {
             // test same thing like with table but on view
             $db->query('create view "test_Languages3_view" as select * from "test_Languages3";');
+            // sync create table is deprecated and does not support JSON
             /** @var array{id:string} $tableView */
             $tableView = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
                 'dataString' => 'Id,Name,update',

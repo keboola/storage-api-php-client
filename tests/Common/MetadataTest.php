@@ -960,6 +960,7 @@ class MetadataTest extends StorageApiTestCase
         $objectId = $bucketId . $object;
 
         try {
+            // sync create table is deprecated and does not support JSON
             $this->_client->apiPost("{$apiEndpoint}/{$objectId}/metadata", [
                 'provider' => 'valid',
                 'metadata' => 'not an array',
@@ -980,6 +981,7 @@ class MetadataTest extends StorageApiTestCase
         $objectId = $bucketId . $object;
 
         try {
+            // sync create table is deprecated and does not support JSON
             $this->_client->apiPost("{$apiEndpoint}/{$objectId}/metadata", [
                 'provider' => 'valid',
             ]);
