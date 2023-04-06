@@ -654,7 +654,7 @@ class Client
             $url .= '?' . http_build_query($query);
         }
 
-        $result = $this->apiPostJson($url, [], $async);
+        $result = $this->apiPost($url, [], $async);
         assert(is_array($result));
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);

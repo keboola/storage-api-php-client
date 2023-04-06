@@ -217,6 +217,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $tokenData = $this->_client->verifyToken();
         $testViewLoad = in_array($tokenData['owner']['defaultBackend'], [self::BACKEND_SNOWFLAKE,], true);
 
+        // sync create table is deprecated and does not support JSON
         /** @var array{id:string} $table */
         $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name,update',
@@ -261,7 +262,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
             // test same thing like with table but on view
             $db->query('create view "test_Languages3_view" as select * from "test_Languages3";');
             /** @var array{id:string} $tableView */
-            $tableView = $this->_client->apiPostJson('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+            $tableView = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
                 'dataString' => 'Id,Name,update',
                 'name' => 'languages_from_view',
                 'primaryKey' => 'Id',
