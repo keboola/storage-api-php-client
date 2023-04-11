@@ -25,6 +25,7 @@ class TableExportTest extends StorageApiTestCase
             return "col_{$colNum}";
         }, range(1, 130)));
 
+        // sync create table is deprecated and does not support JSON
         $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => $cols,
             'name' => 'langs',
@@ -49,6 +50,7 @@ class TableExportTest extends StorageApiTestCase
             }, range(1, 30)));
         }
 
+        // sync create table is deprecated and does not support JSON
         $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => implode("\n", $cols),
             'name' => 'langs',
