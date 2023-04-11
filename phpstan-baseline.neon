@@ -2416,11 +2416,6 @@ parameters:
 			path: tests/Backend/CommonPart1/TableExporterTest.php
 
 		-
-			message: "#^Cannot access offset 'id' on mixed\\.$#"
-			count: 4
-			path: tests/Backend/CommonPart2/MetricsTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\MetricsTest\\:\\:importMetricsData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart2/MetricsTest.php
@@ -4392,12 +4387,7 @@ parameters:
 
 		-
 			message: "#^Cannot access offset 'id' on mixed\\.$#"
-			count: 7
-			path: tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$tableId of method Keboola\\\\StorageApi\\\\Client\\:\\:getTableDataPreview\\(\\) expects string, mixed given\\.$#"
-			count: 3
+			count: 1
 			path: tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php
 
 		-
