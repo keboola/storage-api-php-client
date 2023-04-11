@@ -583,7 +583,7 @@ class Client
             $url .= '?' . http_build_query($query);
         }
 
-        $result = $this->apiPostJson($url, [], $async);
+        $result = $this->apiPost($url, [], $async);
         assert(is_array($result));
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
@@ -2429,7 +2429,7 @@ class Client
      */
     public function createEventWithFormData(Event $event)
     {
-        $result = $this->apiPostJson('events', $this->prepareDataForCreateEvent($event, true));
+        $result = $this->apiPost('events', $this->prepareDataForCreateEvent($event, true));
         assert(is_array($result));
         return $result['id'];
     }

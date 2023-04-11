@@ -145,7 +145,8 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
     public function testCopyImport(): void
     {
-        $table = $this->_client->apiPostJson('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        // sync table import is deprecated and does not support JSON
+        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
             'primaryKey' => 'Id',
