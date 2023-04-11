@@ -1575,9 +1575,8 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientType
-     * @param string $clientType
      */
-    public function testComponentConfigsVersionsCreate($clientType): void
+    public function testComponentConfigsVersionsCreate(): void
     {
         $config = (new \Keboola\StorageApi\Options\Components\Configuration())
             ->setComponentId('wr-db')
