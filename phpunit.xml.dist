@@ -58,8 +58,6 @@
 	<testsuite name="paratest-backend-snowflake-abs-part-1">
 		<directory>tests/Backend/Snowflake</directory>
 		<directory>tests/Backend/CommonPart1</directory>
-		<!--	excluded test is only for BQ specific -->
-		<exclude>tests/Backend/CommonPart1/BigqueryTableExporterTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
 		<exclude>tests/Backend/CommonPart2/TablesDefinitionCommonTest.php</exclude>
@@ -87,8 +85,6 @@
 	<testsuite name="paratest-backend-snowflake-gcs-part-1">
 		<directory>tests/Backend/Snowflake</directory>
 		<directory>tests/Backend/CommonPart1</directory>
-		<!--	excluded test is only for BQ specific -->
-		<exclude>tests/Backend/CommonPart1/BigqueryTableExporterTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
 		<exclude>tests/Backend/CommonPart2/TablesDefinitionCommonTest.php</exclude>
@@ -113,8 +109,6 @@
 
 	<testsuite name="paratest-backend-redshift-part-1">
 		<directory>tests/Backend/CommonPart1</directory>
-		<!--	excluded test is only for BQ specific -->
-		<exclude>tests/Backend/CommonPart1/BigqueryTableExporterTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/TimeTravelTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
@@ -142,8 +136,6 @@
 	<testsuite name="paratest-backend-snowflake-part-1">
 		<directory>tests/Backend/Snowflake</directory>
 		<directory>tests/Backend/CommonPart1</directory>
-		<!--	excluded test is only for BQ specific -->
-		<exclude>tests/Backend/CommonPart1/BigqueryTableExporterTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
@@ -207,8 +199,6 @@
 
 	<testsuite name="paratest-backend-synapse-part-1">
 		<directory>tests/Backend/CommonPart1</directory>
-		<!--	excluded test is only for BQ specific -->
-		<exclude>tests/Backend/CommonPart1/BigqueryTableExporterTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/TimeTravelTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
@@ -245,8 +235,6 @@
 
 	<testsuite name="paratest-exasol">
 		<directory>tests/Backend/CommonPart1</directory>
-		<!--	excluded test is only for BQ specific -->
-		<exclude>tests/Backend/CommonPart1/BigqueryTableExporterTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/TimeTravelTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<!--	excluded test is included in tests/Backend/Exasol/ExasolImportExportCommonTest.php -->
@@ -268,8 +256,6 @@
 
 		<directory>tests/Backend/CommonPart1</directory>
 		<exclude>tests/Backend/CommonPart1/TimeTravelTest.php</exclude>
-		<!--	excluded test is only for BQ specific -->
-		<exclude>tests/Backend/CommonPart1/BigqueryTableExporterTest.php</exclude>
 		<!--		TD does not support TWC-->
 		<exclude>tests/Backend/CommonPart1/TableWithConfigurationLoadFromWorkspaceTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/TableWithConfigurationLoadTest.php</exclude>
