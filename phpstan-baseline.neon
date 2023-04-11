@@ -4387,7 +4387,12 @@ parameters:
 
 		-
 			message: "#^Cannot access offset 'id' on mixed\\.$#"
-			count: 1
+			count: 7
+			path: tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$tableId of method Keboola\\\\StorageApi\\\\Client\\:\\:getTableDataPreview\\(\\) expects string, mixed given\\.$#"
+			count: 3
 			path: tests/Backend/Workspaces/SynapseWorkspacesUnloadTest.php
 
 		-
