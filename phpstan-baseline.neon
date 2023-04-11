@@ -5301,16 +5301,6 @@ parameters:
 			path: tests/StorageApiTestCase.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:listJobsByRunId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/StorageApiTestCase.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:listJobsByRunId\\(\\) has parameter \\$runId with no type specified\\.$#"
-			count: 1
-			path: tests/StorageApiTestCase.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:listTestBucketsForParallelTests\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/StorageApiTestCase.php

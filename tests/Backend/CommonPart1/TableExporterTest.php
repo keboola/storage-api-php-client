@@ -86,6 +86,7 @@ class TableExporterTest extends StorageApiTestCase
 
         // check that columns has been set in export job params
         $jobs = $this->listJobsByRunId($runId);
+        $this->assertNotEmpty($jobs, 'Job not found');
         $job = reset($jobs);
 
         $this->assertSame($runId, $job['runId']);
