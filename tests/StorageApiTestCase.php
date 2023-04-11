@@ -620,13 +620,11 @@ abstract class StorageApiTestCase extends ClientTestCase
         return 1;
     }
 
-    protected function listJobsByRunId($runId)
+    protected function listJobsByRunId(string $runId): array
     {
         return array_filter(
             $this->_client->listJobs(),
-            function ($job) use ($runId) {
-                return $job['runId'] === $runId;
-            }
+            static fn($job) => $job['runId'] === $runId
         );
     }
 
