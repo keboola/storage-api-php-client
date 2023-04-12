@@ -722,14 +722,6 @@ class TokensTest extends StorageApiTestCase
         } catch (ClientException  $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
         }
-
-        // table attribute
-        try {
-            $client->setTableAttribute($outTableId, 'my', 'value');
-            $this->fail('Table attribute written with read token');
-        } catch (ClientException $e) {
-            $this->assertEquals('accessDenied', $e->getStringCode());
-        }
     }
 
     public function testBucketWriteTokenPermission(): void
@@ -772,9 +764,6 @@ class TokensTest extends StorageApiTestCase
 
         // write into table
         $client->writeTableAsync($outTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
-
-        // table attribute
-        $client->setTableAttribute($outTableId, 'my', 'value');
     }
 
     public function testNoBucketTokenPermission(): void
@@ -817,14 +806,6 @@ class TokensTest extends StorageApiTestCase
             $client->writeTableAsync($outTableId, new CsvFile(__DIR__ . '/../_data/languages.csv'));
             $this->fail('Table imported with no permission token');
         } catch (ClientException  $e) {
-            $this->assertEquals('accessDenied', $e->getStringCode());
-        }
-
-        // table attribute
-        try {
-            $client->setTableAttribute($outTableId, 'my', 'value');
-            $this->fail('Table attribute with no permission token');
-        } catch (ClientException $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
         }
     }

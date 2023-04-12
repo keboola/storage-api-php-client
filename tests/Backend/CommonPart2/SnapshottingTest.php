@@ -36,7 +36,6 @@ class SnapshottingTest extends StorageApiTestCase
         $this->assertEquals($description, $snapshot['description']);
         $this->assertEquals($table['primaryKey'], $snapshot['table']['primaryKey']);
         $this->assertEquals($table['columns'], $snapshot['table']['columns']);
-        $this->assertEquals($table['attributes'], $snapshot['table']['attributes']);
         $this->assertArrayHasKey('creatorToken', $snapshot);
         $this->assertNotEmpty($snapshot['dataFileId']);
     }
@@ -58,7 +57,6 @@ class SnapshottingTest extends StorageApiTestCase
         $this->assertEquals($description, $snapshot['description']);
         $this->assertEquals($table['primaryKey'], $snapshot['table']['primaryKey']);
         $this->assertEquals($table['columns'], $snapshot['table']['columns']);
-        $this->assertEquals($table['attributes'], $snapshot['table']['attributes']);
         $this->assertArrayHasKey('creatorToken', $snapshot);
         $this->assertNotEmpty($snapshot['dataFileId']);
 
@@ -117,9 +115,6 @@ class SnapshottingTest extends StorageApiTestCase
                 'primaryKey' => 'Id',
             ]
         );
-
-        $this->_client->setTableAttribute($tableId, 'first', 'some value');
-        $this->_client->setTableAttribute($tableId, 'second', 'other value');
 
         $metadata = new Metadata($this->_client);
 

@@ -879,11 +879,13 @@ Access to buckets can be limited by access tokens. Each bucket has a *backend* i
 ## Create or List Buckets [/v2/storage/buckets]
 ### List all buckets [GET /v2/storage/buckets?include={include}]
 
-All buckets with their attributes are returned.
+All buckets are returned.
 
 + Parameters
-    + include (optional) - Comma-separated list of resources to include for each table. Available resources: 'attributes, metadata, linkedBuckets'.
-        + Default: 'attributes'
+    + include (optional, enum[string]) - Comma-separated list of resources to include for each table.
+        + Members
+            + metadata
+            + linkedBuckets
 
 + Request
     + Headers
@@ -995,8 +997,7 @@ existing bucket from another project (see below).
                 "backend": "snowflake",
                 "hasExternalSchema": false,
                 "databaseName": null,
-                "sharing": null,
-                "attributes": []
+                "sharing": null
             }
 
 ### Link Shared Bucket [POST /v2/storage/buckets?async={async}]
@@ -2162,11 +2163,10 @@ Lists tables in a given bucket.
     + bucket_id (required) - Bucket Id
     + include (optional, enum[string]) - Comma-separated list of resources to include for each table
         + Members
-            + attributes
             + columns
             + metadata
             + columnMetadata
-        + Default: attributes,metadata
+        + Default: metadata
 
 + Request
     + Headers
@@ -3378,7 +3378,6 @@ Obtains information about a table.
                     "visit_id"
                 ],
                 "columnMetadata": [],
-                "attributes": [],
                 "metadata": [],
                 "bucket": {
                     "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-application-testing",
@@ -3478,7 +3477,6 @@ Synchronous call response (async=false)
                     "visit_id"
                 ],
                 "columnMetadata": [],
-                "attributes": [],
                 "metadata": [],
                 "bucket": {
                     "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-application-testing",
@@ -3607,12 +3605,11 @@ attributes and information about the containing bucket.
 + Parameters
     + include (optional, enum[string]) - Comma separated list of resources to include for each table.
         + Members
-            + attributes
             + buckets
             + columns
             + metadata
             + columnMetadata
-        + Default: attributes,metadata
+        + Default: metadata
 
 + Request
     + Headers
@@ -3639,7 +3636,6 @@ attributes and information about the containing bucket.
                     "isAlias": false,
                     "isAliasable": true,
                     "isTyped": false,
-                    "attributes": [],
                     "columns": [
                         "time_spent_in_shop",
                         "number_of_items",
@@ -3715,7 +3711,6 @@ attributes and information about the containing bucket.
                         }
                     },
                     "aliasColumnsAutoSync": true,
-                    "attributes": [],
                     "columns": [
                         "time_spent_in_shop",
                         "number_of_items",
@@ -4274,7 +4269,7 @@ will not propagate to the alias.
 
 
 # Group Table Snapshotting
-Table data and metadata (attributes, column settings) can be persisted by creating a snapshot.
+Table data and metadata (column settings) can be persisted by creating a snapshot.
 When a snapshot is created you can use it to restore the table back to the snapshotted state.
 During the restoration process, the data can be applied to the original table or they can be restored
 into a new table.
@@ -4286,7 +4281,6 @@ Creates a snapshot of the current state of the table. This request is [asynchron
 A table snapshot will contain:
 - Table data,
 - Table properties (primary key, indexed columns, etc.),
-- Table attributes.
 
 Snapshots of an alias table contain only alias settings, actual data are not stored with the snapshot.
 
@@ -4408,33 +4402,6 @@ Retrieves information about a single table snapshot.
                     "id": "in.c-dalsi.alias",
                     "primaryKey": [],
                     "indexedColumns": [],
-                    "attributes": [
-                        {
-                            "name": "afd",
-                            "value": "sdfa",
-                            "protected": false
-                        },
-                        {
-                            "name": "pokus",
-                            "value": "neco",
-                            "protected": false
-                        },
-                        {
-                            "name": "test",
-                            "value": "adsf",
-                            "protected": false
-                        },
-                        {
-                            "name": "sadf",
-                            "value": "",
-                            "protected": false
-                        },
-                        {
-                            "name": "asd",
-                            "value": "",
-                            "protected": false
-                        }
-                    ],
                     "columns": [
                         "id",
                         "name"
@@ -8018,12 +7985,11 @@ attributes and information about the containing bucket. At least one of paramete
 + Parameters
     + include (optional, enum[string]) - Comma separated list of resources to include for each table.
         + Members
-            + attributes
             + buckets
             + columns
             + metadata
             + columnMetadata
-        + Default: attributes,metadata
+        + Default: metadata
     + metadataKey (optional, string) - string to search with exact match on one of existing metadata.key
         + Default: NULL
     + metadataValue (optional, string) - string to search with exact match on one of existing metadata.value
@@ -8055,7 +8021,6 @@ attributes and information about the containing bucket. At least one of paramete
                     "isAlias": false,
                     "isAliasable": true,
                     "isTyped": false,
-                    "attributes": [],
                     "columns": [
                         "time_spent_in_shop",
                         "number_of_items"
@@ -8124,7 +8089,6 @@ attributes and information about the containing bucket. At least one of paramete
                         }
                     },
                     "aliasColumnsAutoSync": true,
-                    "attributes": [],
                     "columns": [
                         "time_spent_in_shop",
                         "number_of_items"
