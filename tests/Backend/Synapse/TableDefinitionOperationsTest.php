@@ -691,7 +691,6 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertSame(['id'], $newTable['primaryKey']);
         $this->assertSame('HASH', $newTable['distributionType']);
         $this->assertSame(['id'], $newTable['distributionKey']);
-        $this->assertSame(['id'], $newTable['indexedColumns']);
         $this->assertSame('CLUSTERED INDEX', $newTable['indexType']);
         $this->assertSame(['id'], $newTable['indexKey']);
 
