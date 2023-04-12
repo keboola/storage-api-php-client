@@ -882,8 +882,8 @@ Access to buckets can be limited by access tokens. Each bucket has a *backend* i
 All buckets with their attributes are returned.
 
 + Parameters
-    + include (optional) - Comma-separated list of resources to include for each table. Available resources: 'metadata, linkedBuckets'.
-        + Default: ''
+    + include (optional) - Comma-separated list of resources to include for each table. Available resources: 'attributes, metadata, linkedBuckets'.
+        + Default: 'attributes'
 
 + Request
     + Headers
@@ -995,7 +995,8 @@ existing bucket from another project (see below).
                 "backend": "snowflake",
                 "hasExternalSchema": false,
                 "databaseName": null,
-                "sharing": null
+                "sharing": null,
+                "attributes": []
             }
 
 ### Link Shared Bucket [POST /v2/storage/buckets?async={async}]
@@ -2158,10 +2159,11 @@ Lists tables in a given bucket.
     + bucket_id (required) - Bucket Id
     + include (optional, enum[string]) - Comma-separated list of resources to include for each table
         + Members
+            + attributes
             + columns
             + metadata
             + columnMetadata
-        + Default: metadata
+        + Default: attributes,metadata
 
 + Request
     + Headers
@@ -3598,11 +3600,12 @@ attributes and information about the containing bucket.
 + Parameters
     + include (optional, enum[string]) - Comma separated list of resources to include for each table.
         + Members
+            + attributes
             + buckets
             + columns
             + metadata
             + columnMetadata
-        + Default: metadata
+        + Default: attributes,metadata
 
 + Request
     + Headers
@@ -3628,6 +3631,7 @@ attributes and information about the containing bucket.
                     "isAlias": false,
                     "isAliasable": true,
                     "isTyped": false,
+                    "attributes": [],
                     "columns": [
                         "time_spent_in_shop",
                         "number_of_items",
@@ -3702,6 +3706,7 @@ attributes and information about the containing bucket.
                         }
                     },
                     "aliasColumnsAutoSync": true,
+                    "attributes": [],
                     "columns": [
                         "time_spent_in_shop",
                         "number_of_items",
@@ -4258,7 +4263,7 @@ will not propagate to the alias.
 
 
 # Group Table Snapshotting
-Table data and metadata (column settings) can be persisted by creating a snapshot.
+Table data and metadata (attributes, column settings) can be persisted by creating a snapshot.
 When a snapshot is created you can use it to restore the table back to the snapshotted state.
 During the restoration process, the data can be applied to the original table or they can be restored
 into a new table.
@@ -4270,6 +4275,7 @@ Creates a snapshot of the current state of the table. This request is [asynchron
 A table snapshot will contain:
 - Table data,
 - Table properties (primary key, etc.),
+- Table attributes.
 
 Snapshots of an alias table contain only alias settings, actual data are not stored with the snapshot.
 
@@ -4390,6 +4396,33 @@ Retrieves information about a single table snapshot.
                 "table": {
                     "id": "in.c-dalsi.alias",
                     "primaryKey": [],
+                    "attributes": [
+                        {
+                            "name": "afd",
+                            "value": "sdfa",
+                            "protected": false
+                        },
+                        {
+                            "name": "pokus",
+                            "value": "neco",
+                            "protected": false
+                        },
+                        {
+                            "name": "test",
+                            "value": "adsf",
+                            "protected": false
+                        },
+                        {
+                            "name": "sadf",
+                            "value": "",
+                            "protected": false
+                        },
+                        {
+                            "name": "asd",
+                            "value": "",
+                            "protected": false
+                        }
+                    ],
                     "columns": [
                         "id",
                         "name"
@@ -7973,11 +8006,12 @@ attributes and information about the containing bucket. At least one of paramete
 + Parameters
     + include (optional, enum[string]) - Comma separated list of resources to include for each table.
         + Members
+            + attributes
             + buckets
             + columns
             + metadata
             + columnMetadata
-        + Default: metadata
+        + Default: attributes,metadata
     + metadataKey (optional, string) - string to search with exact match on one of existing metadata.key
         + Default: NULL
     + metadataValue (optional, string) - string to search with exact match on one of existing metadata.value
@@ -8008,6 +8042,7 @@ attributes and information about the containing bucket. At least one of paramete
                     "isAlias": false,
                     "isAliasable": true,
                     "isTyped": false,
+                    "attributes": [],
                     "columns": [
                         "time_spent_in_shop",
                         "number_of_items"
@@ -8075,6 +8110,7 @@ attributes and information about the containing bucket. At least one of paramete
                         }
                     },
                     "aliasColumnsAutoSync": true,
+                    "attributes": [],
                     "columns": [
                         "time_spent_in_shop",
                         "number_of_items"
