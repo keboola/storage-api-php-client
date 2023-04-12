@@ -42,6 +42,10 @@ class TablesListingTest extends StorageApiTestCase
 
         $this->assertCount(1, $tables);
 
+        $firstTable = reset($tables);
+        $this->assertArrayHasKey('attributes', $firstTable, 'List bucket tables are returned with attributes');
+        $this->assertCount(1, $firstTable['attributes']);
+
         $tables = $this->_client->listTables();
         $firstTable = false;
         foreach ($tables as $table) {
@@ -52,7 +56,9 @@ class TablesListingTest extends StorageApiTestCase
             break;
         }
 
-        $this->assertArrayHasKey('bucket', $firstTable);
+        $this->assertArrayHasKey('attributes', $firstTable, 'List tables are returned with attributes');
+        $this->assertCount(1, $firstTable['attributes']);
+        $this->assertArrayHasKey('bucket', $firstTable, 'List tables are returned with attributes');
         $this->assertArrayHasKey('displayName', $firstTable['bucket']);
         $this->assertArrayHasKey('displayName', $firstTable);
         $this->assertArrayNotHasKey('columns', $firstTable);
@@ -66,6 +72,7 @@ class TablesListingTest extends StorageApiTestCase
         ]);
 
         $firstTable = reset($tables);
+        $this->assertArrayNotHasKey('attributes', $firstTable);
         $this->assertArrayNotHasKey('bucket', $firstTable);
         $this->assertArrayNotHasKey('metadata', $firstTable);
         $this->assertArrayNotHasKey('columnMetadata', $firstTable);
@@ -75,6 +82,7 @@ class TablesListingTest extends StorageApiTestCase
         ]);
 
         $firstTable = reset($tables);
+        $this->assertArrayNotHasKey('attributes', $firstTable);
         $this->assertArrayNotHasKey('bucket', $firstTable);
         $this->assertArrayNotHasKey('metadata', $firstTable);
         $this->assertArrayNotHasKey('columnMetadata', $firstTable);
@@ -389,7 +397,7 @@ class TablesListingTest extends StorageApiTestCase
         );
 
         $tables = $this->_client->listTables($this->getTestBucketId(), [
-            'include' => 'buckets,columns,metadata,columnMetadata',
+            'include' => 'buckets,attributes,columns,metadata,columnMetadata',
         ]);
 
         // check the columns
@@ -410,6 +418,9 @@ class TablesListingTest extends StorageApiTestCase
         $this->assertCount(1, $firstTable['columnMetadata']);
         $this->assertArrayHasKey('id', $firstTable['columnMetadata']);
         $this->assertCount(2, $firstTable['columnMetadata']['id']);
+
+        // check attributes
+        $this->assertArrayHasKey('attributes', $firstTable);
     }
 
     public function invalidAttributes()
