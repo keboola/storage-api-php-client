@@ -116,6 +116,9 @@ class SnapshottingTest extends StorageApiTestCase
             ]
         );
 
+        $this->_client->setTableAttribute($tableId, 'first', 'some value');
+        $this->_client->setTableAttribute($tableId, 'second', 'other value');
+
         $metadata = new Metadata($this->_client);
 
         $metadata->postTableMetadata(

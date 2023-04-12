@@ -611,6 +611,16 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
+			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:replaceTableAttributes\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Keboola/StorageApi/Client.php
+
+		-
+			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:replaceTableAttributes\\(\\) has parameter \\$tableId with no type specified\\.$#"
+			count: 1
+			path: src/Keboola/StorageApi/Client.php
+
+		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:request\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -667,6 +677,16 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:setRunId\\(\\) has parameter \\$runId with no type specified\\.$#"
+			count: 1
+			path: src/Keboola/StorageApi/Client.php
+
+		-
+			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:setTableAttribute\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Keboola/StorageApi/Client.php
+
+		-
+			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:setTableAttribute\\(\\) has parameter \\$protected with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -792,6 +812,11 @@ parameters:
 
 		-
 			message: "#^Offset 'results' does not exist on array\\|null\\.$#"
+			count: 1
+			path: src/Keboola/StorageApi/Client.php
+
+		-
+			message: "#^PHPDoc tag @param has invalid value \\(bool null \\$protected\\)\\: Unexpected token \"null\", expected variable at offset 169$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -4934,6 +4959,21 @@ parameters:
 			message: "#^Parameter \\#1 \\$previousRunId of method Keboola\\\\StorageApi\\\\Client\\:\\:generateRunId\\(\\) expects null, string given\\.$#"
 			count: 1
 			path: tests/Common/StatsTest.php
+
+		-
+			message: "#^Method Keboola\\\\Test\\\\Common\\\\TablesListingTest\\:\\:invalidAttributes\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Common/TablesListingTest.php
+
+		-
+			message: "#^Method Keboola\\\\Test\\\\Common\\\\TablesListingTest\\:\\:testTableAttributesReplaceValidation\\(\\) has parameter \\$attributes with no type specified\\.$#"
+			count: 1
+			path: tests/Common/TablesListingTest.php
+
+		-
+			message: "#^Parameter \\#3 \\$value of method Keboola\\\\StorageApi\\\\Client\\:\\:setTableAttribute\\(\\) expects string, null given\\.$#"
+			count: 1
+			path: tests/Common/TablesListingTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\TokensTest\\:\\:assertMasterTokenVisibility\\(\\) has no return type specified\\.$#"
