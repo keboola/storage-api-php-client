@@ -113,9 +113,32 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
         $db->query(sprintf("INSERT INTO %s VALUES (1, 'john');", $quotedTableId));
         $db->query(sprintf("INSERT INTO %s VALUES (2, 'does');", $quotedTableId));
 
+        $this->unloadAndAssert($workspace['id'], $tableId);
+
+        // test unload from workspace with _timestamp column exist
+        $db->query(sprintf('DROP TABLE %s', $quotedTableId));
+        $sql = sprintf(
+            '
+            CREATE TABLE %s (
+                "id" INT NOT NULL,
+                "name" VARCHAR(16777216),
+                "_timestamp" STRING --it actually does not matter type of _timestamp column it is just ignored
+            )
+        ',
+            $quotedTableId,
+        );
+        $db->query($sql);
+        $db->query(sprintf("INSERT INTO %s VALUES (1, 'john', '');", $quotedTableId));
+        $db->query(sprintf("INSERT INTO %s VALUES (2, 'does', '');", $quotedTableId));
+
+        $this->unloadAndAssert($workspace['id'], $tableId);
+    }
+
+    private function unloadAndAssert(int $id, string $tableId): void
+    {
         // should be OK tables types are matching
         $this->_client->writeTableAsyncDirect($this->tableId, [
-            'dataWorkspaceId' => $workspace['id'],
+            'dataWorkspaceId' => $id,
             'dataTableName' => $tableId,
         ]);
 
