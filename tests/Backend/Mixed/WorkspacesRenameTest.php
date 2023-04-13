@@ -23,6 +23,7 @@ class WorkspacesRenameTest extends WorkspacesTestCase
                 "in.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
+                    'async' => true,
                 ]
             );
         }
@@ -150,6 +151,7 @@ class WorkspacesRenameTest extends WorkspacesTestCase
                 "in.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
+                    'async' => true,
                 ]
             );
         }

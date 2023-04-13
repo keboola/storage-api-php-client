@@ -55,7 +55,7 @@ class SharingTest extends StorageApiSharingTestCase
     {
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketNameToShare = $this->getTestBucketName($this->generateDescriptionForTestObject()) . '-toShare';
-        $this->dropBucketIfExists($this->_client2, 'out.c-' . $bucketNameToShare);
+        $this->dropBucketIfExists($this->_client2, 'out.c-' . $bucketNameToShare, true);
 
         $bucketToShare = $this->_client2->createBucket($bucketNameToShare, self::STAGE_OUT);
         $this->_client2->shareOrganizationProjectBucket($bucketToShare);
@@ -240,7 +240,7 @@ class SharingTest extends StorageApiSharingTestCase
         $linkedBucketId = $bucket['linkedBy'][0]['id'];
         $linkedBucketProjectId = $bucket['linkedBy'][0]['project']['id'];
 
-        $client->dropBucket($linkedBucketId, ['async' => $isAsync]);
+        $client->dropBucket($linkedBucketId, ['async' => true]);
         try {
             // cannot unlink bucket from nonexistent project
             $this->_client->forceUnlinkBucket($bucketId, 9223372036854775807);
@@ -253,7 +253,7 @@ class SharingTest extends StorageApiSharingTestCase
         $notLinkedBucketStage = 'in';
         $notLinkedBucket = $notLinkedBucketStage . '.c-' . $notLinkedBucketName . '';
         if ($client->bucketExists($notLinkedBucket)) {
-            $client->dropBucket($notLinkedBucket, ['async' => $isAsync]);
+            $client->dropBucket($notLinkedBucket, ['async' => true]);
         }
         $client->createBucket($notLinkedBucketName, $notLinkedBucketStage);
         try {
@@ -274,7 +274,7 @@ class SharingTest extends StorageApiSharingTestCase
         $notSourceBucketStage = 'in';
         $notSourceBucketId = $notSourceBucketStage . '.c-' . $notSourceBucketName . '';
         if ($this->_client->bucketExists($notSourceBucketId)) {
-            $this->_client->dropBucket($notSourceBucketId, ['async' => $isAsync]);
+            $this->_client->dropBucket($notSourceBucketId, ['async' => true]);
         }
         $this->_client->createBucket($notSourceBucketName, $notSourceBucketStage);
         try {
@@ -370,7 +370,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertTrue($cannotManageBucketsClient->bucketExists($linkedBucketId));
 
         try {
-            $cannotManageBucketsClient->dropBucket($linkedBucketId, ['async' => $isAsync]);
+            $cannotManageBucketsClient->dropBucket($linkedBucketId, ['async' => true]);
             $this->fail('Bucket unlink should be restricted for tokens without canManageBuckets permission');
         } catch (ClientException $e) {
             $this->assertEquals(403, $e->getCode());
@@ -380,7 +380,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertTrue($this->_client2->bucketExists($linkedBucketId));
 
         // user should be also able to delete the linked bucket
-        $client->dropBucket($linkedBucketId, ['async' => $isAsync]);
+        $client->dropBucket($linkedBucketId, ['async' => true]);
 
         $this->assertFalse($this->_client2->bucketExists($linkedBucketId));
     }
@@ -448,7 +448,7 @@ class SharingTest extends StorageApiSharingTestCase
         }
 
         try {
-            $client->dropBucket($linkedId, ['async' => $isAsync]);
+            $client->dropBucket($linkedId, ['async' => true]);
             $this->fail('`dropBucket` should fail with `accessDenied` error');
         } catch (ClientException $e) {
             $this->assertEquals(403, $e->getCode());
@@ -945,7 +945,7 @@ class SharingTest extends StorageApiSharingTestCase
         ]);
 
         try {
-            $client->dropBucket($linkedBucketId, ['async' => $isAsync]);
+            $client->dropBucket($linkedBucketId, ['async' => true]);
             $this->fail('non-organization member should not be able to delete bucket');
         } catch (ClientException $e) {
             $this->assertEquals('accessDenied', $e->getStringCode());
@@ -953,7 +953,7 @@ class SharingTest extends StorageApiSharingTestCase
         }
 
         // organization member should be able to delete linked bucket
-        $this->_client2->dropBucket($linkedBucketId, ['async' => $isAsync]);
+        $this->_client2->dropBucket($linkedBucketId, ['async' => true]);
     }
 
     /** @dataProvider syncAsyncProvider */
@@ -1161,7 +1161,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         // bucket drop
         try {
-            $this->_client->dropBucket($bucketId, ['async' => $isAsync]);
+            $this->_client->dropBucket($bucketId, ['async' => true]);
             $this->fail('Shared bucket delete should fail');
         } catch (ClientException $e) {
             $this->assertEquals('storage.buckets.alreadyLinked', $e->getStringCode());
@@ -1290,7 +1290,7 @@ class SharingTest extends StorageApiSharingTestCase
             null,
             $isAsync
         );
-        $this->_client2->dropBucket($linked2Id, ['async' => $isAsync]);
+        $this->_client2->dropBucket($linked2Id, ['async' => true]);
 
         $mapping1 = [
             'source' => str_replace($bucketId, $linkedId, $table1Id),

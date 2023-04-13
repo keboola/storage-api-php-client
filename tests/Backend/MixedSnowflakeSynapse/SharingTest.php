@@ -144,7 +144,7 @@ class SharingTest extends StorageApiSharingTestCase
             $sharedBucket2['project']['id'],
             $sharedBucket2['id']
         );
-        $this->_client2->dropBucket($linked2Id);
+        $this->_client2->dropBucket($linked2Id, ['async' => true]);
 
         $mapping1 = [
             'source' => str_replace($bucketId, $linkedId, $table1Id),

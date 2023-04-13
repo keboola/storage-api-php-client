@@ -37,6 +37,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         if ($this->_client->bucketExists('in.c-mixed-test-' . $bucketBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$bucketBackend}", [
                 'force' => true,
+                'async' => true,
             ]);
         }
         $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
@@ -95,6 +96,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
                 "in.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
+                    'async' => true,
                 ]
             );
         }
@@ -198,6 +200,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
                 "in.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
+                    'async' => true,
                 ]
             );
         }
@@ -312,6 +315,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         if ($this->_client->bucketExists('in.c-mixed-test-' . $sourceBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$sourceBackend}", [
                 'force' => true,
+                'async' => true,
             ]);
         }
         $bucketId = $this->_client->createBucket("mixed-test-{$sourceBackend}", 'in', '', $sourceBackend);
@@ -358,6 +362,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         if ($this->_client->bucketExists('in.c-mixed-test-' . $sourceBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$sourceBackend}", [
                 'force' => true,
+                'async' => true,
             ]);
         }
         $bucketId = $this->_client->createBucket("mixed-test-{$sourceBackend}", 'in', '', $sourceBackend);
