@@ -869,7 +869,7 @@ class TokensTest extends StorageApiTestCase
         }
 
         $client->getBucket($newBucketId);
-        $client->dropBucket($newBucketId);
+        $client->dropBucket($newBucketId, ['async' => true]);
     }
 
     public function testTokenWithExpiration(): void
@@ -1277,7 +1277,7 @@ class TokensTest extends StorageApiTestCase
         }
 
         $client->getBucket($newBucketId);
-        $this->_client->dropBucket($newBucketId);
+        $this->_client->dropBucket($newBucketId, ['async' => true]);
     }
 
 
