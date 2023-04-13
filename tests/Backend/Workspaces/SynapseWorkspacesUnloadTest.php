@@ -123,6 +123,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $db->executeQuery("insert into $quotedTableId ([Id], [Name], [_update]) values (1, 'cz', 'x');");
         $db->executeQuery("insert into $quotedTableId ([Id], [Name], [_update]) values (2, 'en', 'z');");
 
+        // sync create table is deprecated and does not support JSON
         $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',
             'name' => 'languages',
@@ -144,6 +145,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
     public function testCopyImport(): void
     {
+        // sync table import is deprecated and does not support JSON
         $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
