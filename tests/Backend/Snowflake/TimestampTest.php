@@ -171,6 +171,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
     {
         $workspace = $this->initTestWorkspace();
 
+        // sync create table is deprecated and does not support JSON
         $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name,update',
             'name' => 'languages',

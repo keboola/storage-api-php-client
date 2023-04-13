@@ -116,7 +116,7 @@ class Workspaces
     public function queueWorkspaceLoadData(int $id, array $options = []): int
     {
         /** @var array{id: int} $job */
-        $job = $this->client->apiPost("workspaces/{$id}/load", $options, false);
+        $job = $this->client->apiPostJson("workspaces/{$id}/load", $options, false);
         return (int) $job['id'];
     }
 
@@ -126,7 +126,7 @@ class Workspaces
     public function queueWorkspaceCloneInto(int $id, array $options = []): int
     {
         /** @var array{id: int} $job */
-        $job = $this->client->apiPost("workspaces/{$id}/load-clone", $options, false);
+        $job = $this->client->apiPostJson("workspaces/{$id}/load-clone", $options, false);
         return (int) $job['id'];
     }
 }

@@ -654,6 +654,7 @@ class Client
             $url .= '?' . http_build_query($query);
         }
 
+        // keep request with form-data because this endpoint deprecated
         $result = $this->apiPost($url, [], $async);
         assert(is_array($result));
 

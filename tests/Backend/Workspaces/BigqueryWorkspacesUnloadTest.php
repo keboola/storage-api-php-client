@@ -118,6 +118,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
+        // sync create table is deprecated and does not support JSON
         /** @var array{id:string} $table */
         $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',
@@ -179,6 +180,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $workspace['connection']['schema']
         ));
 
+        // sync create table is deprecated and does not support JSON
         /** @var array{id:string} $table */
         $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name',
@@ -201,6 +203,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
     public function testCopyImport(): void
     {
+        // sync create table is deprecated and does not support JSON
         /** @var array{id:string} $table */
         $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
             'dataString' => 'Id,Name,update',

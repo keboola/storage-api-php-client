@@ -960,6 +960,7 @@ class MetadataTest extends StorageApiTestCase
         $objectId = $bucketId . $object;
 
         try {
+            // generating different string code to each run
             $this->_client->apiPost("{$apiEndpoint}/{$objectId}/metadata", [
                 'provider' => 'valid',
                 'metadata' => 'not an array',
