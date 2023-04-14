@@ -17,7 +17,6 @@ use Keboola\Csv\CsvFile;
 
 class DataPreviewLimitsTest extends StorageApiTestCase
 {
-
     public function setUp(): void
     {
         parent::setUp();
@@ -60,6 +59,37 @@ class DataPreviewLimitsTest extends StorageApiTestCase
 
         $this->assertEquals('ccdd', $data['rows'][1][0]['value']);
         $this->assertEquals('test2', $data['rows'][1][1]['value']);
+    }
+
+    public function testMissingValue(): void
+    {
+        $csv = $this->createTempCsv();
+        $csv->writeRow(['Name', 'Id']);
+        $csv->writeRow(['aabb', 'test']);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'test1', $csv);
+
+        try {
+            $this->_client->getTableDataPreview(
+                $tableId,
+                [
+                    'format' => 'json',
+                    'whereFilters' => [
+                        [
+                            'column' => 'Id',
+                            'operator' => 'ne',
+                            // values are missing on purpose
+                        ],
+                    ],
+                ]
+            );
+            $this->fail('Missing values should throw an exception');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tables.validation', $e->getStringCode());
+            $this->assertEquals(
+                "Invalid request:\n - whereFilters[0][values]: \"This field is missing.\"",
+                $e->getMessage()
+            );
+        }
     }
 
     public function testDataPreviewDefaultLimit(): void
@@ -105,7 +135,6 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         }
     }
 
-
     public function testJsonTruncationLimit(): void
     {
         $tokenData = $this->_client->verifyToken();
@@ -147,7 +176,6 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         return [];
     }
 
-
     private function generateCsv($rowsCount, $collsCount = 2)
     {
         $csvFile = $this->createTempCsv();
@@ -175,7 +203,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         $alpabet = 'abcdefghijklmnopqrstvuwxyz0123456789 ';
         $randStr = '';
         for ($i = 0; $i < $length; $i++) {
-            $randStr .=  $alpabet[rand(0, strlen($alpabet)-1)];
+            $randStr .= $alpabet[rand(0, strlen($alpabet) - 1)];
         }
         return $randStr;
     }
