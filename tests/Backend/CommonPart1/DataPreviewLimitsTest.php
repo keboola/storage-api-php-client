@@ -17,7 +17,6 @@ use Keboola\Csv\CsvFile;
 
 class DataPreviewLimitsTest extends StorageApiTestCase
 {
-
     public function setUp(): void
     {
         parent::setUp();
@@ -60,6 +59,37 @@ class DataPreviewLimitsTest extends StorageApiTestCase
 
         $this->assertEquals('ccdd', $data['rows'][1][0]['value']);
         $this->assertEquals('test2', $data['rows'][1][1]['value']);
+    }
+
+    public function testMissingValue(): void
+    {
+        $csv = $this->createTempCsv();
+        $csv->writeRow(['Name', 'Id']);
+        $csv->writeRow(['aabb', 'test']);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'test1', $csv);
+
+        try {
+            $this->_client->getTableDataPreview(
+                $tableId,
+                [
+                    'format' => 'json',
+                    'whereFilters' => [
+                        [
+                            'column' => 'Id',
+                            'operator' => 'ne',
+                            // values are missing on purpose
+                        ],
+                    ],
+                ]
+            );
+            $this->fail('Missing values should throw an exception');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tables.validation', $e->getStringCode());
+            $this->assertEquals(
+                "Invalid request:\n - whereFilters[0][values]: \"This field is missing.\"",
+                $e->getMessage()
+            );
+        }
     }
 
     public function testDataPreviewDefaultLimit(): void
@@ -105,7 +135,6 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         }
     }
 
-
     public function testJsonTruncationLimit(): void
     {
         $tokenData = $this->_client->verifyToken();
@@ -137,6 +166,30 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         $this->assertEquals(16384, mb_strlen($truncatedRow[0]['value']), 'Value in row is not truncated');
     }
 
+    public function testInvalid(): void
+    {
+        $tokenData = $this->_client->verifyToken();
+
+        $columnCount = 5;
+        $rowCount = 5;
+        $csvFile = $this->generateCsv($rowCount - 1, $columnCount);
+        $row = [];
+        for ($i = 0; $i < $columnCount; $i++) {
+            $row[] = $this->createRandomString(10);
+        }
+        $csvFile->writeRow($row);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'slim', $csvFile);
+
+        $jsonPreview = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
+
+        $this->assertCount($columnCount, $jsonPreview['columns']);
+        $this->assertCount($rowCount, $jsonPreview['rows']);
+        $this->assertContains('col' . ($columnCount - 1), $jsonPreview['columns']);
+        $truncatedRow = $this->getTruncatedRow($jsonPreview);
+        $this->assertNotEmpty($truncatedRow);
+        $this->assertEquals(16384, mb_strlen($truncatedRow[0]['value']), 'Value in row is not truncated');
+    }
+
     private function getTruncatedRow(array $jsonPreview)
     {
         foreach ($jsonPreview['rows'] as $row) {
@@ -146,7 +199,6 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         }
         return [];
     }
-
 
     private function generateCsv($rowsCount, $collsCount = 2)
     {
@@ -175,7 +227,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         $alpabet = 'abcdefghijklmnopqrstvuwxyz0123456789 ';
         $randStr = '';
         for ($i = 0; $i < $length; $i++) {
-            $randStr .=  $alpabet[rand(0, strlen($alpabet)-1)];
+            $randStr .= $alpabet[rand(0, strlen($alpabet) - 1)];
         }
         return $randStr;
     }
