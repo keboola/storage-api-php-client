@@ -620,38 +620,57 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 'definition' => [
                     'type' => 'FLOAT',
                 ],
+                'basetype' => null,
             ],
             [
                 'name' => 'column_boolean',
                 'definition' => [
                     'type' => 'BOOL',
                 ],
+                'basetype' => null,
             ],
             [
                 'name' => 'column_date',
                 'definition' => [
                     'type' => 'DATE',
                 ],
+                'basetype' => null,
             ],
             [
                 'name' => 'column_timestamp',
                 'definition' => [
                     'type' => 'TIMESTAMP',
                 ],
+                'basetype' => null,
             ],
             [
                 'name' => 'column_varchar',
                 'definition' => [
                     'type' => 'VARCHAR',
                 ],
+                'basetype' => null,
+            ],
+            [
+                'name' => 'basetype',
+                'definition' => null,
+                'basetype' => 'STRING',
             ],
         ];
 
         foreach ($newColumns as $newColumn) {
-            $this->_client->addTableColumn($sourceTableId, $newColumn['name'], $newColumn['definition']);
+            $this->_client->addTableColumn($sourceTableId, $newColumn['name'], $newColumn['definition'], $newColumn['basetype']);
         }
 
-        $expectedColumns = ['id', 'column_decimal', 'column_float', 'column_boolean', 'column_date', 'column_timestamp', 'column_varchar'];
+        $expectedColumns = [
+            'id',
+            'column_decimal',
+            'column_float',
+            'column_boolean',
+            'column_date',
+            'column_timestamp',
+            'column_varchar',
+            'basetype',
+        ];
         $this->assertEquals($expectedColumns, $this->_client->getTable($sourceTableId)['columns']);
         $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
         $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);

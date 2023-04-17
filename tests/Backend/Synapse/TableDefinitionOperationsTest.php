@@ -520,53 +520,66 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 'definition' => [
                     'type' => 'FLOAT',
                 ],
+                'basetype' => null,
             ],
             [
                 'name' => 'column_boolean',
                 'definition' => [
                     'type' => 'BIT',
                 ],
+                'basetype' => null,
             ],
             [
                 'name' => 'column_date',
                 'definition' => [
                     'type' => 'DATE',
                 ],
+                'basetype' => null,
             ],
             [
                 'name' => 'column_timestamp',
                 'definition' => [
                     'type' => 'TIME',
                 ],
+                'basetype' => null,
             ],
             [
                 'name' => 'column_varchar',
                 'definition' => [
                     'type' => 'VARCHAR',
                 ],
+                'basetype' => null,
             ],
             [
                 'name' => 'column_money',
                 'definition' => [
                     'type' => 'MONEY',
                 ],
+                'basetype' => null,
             ],
             [
                 'name' => 'column_small_money',
                 'definition' => [
                     'type' => 'SMALLMONEY',
                 ],
+                'basetype' => null,
             ],
             [
                 'name' => 'column_uniq',
                 'definition' => [
                     'type' => 'UNIQUEIDENTIFIER',
                 ],
+                'basetype' => null,
+            ],
+            [
+                'name' => 'basetype',
+                'definition' => null,
+                'basetype' => 'STRING',
             ],
         ];
 
         foreach ($newColumns as $newColumn) {
-            $this->_client->addTableColumn($sourceTableId, $newColumn['name'], $newColumn['definition']);
+            $this->_client->addTableColumn($sourceTableId, $newColumn['name'], $newColumn['definition'], $newColumn['basetype']);
         }
 
         $expectedColumns = [
@@ -580,6 +593,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             'column_money',
             'column_small_money',
             'column_uniq',
+            'basetype',
         ];
         $this->assertEquals($expectedColumns, $this->_client->getTable($sourceTableId)['columns']);
         $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
