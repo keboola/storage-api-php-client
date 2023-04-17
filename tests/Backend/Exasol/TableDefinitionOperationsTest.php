@@ -56,6 +56,32 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         return $this->_client->createTableDefinition($bucketId, $data);
     }
 
+    public function testResponseDefinition(): void
+    {
+        $tableDetail = $this->_client->getTable($this->tableId);
+        $this->assertSame([
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT',
+                        'nullable' => false,
+                    ],
+                    'basetype' => 'INTEGER',
+                ],
+                [
+                    'name' => 'name',
+                    'definition' => [
+                        'type' => 'NVARCHAR',
+                        'nullable' => true,
+                    ],
+                    'basetype' => 'STRING',
+                ],
+            ],
+        ], $tableDetail['definition']);
+    }
+
     public function testDataPreviewForTableDefinitionWithDecimalType(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
@@ -297,11 +323,11 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             'columns' => [
                 [
                     'name' => 'id',
-                    'basetype'=> 'INTEGER',
+                    'basetype' => 'INTEGER',
                 ],
                 [
                     'name' => 'column_decimal',
-                    'basetype'=> 'NUMERIC',
+                    'basetype' => 'NUMERIC',
                 ],
                 [
                     'name' => 'column_float',
@@ -614,7 +640,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $sourceTableId, 'table-1');
         $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $firstAliasTableId, 'table-2');
 
-        $newColumns =  [
+        $newColumns = [
             [
                 'name' => 'column_float',
                 'definition' => [
@@ -682,7 +708,11 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $firstAliasAddedColumnMetadata = $this->_client->getTable($firstAliasTableId)['sourceTable']['columnMetadata']['column_float'];
         $secondAliasAddedColumnMetadata = $this->_client->getTable($secondAliasTableId)['sourceTable']['columnMetadata']['column_float'];
 
-        foreach ([$addedColumnMetadata, $firstAliasAddedColumnMetadata, $secondAliasAddedColumnMetadata] as $columnMetadata) {
+        foreach ([
+                     $addedColumnMetadata,
+                     $firstAliasAddedColumnMetadata,
+                     $secondAliasAddedColumnMetadata,
+                 ] as $columnMetadata) {
             $this->assertArrayEqualsExceptKeys([
                 'key' => 'KBC.datatype.type',
                 'value' => 'DOUBLE PRECISION',
