@@ -3751,7 +3751,7 @@ Adds a new column to an existing table. This request is [asynchronous](#introduc
         + length (string) - optional, default: depends on type
         + nullable (boolean) - optional, default: true, Bigquery - false: BQ doesn't support adding a REQUIRED column to an existing table schema.
         + default (string) - optional, default value for column, not supported by Bigquery
-    + basetype (optional, enum[string]) - (supported only for Snowflake) base datatype of this column, will be converted to backend specific types
+    + basetype (optional, enum[string]) - base datatype of this column, will be converted to backend specific types
         + Members
             + BOOLEAN
             + DATE
