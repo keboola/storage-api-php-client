@@ -3341,6 +3341,28 @@ Obtains information about a table.
                 "isAlias": true,
                 "isAliasable": true,
                 "isTyped": false,
+                "definition": {
+                    "primaryKeysNames": [],
+                    "columns": [
+                        {
+                            "name": "visit_id",
+                            "definition": {
+                                "type": "VARCHAR",
+                                "nullable": false,
+                                "length": 16777216
+                            },
+                            "basetype": "STRING"
+                        }
+                    ],
+                    "distribution": {
+                        "type": "ROUND_ROBIN",
+                        "distributionColumnsNames": ["visit_id"]
+                    },
+                    "index": {
+                        "type": "CLUSTERED INDEX",
+                        "indexColumnsNames": ["visit_id"]
+                    }
+                },
                 "sourceTable": {
                     "id": "in.c-application-testing.cashier-data",
                     "uri": "https://connection.keboola.com/v2/storage/tables/in.c-application-testing.cashier-data",
