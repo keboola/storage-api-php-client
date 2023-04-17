@@ -66,15 +66,21 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
         $firstLoadZeroRow = null;
         $firstLoadOtherRows = [];
         foreach ($firstLoadData as $row) {
-            if ($row['id'] === 0) {
+            if ($row['id'] === '0') {
                 $firstLoadZeroRow = $row;
                 continue;
             }
             $firstLoadOtherRows[] = $row;
         }
+        $this->assertNotNull($firstLoadZeroRow);
 
         // import same data second time incrementally
-        $csvFile = new CsvFile(__DIR__ . '/../../_data/languages.more-rows-no-duplicates.csv');
+        // file
+        // - is missing row id 0
+        // - has new value for id 26
+        // - has same value for id 24
+        // - has new ids 1,11,25
+        $csvFile = new CsvFile(__DIR__ . '/../../_data/languages.more-rows_not_all_old.csv');
         $this->_client->writeTableAsync(
             $tableId,
             $csvFile,
@@ -92,20 +98,21 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             ],
         ]);
         $secondLoadData = $backend->fetchAll('languages', \PDO::FETCH_ASSOC);
-        // there are 3 new rows 1,11,25,27
-        $this->assertCount(7, $secondLoadData);
+        // there are 3 new rows 1,11,25
+        $this->assertCount(6, $secondLoadData);
         // there are 3 old rows 24,26 and 0 (0 is also not in incremental load)
         // 24 and 26 have new timestamps
         // 0 has old timestamp
         $secondLoadZeroRow = null;
         $secondLoadOtherRows = [];
         foreach ($secondLoadData as $row) {
-            if ($row['id'] === 0) {
+            if ($row['id'] === '0') {
                 $secondLoadZeroRow = $row;
                 continue;
             }
             $secondLoadOtherRows[] = $row;
         }
+        $this->assertNotNull($secondLoadZeroRow);
         // 0 id row is same including timestamp
         $this->assertSame($firstLoadZeroRow, $secondLoadZeroRow);
         foreach ($secondLoadOtherRows as $row) {
