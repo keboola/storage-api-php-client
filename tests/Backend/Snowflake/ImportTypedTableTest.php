@@ -5,6 +5,8 @@ namespace Keboola\Test\Backend\Snowflake;
 use Generator;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 
 class ImportTypedTableTest extends ParallelWorkspacesTestCase
@@ -20,6 +22,101 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
         }
 
         $this->initEmptyTestBucketsForParallelTests();
+    }
+
+    /**
+     * test _timestamp changing in typed tables
+     */
+    public function testImportDeduplication(): void
+    {
+        $bucketId = $this->getTestBucketId();
+        $payload = [
+            'name' => 'dedup',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                ['name' => 'id', 'basetype' => 'INTEGER'],
+                ['name' => 'name', 'basetype' => 'STRING'],
+            ],
+        ];
+        $tableId = $this->_client->createTableDefinition($bucketId, $payload);
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+        $workspace = $this->initTestWorkspace(self::BACKEND_SNOWFLAKE);
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        // import table with duplicates
+        $csvFile = new CsvFile(__DIR__ . '/../../_data/languages.duplicates.csv');
+        $this->_client->writeTableAsync(
+            $tableId,
+            $csvFile,
+            [
+                'incremental' => false,
+            ]
+        );
+        $workspaces->cloneIntoWorkspace($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                ],
+            ],
+        ]);
+        $firstLoadData = $backend->fetchAll('languages', \PDO::FETCH_ASSOC);
+        // there are 3 rows 0,24,26
+        $this->assertCount(3, $firstLoadData);
+        $firstLoadZeroRow = null;
+        $firstLoadOtherRows = [];
+        foreach ($firstLoadData as $row) {
+            if ($row['id'] === 0) {
+                $firstLoadZeroRow = $row;
+                continue;
+            }
+            $firstLoadOtherRows[] = $row;
+        }
+
+        // import same data second time incrementally
+        $csvFile = new CsvFile(__DIR__ . '/../../_data/languages.more-rows-no-duplicates.csv');
+        $this->_client->writeTableAsync(
+            $tableId,
+            $csvFile,
+            [
+                'incremental' => true,
+            ]
+        );
+        // without preserve workspace is cleaned
+        $workspaces->cloneIntoWorkspace($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                ],
+            ],
+        ]);
+        $secondLoadData = $backend->fetchAll('languages', \PDO::FETCH_ASSOC);
+        // there are 3 new rows 1,11,25,27
+        $this->assertCount(7, $secondLoadData);
+        // there are 3 old rows 24,26 and 0 (0 is also not in incremental load)
+        // 24 and 26 have new timestamps
+        // 0 has old timestamp
+        $secondLoadZeroRow = null;
+        $secondLoadOtherRows = [];
+        foreach ($secondLoadData as $row) {
+            if ($row['id'] === 0) {
+                $secondLoadZeroRow = $row;
+                continue;
+            }
+            $secondLoadOtherRows[] = $row;
+        }
+        // 0 id row is same including timestamp
+        $this->assertSame($firstLoadZeroRow, $secondLoadZeroRow);
+        foreach ($secondLoadOtherRows as $row) {
+            // compare timestamps in all rows to be same as first row
+            // add delta just for case that all are not imported in same second
+            $this->assertEqualsWithDelta($secondLoadOtherRows[0]['_timestamp'], $row['_timestamp'], 1);
+            // compare timestamps in all rows not to be same as first row of first load
+            // this would not be true if table was not typed and timestamp would be update only for columns with changed values
+            // in this case that would be 26 czech->magyar
+            $this->assertNotEquals($firstLoadOtherRows[0]['_timestamp'], $row['_timestamp']);
+        }
     }
 
     /**
@@ -159,7 +256,6 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             ],
         ];
     }
-
 
     public function testLoadTypedTablesConversionError(): void
     {
