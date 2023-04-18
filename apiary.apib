@@ -3316,6 +3316,9 @@ will show information about the created file and caching:
 ### Table detail [GET]
 Obtains information about a table.
 
+- Definition property is available only for tables with [native datatypes](https://help.keboola.com/storage/tables/data-types/#native-datatypes).
+- Data types in the definition are never alias/synonymous/virtual they are always base types. E.g. INT = NUMERIC(38,0) for Snowflake
+
 + Parameters
     + table_id (required) - Table Id
 
