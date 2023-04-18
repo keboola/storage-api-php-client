@@ -659,7 +659,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(self::STAGE_IN), $tableDefinition);
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Invalid parameters - definition: This field is missing.');
+        $this->expectExceptionMessage('Column "definition" or "basetype" must be set.');
         $this->_client->addTableColumn($sourceTableId, 'addColumn');
     }
 
