@@ -65,16 +65,18 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 [
                     'name' => 'id',
                     'definition' => [
-                        'type' => 'INT',
+                        'type' => 'DECIMAL',
                         'nullable' => false,
+                        'length' => '18,0',
                     ],
-                    'basetype' => 'INTEGER',
+                    'basetype' => 'NUMERIC',
                 ],
                 [
                     'name' => 'name',
                     'definition' => [
-                        'type' => 'NVARCHAR',
+                        'type' => 'VARCHAR',
                         'nullable' => true,
+                        'length' => '2000000',
                     ],
                     'basetype' => 'STRING',
                 ],
