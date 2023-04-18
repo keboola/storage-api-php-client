@@ -80,7 +80,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
         // - has new value for id 26
         // - has same value for id 24
         // - has new ids 1,11,25
-        $csvFile = new CsvFile(__DIR__ . '/../../_data/languages.more-rows_not_all_old.csv');
+        $csvFile = new CsvFile(__DIR__ . '/../../_data/languages.more-rows_without_zero.csv');
         $this->_client->writeTableAsync(
             $tableId,
             $csvFile,
