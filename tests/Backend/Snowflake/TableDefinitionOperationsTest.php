@@ -939,114 +939,121 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage($expectExceptionMessage);
-        /** @var array $data */
-        $this->_client->getTableDataPreview($tableId, array_merge(['format' => 'json'], $params));
+        $this->_client->getTableDataPreview($tableId, $params);
     }
 
     public function filterProvider(): Generator
     {
-        yield 'overflow int' => [
-            [
-                'whereFilters' => [
-                    [
-                        'column' => 'column_int',
-                        'operator' => 'gt',
-                        'values' => ['999999999999999999999999999999999999999'],
+        foreach (['json', 'rfc'] as $format) {
+            yield 'overflow int '. $format => [
+                [
+                    'format' => $format,
+                    'whereFilters' => [
+                        [
+                            'column' => 'column_int',
+                            'operator' => 'gt',
+                            'values' => ['999999999999999999999999999999999999999'],
+                        ],
                     ],
                 ],
-            ],
-            'odbc_execute(): SQL error: Numeric value \'999999999999999999999999999999999999999\' is not recognized, SQL state 22005 in SQLExecute',
-        ];
+                'Numeric value \'999999999999999999999999999999999999999\' is not recognized',
+            ];
 
-        yield 'wrong int' => [
-            [
-                'whereFilters' => [
-                    [
-                        'column' => 'column_int',
-                        'operator' => 'eq',
-                        'values' => ['aaa'],
+            yield 'wrong int '. $format => [
+                [
+                    'format' => $format,
+                    'whereFilters' => [
+                        [
+                            'column' => 'column_int',
+                            'operator' => 'eq',
+                            'values' => ['aaa'],
+                        ],
                     ],
                 ],
-            ],
-            'odbc_execute(): SQL error: Numeric value \'aaa\' is not recognized, SQL state 22005 in SQLExecute',
-        ];
+                'Numeric value \'aaa\' is not recognized',
+            ];
 
-        yield 'wrong float' => [
-            [
-                'whereFilters' => [
-                    [
-                        'column' => 'column_float',
-                        'operator' => 'eq',
-                        'values' => ['aaa'],
+            yield 'wrong float '. $format => [
+                [
+                    'format' => $format,
+                    'whereFilters' => [
+                        [
+                            'column' => 'column_float',
+                            'operator' => 'eq',
+                            'values' => ['aaa'],
+                        ],
                     ],
                 ],
-            ],
-            'odbc_execute(): SQL error: Numeric value \'aaa\' is not recognized, SQL state 22005 in SQLExecute',
-        ];
+                'Numeric value \'aaa\' is not recognized',
+            ];
 
-        yield 'wrong datetime' => [
-            [
-                'whereFilters' => [
-                    [
-                        'column' => 'column_datetime',
-                        'operator' => 'eq',
-                        'values' => ['2022-02-31'],
+            yield 'wrong datetime '. $format => [
+                [
+                    'format' => $format,
+                    'whereFilters' => [
+                        [
+                            'column' => 'column_datetime',
+                            'operator' => 'eq',
+                            'values' => ['2022-02-31'],
+                        ],
                     ],
                 ],
-            ],
-            'odbc_execute(): SQL error: Timestamp \'2022-02-31\' is not recognized, SQL state 22008 in SQLExecute',
-        ];
+                'Timestamp \'2022-02-31\' is not recognized', // non-existing date
+            ];
 
-        yield 'wrong boolean' => [
-            [
-                'whereFilters' => [
-                    [
-                        'column' => 'column_boolean',
-                        'operator' => 'eq',
-                        'values' => ['222'],
+            yield 'wrong boolean '. $format => [
+                [
+                    'whereFilters' => [
+                        [
+                            'column' => 'column_boolean',
+                            'operator' => 'eq',
+                            'values' => ['222'],
+                        ],
                     ],
                 ],
-            ],
-            'odbc_execute(): SQL error: Boolean value \'222\' is not recognized, SQL state 22005 in SQLExecute',
-        ];
+                'Boolean value \'222\' is not recognized',
+            ];
 
-        yield 'wrong date' => [
-            [
-                'whereFilters' => [
-                    [
-                        'column' => 'column_date',
-                        'operator' => 'eq',
-                        'values' => ['12:00:00.000'],
+            yield 'wrong date '. $format => [
+                [
+                    'format' => $format,
+                    'whereFilters' => [
+                        [
+                            'column' => 'column_date',
+                            'operator' => 'eq',
+                            'values' => ['12:00:00.000'],
+                        ],
                     ],
                 ],
-            ],
-            'odbc_execute(): SQL error: Date \'12:00:00.000\' is not recognized, SQL state 22008 in SQLExecute',
-        ];
+                'Date \'12:00:00.000\' is not recognized',
+            ];
 
-        yield 'wrong time' => [
-            [
-                'whereFilters' => [
-                    [
-                        'column' => 'column_time',
-                        'operator' => 'eq',
-                        'values' => ['1989-08-31'],
+            yield 'wrong time '. $format => [
+                [
+                    'whereFilters' => [
+                        [
+                            'column' => 'column_time',
+                            'operator' => 'eq',
+                            'values' => ['1989-08-31'],
+                        ],
                     ],
                 ],
-            ],
-            'odbc_execute(): SQL error: Time \'1989-08-31\' is not recognized, SQL state 22008 in SQLExecute',
-        ];
+                'Time \'1989-08-31\' is not recognized',
+            ];
 
-        yield 'wrong timestamp' => [
-            [
-                'whereFilters' => [
-                    [
-                        'column' => 'column_timestamp',
-                        'operator' => 'eq',
-                        'values' => ['xxx'],
+            yield 'wrong timestamp '. $format => [
+                [
+                    'format' => $format,
+                    'whereFilters' => [
+                        [
+                            'column' => 'column_timestamp',
+                            'operator' => 'eq',
+                            'values' => ['xxx'],
+                        ],
                     ],
                 ],
-            ],
-            'odbc_execute(): SQL error: Timestamp \'xxx\' is not recognized, SQL state 22008 in SQLExecute',
-        ];
+                'Timestamp \'xxx\' is not recognized',
+            ];
+        }
     }
 }
