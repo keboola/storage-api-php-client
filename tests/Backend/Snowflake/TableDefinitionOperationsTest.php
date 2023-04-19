@@ -973,6 +973,20 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 'Numeric value \'aaa\' is not recognized',
             ];
 
+            yield 'wrong number '. $format => [
+                [
+                    'format' => $format,
+                    'whereFilters' => [
+                        [
+                            'column' => 'column_number',
+                            'operator' => 'eq',
+                            'values' => ['aaa'],
+                        ],
+                    ],
+                ],
+                'Numeric value \'aaa\' is not recognized',
+            ];
+
             yield 'wrong float '. $format => [
                 [
                     'format' => $format,
