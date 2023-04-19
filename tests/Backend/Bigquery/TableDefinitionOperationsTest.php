@@ -56,6 +56,33 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         return $this->_client->createTableDefinition($bucketId, $data);
     }
 
+
+    public function testResponseDefinition(): void
+    {
+        $tableDetail = $this->_client->getTable($this->tableId);
+        $this->assertSame([
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                    'basetype' => 'INTEGER',
+                ],
+                [
+                    'name' => 'name',
+                    'definition' => [
+                        'type' => 'STRING',
+                        'nullable' => true,
+                    ],
+                    'basetype' => 'STRING',
+                ],
+            ],
+        ], $tableDetail['definition']);
+    }
+
     public function testPrimaryKeys(): void
     {
         $this->_client->dropTable($this->tableId);

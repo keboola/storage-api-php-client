@@ -64,6 +64,45 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         return $this->_client->createTableDefinition($bucketId, $data);
     }
 
+    public function testResponseDefinition(): void
+    {
+        $tableDetail = $this->_client->getTable($this->tableId);
+        $this->assertSame([
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT',
+                        'nullable' => false,
+                    ],
+                    'basetype' => 'INTEGER',
+                ],
+                [
+                    'name' => 'name',
+                    'definition' => [
+                        'type' => 'NVARCHAR',
+                        'nullable' => true,
+                        'length' => '4000',
+                    ],
+                    'basetype' => 'STRING',
+                ],
+            ],
+            'distribution' => [
+                'type' => 'HASH',
+                'distributionColumnsNames' => [
+                    'id',
+                ],
+            ],
+            'index' => [
+                'type' => 'CLUSTERED INDEX',
+                'indexColumnsNames' => [
+                    'id',
+                ],
+            ],
+        ], $tableDetail['definition']);
+    }
+
     public function testDataPreviewForTableDefinitionWithDecimalType(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
@@ -153,7 +192,18 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             'column_small_money',
             'column_uniq',
         ]);
-        $csvFile->writeRow(['1', '003.123', '3.14', 1, '1989-08-31', '05:00:01', 'roman', '3148.29', '3148.29', '0E984725-C51C-4BF4-9960-E1C80E27ABA0']);
+        $csvFile->writeRow([
+            '1',
+            '003.123',
+            '3.14',
+            1,
+            '1989-08-31',
+            '05:00:01',
+            'roman',
+            '3148.29',
+            '3148.29',
+            '0E984725-C51C-4BF4-9960-E1C80E27ABA0',
+        ]);
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
 
@@ -304,7 +354,19 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             'column_timestamp',
             'column_varchar',
         ]);
-        $csvFile->writeRow(['1', 123, '003.123', '3.14', 1, '1989-08-31', '1989-08-31 05:00:01', 'roman', '3148.29', '3148.29', '0E984725-C51C-4BF4-9960-E1C80E27ABA0']);
+        $csvFile->writeRow([
+            '1',
+            123,
+            '003.123',
+            '3.14',
+            1,
+            '1989-08-31',
+            '1989-08-31 05:00:01',
+            'roman',
+            '3148.29',
+            '3148.29',
+            '0E984725-C51C-4BF4-9960-E1C80E27ABA0',
+        ]);
 
         $this->_client->writeTableAsync($tableId, $csvFile);
 
@@ -423,7 +485,19 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             'column_timestamp',
             'column_varchar',
         ]);
-        $csvFile->writeRow(['1', 123, '003.123', '3.14', 1, '1989-08-31', '05:00:01', 'roman', '3148.29', '3148.29', '0E984725-C51C-4BF4-9960-E1C80E27ABA0']);
+        $csvFile->writeRow([
+            '1',
+            123,
+            '003.123',
+            '3.14',
+            1,
+            '1989-08-31',
+            '05:00:01',
+            'roman',
+            '3148.29',
+            '3148.29',
+            '0E984725-C51C-4BF4-9960-E1C80E27ABA0',
+        ]);
 
         $this->_client->writeTableAsync($tableId, $csvFile);
 
@@ -514,7 +588,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $sourceTableId, 'table-1');
         $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $firstAliasTableId, 'table-2');
 
-        $newColumns =  [
+        $newColumns = [
             [
                 'name' => 'column_float',
                 'definition' => [
@@ -606,7 +680,11 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $firstAliasAddedColumnMetadata = $this->_client->getTable($firstAliasTableId)['sourceTable']['columnMetadata']['column_float'];
         $secondAliasAddedColumnMetadata = $this->_client->getTable($secondAliasTableId)['sourceTable']['columnMetadata']['column_float'];
 
-        foreach ([$addedColumnMetadata, $firstAliasAddedColumnMetadata, $secondAliasAddedColumnMetadata] as $columnMetadata) {
+        foreach ([
+                     $addedColumnMetadata,
+                     $firstAliasAddedColumnMetadata,
+                     $secondAliasAddedColumnMetadata,
+                 ] as $columnMetadata) {
             $this->assertArrayEqualsExceptKeys([
                 'key' => 'KBC.datatype.type',
                 'value' => 'FLOAT',
@@ -689,7 +767,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->_client->removeTablePrimaryKey($this->tableId);
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('[SQL Server]Cannot define PRIMARY KEY constraint on nullable column in table \'my-new-table\'.');
-        $this->_client->createTablePrimaryKey($this->tableId, ['id','name']);
+        $this->_client->createTablePrimaryKey($this->tableId, ['id', 'name']);
     }
 
     public function testCreateSnapshotOnTypedTable(): void

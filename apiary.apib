@@ -3316,6 +3316,10 @@ will show information about the created file and caching:
 ### Table detail [GET]
 Obtains information about a table.
 
+- Definition property is available only for tables with [native datatypes](https://help.keboola.com/storage/tables/data-types/#native-datatypes).
+- Data types in the definition are never alias/synonymous/virtual they are always base types. E.g. INT = NUMERIC(38,0) for Snowflake
+- Configuration property is available only for tables with with configurations.
+
 + Parameters
     + table_id (required) - Table Id
 
@@ -3341,6 +3345,28 @@ Obtains information about a table.
                 "isAlias": true,
                 "isAliasable": true,
                 "isTyped": false,
+                "definition": {
+                    "primaryKeysNames": [],
+                    "columns": [
+                        {
+                            "name": "visit_id",
+                            "definition": {
+                                "type": "VARCHAR",
+                                "nullable": false,
+                                "length": 16777216
+                            },
+                            "basetype": "STRING"
+                        }
+                    ],
+                    "distribution": {
+                        "type": "ROUND_ROBIN",
+                        "distributionColumnsNames": ["visit_id"]
+                    },
+                    "index": {
+                        "type": "CLUSTERED INDEX",
+                        "indexColumnsNames": ["visit_id"]
+                    }
+                },
                 "sourceTable": {
                     "id": "in.c-application-testing.cashier-data",
                     "uri": "https://connection.keboola.com/v2/storage/tables/in.c-application-testing.cashier-data",
