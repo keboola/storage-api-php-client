@@ -11,13 +11,6 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
     public function setUp(): void
     {
         parent::setUp();
-
-        $token = $this->_client->verifyToken();
-
-        if (!in_array('tables-definition', $token['owner']['features'])) {
-            $this->markTestSkipped(sprintf('Tables definition feature is not enabled for project "%s"', $token['owner']['id']));
-        }
-
         $this->initEmptyTestBucketsForParallelTests();
     }
 
