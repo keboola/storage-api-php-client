@@ -21,10 +21,6 @@ class MetadataFromExasolWorkspaceTest extends ParallelWorkspacesTestCase
         if (!in_array('storage-types', $token['owner']['features'])) {
             $this->fail(sprintf('Metadata from workspaces are not enabled for project "%s"', $token['owner']['id']));
         }
-
-        if (!in_array('tables-definition', $token['owner']['features'])) {
-            $this->fail(sprintf('Table definitions are not enabled for project "%s"', $token['owner']['id']));
-        }
     }
 
     public function testCreateTableFromWorkspace(): void
