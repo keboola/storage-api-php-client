@@ -125,7 +125,7 @@ class BranchMetadataTest extends StorageApiTestCase
             $readOnlyMdClient->addBranchMetadata(self::TEST_METADATA);
             $this->fail('should fail, insufficiently permission');
         } catch (ClientException $e) {
-            $this->assertStringContainsString("You don't have access to resource", $e->getMessage());
+            $this->assertStringContainsString("You don't have access to the resource", $e->getMessage());
             $this->assertSame(403, $e->getCode());
         }
     }
@@ -235,7 +235,7 @@ class BranchMetadataTest extends StorageApiTestCase
             $readOnlyMdClient->deleteBranchMetadata($metadata[0]['id']);
             $this->fail('should fail, insufficiently permission');
         } catch (ClientException $e) {
-            $this->assertStringContainsString("You don't have access to resource", $e->getMessage());
+            $this->assertStringContainsString("You don't have access to the resource", $e->getMessage());
             $this->assertSame(403, $e->getCode());
         }
     }

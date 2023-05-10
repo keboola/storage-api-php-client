@@ -331,7 +331,7 @@ class TokensTest extends StorageApiTestCase
     public function testTokenGetWhenTokenIsString(): void
     {
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Argument "id" is expected to be type "int", value "foo" given.');
+        $this->expectExceptionMessage('resource not found');
         /** @phpstan-ignore-next-line */
         $this->tokens->getToken('foo');
     }
