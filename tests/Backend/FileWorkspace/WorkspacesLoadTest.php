@@ -238,7 +238,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping]]);
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
-            $this->assertSame('You don\'t have access to resource.', $e->getMessage());
+            $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
             $this->assertSame('accessDenied', $e->getStringCode());
         }
     }

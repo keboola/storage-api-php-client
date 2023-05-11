@@ -301,7 +301,7 @@ class DevBranchesTest extends StorageApiTestCase
     private function assertAccessForbiddenException(ClientException $exception): void
     {
         $this->assertSame(403, $exception->getCode());
-        $this->assertSame('You don\'t have access to resource.', $exception->getMessage());
+        $this->assertSame('You don\'t have access to the resource.', $exception->getMessage());
     }
 
     public function testCanUpdateMainBranchDescription(): void
