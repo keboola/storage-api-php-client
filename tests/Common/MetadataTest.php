@@ -1265,8 +1265,16 @@ class MetadataTest extends StorageApiTestCase
             self::BACKEND_REDSHIFT,
         ], 'Redshift backend does not have typed tables.');
 
-        $tableId = $this->_client->createTableDefinition($this->getTestBucketId(), [
-            'name' => 'test_restrictions',
+        $normalTableName = 'test_restrictions_normal';
+        $normalTableId = $this->_client->createTableAsync(
+            $this->getTestBucketId(),
+            $normalTableName,
+            new CsvFile(__DIR__ . '/../_data/languages.csv')
+        );
+
+        $typedTableName = 'test_restrictions';
+        $typedTableId = $this->_client->createTableDefinition($this->getTestBucketId(), [
+            'name' => $typedTableName,
             'primaryKeysNames' => [],
             'columns' => [
                 [
@@ -1284,8 +1292,13 @@ class MetadataTest extends StorageApiTestCase
         ];
 
         $metadataApi = new Metadata($this->_client);
+
+        // test that can be set for normal tables
+        $metadata = $metadataApi->postTableMetadata($normalTableId, 'storage', $md);
+        $this->assertSame('storage', $metadata[0]['provider']);
+
         try {
-            $metadataApi->postTableMetadata($tableId, 'storage', $md);
+            $metadataApi->postTableMetadata($typedTableId, 'storage', $md);
             $this->fail('Metadata with "storage" provider cannot be created by user.');
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
@@ -1294,13 +1307,13 @@ class MetadataTest extends StorageApiTestCase
         }
 
         // get current storage metadata
-        $items = $metadataApi->listTableMetadata($tableId);
+        $items = $metadataApi->listTableMetadata($typedTableId);
         $storageMetadata = array_filter($items, static function ($item) {
             return $item['provider'] === 'storage';
         });
 
         try {
-            $metadataApi->deleteTableMetadata($tableId, $storageMetadata[0]['id']);
+            $metadataApi->deleteTableMetadata($typedTableId, $storageMetadata[0]['id']);
             $this->fail('Metadata with "storage" provider cannot be deleted by user.');
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
@@ -1308,7 +1321,12 @@ class MetadataTest extends StorageApiTestCase
             $this->assertSame('storage.metadata.invalidProvider', $e->getStringCode());
         }
 
-        $columnId = $this->getMetadataTestColumnId('test_restrictions', 'name');
+        // test that can be set for normal table columns
+        $columnId = $this->getMetadataTestColumnId($normalTableName, 'name');
+        $metadata = $metadataApi->postColumnMetadata($columnId, 'storage', $md);
+        $this->assertSame('storage', $metadata[0]['provider']);
+
+        $columnId = $this->getMetadataTestColumnId($typedTableName, 'name');
         try {
             $metadataApi->postColumnMetadata(
                 $columnId,
