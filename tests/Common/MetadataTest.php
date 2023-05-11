@@ -1258,4 +1258,84 @@ class MetadataTest extends StorageApiTestCase
     {
         return sprintf('%s.%s.%s', $this->getTestBucketId(), $tableId, $columnId);
     }
+
+    public function testTypedTableMetadataRestrictions(): void
+    {
+        $this->skipTestForBackend([
+            self::BACKEND_REDSHIFT,
+        ], 'Redshift backend does not have typed tables.');
+
+        $tableId = $this->_client->createTableDefinition($this->getTestBucketId(), [
+            'name' => 'test_restrictions',
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'name',
+                    'basetype' => 'STRING',
+                ],
+            ],
+        ]);
+
+        $md = [
+            [
+                'key' => self::TEST_METADATA_KEY_1,
+                'value' => 'testval',
+            ],
+        ];
+
+        $metadataApi = new Metadata($this->_client);
+        try {
+            $metadataApi->postTableMetadata($tableId, 'storage', $md);
+            $this->fail('Metadata with "storage" provider cannot be created by user.');
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('Metadata with "storage" provider cannot be edited by user.', $e->getMessage());
+            $this->assertSame('storage.metadata.invalidProvider', $e->getStringCode());
+        }
+
+        // get current storage metadata
+        $items = $metadataApi->listTableMetadata($tableId);
+        $storageMetadata = array_filter($items, static function ($item) {
+            return $item['provider'] === 'storage';
+        });
+
+        try {
+            $metadataApi->deleteTableMetadata($tableId, $storageMetadata[0]['id']);
+            $this->fail('Metadata with "storage" provider cannot be deleted by user.');
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('Metadata with "storage" provider cannot be deleted by user.', $e->getMessage());
+            $this->assertSame('storage.metadata.invalidProvider', $e->getStringCode());
+        }
+
+        $columnId = $this->getMetadataTestColumnId('test_restrictions', 'name');
+        try {
+            $metadataApi->postColumnMetadata(
+                $columnId,
+                'storage',
+                $md
+            );
+            $this->fail('Metadata with "storage" provider cannot be created by user.');
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('Metadata with "storage" provider cannot be edited by user.', $e->getMessage());
+            $this->assertSame('storage.metadata.invalidProvider', $e->getStringCode());
+        }
+
+        $items = $metadataApi->listColumnMetadata($columnId);
+        $storageMetadata = array_filter($items, static function ($item) {
+            return $item['provider'] === 'storage';
+        });
+        try {
+            $metadataApi->deleteColumnMetadata(
+                $columnId,
+                $storageMetadata[0]['id']
+            );
+            $this->fail('Metadata with "storage" provider cannot be created by user.');
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('Metadata with "storage" provider cannot be deleted by user.', $e->getMessage());
+            $this->assertSame('storage.metadata.invalidProvider', $e->getStringCode());
+        }
+    }
 }
