@@ -1,0 +1,234 @@
+{
+    "metadata": [
+        {
+            "key": "KBC.name",
+            "value": "city_conversion"
+        },
+        {
+            "key": "KBC.sanitizedName",
+            "value": "city_conversion"
+        },
+        {
+            "key": "KBC.schema",
+            "value": "affiliate-city"
+        },
+        {
+            "key": "KBC.type",
+            "value": "BASE TABLE"
+        },
+        {
+            "key": "KBC.rowCount",
+            "value": 5792
+        }
+    ],
+    "column_metadata": {
+        "id": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "bigint"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": false
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "INTEGER"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "20"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "id"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "id"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": true
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 1
+            },
+            {
+                "key": "KBC.autoIncrement",
+                "value": true
+            },
+            {
+                "key": "KBC.autoIncrementValue",
+                "value": 5818
+            },
+            {
+                "key": "KBC.constraintName",
+                "value": "PRIMARY"
+            }
+        ],
+        "name": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "bigint"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": false
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "INTEGER"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "20"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "id"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "id"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": true
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 1
+            },
+            {
+                "key": "KBC.autoIncrement",
+                "value": true
+            },
+            {
+                "key": "KBC.autoIncrementValue",
+                "value": 5818
+            },
+            {
+                "key": "KBC.constraintName",
+                "value": "PRIMARY"
+            }
+        ],
+        "city": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "bigint"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": false
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "INTEGER"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "20"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "city"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "city"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": false
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 2
+            },
+            {
+                "key": "KBC.foreignKey",
+                "value": true
+            },
+            {
+                "key": "KBC.foreignKeyName",
+                "value": "city_conversion_x_city_x_fk"
+            },
+            {
+                "key": "KBC.foreignKeyRefSchema",
+                "value": "affiliate-city"
+            },
+            {
+                "key": "KBC.foreignKeyRefTable",
+                "value": "city"
+            },
+            {
+                "key": "KBC.foreignKeyRefColumn",
+                "value": "id"
+            },
+            {
+                "key": "KBC.constraintName",
+                "value": "city"
+            },
+            {
+                "key": "KBC.constraintName",
+                "value": "city_conversion_x_city_x_fk"
+            }
+        ],
+        "sex": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "varchar"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": false
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "50"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "affiliate_id"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "affiliate_id"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": false
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 3
+            },
+            {
+                "key": "KBC.constraintName",
+                "value": "city"
+            }
+        ]
+    }
+}

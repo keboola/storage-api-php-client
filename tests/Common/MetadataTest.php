@@ -363,6 +363,35 @@ class MetadataTest extends StorageApiTestCase
         }
     }
 
+    public function testTableMetadataWithDuplicitConstraint(): void
+    {
+        $tableId = $this->getMetadataTestTableId('table');
+        $metadataApi = new Metadata($this->_client);
+
+        $data = json_decode(\file_get_contents(__DIR__ . '/../_data/users-metadata_duplicit-contraint.json'), true);
+        $md = [
+            'key' => self::TEST_METADATA_KEY_1,
+            'value' => 'testval',
+        ];
+        $md2 = [
+            'key' => self::TEST_METADATA_KEY_2,
+            'value' => 'testval',
+        ];
+        $testMetadata = [
+            $md,
+            $md2,
+        ];
+        $testColumnsMetadata = $data['column_metadata'];
+
+        $provider = self::TEST_PROVIDER;
+
+        // post metadata
+        $options = new TableMetadataUpdateOptions($tableId, $provider, $testMetadata, $testColumnsMetadata);
+        /** @var array $metadatas */
+        // TODO this should die, but it won't
+        $metadatas = $metadataApi->postTableMetadataWithColumns($options);
+    }
+
     public function testColumnMetadataWithColumnsWithIntegers(): void
     {
         $this->_client->createTableAsync($this->getTestBucketId(), 'tableWithIntColumns', new CsvFile(__DIR__ . '/../_data/numbers.two-cols.csv'));
