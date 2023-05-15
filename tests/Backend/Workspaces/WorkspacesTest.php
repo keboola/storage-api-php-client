@@ -56,7 +56,8 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $workspace = $workspaces->createWorkspace([], $async);
         $connection = $workspace['connection'];
 
-        $workspaceWithSnowflakeBackend = $connection['backend'] === self::BACKEND_SNOWFLAKE;
+        $workspaceBackend = $connection['backend'];
+        $workspaceWithSnowflakeBackend = $workspaceBackend === self::BACKEND_SNOWFLAKE;
 
         $this->assertArrayHasKey('backendSize', $workspace);
         if ($workspaceWithSnowflakeBackend) {
@@ -66,12 +67,33 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
             $this->assertNull($workspace['backendSize']);
         }
 
+        switch ($workspaceBackend) {
+            case self::BACKEND_EXASOL:
+            case self::BACKEND_SNOWFLAKE: // when not specified, default is true (if feature is set = always)
+            case self::BACKEND_BIGQUERY:
+            case self::BACKEND_TERADATA:
+                $this->assertTrue(
+                    $workspace['readOnlyStorageAccess '],
+                    'readOnlyStorageAccess parameter has incorrect value'
+                );
+                break;
+            case self::BACKEND_SYNAPSE:
+            case self::BACKEND_REDSHIFT:
+                $this->assertFalse(
+                    $workspace['readOnlyStorageAccess '],
+                    'readOnlyStorageAccess parameter has incorrect value'
+                );
+                break;
+            default:
+                $this->fail(sprintf('Unexpected workspace backend "%s"', $workspaceBackend));
+        }
+
         $tokenInfo = $this->_client->verifyToken();
-        $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
+        $this->assertEquals($tokenInfo['owner']['defaultBackend'], $workspaceBackend);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $backend->createTable('mytable', ['amount' => $this->getColumnAmountType($connection['backend'])]);
+        $backend->createTable('mytable', ['amount' => $this->getColumnAmountType($workspaceBackend)]);
 
         $tableNames = $backend->getTables();
         $backend = null; // force odbc disconnect
