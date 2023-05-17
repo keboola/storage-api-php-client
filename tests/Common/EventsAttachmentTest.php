@@ -15,7 +15,6 @@ use Keboola\Test\Utils\EventsQueryBuilder;
 
 class EventsAttachmentTest extends StorageApiTestCase
 {
-
     public function setUp(): void
     {
         parent::setUp();
@@ -37,6 +36,22 @@ class EventsAttachmentTest extends StorageApiTestCase
             $importEvent = $events[1];
             $this->assertEquals('storage.tableImportDone', $importEvent['event']);
             $this->assertCount(1, $importEvent['attachments']);
+            $this->assertArrayHasKey('id', $importEvent['attachments'][0]);
+            $this->assertArrayHasKey('created', $importEvent['attachments'][0]);
+            $this->assertArrayHasKey('url', $importEvent['attachments'][0]);
+            $this->assertArrayHasKey('sizeBytes', $importEvent['attachments'][0]);
+            unset(
+                $importEvent['attachments'][0]['id'],
+                $importEvent['attachments'][0]['created'],
+                $importEvent['attachments'][0]['url'],
+                $importEvent['attachments'][0]['sizeBytes']
+            );
+            $this->assertSame([
+                'isSliced' => false,
+                'uploadType' => 'userUpload',
+                'isExpired' => false,
+                'name' => 'languages.csv.gz',
+            ], $importEvent['attachments'][0]);
         };
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableImportDone')
