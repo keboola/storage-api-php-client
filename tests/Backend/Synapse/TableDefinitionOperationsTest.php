@@ -2,7 +2,7 @@
 
 namespace Keboola\Test\Backend\Synapse;
 
-use Keboola\Csv\CsvFile;
+use Generator;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
 use Keboola\Test\StorageApiTestCase;
@@ -835,5 +835,182 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             'value' => '4000',
             'provider' => 'storage',
         ], $nameColumnMetadata[3], ['id', 'timestamp']);
+    }
+
+
+    /**
+     * @dataProvider  filterProvider
+     */
+    public function testColumnTypesInTableDefinitionWithWrongValues(array $params, string $expectExceptionMessage): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $tableDefinition = [
+            'name' => 'my-new-table-for_data_preview',
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'column_int',
+                    'definition' => [
+                        'type' => 'INT',
+                    ],
+                ],
+                [
+                    'name' => 'column_numeric',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                    ],
+                ],
+                [
+                    'name' => 'column_float',
+                    'definition' => [
+                        'type' => 'FLOAT',
+                    ],
+                ],
+                [
+                    'name' => 'column_varchar',
+                    'definition' => [
+                        'type' => 'VARCHAR',
+                    ],
+                ],
+                [
+                    'name' => 'column_date',
+                    'definition' => [
+                        'type' => 'DATE',
+                    ],
+                ],
+                [
+                    'name' => 'column_datetime2',
+                    'definition' => [
+                        'type' => 'DATETIME2',
+                    ],
+                ],
+                [
+                    'name' => 'column_bit', // aka boolean
+                    'definition' => [
+                        'type' => 'BIT',
+                    ],
+                ],
+            ],
+        ];
+
+        $csvFile = $this->createTempCsv();
+        $csvFile->writeRow([
+            'column_int',
+            'column_numeric',
+            'column_float',
+            'column_varchar',
+            'column_date',
+            'column_datetime2',
+            'column_bit',
+        ]);
+        $csvFile->writeRow(
+            [
+                '1',
+                '3.14',
+                '3.14',
+                'Jirka :D',
+                '1989-08-31',
+                '2023-04-18 12:34:56',
+                0,
+            ]
+        );
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        $this->_client->writeTableAsync($tableId, $csvFile);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage($expectExceptionMessage);
+        $this->_client->getTableDataPreview($tableId, $params);
+    }
+
+    public function filterProvider(): Generator
+    {
+        foreach (['json', 'rfc'] as $format) {
+            yield 'overflow int '. $format => [
+                [
+                    'format' => $format,
+                    'whereFilters' => [
+                        [
+                            'column' => 'column_int',
+                            'operator' => 'gt',
+                            'values' => ['999999999999999999999999999999999999999'],
+                        ],
+                    ],
+                ],
+                '[SQL Server]The conversion of the nvarchar value \'999999999999999999999999999999999999999\' overflowed an int column.',
+            ];
+
+            yield 'wrong int '. $format => [
+                [
+                    'format' => $format,
+                    'whereFilters' => [
+                        [
+                            'column' => 'column_int',
+                            'operator' => 'eq',
+                            'values' => ['aaa'],
+                        ],
+                    ],
+                ],
+                '[SQL Server]Conversion failed when converting the nvarchar value \'aaa\' to data type int.',
+            ];
+
+            yield 'wrong number '. $format => [
+                [
+                    'format' => $format,
+                    'whereFilters' => [
+                        [
+                            'column' => 'column_numeric',
+                            'operator' => 'eq',
+                            'values' => ['aaa'],
+                        ],
+                    ],
+                ],
+                '[SQL Server]Error converting data type nvarchar to numeric.',
+            ];
+
+            yield 'wrong float '. $format => [
+                [
+                    'format' => $format,
+                    'whereFilters' => [
+                        [
+                            'column' => 'column_float',
+                            'operator' => 'eq',
+                            'values' => ['aaa'],
+                        ],
+                    ],
+                ],
+                '[SQL Server]Error converting data type nvarchar to float.',
+            ];
+
+            yield 'wrong date '. $format => [
+                [
+                    'format' => $format,
+                    'whereFilters' => [
+                        [
+                            'column' => 'column_date',
+                            'operator' => 'eq',
+                            'values' => ['asd12:00:00.000'],
+                        ],
+                    ],
+                ],
+                '[SQL Server]Conversion failed when converting date and/or time from character string.',
+            ];
+
+            yield 'wrong timestamp '. $format => [
+                [
+                    'format' => $format,
+                    'whereFilters' => [
+                        [
+                            'column' => 'column_datetime2',
+                            'operator' => 'eq',
+                            'values' => ['xxx'],
+                        ],
+                    ],
+                ],
+                '[SQL Server]Conversion failed when converting date and/or time from character string.',
+            ];
+        }
     }
 }
