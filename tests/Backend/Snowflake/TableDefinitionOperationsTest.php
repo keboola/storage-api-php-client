@@ -117,82 +117,69 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $this->assertTableColumnNullable($m, $tableId, 'name', true);
     }
 
-    public function testDataPreviewForTableDefinitionWithDecimalType(): void
+    public function testDataPreviewForTableDefinition(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $types = [
+            'NUMBER' => ['value' => '1',],
+            'DECIMAL' => ['value' => '1'],
+            'NUMERIC' => ['value' => '123',],
+            'INT' => ['value' => '123',],
+            'INTEGER' => ['value' => '123',],
+            'BIGINT' => ['value' => '123',],
+            'SMALLINT' => ['value' => '123',],
+            'TINYINT' => ['value' => '1',],
+            'BYTEINT' => ['value' => '1',],
+            'FLOAT' => ['value' => '123',],
+            'FLOAT4' => ['value' => '123',],
+            'FLOAT8' => ['value' => '123',],
+            'DOUBLE' => ['value' => '123.123',],
+            'DOUBLE PRECISION' => ['value' => '123.123',],
+            'REAL' => ['value' => '123',],
+            'VARCHAR' => ['value' => '123',],
+            'CHAR' => ['value' => '1',],
+            'CHARACTER' => ['value' => '1',],
+            'STRING' => ['value' => '123',],
+            'TEXT' => ['value' => '123',],
+            'BOOLEAN' => ['value' => 'TRUE',],
+            'DATE' => ['value' => '2022-02-22',],
+            'DATETIME' => ['value' => '2021-01-01 00:00:00',],
+            'TIME' => ['value' => '00:00:00',],
+            'TIMESTAMP' => ['value' => '2021-01-01 00:00:00',],
+            'TIMESTAMP_NTZ' => ['value' => '2021-01-01 00:00:00',],
+            'TIMESTAMP_LTZ' => ['value' => '2021-01-01 00:00:00',],
+            'TIMESTAMP_TZ' => ['value' => '2021-01-01 00:00:00 +0000',],
+        ];
+
+        $whereFilters = [];
+        $values = [];
+        $columns = [];
+        foreach ($types as $type => $options) {
+            $columnName = 'column_' . str_replace(' ', '', strtolower($type));
+            $values[$columnName] = $options['value'];
+            $columns[] = [
+                'name' => $columnName,
+                'definition' => [
+                    'type' => $type,
+                ],
+            ];
+            $whereFilters[] = [
+                'column' => $columnName,
+                'operator' => 'eq',
+                'values' => [$options['value']],
+            ];
+        }
 
         $tableDefinition = [
             'name' => 'my-new-table-for_data_preview',
             'primaryKeysNames' => [],
-            'columns' => [
-                [
-                    'name' => 'id',
-                    'definition' => [
-                        'type' => 'INT',
-                        'nullable' => false,
-                    ],
-                ],
-                [
-                    'name' => 'column_decimal',
-                    'definition' => [
-                        'type' => 'DECIMAL',
-                        'length' => '4,3',
-                    ],
-                ],
-                [
-                    'name' => 'column_float',
-                    'definition' => [
-                        'type' => 'FLOAT',
-                    ],
-                ],
-                [
-                    'name' => 'column_boolean',
-                    'definition' => [
-                        'type' => 'BOOLEAN',
-                    ],
-                ],
-                [
-                    'name' => 'column_date',
-                    'definition' => [
-                        'type' => 'DATE',
-                    ],
-                ],
-                [
-                    'name' => 'column_timestamp',
-                    'definition' => [
-                        'type' => 'TIMESTAMP',
-                    ],
-                ],
-                [
-                    'name' => 'column_varchar',
-                    'definition' => [
-                        'type' => 'VARCHAR',
-                    ],
-                ],
-            ],
+            'columns' => $columns,
         ];
 
         $csvFile = $this->createTempCsv();
-        $csvFile->writeRow([
-            'id',
-            'column_decimal',
-            'column_float',
-            'column_boolean',
-            'column_date',
-            'column_timestamp',
-            'column_varchar',
-        ]);
-        $csvFile->writeRow(
-            [
-                '1',
-                '003.123',
-                '3.14',
-                0,
-                '1989-08-31',
-                '1989-08-31 00:00:00.000',
-                'roman',
-            ]
-        );
+        $csvFile->writeRow(array_keys($values));
+        $csvFile->writeRow(array_values($values));
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
 
@@ -204,38 +191,143 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         $expectedPreview = [
             [
                 [
-                    'columnName' => 'id',
+                    'columnName' => 'column_number',
                     'value' => '1',
                     'isTruncated' => false,
                 ],
                 [
                     'columnName' => 'column_decimal',
-                    'value' => '3.123',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_numeric',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_int',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_integer',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_bigint',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_smallint',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_tinyint',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_byteint',
+                    'value' => '1',
                     'isTruncated' => false,
                 ],
                 [
                     'columnName' => 'column_float',
-                    'value' => '3.14',
+                    'value' => '123',
                     'isTruncated' => false,
                 ],
                 [
-                    'columnName' => 'column_boolean',
-                    'value' => 'false',
+                    'columnName' => 'column_float4',
+                    'value' => '123',
                     'isTruncated' => false,
                 ],
                 [
-                    'columnName' => 'column_date',
-                    'value' => '1989-08-31',
+                    'columnName' => 'column_float8',
+                    'value' => '123',
                     'isTruncated' => false,
                 ],
                 [
-                    'columnName' => 'column_timestamp',
-                    'value' => '1989-08-31 00:00:00.000',
+                    'columnName' => 'column_double',
+                    'value' => '123.123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_doubleprecision',
+                    'value' => '123.123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_real',
+                    'value' => '123',
                     'isTruncated' => false,
                 ],
                 [
                     'columnName' => 'column_varchar',
-                    'value' => 'roman',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_char',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_character',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_string',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_text',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_boolean',
+                    'value' => 'true',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_date',
+                    'value' => '2022-02-22',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_datetime',
+                    'value' => '2021-01-01 00:00:00.000',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_time',
+                    'value' => '00:00:00',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_timestamp',
+                    'value' => '2021-01-01 00:00:00.000',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_timestamp_ntz',
+                    'value' => '2021-01-01 00:00:00.000',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_timestamp_ltz',
+                    'value' => '2021-01-01 00:00:00.000 -0800',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_timestamp_tz',
+                    'value' => '2021-01-01 00:00:00.000 Z',
                     'isTruncated' => false,
                 ],
             ],
@@ -246,20 +338,90 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
             $data['rows']
         );
 
-        $this->assertCount(1, $data['rows']);
+        // test filters
+        foreach ($whereFilters as $filter) {
+            /** @var array $data */
+            $data = $this->_client->getTableDataPreview(
+                $tableId,
+                [
+                    'format' => 'json',
+                    'whereFilters' => [$filter],
+                ]
+            );
+            $this->assertCount(1, $data['rows'], sprintf('Filter for column %s failed.', $filter['column']));
+        }
+    }
 
-        //test types is provided from source table for alias
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $tableId, 'table-1');
+    public function testFailedDataPreviewForTableDefinition(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $types = [
+            'VARIANT',
+            'BINARY',
+            'VARBINARY',
+            'OBJECT',
+            'ARRAY',
+            'GEOGRAPHY',
+            'GEOMETRY',
+        ];
+
+        $whereFilters = [];
+        $columns = [];
+        foreach ($types as $type) {
+            $columnName = 'column_' . str_replace(' ', '', strtolower($type));
+            $columns[] = [
+                'name' => $columnName,
+                'definition' => [
+                    'type' => $type,
+                ],
+            ];
+            $whereFilters[] = [
+                'column' => $columnName,
+                'operator' => 'eq',
+                'values' => [''],
+            ];
+        }
+
+        $tableDefinition = [
+            'name' => 'my-new-table-for_data_preview',
+            'primaryKeysNames' => [],
+            'columns' => $columns,
+        ];
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
 
         /** @var array $data */
-        $data = $this->_client->getTableDataPreview($firstAliasTableId, ['format' => 'json']);
+        $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
+
+        $expectedPreview = [
+            [
+                // TODO: expect some columns not to be present or have some value placeholder
+            ],
+        ];
 
         $this->assertSame(
             $expectedPreview,
             $data['rows']
         );
 
-        $this->assertCount(1, $data['rows']);
+        // test filters
+        foreach ($whereFilters as $filter) {
+            try {
+                $this->_client->getTableDataPreview(
+                    $tableId,
+                    [
+                        'format' => 'json',
+                        'whereFilters' => [$filter],
+                    ]
+                );
+                // fail
+            } catch (ClientException $e) {
+                $this->assertSame(400, $e->getCode());
+                $this->assertSame('', $e->getStringCode());
+                $this->assertSame('', $e->getMessage());
+            }
+        }
     }
 
     public function testDataPreviewForTableDefinitionBaseType(): void
