@@ -10,13 +10,17 @@
 
 namespace Keboola\Test\Backend\Bigquery;
 
+use Generator;
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\ProcessPolyfill;
 use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
 
 class TableExporterTest extends StorageApiTestCase
 {
+    use TestExportDataProvidersTrait;
+
     private string $downloadPath;
     private string $downloadPathGZip;
 
@@ -99,5 +103,27 @@ class TableExporterTest extends StorageApiTestCase
 
             [new CsvFile($filesBasePath . 'escaping.csv'), 'escaping.standard.out.csv', ['gzip' => true]],
         ];
+    }
+
+    /**
+     * @dataProvider wrongDatatypeFilterProvider
+     */
+    public function testColumnTypesInTableDefinition(array $params, string $expectExceptionMessage): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $this->getTestTableDefinitions());
+
+        $this->_client->writeTableAsync($tableId, $this->getTestCsv());
+
+        $exporter = new TableExporter($this->_client);
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage($expectExceptionMessage);
+        $exporter->exportTable($tableId, $this->downloadPath, $params);
+    }
+
+    public function wrongDatatypeFilterProvider(): Generator
+    {
+        return $this->getWrongDatatypeFilters(['rfc']);
     }
 }

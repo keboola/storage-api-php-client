@@ -2,13 +2,17 @@
 
 namespace Keboola\Test\Backend\Bigquery;
 
+use Generator;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageDriver\Command\Table\ImportExportShared\DataType;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Metadata;
 
 class TableDefinitionOperationsTest extends StorageApiTestCase
 {
+    use TestExportDataProvidersTrait;
+
     protected string $tableId;
 
     public function setUp(): void
@@ -809,5 +813,26 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 'timestamp',
             ]);
         }
+    }
+
+    /**
+     * @dataProvider wrongDatatypeFilterProvider
+     */
+    public function testColumnTypesInTableDefinition(array $params, string $expectExceptionMessage): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $this->getTestTableDefinitions());
+
+        $this->_client->writeTableAsync($tableId, $this->getTestCsv());
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage($expectExceptionMessage);
+        $this->_client->getTableDataPreview($tableId, $params);
+    }
+
+    public function wrongDatatypeFilterProvider(): Generator
+    {
+        return $this->getWrongDatatypeFilters(['json', 'rfc']);
     }
 }
