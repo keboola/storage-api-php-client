@@ -5549,7 +5549,14 @@ Lists all events associated with a particular token.
 + idBranch: null - Id of the development branch
 + uri: 498839405 - Event URI.
 + attachments (object) - Arbitrary list of attached files - e.g. backups for table import events
-
+    + id (number)
+    + isSliced (boolean)
+    + uploadType
+    + isExpired (boolean)
+    + created
+    + name
+    + url
+    + sizeBytes (number)
 
 # Group Metadata
 You can associate custom metadata with buckets, tables or columns.
