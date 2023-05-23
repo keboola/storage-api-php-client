@@ -14,6 +14,8 @@ use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\Test\StorageApiTestCase;
+use PHPUnit\Framework\AssertionFailedError;
+use Throwable;
 
 class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 {
@@ -82,6 +84,779 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 ],
             ],
         ], $tableDetail['definition']);
+    }
+
+    public function testCreateTableDefaults(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $types = [
+            'NUMBER' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'DECIMAL' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'NUMERIC' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'INT' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'INTEGER' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'BIGINT' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'SMALLINT' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'TINYINT' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'BYTEINT' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'FLOAT' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'FLOAT4' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'FLOAT8' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'DOUBLE' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'DOUBLE PRECISION' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'REAL' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'VARCHAR' => [
+                'working' => [
+                    'value' => '\'test\'',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail not quoted' => [
+                    'value' => 'test',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail wrong quoted' => [
+                    'value' => '"test"',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 123,
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'CHAR' => [
+                'working' => [
+                    'value' => '\'T\'',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail not quoted' => [
+                    'value' => 'T',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 123,
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'CHARACTER' => [
+                'working' => [
+                    'value' => '\'T\'',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail not quoted' => [
+                    'value' => 'T',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 123,
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'STRING' => [
+                'working' => [
+                    'value' => '\'T\'',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail not quoted' => [
+                    'value' => 'T',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 123,
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'TEXT' => [
+                'working' => [
+                    'value' => '\'T\'',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail not quoted' => [
+                    'value' => 'T',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 123,
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'BOOLEAN' => [
+                'working bool' => [
+                    'value' => 'true',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'test',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail type 2' => [
+                    'value' => 123,
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'DATE' => [
+                'working' => [
+                    'value' => '2022-02-22',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail quoted' => [
+                    'value' => '\'2022-02-22\'',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'DATETIME' => [
+                'working' => [
+                    'value' => 'current_timestamp()',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail quoted' => [
+                    'value' => '\'2021-01-01 00:00:00\'',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail not quoted' => [
+                    'value' => '2021-01-01 00:00:00',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'TIME' => [
+                'working' => [
+                    'value' => 'current_time()',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail not quoted' => [
+                    'value' => '00:00:00',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail quoted' => [
+                    'value' => '\'00:00:00\'',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'TIMESTAMP' => [
+                'working' => [
+                    'value' => 'current_timestamp()',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail quoted' => [
+                    'value' => '\'2021-01-01 00:00:00\'',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail not quoted' => [
+                    'value' => '2021-01-01 00:00:00',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'TIMESTAMP_NTZ' => [
+                'working' => [
+                    'value' => 'current_timestamp()',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail quoted' => [
+                    'value' => '\'2021-01-01 00:00:00\'',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail not quoted' => [
+                    'value' => '2021-01-01 00:00:00',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'TIMESTAMP_LTZ' => [
+                'working' => [
+                    'value' => 'current_timestamp()',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail quoted' => [
+                    'value' => '\'2021-01-01 00:00:00\'',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail not quoted' => [
+                    'value' => '2021-01-01 00:00:00',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'TIMESTAMP_TZ' => [
+                'working' => [
+                    'value' => 'current_timestamp()',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][default]: "For default empty string use \'\'\'\'."',
+                    ],
+                ],
+                'fail quoted' => [
+                    'value' => '\'2021-01-01 00:00:00 +0000\'',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail not quoted' => [
+                    'value' => '2021-01-01 00:00:00 +0000',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+        ];
+
+        foreach ($types as $type => $cases) {
+            $columnName = 'c_' . str_replace(' ', '', strtolower($type));
+            foreach ($cases as $caseName => $options) {
+                $tableName = 'test_' . $columnName . '_' . str_replace(' ', '_', $caseName);
+                $tableDefinition = [
+                    'name' => $tableName,
+                    'primaryKeysNames' => [],
+                    'columns' => [
+                        [
+                            'name' => $columnName,
+                            'definition' => [
+                                'type' => $type,
+                                'default' => $options['value'],
+                            ],
+                        ],
+                    ],
+                ];
+                $expectFail = array_key_exists('message', $options['expectFail']);
+                $expectedMessage = '';
+                if ($expectFail) {
+                    // @phpstan-ignore-next-line
+                    $expectedMessage = $options['expectFail']['message'];
+                }
+                try {
+                    $this->_client->createTableDefinition($bucketId, $tableDefinition);
+                    if ($expectFail) {
+                        $this->fail(sprintf(
+                            'Testing datatype "%s" with case "%s" not failed. Expected exception was: "%s"',
+                            $type,
+                            $caseName,
+                            $expectedMessage
+                        ));
+                    }
+                } catch (Throwable $e) {
+                    if ($e instanceof AssertionFailedError) {
+                        throw $e;
+                    }
+                    if (!$expectFail) {
+                        $this->fail(sprintf(
+                            'Testing datatype "%s" with case "%s" was not expected to fail. Error is: "%s"',
+                            $type,
+                            $caseName,
+                            $e->getMessage()
+                        ));
+                    }
+                    $this->assertInstanceOf(ClientException::class, $e);
+                    $this->assertStringStartsWith($expectedMessage, $e->getMessage());
+                }
+            }
+        }
     }
 
     public function testPrimaryKeys(): void
