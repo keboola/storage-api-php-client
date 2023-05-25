@@ -499,7 +499,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
         // can't delete existing metadata for other component
         try {
             $components->deleteConfigurationMetadata('transformation', $configurationNameMain1, $wrDbMetadata[0]['id']);
-            $this->fail('should fail, don\'t have access to resource');
+            $this->fail('should fail, don\'t have access to the resource');
         } catch (ClientException $e) {
             $this->assertMatchesRegularExpression(
                 '/^Metadata with id "[0-9]+" not found for "transformation" configuration '.
