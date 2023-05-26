@@ -269,7 +269,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
         $this->assertCount(1, $data['rows']);
     }
 
-    public function testDataPreviewExoticTypes()
+    public function testDataPreviewExoticTypes(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
@@ -284,6 +284,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
             'dataTableName' => 'test_exotic_datatypes',
         ]);
 
+        /** @var array $data */
         $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
 
         $this->assertSame(
