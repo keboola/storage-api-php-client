@@ -4,11 +4,18 @@ namespace Keboola\Test\Backend\Snowflake;
 
 use Generator;
 use Keboola\Csv\CsvFile;
+use Keboola\Datatype\Definition\Snowflake;
+use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
+use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\Test\StorageApiTestCase;
 
-class TableDefinitionOperationsTest extends StorageApiTestCase
+class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 {
     private string $tableId;
 
@@ -256,6 +263,31 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->assertSame(
             $expectedPreview,
+            $data['rows']
+        );
+
+        $this->assertCount(1, $data['rows']);
+    }
+
+    public function testDataPreviewExoticTypes()
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $tableDefinition = $this->getTableDefinitionExoticDatatypes();
+
+        $workspace = $this->initTestWorkspaceAndLoadTestdata();
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test_exotic_datatypes',
+        ]);
+
+        $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
+
+        $this->assertSame(
+            $this->getExpectedExoticDataPreview(),
             $data['rows']
         );
 
@@ -1061,5 +1093,137 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 'Timestamp \'xxx\' is not recognized',
             ];
         }
+    }
+
+    private function getExpectedExoticDataPreview(): array
+    {
+        return [
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '2',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'array',
+                    'value' => '[1,2,3,undefined]',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'variant',
+                    'value' => '3.14',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'object',
+                    'value' => '{"age":42,"name":"Jones"}',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'binary',
+                    'value' => '123ABC',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'geography',
+                    'value' => 'POINT(-122.35 37.55)',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'geometry',
+                    'value' => 'POLYGON((0 0,10 0,10 10,0 10,0 0))',
+                    'isTruncated' => false,
+                ],
+            ],
+        ];
+    }
+
+    private function getTableDefinitionExoticDatatypes(): array
+    {
+        return [
+            'name' => 'my-new-table-for_data_preview',
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'array',
+                    'definition' => [
+                        'type' => 'ARRAY',
+                    ],
+                ],
+                [
+                    'name' => 'variant',
+                    'definition' => [
+                        'type' => 'VARIANT',
+                    ],
+                ],
+                [
+                    'name' => 'object',
+                    'definition' => [
+                        'type' => 'OBJECT',
+                    ],
+                ],
+                [
+                    'name' => 'binary',
+                    'definition' => [
+                        'type' => 'BINARY',
+                    ],
+                ],
+                [
+                    'name' => 'geography',
+                    'definition' => [
+                        'type' => 'GEOGRAPHY',
+                    ],
+                ],
+                [
+                    'name' => 'geometry',
+                    'definition' => [
+                        'type' => 'GEOMETRY',
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    private function initTestWorkspaceAndLoadTestdata(): array
+    {
+        $workspace = $this->initTestWorkspace('snowflake');
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test_exotic_datatypes');
+
+        /** @var Connection $db */
+        $db = $backend->getDb();
+
+        $qb = new SnowflakeTableQueryBuilder();
+        $query = $qb->getCreateTableCommand(
+            $workspace['connection']['schema'],
+            'test_exotic_datatypes',
+            new ColumnCollection([
+                new SnowflakeColumn('id', new Snowflake('INT')),
+                new SnowflakeColumn('array', new Snowflake('ARRAY')),
+                new SnowflakeColumn('variant', new Snowflake('VARIANT')),
+                new SnowflakeColumn('object', new Snowflake('OBJECT')),
+                new SnowflakeColumn('binary', new Snowflake('BINARY')),
+                new SnowflakeColumn('geography', new Snowflake('GEOGRAPHY')),
+                new SnowflakeColumn('geometry', new Snowflake('GEOMETRY')),
+            ])
+        );
+        $db->query($query);
+        $backend->executeQuery(sprintf(
+        /** @lang Snowflake */
+            '
+INSERT INTO "%s"."test_exotic_datatypes" ("id", "array", "variant", "object", "binary", "geography", "geometry") 
+select 2, ARRAY_CONSTRUCT(1, 2, 3, NULL), TO_VARIANT(\'3.14\'), OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT), TO_CHAR(\'123abc\'), \'POINT(-122.35 37.55)\', \'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))\'; 
+;',
+            $workspace['connection']['schema']
+        ));
+        return $workspace;
     }
 }
