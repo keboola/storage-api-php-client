@@ -63,14 +63,23 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         // prepare workspace
         $workspace = $ws->createWorkspace();
 
+        $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
+        $externalBucketBackend = 'snowflake';
+        $guide = $this->_client->registerBucketGuide($externalBucketPath, $externalBucketBackend);
+        $this->assertArrayHasKey('markdown', $guide);
+        $this->assertStringContainsString('GRANT USAGE ON DATABASE', $guide['markdown']);
+        $this->assertStringContainsString('GRANT USAGE ON SCHEMA', $guide['markdown']);
+        $this->assertStringContainsString('GRANT SELECT ON ALL TABLES IN SCHEMA', $guide['markdown']);
+        $this->assertStringContainsString('GRANT SELECT ON FUTURE TABLES IN SCHEMA', $guide['markdown']);
+
         // register workspace as external bucket
         $runId = $this->setRunId();
         $idOfBucket = $this->_client->registerBucket(
             'test-bucket-registration',
-            [$workspace['connection']['database'], $workspace['connection']['schema']],
+            $externalBucketPath,
             'in',
             'Iam in workspace',
-            'snowflake',
+            $externalBucketBackend,
             'Iam-your-workspace'
         );
         $assertCallback = function ($events) {
