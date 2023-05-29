@@ -375,6 +375,61 @@ SQL
         $this->assertSame($firstTable['tableType'], 'table');
     }
 
+    public function testRegistrationOfView(): void
+    {
+        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
+        $this->initEvents($this->_client);
+
+        $ws = new Workspaces($this->_client);
+        // prepare workspace
+        $workspace = $ws->createWorkspace();
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $db->createTable('MY_LITTLE_TABLE_FOR_VIEW', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
+
+        // doesn't matter that the data are not valid, we just need to create the table structure
+        $db->executeQuery(
+            <<<SQL
+CREATE OR REPLACE VIEW MY_LITTLE_VIEW AS SELECT * FROM  MY_LITTLE_TABLE_FOR_VIEW;
+SQL
+        );
+
+        // register workspace as external bucket including external table
+        $runId = $this->setRunId();
+        $idOfBucket = $this->_client->registerBucket(
+            'test-bucket-registration',
+            [$workspace['connection']['database'], $workspace['connection']['schema']],
+            'in',
+            'Iam in workspace',
+            'snowflake',
+            'Iam-your-workspace'
+        );
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketCreated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        // check external bucket
+        $bucket = $this->_client->getBucket($idOfBucket);
+        $this->assertTrue($bucket['hasExternalSchema']);
+        $this->assertSame($workspace['connection']['database'], $bucket['databaseName']);
+
+        // check table existence and metadata
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(2, $tables);
+        $table = $tables[0];
+        $this->assertEquals('MY_LITTLE_TABLE_FOR_VIEW', $table['name']);
+        $this->assertEquals('table', $table['tableType']);
+        $view = $tables[1];
+        $this->assertEquals('MY_LITTLE_VIEW', $view['name']);
+        $this->assertEquals('view', $view['tableType']);
+    }
+
     public function testRegisterExternalDB(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration-ext', true);
