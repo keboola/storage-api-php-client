@@ -3,13 +3,19 @@
 namespace Keboola\Test\Backend\Bigquery;
 
 use Generator;
+use Google\Cloud\BigQuery\BigQueryClient;
 use Keboola\Csv\CsvFile;
+use Keboola\Datatype\Definition\Bigquery;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageDriver\Command\Table\ImportExportShared\DataType;
-use Keboola\Test\StorageApiTestCase;
+use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\StorageApi\Metadata;
 
-class TableDefinitionOperationsTest extends StorageApiTestCase
+class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 {
     use TestExportDataProvidersTrait;
 
@@ -18,7 +24,6 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->initEmptyTestBucketsForParallelTests();
         $this->tableId = $this->createTableDefinition();
     }
 
@@ -52,6 +57,152 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         return $this->_client->createTableDefinition($bucketId, $data);
     }
 
+
+    public function testDataPreviewExoticTypes(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $tableDefinition = [
+            'name' => 'exotic_my_new_table',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'array',
+                    'definition' => [
+                        'type' => 'ARRAY',
+                        'length' => 'INT64',
+                    ],
+                ],
+                [
+                    'name' => 'struct',
+                    'definition' => [
+                        'type' => 'STRUCT',
+                        'length' => 'a INT64, b STRING',
+                    ],
+                ],
+                [
+                    'name' => 'bytes',
+                    'definition' => [
+                        'type' => 'BYTES',
+                    ],
+                ],
+                [
+                    'name' => 'geography',
+                    'definition' => [
+                        'type' => 'GEOGRAPHY',
+                    ],
+                ],
+                [
+                    'name' => 'interval',
+                    'definition' => [
+                        'type' => 'INTERVAL',
+                    ],
+                ],
+                [
+                    'name' => 'json',
+                    'definition' => [
+                        'type' => 'JSON',
+                    ],
+                ],
+            ],
+        ];
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        $workspace = $this->initTestWorkspace('bigquery');
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test_Languages3');
+
+        /** @var BigQueryClient $db */
+        $db = $backend->getDb();
+
+        $qb = new BigqueryTableQueryBuilder();
+        $db->runQuery($db->query($qb->getCreateTableCommand(
+            $workspace['connection']['schema'],
+            'test_Languages3',
+            new ColumnCollection([
+                new BigqueryColumn('id', new Bigquery('INT64')),
+                new BigqueryColumn('array', new Bigquery('ARRAY', ['length' => 'INT64'])),
+                new BigqueryColumn('struct', new Bigquery('STRUCT', ['length' => 'a INT64, b STRING'])),
+                new BigqueryColumn('bytes', new Bigquery('BYTES')),
+                new BigqueryColumn('geography', new Bigquery('GEOGRAPHY')),
+                new BigqueryColumn('interval', new Bigquery('INTERVAL')),
+                new BigqueryColumn('json', new Bigquery('JSON')),
+            ])
+        )));
+        $backend->executeQuery(sprintf(
+        /** @lang BigQuery */
+            '
+INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`, `interval`, `json`) VALUES 
+(1, [2,2], STRUCT(111, "roman"), b\'\x01\x02\x03\x04\', ST_GEOGPOINT(-122.4194, 37.7749), INTERVAL 1 YEAR, JSON\'{"a": 1, "b": 2}\') 
+;',
+            $workspace['connection']['schema']
+        ));
+
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test_Languages3',
+        ]);
+
+        /** @var array $data */
+        $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
+
+        $expectedPreview = [
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'array',
+                    'value' => '[2,2]',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'struct',
+                    'value' => '{"a":111,"b":"roman"}',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'bytes',
+                    'value' => '',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'geography',
+                    'value' => '{ "type": "Point", "coordinates": [-122.4194, 37.7749] } ',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'interval',
+                    'value' => '1-0 0 0:0:0',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'json',
+                    'value' => '{"a":1,"b":2}',
+                    'isTruncated' => false,
+                ],
+            ],
+        ];
+
+        $this->assertSame(
+            $expectedPreview,
+            $data['rows']
+        );
+    }
 
     public function testResponseDefinition(): void
     {
