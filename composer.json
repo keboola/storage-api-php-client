@@ -31,6 +31,7 @@
 		"google/cloud-storage": "^1.27",
 		"guzzlehttp/guzzle": "~7.0",
 		"keboola/csv": "^1",
+		"keboola/php-datatypes": "^6.4",
 		"microsoft/azure-storage-blob": "^1.4",
 		"psr/log": "~1.0",
 		"symfony/filesystem": "^6.0||^5.0||^4.0",
