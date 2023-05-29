@@ -394,6 +394,22 @@ class Client
         return $result['id'];
     }
 
+    public function registerBucketGuide(
+        array $path,
+        ?string $backend = null
+    ): array
+    {
+        $data = [
+            'path' => $path,
+        ];
+
+        if ($backend !== null) {
+            $data['backend'] = $backend;
+        }
+
+        return $this->apiGet('buckets/register-guide?' . http_build_query($data));
+    }
+
     /**
      * @return mixed
      */
