@@ -355,33 +355,8 @@ SQL
         $this->assertCount(1, $tables);
         $firstTable = $tables[0];
         $this->assertEquals('MY_LITTLE_EXT_TABLE', $firstTable['name']);
-        $tableMetadata = $firstTable['metadata'];
 
-        // remove dynamic stuff from metadata
-        foreach ($tableMetadata as &$item) {
-            unset($item['id'], $item['timestamp']);
-        }
-
-        // sort it to be able to compare it with static array
-        usort($tableMetadata, function ($a, $b) {
-            return strcmp($a['key'], $b['key']);
-        });
-
-        $this->assertSame(
-            [
-                [
-                    'key' => 'KBC.dataTypesEnabled',
-                    'value' => 'true',
-                    'provider' => 'storage',
-                ],
-                [
-                    'key' => 'KBC.external-bucket_table-type',
-                    'value' => 'external',
-                    'provider' => 'storage',
-                ],
-            ],
-            $tableMetadata
-        );
+        $this->assertSame($firstTable['tableKind'], 'external');
 
         $db->executeQuery(
             <<<SQL
@@ -396,34 +371,8 @@ SQL
         $this->assertCount(1, $tables);
         $firstTable = $tables[0];
         $this->assertEquals('MY_LITTLE_EXT_TABLE', $firstTable['name']);
-        $tableMetadata = $firstTable['metadata'];
 
-        // remove dynamic stuff from metadata
-        foreach ($tableMetadata as &$item) {
-            unset($item['id'], $item['timestamp']);
-        }
-
-        // sort it to be able to compare it with static array
-        usort($tableMetadata, function ($a, $b) {
-            return strcmp($a['key'], $b['key']);
-        });
-
-        $this->assertSame(
-            [
-                [
-                    'key' => 'KBC.dataTypesEnabled',
-                    'value' => 'true',
-                    'provider' => 'storage',
-                ],
-                [
-                    'key' => 'KBC.external-bucket_table-type',
-                    // external table has been replaced by table
-                    'value' => 'table',
-                    'provider' => 'storage',
-                ],
-            ],
-            $tableMetadata
-        );
+        $this->assertSame($firstTable['tableKind'], 'table');
     }
 
     public function testRegisterExternalDB(): void
