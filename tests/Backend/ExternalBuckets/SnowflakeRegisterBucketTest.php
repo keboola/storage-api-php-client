@@ -28,6 +28,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             $this->markTestSkipped(sprintf('External buckets are not enabled for project "%s"', $token['owner']['id']));
         }
         $this->allowTestForBackendsOnly([self::BACKEND_SNOWFLAKE], 'Backend has to support external buckets');
+        $this->expectNotToPerformAssertions();
     }
 
     public function testInvalidDBToRegister(): void
