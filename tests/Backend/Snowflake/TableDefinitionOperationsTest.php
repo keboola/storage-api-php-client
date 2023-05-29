@@ -98,7 +98,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                     'value' => '1',
                     'expectFail' => [],
                 ],
-                'working complex' => [
+                'working float' => [
                     'value' => '1.23',
                     'expectFail' => [],
                 ],
@@ -122,7 +122,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                     'value' => '1',
                     'expectFail' => [],
                 ],
-                'working complex' => [
+                'working float' => [
                     'value' => '1.23',
                     'expectFail' => [],
                 ],
@@ -146,7 +146,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                     'value' => '1',
                     'expectFail' => [],
                 ],
-                'working complex' => [
+                'working float' => [
                     'value' => '1.23',
                     'expectFail' => [],
                 ],
@@ -290,7 +290,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                     'value' => '1',
                     'expectFail' => [],
                 ],
-                'working complex' => [
+                'working float' => [
                     'value' => '1.23',
                     'expectFail' => [],
                 ],
@@ -314,7 +314,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                     'value' => '1',
                     'expectFail' => [],
                 ],
-                'working complex' => [
+                'working float' => [
                     'value' => '1.23',
                     'expectFail' => [],
                 ],
@@ -338,7 +338,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                     'value' => '1',
                     'expectFail' => [],
                 ],
-                'working complex' => [
+                'working float' => [
                     'value' => '1.23',
                     'expectFail' => [],
                 ],
@@ -362,7 +362,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                     'value' => '1',
                     'expectFail' => [],
                 ],
-                'working complex' => [
+                'working float' => [
                     'value' => '1.23',
                     'expectFail' => [],
                 ],
@@ -386,7 +386,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                     'value' => '1',
                     'expectFail' => [],
                 ],
-                'working complex' => [
+                'working float' => [
                     'value' => '1.23',
                     'expectFail' => [],
                 ],
@@ -410,7 +410,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                     'value' => '1',
                     'expectFail' => [],
                 ],
-                'working complex' => [
+                'working float' => [
                     'value' => '1.23',
                     'expectFail' => [],
                 ],
