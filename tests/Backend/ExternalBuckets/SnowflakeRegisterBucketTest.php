@@ -356,7 +356,7 @@ SQL
         $firstTable = $tables[0];
         $this->assertEquals('MY_LITTLE_EXT_TABLE', $firstTable['name']);
 
-        $this->assertSame($firstTable['tableKind'], 'external');
+        $this->assertSame($firstTable['tableType'], 'snowflake-external-table');
 
         $db->executeQuery(
             <<<SQL
@@ -372,7 +372,7 @@ SQL
         $firstTable = $tables[0];
         $this->assertEquals('MY_LITTLE_EXT_TABLE', $firstTable['name']);
 
-        $this->assertSame($firstTable['tableKind'], 'table');
+        $this->assertSame($firstTable['tableType'], 'table');
     }
 
     public function testRegisterExternalDB(): void
