@@ -1132,6 +1132,38 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
         );
 
         $this->assertCount(1, $data['rows']);
+
+        foreach ($tableDefinition['columns'] as $col) {
+            if ($col['name'] === 'id') {
+                continue;
+            }
+            $filter = [
+                'column' => $col['name'],
+                'operator' => 'eq',
+                'values' => [''],
+            ];
+            try {
+                $this->_client->getTableDataPreview(
+                    $tableId,
+                    [
+                        'format' => 'json',
+                        'whereFilters' => [$filter],
+                    ]
+                );
+                // fail
+            } catch (ClientException $e) {
+                $this->assertSame(400, $e->getCode());
+                $this->assertSame('storage.backend.exception', $e->getStringCode());
+                $this->assertSame(
+                    sprintf(
+                        'Filtering by column "%s" of type "%s" is not supported by the backend "Snowflake".',
+                        $col['name'],
+                        $col['definition']['type']
+                    ),
+                    $e->getMessage()
+                );
+            }
+        }
     }
 
     public function testDataPreviewForTableDefinitionBaseType(): void
