@@ -1049,6 +1049,75 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
 
+        $table = $this->_client->getTable($tableId);
+        $this->assertSame([
+            [
+                'name' => 'array',
+                'definition' => [
+                    'type' => 'ARRAY',
+                    'nullable' => true,
+                ],
+                'basetype' => 'STRING',
+                'canBeFiltered' => false,
+            ],
+            [
+                'name' => 'binary',
+                'definition' => [
+                    'type' => 'BINARY',
+                    'nullable' => true,
+                    'length' => '8388608',
+                ],
+                'basetype' => 'STRING',
+                'canBeFiltered' => false,
+            ],
+            [
+                'name' => 'geography',
+                'definition' => [
+                    'type' => 'GEOGRAPHY',
+                    'nullable' => true,
+                ],
+                'basetype' => 'STRING',
+                'canBeFiltered' => false,
+            ],
+            [
+                'name' => 'geometry',
+                'definition' => [
+                    'type' => 'GEOMETRY',
+                    'nullable' => true,
+                ],
+                'basetype' => 'STRING',
+                'canBeFiltered' => false,
+            ],
+            [
+                'name' => 'id',
+                'definition' => [
+                    'type' => 'NUMBER',
+                    'nullable' => false,
+                    'length' => '38,0',
+                ],
+                'basetype' => 'NUMERIC',
+                'canBeFiltered' => true,
+            ],
+            [
+                'name' => 'object',
+                'definition' => [
+                    'type' => 'OBJECT',
+                    'nullable' => true,
+                ],
+                'basetype' => 'STRING',
+                'canBeFiltered' => false,
+            ],
+            [
+                'name' => 'variant',
+                'definition' => [
+                    'type' => 'VARIANT',
+                    'nullable' => true,
+                ],
+                'basetype' => 'STRING',
+                'canBeFiltered' => false,
+            ],
+        ], $table['definition']['columns']);
+
         $this->_client->writeTableAsyncDirect($tableId, [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test_exotic_datatypes',
