@@ -394,11 +394,15 @@ class Client
         return $result['id'];
     }
 
+    /**
+     * @param array<int,string> $path
+     * @param string|null $backend
+     * @return array{markdown: string}
+     */
     public function registerBucketGuide(
         array $path,
         ?string $backend = null
-    ): array
-    {
+    ) {
         $data = [
             'path' => $path,
         ];
@@ -407,7 +411,9 @@ class Client
             $data['backend'] = $backend;
         }
 
-        return $this->apiGet('buckets/register-guide?' . http_build_query($data));
+        /** @var array{markdown: string} $result */
+        $result = $this->apiGet('buckets/register-guide?' . http_build_query($data));
+        return $result;
     }
 
     /**
