@@ -514,7 +514,7 @@ SQL
         }
     }
 
-    public function testRefreshBucketWhenSchemaDoesNotExist()
+    public function testRefreshBucketWhenSchemaDoesNotExist(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
         $this->initEvents($this->_client);
@@ -555,7 +555,7 @@ SQL
     }
 
 
-    public function testDropBucketWhenSchemaDoesNotExist()
+    public function testDropBucketWhenSchemaDoesNotExist(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
         $this->initEvents($this->_client);
