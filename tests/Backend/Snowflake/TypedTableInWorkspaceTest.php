@@ -92,11 +92,12 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
         }
 
         $db->query(sprintf('DROP TABLE %s', $quotedTableId));
+        // length of VARCHAR is lower than what is in storage but it still works
         $sql = sprintf(
             '
             CREATE TABLE %s (
                 "id" INT NOT NULL,
-                "name" VARCHAR(16777216)
+                "name" VARCHAR(1677)
             )
         ',
             $quotedTableId,
