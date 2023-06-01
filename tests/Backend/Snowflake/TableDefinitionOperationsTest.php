@@ -920,8 +920,9 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
             ],
         ];
 
-        $csvFile = $this->createTempCsv();
-        $csvFile->writeRow([
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        $csvHeader = [
             'id',
             'column_decimal',
             'column_float',
@@ -929,7 +930,37 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
             'column_date',
             'column_timestamp',
             'column_varchar',
-        ]);
+        ];
+        // test import value which will not fit
+        $csvFile = $this->createTempCsv();
+        $csvFile->writeRow($csvHeader);
+        $csvFile->writeRow(
+            [
+                '1',
+                '123132456.1264654',
+                '3.14',
+                0,
+                '1989-08-31',
+                '1989-08-31 00:00:00.000',
+                'roman',
+            ]
+        );
+        try {
+            $this->_client->writeTableAsync($tableId, $csvFile);
+            $this->fail('Importing value which will not fit into DECIMAL(4,3) should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals(
+                'rowTooLarge',
+                $e->getStringCode()
+            );
+            $this->assertEquals(
+                'Load error: An exception occurred while executing a query: Numeric value \'123132456.1264654\' is out of range',
+                $e->getMessage()
+            );
+        }
+
+        $csvFile = $this->createTempCsv();
+        $csvFile->writeRow($csvHeader);
         $csvFile->writeRow(
             [
                 '1',
@@ -941,8 +972,6 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 'roman',
             ]
         );
-
-        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
 
         $this->_client->writeTableAsync($tableId, $csvFile);
 
