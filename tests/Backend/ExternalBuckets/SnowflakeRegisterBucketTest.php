@@ -513,4 +513,84 @@ SQL
             );
         }
     }
+
+    public function testRefreshBucketWhenSchemaDoesNotExist()
+    {
+        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
+        $this->initEvents($this->_client);
+
+        $ws = new Workspaces($this->_client);
+        // prepare workspace
+        $workspace = $ws->createWorkspace();
+
+        // register workspace as external bucket including external table
+        $runId = $this->setRunId();
+        $idOfBucket = $this->_client->registerBucket(
+            'test-bucket-registration',
+            [$workspace['connection']['database'], $workspace['connection']['schema']],
+            'in',
+            'Iam in workspace',
+            'snowflake',
+            'Iam-your-workspace'
+        );
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketCreated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        // delete workspace = simulates situation when BYODB owner simply deletes the registered schema -> it should also delete the bucket
+        $ws->deleteWorkspace($workspace['id']);
+
+        $this->_client->refreshBucket($idOfBucket);
+
+        // bucket should be deleted
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Bucket in.test-bucket-registration not found');
+        $this->_client->getBucket($idOfBucket);
+    }
+
+
+    public function testDropBucketWhenSchemaDoesNotExist()
+    {
+        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
+        $this->initEvents($this->_client);
+
+        $ws = new Workspaces($this->_client);
+        // prepare workspace
+        $workspace = $ws->createWorkspace();
+
+        // register workspace as external bucket including external table
+        $runId = $this->setRunId();
+        $idOfBucket = $this->_client->registerBucket(
+            'test-bucket-registration',
+            [$workspace['connection']['database'], $workspace['connection']['schema']],
+            'in',
+            'Iam in workspace',
+            'snowflake',
+            'Iam-your-workspace'
+        );
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketCreated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        // delete workspace = simulates situation when BYODB owner simply deletes the registered schema -> should be able to delete the bucket
+        $ws->deleteWorkspace($workspace['id']);
+
+        $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Bucket in.test-bucket-registration not found');
+        $this->_client->getBucket($idOfBucket);
+    }
 }
