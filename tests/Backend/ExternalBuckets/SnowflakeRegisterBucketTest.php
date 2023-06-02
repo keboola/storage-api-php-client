@@ -15,6 +15,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
     {
         parent::setUp();
     }
+
     public function testRegisterBucket(): void
     {
         $this->initEvents($this->_client);
@@ -291,6 +292,87 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
 
         // drop external bucket
         $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
+    }
+
+    public function testRegistrationOfExternalTable(): void
+    {
+        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
+        $this->initEvents($this->_client);
+
+        $ws = new Workspaces($this->_client);
+        // prepare workspace
+        $workspace = $ws->createWorkspace();
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        // doesn't matter that the data are not valid, we just need to create the table structure
+        $db->executeQuery(
+            <<<SQL
+CREATE OR REPLACE STAGE s3_stage URL = 's3://xxxx'
+    CREDENTIALS = ( AWS_KEY_ID = 'XXX' AWS_SECRET_KEY = 'YYY');
+SQL
+        );
+        $db->executeQuery(
+            <<<SQL
+CREATE OR REPLACE
+EXTERNAL TABLE MY_LITTLE_EXT_TABLE (
+    ID NUMBER(38,0) AS (VALUE:c1::INT),
+    FIRST_NAME VARCHAR(255) AS (VALUE:c2::STRING)
+    ) 
+    LOCATION=@s3_stage/data 
+    REFRESH_ON_CREATE = FALSE 
+    AUTO_REFRESH = FALSE 
+    FILE_FORMAT = (TYPE = CSV SKIP_HEADER=1 TRIM_SPACE=TRUE );
+SQL
+        );
+
+        // register workspace as external bucket including external table
+        $runId = $this->setRunId();
+        $idOfBucket = $this->_client->registerBucket(
+            'test-bucket-registration',
+            [$workspace['connection']['database'], $workspace['connection']['schema']],
+            'in',
+            'Iam in workspace',
+            'snowflake',
+            'Iam-your-workspace'
+        );
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketCreated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        // check external bucket
+        $bucket = $this->_client->getBucket($idOfBucket);
+        $this->assertTrue($bucket['hasExternalSchema']);
+        $this->assertSame($workspace['connection']['database'], $bucket['databaseName']);
+
+        // check table existence and metadata
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(1, $tables);
+        $firstTable = $tables[0];
+        $this->assertEquals('MY_LITTLE_EXT_TABLE', $firstTable['name']);
+
+        $this->assertSame($firstTable['tableType'], 'snowflake-external-table');
+
+        $db->executeQuery(
+            <<<SQL
+DROP TABLE MY_LITTLE_EXT_TABLE;
+SQL
+        );
+        $db->createTable('MY_LITTLE_EXT_TABLE', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
+        $this->_client->refreshBucket($idOfBucket);
+
+        // check table existence and metadata
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(1, $tables);
+        $firstTable = $tables[0];
+        $this->assertEquals('MY_LITTLE_EXT_TABLE', $firstTable['name']);
+
+        $this->assertSame($firstTable['tableType'], 'table');
     }
 
     public function testRegisterExternalDB(): void
