@@ -375,6 +375,61 @@ SQL
         $this->assertSame($firstTable['tableType'], 'table');
     }
 
+    public function testRegistrationOfView(): void
+    {
+        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
+        $this->initEvents($this->_client);
+
+        $ws = new Workspaces($this->_client);
+        // prepare workspace
+        $workspace = $ws->createWorkspace();
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $db->createTable('MY_LITTLE_TABLE_FOR_VIEW', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
+
+        // doesn't matter that the data are not valid, we just need to create the table structure
+        $db->executeQuery(
+            <<<SQL
+CREATE OR REPLACE VIEW MY_LITTLE_VIEW AS SELECT * FROM  MY_LITTLE_TABLE_FOR_VIEW;
+SQL
+        );
+
+        // register workspace as external bucket including external table
+        $runId = $this->setRunId();
+        $idOfBucket = $this->_client->registerBucket(
+            'test-bucket-registration',
+            [$workspace['connection']['database'], $workspace['connection']['schema']],
+            'in',
+            'Iam in workspace',
+            'snowflake',
+            'Iam-your-workspace'
+        );
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketCreated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        // check external bucket
+        $bucket = $this->_client->getBucket($idOfBucket);
+        $this->assertTrue($bucket['hasExternalSchema']);
+        $this->assertSame($workspace['connection']['database'], $bucket['databaseName']);
+
+        // check table existence and metadata
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(2, $tables);
+        $table = $tables[0];
+        $this->assertEquals('MY_LITTLE_TABLE_FOR_VIEW', $table['name']);
+        $this->assertEquals('table', $table['tableType']);
+        $view = $tables[1];
+        $this->assertEquals('MY_LITTLE_VIEW', $view['name']);
+        $this->assertEquals('view', $view['tableType']);
+    }
+
     public function testRegisterExternalDB(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration-ext', true);
@@ -457,5 +512,85 @@ SQL
                 $e->getMessage(),
             );
         }
+    }
+
+    public function testRefreshBucketWhenSchemaDoesNotExist(): void
+    {
+        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
+        $this->initEvents($this->_client);
+
+        $ws = new Workspaces($this->_client);
+        // prepare workspace
+        $workspace = $ws->createWorkspace();
+
+        // register workspace as external bucket including external table
+        $runId = $this->setRunId();
+        $idOfBucket = $this->_client->registerBucket(
+            'test-bucket-registration',
+            [$workspace['connection']['database'], $workspace['connection']['schema']],
+            'in',
+            'Iam in workspace',
+            'snowflake',
+            'Iam-your-workspace'
+        );
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketCreated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        // delete workspace = simulates situation when BYODB owner simply deletes the registered schema -> it should also delete the bucket
+        $ws->deleteWorkspace($workspace['id']);
+
+        $this->_client->refreshBucket($idOfBucket);
+
+        // bucket should be deleted
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Bucket in.test-bucket-registration not found');
+        $this->_client->getBucket($idOfBucket);
+    }
+
+
+    public function testDropBucketWhenSchemaDoesNotExist(): void
+    {
+        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
+        $this->initEvents($this->_client);
+
+        $ws = new Workspaces($this->_client);
+        // prepare workspace
+        $workspace = $ws->createWorkspace();
+
+        // register workspace as external bucket including external table
+        $runId = $this->setRunId();
+        $idOfBucket = $this->_client->registerBucket(
+            'test-bucket-registration',
+            [$workspace['connection']['database'], $workspace['connection']['schema']],
+            'in',
+            'Iam in workspace',
+            'snowflake',
+            'Iam-your-workspace'
+        );
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketCreated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        // delete workspace = simulates situation when BYODB owner simply deletes the registered schema -> should be able to delete the bucket
+        $ws->deleteWorkspace($workspace['id']);
+
+        $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Bucket in.test-bucket-registration not found');
+        $this->_client->getBucket($idOfBucket);
     }
 }
