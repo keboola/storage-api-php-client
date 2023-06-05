@@ -69,6 +69,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                         'nullable' => false,
                     ],
                     'basetype' => 'INTEGER',
+                    'canBeFiltered' => true,
                 ],
                 [
                     'name' => 'name',
@@ -78,6 +79,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                         'length' => '4000',
                     ],
                     'basetype' => 'STRING',
+                    'canBeFiltered' => true,
                 ],
             ],
             'distribution' => [

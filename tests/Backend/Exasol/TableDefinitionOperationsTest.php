@@ -63,6 +63,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                         'length' => '18,0',
                     ],
                     'basetype' => 'NUMERIC',
+                    'canBeFiltered' => true,
                 ],
                 [
                     'name' => 'name',
@@ -72,6 +73,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                         'length' => '2000000',
                     ],
                     'basetype' => 'STRING',
+                    'canBeFiltered' => true,
                 ],
             ],
         ], $tableDetail['definition']);
