@@ -72,6 +72,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                         'length' => '38,0',
                     ],
                     'basetype' => 'NUMERIC',
+                    'canBeFiltered' => true,
                 ],
                 [
                     'name' => 'name',
@@ -81,6 +82,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                         'length' => '16777216',
                     ],
                     'basetype' => 'STRING',
+                    'canBeFiltered' => true,
                 ],
             ],
         ], $tableDetail['definition']);
