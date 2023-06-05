@@ -395,6 +395,28 @@ class Client
     }
 
     /**
+     * @param array<int,string> $path
+     * @param string|null $backend
+     * @return array{markdown: string}
+     */
+    public function registerBucketGuide(
+        array $path,
+        ?string $backend = null
+    ) {
+        $data = [
+            'path' => $path,
+        ];
+
+        if ($backend !== null) {
+            $data['backend'] = $backend;
+        }
+
+        /** @var array{markdown: string} $result */
+        $result = $this->apiGet('buckets/register-guide?' . http_build_query($data));
+        return $result;
+    }
+
+    /**
      * @return mixed
      */
     public function refreshBucket(string $bucketId)
