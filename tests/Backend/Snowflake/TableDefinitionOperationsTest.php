@@ -1041,6 +1041,562 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
         $this->assertCount(1, $data['rows']);
     }
 
+    public function dataPreviewFiltersProvider(): Generator
+    {
+        yield 'numeric types' => [
+            'columns' => [
+                'NUMBER' => [
+                    'value' => '1',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '1'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '1'],
+                        'lt' => ['count' => 1, 'value' => '2'],
+                        'le' => ['count' => 1, 'value' => '1'],
+                    ],
+                ],
+                'DECIMAL' => [
+                    'value' => '1',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '1'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '1'],
+                        'lt' => ['count' => 1, 'value' => '2'],
+                        'le' => ['count' => 1, 'value' => '1'],
+                    ],
+                ],
+                'NUMERIC' => [
+                    'value' => '123',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '123'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '123'],
+                        'lt' => ['count' => 1, 'value' => '1234'],
+                        'le' => ['count' => 1, 'value' => '123'],
+                    ],
+                ],
+                'INT' => [
+                    'value' => '123',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '123'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '123'],
+                        'lt' => ['count' => 1, 'value' => '1234'],
+                        'le' => ['count' => 1, 'value' => '123'],
+                    ],
+                ],
+                'INTEGER' => [
+                    'value' => '123',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '123'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '123'],
+                        'lt' => ['count' => 1, 'value' => '1234'],
+                        'le' => ['count' => 1, 'value' => '123'],
+                    ],
+                ],
+                'BIGINT' => [
+                    'value' => '123',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '123'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '123'],
+                        'lt' => ['count' => 1, 'value' => '1234'],
+                        'le' => ['count' => 1, 'value' => '123'],
+                    ],
+                ],
+                'SMALLINT' => [
+                    'value' => '123',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '123'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '123'],
+                        'lt' => ['count' => 1, 'value' => '1234'],
+                        'le' => ['count' => 1, 'value' => '123'],
+                    ],
+                ],
+                'TINYINT' => [
+                    'value' => '1',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '1'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '1'],
+                        'lt' => ['count' => 1, 'value' => '2'],
+                        'le' => ['count' => 1, 'value' => '1'],
+                    ],
+                ],
+                'BYTEINT' => [
+                    'value' => '1',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '1'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '1'],
+                        'lt' => ['count' => 1, 'value' => '2'],
+                        'le' => ['count' => 1, 'value' => '1'],
+                    ],
+                ],
+                'FLOAT' => [
+                    'value' => '123',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '123'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '123'],
+                        'lt' => ['count' => 1, 'value' => '1234'],
+                        'le' => ['count' => 1, 'value' => '123'],
+                    ],
+                ],
+                'FLOAT4' => [
+                    'value' => '123',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '123'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '123'],
+                        'lt' => ['count' => 1, 'value' => '1234'],
+                        'le' => ['count' => 1, 'value' => '123'],
+                    ],
+                ],
+                'FLOAT8' => [
+                    'value' => '123',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '123'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '123'],
+                        'lt' => ['count' => 1, 'value' => '1234'],
+                        'le' => ['count' => 1, 'value' => '123'],
+                    ],
+                ],
+                'DOUBLE' => [
+                    'value' => '123.123',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '123.123'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '123.123'],
+                        'lt' => ['count' => 1, 'value' => '1234'],
+                        'le' => ['count' => 1, 'value' => '123.123'],
+                    ],
+                ],
+                'DOUBLE PRECISION' => [
+                    'value' => '123.123',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '123.123'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '123.123'],
+                        'lt' => ['count' => 1, 'value' => '1234'],
+                        'le' => ['count' => 1, 'value' => '123.123'],
+                    ],
+                ],
+                'REAL' => [
+                    'value' => '123',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '123'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '123'],
+                        'lt' => ['count' => 1, 'value' => '1234'],
+                        'le' => ['count' => 1, 'value' => '123'],
+                    ],
+                ],
+            ],
+            'expectedPreview' => [
+                [
+                    'columnName' => 'column_number',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_decimal',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_numeric',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_int',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_integer',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_bigint',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_smallint',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_tinyint',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_byteint',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_float',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_float4',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_float8',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_double',
+                    'value' => '123.123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_doubleprecision',
+                    'value' => '123.123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_real',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+            ],
+        ];
+
+        yield 'string types' => [
+            'columns' => [
+                'VARCHAR' => [
+                    'value' => '123',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '123'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '123'],
+                        'lt' => ['count' => 1, 'value' => '1234'],
+                        'le' => ['count' => 1, 'value' => '123'],
+                    ],
+                ],
+                'CHAR' => [
+                    'value' => '1',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '1'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '1'],
+                        'lt' => ['count' => 1, 'value' => '2'],
+                        'le' => ['count' => 1, 'value' => '1'],
+                    ],
+                ],
+                'CHARACTER' => [
+                    'value' => '1',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '1'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '1'],
+                        'lt' => ['count' => 1, 'value' => '2'],
+                        'le' => ['count' => 1, 'value' => '1'],
+                    ],
+                ],
+                'STRING' => [
+                    'value' => '123',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '123'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '123'],
+                        'lt' => ['count' => 1, 'value' => '1234'],
+                        'le' => ['count' => 1, 'value' => '123'],
+                    ],
+                ],
+                'TEXT' => [
+                    'value' => '123',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '123'],
+                        'ne' => ['count' => 1, 'value' => '2'],
+                        'gt' => ['count' => 1, 'value' => '0'],
+                        'ge' => ['count' => 1, 'value' => '123'],
+                        'lt' => ['count' => 1, 'value' => '1234'],
+                        'le' => ['count' => 1, 'value' => '123'],
+                    ],
+                ],
+            ],
+            'expectedPreview' => [
+                [
+                    'columnName' => 'column_varchar',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_char',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_character',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_string',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_text',
+                    'value' => '123',
+                    'isTruncated' => false,
+                ],
+            ],
+        ];
+
+        yield 'bool types' => [
+            'columns' => [
+                'BOOLEAN' => [
+                    'value' => 'TRUE',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => 'true'],
+                        'ne' => ['count' => 1, 'value' => 'false'],
+                        'gt' => ['count' => 0, 'value' => 'true'],
+                        'ge' => ['count' => 1, 'value' => 'true'],
+                        'lt' => ['count' => 0, 'value' => 'true'],
+                        'le' => ['count' => 1, 'value' => 'true'],
+                    ],
+                ],
+            ],
+            'expectedPreview' => [
+                [
+                    'columnName' => 'column_boolean',
+                    'value' => 'true',
+                    'isTruncated' => false,
+                ],
+            ],
+        ];
+
+        yield 'date types' => [
+            'columns' => [
+                'DATE' => [
+                    'value' => '2022-02-22',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '2022-02-22'],
+                        'ne' => ['count' => 1, 'value' => '2022-02-23'],
+                        'gt' => ['count' => 1, 'value' => '2022-02-21'],
+                        'ge' => ['count' => 1, 'value' => '2022-02-22'],
+                        'lt' => ['count' => 1, 'value' => '2022-02-23'],
+                        'le' => ['count' => 1, 'value' => '2022-02-22'],
+                    ],
+                ],
+                'DATETIME' => [
+                    'value' => '2021-01-01 10:00:00',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '2021-01-01 10:00:00'],
+                        'ne' => ['count' => 1, 'value' => '2021-01-01 11:00:00'],
+                        'gt' => ['count' => 1, 'value' => '2021-01-01 09:00:00'],
+                        'ge' => ['count' => 1, 'value' => '2021-01-01 10:00:00'],
+                        'lt' => ['count' => 1, 'value' => '2022-01-01 11:00:00'],
+                        'le' => ['count' => 1, 'value' => '2021-01-01 10:00:00'],
+                    ],
+                ],
+                'TIME' => [
+                    'value' => '10:00:00',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '10:00:00'],
+                        'ne' => ['count' => 1, 'value' => '11:00:00'],
+                        'gt' => ['count' => 1, 'value' => '09:00:00'],
+                        'ge' => ['count' => 1, 'value' => '10:00:00'],
+                        'lt' => ['count' => 1, 'value' => '11:00:00'],
+                        'le' => ['count' => 1, 'value' => '10:00:00'],
+                    ],
+                ],
+                'TIMESTAMP' => [
+                    'value' => '2021-01-01 10:00:00',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '2021-01-01 10:00:00'],
+                        'ne' => ['count' => 1, 'value' => '2021-01-01 11:00:00'],
+                        'gt' => ['count' => 1, 'value' => '2021-01-01 09:00:00'],
+                        'ge' => ['count' => 1, 'value' => '2021-01-01 10:00:00'],
+                        'lt' => ['count' => 1, 'value' => '2021-01-01 11:00:00'],
+                        'le' => ['count' => 1, 'value' => '2021-01-01 10:00:00'],
+                    ],
+                ],
+                'TIMESTAMP_NTZ' => [
+                    'value' => '2021-01-01 10:00:00',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '2021-01-01 10:00:00'],
+                        'ne' => ['count' => 1, 'value' => '2021-01-01 11:00:00'],
+                        'gt' => ['count' => 1, 'value' => '2021-01-01 09:00:00'],
+                        'ge' => ['count' => 1, 'value' => '2021-01-01 10:00:00'],
+                        'lt' => ['count' => 1, 'value' => '2021-01-01 11:00:00'],
+                        'le' => ['count' => 1, 'value' => '2021-01-01 10:00:00'],
+                    ],
+                ],
+                'TIMESTAMP_LTZ' => [
+                    'value' => '2021-01-01 10:00:00',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '2021-01-01 10:00:00'],
+                        'ne' => ['count' => 1, 'value' => '2021-01-01 11:00:00'],
+                        'gt' => ['count' => 1, 'value' => '2021-01-01 09:00:00'],
+                        'ge' => ['count' => 1, 'value' => '2021-01-01 10:00:00'],
+                        'lt' => ['count' => 1, 'value' => '2021-01-01 11:00:00'],
+                        'le' => ['count' => 1, 'value' => '2021-01-01 10:00:00'],
+                    ],
+                ],
+                'TIMESTAMP_TZ' => [
+                    'value' => '2021-01-01 10:00:00 +0000',
+                    'compare' => [
+                        'eq' => ['count' => 1, 'value' => '2021-01-01 10:00:00 +0000'],
+                        'ne' => ['count' => 1, 'value' => '2021-01-01 11:00:00 +0000'],
+                        'gt' => ['count' => 1, 'value' => '2021-01-01 09:00:00 +0000'],
+                        'ge' => ['count' => 1, 'value' => '2021-01-01 10:00:00 +0000'],
+                        'lt' => ['count' => 1, 'value' => '2021-01-01 11:00:00 +0000'],
+                        'le' => ['count' => 1, 'value' => '2021-01-01 10:00:00 +0000'],
+                    ],
+                ],
+            ],
+            'expectedPreview' => [
+                [
+                    'columnName' => 'column_date',
+                    'value' => '2022-02-22',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_datetime',
+                    'value' => '2021-01-01 10:00:00.000',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_time',
+                    'value' => '10:00:00',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_timestamp',
+                    'value' => '2021-01-01 10:00:00.000',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_timestamp_ntz',
+                    'value' => '2021-01-01 10:00:00.000',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_timestamp_ltz',
+                    'value' => '2021-01-01 10:00:00.000 -0800',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'column_timestamp_tz',
+                    'value' => '2021-01-01 10:00:00.000 Z',
+                    'isTruncated' => false,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataPreviewFiltersProvider
+     * @param array<string,array{
+     *     value: string|int,
+     *     compare: array<string, array{
+     *      count:int,
+     *      value:string
+     *     }>
+     * }> $usedColumns
+     * @return void
+     * @throws \Keboola\Csv\Exception
+     */
+    public function testDataPreviewForTableDefinitionWithFilters(array $usedColumns, array $expectedPreview): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $whereFilters = [];
+        $values = [];
+        $columns = [];
+        foreach ($usedColumns as $type => $options) {
+            $columnName = 'column_' . str_replace(' ', '', strtolower($type));
+            $values[$columnName] = $options['value'];
+            $columns[] = [
+                'name' => $columnName,
+                'definition' => [
+                    'type' => $type,
+                ],
+            ];
+            foreach ($options['compare'] as $operator => $expectation) {
+                $whereFilters[] = [
+                    'expectedCount' => $expectation['count'],
+                    'column' => $columnName,
+                    'operator' => $operator,
+                    'values' => [$expectation['value']],
+                ];
+            }
+        }
+
+        $tableDefinition = [
+            'name' => 'testDataPreviewForTableDefinitionWithFilters',
+            'primaryKeysNames' => [],
+            'columns' => $columns,
+        ];
+
+        $csvFile = $this->createTempCsv();
+        $csvFile->writeRow(array_keys($values));
+        $csvFile->writeRow(array_values($values));
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        $this->_client->writeTableAsync($tableId, $csvFile);
+
+        /** @var array $data */
+        $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
+
+        $this->assertSame(
+            [$expectedPreview],
+            $data['rows']
+        );
+
+        // test filters
+        foreach ($whereFilters as $filter) {
+            $expectedCount = $filter['expectedCount'];
+            unset($filter['expectedCount']);
+            /** @var array $data */
+            $data = $this->_client->getTableDataPreview(
+                $tableId,
+                [
+                    'format' => 'json',
+                    'whereFilters' => [$filter],
+                ]
+            );
+
+            $this->assertCount($expectedCount, $data['rows'], sprintf('Filter for column %s failed.', $filter['column']));
+        }
+    }
+
     public function testDataPreviewExoticTypes(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
