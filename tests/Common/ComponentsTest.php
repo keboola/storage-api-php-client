@@ -956,6 +956,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $newConfiguration['version']);
         $this->assertEmpty($newConfiguration['state']);
 
+        $vuid1 = $newConfiguration['currentVersion']['versionUniqueIdentifier'];
         $newName = 'neco';
         $newDesc = 'some desc';
         $configurationData = ['x' => 'y'];
@@ -965,6 +966,9 @@ class ComponentsTest extends StorageApiTestCase
         $components->updateConfiguration($config);
 
         $configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
+
+        $vuid2 = $configuration['currentVersion']['versionUniqueIdentifier'];
+        $this->assertNotSame($vuid1, $vuid2);
 
         $this->assertEquals($newName, $configuration['name']);
         $this->assertEquals($newDesc, $configuration['description']);
@@ -989,6 +993,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
 
+        $vuid3 = $configuration['currentVersion']['versionUniqueIdentifier'];
+        $this->assertSame($vuid2, $vuid3, 'State update should not create new version');
+
         $this->assertEquals($newName, $configuration['name'], 'Name should not be changed after description update');
         $this->assertEquals('some desc', $configuration['description']);
         $this->assertEquals($configurationData, $configuration['configuration']);
@@ -1004,6 +1011,9 @@ class ComponentsTest extends StorageApiTestCase
         $components->updateConfiguration($config);
         $configuration = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
         $this->assertEquals('', $configuration['description'], 'Description can be set empty');
+
+        $vuid4 = $configuration['currentVersion']['versionUniqueIdentifier'];
+        $this->assertNotSame($vuid3, $vuid4);
     }
 
     /**
