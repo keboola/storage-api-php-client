@@ -512,6 +512,8 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $configuration['version']);
         $this->assertTrue($configuration['isDisabled']);
 
+        $vuid1 = $configuration['currentVersion']['versionUniqueIdentifier'];
+
         $componentList = $components->listComponents();
         $this->assertCount(1, $componentList);
 
@@ -532,6 +534,8 @@ class ComponentsTest extends StorageApiTestCase
         $configuration = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(2, $configuration['version']);
         $this->assertFalse($configuration['isDisabled']);
+        $vuid2 = $configuration['currentVersion']['versionUniqueIdentifier'];
+        $this->assertNotSame($vuid1, $vuid2);
 
         // rollback config to version 1 (version 3)
         $components->rollbackConfiguration('wr-db', 'main-1', 1);
@@ -539,6 +543,8 @@ class ComponentsTest extends StorageApiTestCase
         $configuration = $components->getConfiguration('wr-db', 'main-1');
         $this->assertEquals(3, $configuration['version']);
         $this->assertTrue($configuration['isDisabled']);
+        $vuid3 = $configuration['currentVersion']['versionUniqueIdentifier'];
+        $this->assertNotSame($vuid2, $vuid3);
     }
 
     /**
