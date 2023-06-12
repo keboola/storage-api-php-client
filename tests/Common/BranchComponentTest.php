@@ -140,6 +140,7 @@ class BranchComponentTest extends StorageApiTestCase
         $branchComponents = new Components($branchClient);
         $originalConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
 
+        // If create a new branch, config should be the same, also version identifier
         $this->assertEquals(
             $this->withoutKeysChangingInBranch($originalConfiguration),
             $this->withoutKeysChangingInBranch($originalConfigurationInBranch)
