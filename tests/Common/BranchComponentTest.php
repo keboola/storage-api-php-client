@@ -55,6 +55,13 @@ class BranchComponentTest extends StorageApiTestCase
 
         $newConfig = $components->createConfigurationFromVersion($componentId, $configurationId, 3, 'Copy version 3');
 
+        // check that new config has different version identifier
+        $mainConfig = $components->getConfiguration($componentId, $configurationId);
+        $mainVersionUniqueIdentifier = $mainConfig['currentVersion']['versionUniqueIdentifier'];
+        $newConfigDetail = $components->getConfiguration($componentId, $newConfig['id']);
+        $newConfigVuid1 = $newConfigDetail['currentVersion']['versionUniqueIdentifier'];
+        $this->assertNotEquals($mainVersionUniqueIdentifier, $newConfigVuid1);
+
         $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($componentId)
             ->setConfigurationId('main-1'));
@@ -83,7 +90,12 @@ class BranchComponentTest extends StorageApiTestCase
         $components->updateConfigurationRow($rowConfig);
 
         $configData = $components->getConfigurationVersion($componentId, $configurationId, 2);
-
+        $newConfigVuid2 = $configData['versionUniqueIdentifier'];
+        $this->assertNotEquals(
+            $newConfigVuid1,
+            $newConfigVuid2,
+            'Updated configuration should have different version identifier'
+        );
         $this->assertArrayHasKey('rows', $configData);
         foreach ($configData['rows'] as $row) {
             $this->assertArrayHasKey('configuration', $row);
@@ -456,6 +468,12 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertNotEquals($configMain['created'], $configFromMain['created']);
         $this->assertEquals('Copied from default branch configuration "Main 1" (main-1) version 2', $configFromMain['changeDescription']);
 
+        // but version identifier is same
+        $this->assertSame(
+            $this->withoutKeysChangingInBranch($configMain),
+            $this->withoutKeysChangingInBranch($configFromMain)
+        );
+
         $currentVersion = $configFromMain['currentVersion'];
         $this->assertEquals('Copied from default branch configuration "Main 1" (main-1) version 2', $currentVersion['changeDescription']);
         $tokenInfo = $this->_client->verifyToken();
@@ -506,6 +524,14 @@ class BranchComponentTest extends StorageApiTestCase
             (new ConfigurationRow($configurationOptions))
                 ->setName('Main 1 Row 2')
                 ->setRowId('main-1-row-2')
+        );
+
+        // update version in main should generate new version identifier in main
+        $configMain = $components->getConfiguration($componentId, 'main-1');
+        $configFromMain = $configFromMain->getConfiguration($componentId, 'main-1');
+        $this->assertNotSame(
+            $this->withoutKeysChangingInBranch($configMain),
+            $this->withoutKeysChangingInBranch($configFromMain)
         );
 
         // Check new config rows added to main branch
