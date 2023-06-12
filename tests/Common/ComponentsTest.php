@@ -1076,12 +1076,12 @@ class ComponentsTest extends StorageApiTestCase
 
         $updatedConfig = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
         $this->assertEquals(1, $updatedConfig['version'], 'there should not be any change');
-        $this->assertSame($vuid1,  $updatedConfig['currentVersion']['versionUniqueIdentifier']);
+        $this->assertSame($vuid1, $updatedConfig['currentVersion']['versionUniqueIdentifier']);
 
         $components->updateConfiguration($config);
         $updatedConfig = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
         $this->assertEquals(1, $updatedConfig['version'], 'there should not be any change');
-        $this->assertSame($vuid1,  $updatedConfig['currentVersion']['versionUniqueIdentifier']);
+        $this->assertSame($vuid1, $updatedConfig['currentVersion']['versionUniqueIdentifier']);
     }
 
     /**
@@ -1381,7 +1381,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $configurationV2 = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
         $vuid2 = $configurationV2['currentVersion']['versionUniqueIdentifier'];
-        $this->assertNotSame($vuid1,  $vuid2);
+        $this->assertNotSame($vuid1, $vuid2);
 
         // add another row  - conf V3
         $configurationRowOptions = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
@@ -1390,7 +1390,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $configurationV3 = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
         $vuid3 = $configurationV3['currentVersion']['versionUniqueIdentifier'];
-        $this->assertNotSame($vuid2,  $vuid3);
+        $this->assertNotSame($vuid2, $vuid3);
 
         // update first row
         $configurationRowOptions = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
@@ -1428,8 +1428,8 @@ class ComponentsTest extends StorageApiTestCase
         $rollbackedConfiguration = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
 
         $vuid6 = $rollbackedConfiguration['currentVersion']['versionUniqueIdentifier'];
-        $this->assertNotSame($vuid5,  $vuid6);
-        $this->assertNotSame($vuid2,  $vuid6);
+        $this->assertNotSame($vuid5, $vuid6);
+        $this->assertNotSame($vuid2, $vuid6);
 
         // asserts about the configuration itself
         $this->assertEquals(6, $rollbackedConfiguration['version'], 'Rollback added new configuration version');
@@ -1442,7 +1442,7 @@ class ComponentsTest extends StorageApiTestCase
             [
                 'created',
                 'changeDescription',
-                'versionUniqueIdentifier'
+                'versionUniqueIdentifier',
             ]
         );
         $this->assertArrayEqualsExceptKeys($configurationV2, $rollbackedConfiguration, [
@@ -1483,8 +1483,8 @@ class ComponentsTest extends StorageApiTestCase
 
         $rollbackedConfiguration = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
         $vuid7 = $rollbackedConfiguration['currentVersion']['versionUniqueIdentifier'];
-        $this->assertNotSame($vuid6,  $vuid7);
-        $this->assertNotSame($vuid5,  $vuid7);
+        $this->assertNotSame($vuid6, $vuid7);
+        $this->assertNotSame($vuid5, $vuid7);
         // asserts about the configuration itself
         $this->assertEquals(7, $rollbackedConfiguration['version'], 'Rollback added new configuration version');
         $this->assertEquals('custom description', $rollbackedConfiguration['changeDescription']);
@@ -1496,7 +1496,7 @@ class ComponentsTest extends StorageApiTestCase
             [
                 'created',
                 'changeDescription',
-                'versionUniqueIdentifier'
+                'versionUniqueIdentifier',
             ]
         );
         $this->assertArrayEqualsExceptKeys($configurationV5, $rollbackedConfiguration, [
