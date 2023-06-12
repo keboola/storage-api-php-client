@@ -153,7 +153,7 @@ class BranchComponentTest extends StorageApiTestCase
                 ->setConfiguration(['test' => 'true'])
         );
 
-        // udpate configuration in dev branch (version 2)
+        // update configuration in dev branch (version 2)
         $branchComponents->updateConfiguration(
             $configurationOptions
                 ->setName('Main updated in branch')
@@ -162,6 +162,12 @@ class BranchComponentTest extends StorageApiTestCase
 
         $updatedConfiguration = $components->getConfiguration($componentId, $configurationId);
         $updatedConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
+
+        $this->assertNotSame(
+            $originalConfigurationInBranch['currentVersion']['versionUniqueIdentifier'],
+            $updatedConfigurationInBranch['currentVersion']['versionUniqueIdentifier'],
+            'If update configuration in branch, version identifier should change'
+        );
 
         $this->assertSame(3, $updatedConfiguration['version']);
         $this->assertSame(2, $updatedConfigurationInBranch['version']);
@@ -267,6 +273,11 @@ class BranchComponentTest extends StorageApiTestCase
         $branchComponents->resetToDefault($componentId, $configurationId);
         $configurationAfterReset = $branchComponents->getConfiguration($componentId, $configurationId);
         $this->assertSame(1, $configurationAfterReset['version']);
+
+        $this->assertSame(
+            $this->withoutKeysChangingInBranch($updatedConfiguration),
+            $this->withoutKeysChangingInBranch($configurationAfterReset)
+        );
         try {
             $branchComponents->getConfigurationVersion($componentId, $configurationId, 2);
             $this->fail('Configuration version 2 should not be present, as it was reset to v1');
@@ -307,6 +318,7 @@ class BranchComponentTest extends StorageApiTestCase
         // can be reset when existing default and deleted branch (new config in default scenario)
         // first restore branch soft deleted above so that it can be reset back to branch
         $components->restoreComponentConfiguration($componentId, $configurationId);
+        $updatedConfiguration = $components->getConfiguration($componentId, $configurationId);
         // assert does not exist in branch
         try {
             $branchComponents->getConfiguration($componentId, $configurationId);
@@ -316,7 +328,12 @@ class BranchComponentTest extends StorageApiTestCase
         }
         $branchComponents->resetToDefault($componentId, $configurationId);
         // assert that exists in branch (won't throw 404)
-        $branchComponents->getConfiguration($componentId, $configurationId);
+        $configurationAfterReset = $branchComponents->getConfiguration($componentId, $configurationId);
+
+        $this->assertSame(
+            $this->withoutKeysChangingInBranch($updatedConfiguration),
+            $this->withoutKeysChangingInBranch($configurationAfterReset)
+        );
 
         // purge the deleted configuration
         // delete
