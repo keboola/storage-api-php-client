@@ -1372,6 +1372,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setConfiguration(['a' => 'b'])
             ->setName('Main');
         $configurationV1 = $componentsApi->addConfiguration($configuration);
+        $vuid1 = $configurationV1['currentVersion']['versionUniqueIdentifier'];
 
         // add first row - conf V2
         $configurationRowOptions = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
@@ -1379,21 +1380,31 @@ class ComponentsTest extends StorageApiTestCase
         $configurationRow1 = $componentsApi->addConfigurationRow($configurationRowOptions);
 
         $configurationV2 = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
+        $vuid2 = $configurationV2['currentVersion']['versionUniqueIdentifier'];
+        $this->assertNotSame($vuid1,  $vuid2);
 
         // add another row  - conf V3
         $configurationRowOptions = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $configurationRowOptions->setConfiguration(['second' => 1]);
         $componentsApi->addConfigurationRow($configurationRowOptions);
 
+        $configurationV3 = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
+        $vuid3 = $configurationV3['currentVersion']['versionUniqueIdentifier'];
+        $this->assertNotSame($vuid2,  $vuid3);
+
         // update first row
         $configurationRowOptions = new \Keboola\StorageApi\Options\Components\ConfigurationRow($configuration);
         $configurationRowOptions->setConfiguration(['first' => 22])->setRowId($configurationRow1['id']);
         $componentsApi->updateConfigurationRow($configurationRowOptions);
 
+        $configurationV4 = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
+        $vuid4 = $configurationV4['currentVersion']['versionUniqueIdentifier'];
+
         // update config - conf V5
         $componentsApi->updateConfiguration($configuration->setConfiguration(['d' => 'b']));
         $configurationV5 = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
 
+        $vuid5 = $configurationV5['currentVersion']['versionUniqueIdentifier'];
         // wait a moment, rollbacked version should have different created date
         sleep(2);
 
@@ -1416,6 +1427,10 @@ class ComponentsTest extends StorageApiTestCase
 
         $rollbackedConfiguration = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
 
+        $vuid6 = $rollbackedConfiguration['currentVersion']['versionUniqueIdentifier'];
+        $this->assertNotSame($vuid5,  $vuid6);
+        $this->assertNotSame($vuid2,  $vuid6);
+
         // asserts about the configuration itself
         $this->assertEquals(6, $rollbackedConfiguration['version'], 'Rollback added new configuration version');
         $this->assertEquals('Rollback to version 2', $rollbackedConfiguration['changeDescription']);
@@ -1427,6 +1442,7 @@ class ComponentsTest extends StorageApiTestCase
             [
                 'created',
                 'changeDescription',
+                'versionUniqueIdentifier'
             ]
         );
         $this->assertArrayEqualsExceptKeys($configurationV2, $rollbackedConfiguration, [
@@ -1466,6 +1482,9 @@ class ComponentsTest extends StorageApiTestCase
         }
 
         $rollbackedConfiguration = $componentsApi->getConfiguration('wr-db', $configurationV1['id']);
+        $vuid7 = $rollbackedConfiguration['currentVersion']['versionUniqueIdentifier'];
+        $this->assertNotSame($vuid6,  $vuid7);
+        $this->assertNotSame($vuid5,  $vuid7);
         // asserts about the configuration itself
         $this->assertEquals(7, $rollbackedConfiguration['version'], 'Rollback added new configuration version');
         $this->assertEquals('custom description', $rollbackedConfiguration['changeDescription']);
@@ -1477,6 +1496,7 @@ class ComponentsTest extends StorageApiTestCase
             [
                 'created',
                 'changeDescription',
+                'versionUniqueIdentifier'
             ]
         );
         $this->assertArrayEqualsExceptKeys($configurationV5, $rollbackedConfiguration, [
