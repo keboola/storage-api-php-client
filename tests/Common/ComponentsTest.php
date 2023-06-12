@@ -349,9 +349,12 @@ class ComponentsTest extends StorageApiTestCase
         $components->addConfiguration($config
             ->setIsDisabled(true));
 
+        $vuid1 = $components->getConfiguration($componentId, $configurationId)['currentVersion']['versionUniqueIdentifier'];
         // add configuration row
         $configurationRow = new \Keboola\StorageApi\Options\Components\ConfigurationRow($config);
         $components->addConfigurationRow($configurationRow);
+        $vuid2 = $components->getConfiguration($componentId, $configurationId)['currentVersion']['versionUniqueIdentifier'];
+        $this->assertNotEquals($vuid1, $vuid2);
 
         $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($componentId)
@@ -395,6 +398,8 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(4, $component['version']);
         $this->assertIsInt($component['version']);
         $this->assertIsInt($component['creatorToken']['id']);
+        $vuid3 = $component['currentVersion']['versionUniqueIdentifier'];
+        $this->assertNotEquals($vuid2, $vuid3);
 
         // try to restore again
         try {
@@ -447,6 +452,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertSame('Config restored...', $configuration['changeDescription']);
         $this->assertFalse($configuration['isDisabled']);
         $this->assertSame(6, $configuration['version']);
+        $this->assertNotEquals($vuid3, $configuration['currentVersion']['versionUniqueIdentifier']);
     }
 
     /**
