@@ -475,6 +475,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $component['version']);
         $this->assertIsInt($component['version']);
         $this->assertIsInt($component['creatorToken']['id']);
+        $this->assertNotEmpty($component['currentVersion']['versionUniqueIdentifier']);
 
         $components = $components->listComponents();
         $this->assertCount(1, $components);
@@ -487,6 +488,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('main-1', $configuration['id']);
         $this->assertEquals('Main', $configuration['name']);
         $this->assertEquals('some desc', $configuration['description']);
+        $this->assertNotEmpty($configuration['currentVersion']['versionUniqueIdentifier']);
     }
 
     /**
