@@ -1069,15 +1069,19 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(1, $newConfiguration['version']);
         $this->assertEmpty($newConfiguration['configuration']);
 
+        $vuid1 = $newConfiguration['currentVersion']['versionUniqueIdentifier'];
+
         $config->setConfiguration([]);
         $components->updateConfiguration($config);
 
         $updatedConfig = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
         $this->assertEquals(1, $updatedConfig['version'], 'there should not be any change');
+        $this->assertSame($vuid1,  $updatedConfig['currentVersion']['versionUniqueIdentifier']);
 
         $components->updateConfiguration($config);
         $updatedConfig = $components->getConfiguration($config->getComponentId(), $config->getConfigurationId());
         $this->assertEquals(1, $updatedConfig['version'], 'there should not be any change');
+        $this->assertSame($vuid1,  $updatedConfig['currentVersion']['versionUniqueIdentifier']);
     }
 
     /**
