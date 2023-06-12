@@ -552,6 +552,8 @@ class TokensTest extends StorageApiTestCase
 
     public function testPrivilegedInProtectedMainBranchFailsWithoutAnApplicationTokenWithScope(): void
     {
+        $this->assertManageTokensPresent();
+
         $options = (new TokenCreateOptions())
             ->setDescription('My test token')
             ->setCanReadAllFileUploads(true)
@@ -603,6 +605,8 @@ class TokensTest extends StorageApiTestCase
 
     public function testPrivilegedInProtectedMainBranchWorksWithApplicationTokenWithCorrectScope(): void
     {
+        $this->assertManageTokensPresent();
+
         $options = (new TokenCreateOptions())
             ->setDescription('My test token')
             ->setCanReadAllFileUploads(true)
@@ -1583,6 +1587,16 @@ class TokensTest extends StorageApiTestCase
                 // when does not have hide feature token is shown
                 $this->assertArrayHasKey('token', $currentToken);
             }
+        }
+    }
+
+    public function assertManageTokensPresent(): void
+    {
+        if (!defined('MANAGE_API_TOKEN_FOR_TOKENS_TEST')
+            || !defined('MANAGE_API_APPLICATION_TOKEN_WITHOUT_SCOPES_FOR_TOKENS_TEST')
+            || !defined('MANAGE_API_APPLICATION_TOKEN_WITH_PROTECTED_BRANCH_SCOPE_FOR_TOKENS_TEST')
+        ) {
+            $this->markTestSkipped('Application tokens for tokens tests not configured');
         }
     }
 }
