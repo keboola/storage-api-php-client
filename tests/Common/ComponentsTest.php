@@ -1173,6 +1173,7 @@ class ComponentsTest extends StorageApiTestCase
         $newConfiguration = $components->addConfiguration($config);
         $this->assertEquals(1, $newConfiguration['version']);
         $this->assertEmpty($newConfiguration['state']);
+        $vuid1 = $newConfiguration['currentVersion']['versionUniqueIdentifier'];
 
         $listConfig = (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
             ->setComponentId($config->getComponentId())
@@ -1192,6 +1193,8 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertCount(2, $versions, 'Update of configuration name should add version');
         $lastVersion = reset($versions);
         $this->assertEquals(2, $lastVersion['version']);
+        $vuid2 = $lastVersion['versionUniqueIdentifier'];
+        $this->assertNotSame($vuid1, $vuid2);
 
         $state = ['cache' => true];
         $components->updateConfigurationState((new ConfigurationState())
@@ -1202,12 +1205,15 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertCount(2, $versions, 'Update of configuration state should not add version');
         $lastVersion = reset($versions);
         $this->assertEquals(2, $lastVersion['version']);
+        $vuid3 = $lastVersion['versionUniqueIdentifier'];
+        $this->assertSame($vuid2, $vuid3);
 
         $components->updateConfiguration($config);
         $versions = $components->listConfigurationVersions($listConfig);
         $this->assertCount(2, $versions, 'Update without change should not add version');
         $lastVersion = reset($versions);
         $this->assertEquals(2, $lastVersion['version']);
+        $this->assertSame($vuid2, $lastVersion['versionUniqueIdentifier']);
     }
 
     /**
