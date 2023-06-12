@@ -212,9 +212,13 @@ class ComponentsTest extends StorageApiTestCase
             ->setName('Main')
             ->setDescription('some desc');
         $components->addConfiguration($configuration);
+
+        $vuid1 = $components->getConfiguration($componentId, $configurationId)['currentVersion']['versionUniqueIdentifier'];
         $components->addConfigurationRow((new ConfigurationRow($configuration))
             ->setRowId('firstRow')
             ->setConfiguration(['value' => 1]));
+        $vuid2 = $components->getConfiguration($componentId, $configurationId)['currentVersion']['versionUniqueIdentifier'];
+        $this->assertNotEquals($vuid1, $vuid2);
         $components->deleteConfiguration($componentId, $configurationId);
 
         // create configuration with same id as deleted
@@ -245,6 +249,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertIsInt($component['version']);
         $this->assertIsInt($component['creatorToken']['id']);
         $this->assertCount(0, $component['rows']);
+        $this->assertNotEquals($vuid2, $component['currentVersion']['versionUniqueIdentifier']);
     }
 
     /**
