@@ -1300,6 +1300,7 @@ class ComponentsTest extends StorageApiTestCase
         $previousConfigurationVersion = $configurationVersions[1];
 
         $this->assertArrayHasKey('version', $latestConfigurationVersion);
+        $this->assertArrayHasKey('versionUniqueIdentifier', $latestConfigurationVersion);
         $this->assertSame(2, $latestConfigurationVersion['version']);
         $this->assertArrayHasKey('name', $latestConfigurationVersion);
         $this->assertSame('neco', $latestConfigurationVersion['name']);
