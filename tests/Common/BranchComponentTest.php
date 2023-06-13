@@ -528,7 +528,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         // update version in main should generate new version identifier in main
         $configMain = $components->getConfiguration($componentId, 'main-1');
-        $configFromMain = $configFromMain->getConfiguration($componentId, 'main-1');
+        $configFromMain = $branchComponents->getConfiguration($componentId, 'main-1');
         $this->assertNotSame(
             $this->withoutKeysChangingInBranch($configMain),
             $this->withoutKeysChangingInBranch($configFromMain)
