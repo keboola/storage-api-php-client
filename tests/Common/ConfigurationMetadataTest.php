@@ -442,7 +442,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components->addConfigurationMetadata($configurationMetadataOptions);
             $this->fail('should fail, insufficiently permission');
         } catch (ClientException $e) {
-            $this->assertStringContainsString('Configuration manipulation is restricted for your user role', $e->getMessage());
+            $this->assertStringContainsString('You don\'t have access to the resource.', $e->getMessage());
             $this->assertSame(403, $e->getCode());
         }
     }

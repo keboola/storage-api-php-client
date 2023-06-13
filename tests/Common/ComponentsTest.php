@@ -634,7 +634,7 @@ class ComponentsTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('accessDenied', $e->getStringCode());
-            $this->assertStringContainsString('Configuration manipulation is restricted for your user role', $e->getMessage());
+            $this->assertStringContainsString('You don\'t have access to the resource.', $e->getMessage());
         }
 
         try {
@@ -644,7 +644,7 @@ class ComponentsTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('accessDenied', $e->getStringCode());
-            $this->assertStringContainsString('Configuration manipulation is restricted for your user role', $e->getMessage());
+            $this->assertStringContainsString('You don\'t have access to the resource.', $e->getMessage());
         }
 
         try {
@@ -653,7 +653,7 @@ class ComponentsTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('accessDenied', $e->getStringCode());
-            $this->assertStringContainsString('Configuration manipulation is restricted for your user role', $e->getMessage());
+            $this->assertStringContainsString('You don\'t have access to the resource.', $e->getMessage());
         }
 
         $this->assertSame($components, $componentsForAdmin->listComponents());

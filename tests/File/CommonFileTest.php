@@ -422,7 +422,7 @@ class CommonFileTest extends StorageApiTestCase
 
     public function testReadOnlyRoleFilesPermissions(): void
     {
-        $expectedError = 'File manipulation is restricted for your user role "readOnly".';
+        $expectedError = 'You don\'t have access to the resource.';
         $readOnlyClient = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
 
         $options = new FileUploadOptions();
