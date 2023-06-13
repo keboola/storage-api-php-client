@@ -10,7 +10,7 @@ class TokenCreateOptions extends TokenAbstractOptions
     /** @var bool */
     private $canManageBuckets = false;
 
-    private bool $protectedDefaultBranchPrivileged = false;
+    private bool $canManageProtectedDefaultBranch = false;
 
     /**
      * @return int|null
@@ -48,15 +48,15 @@ class TokenCreateOptions extends TokenAbstractOptions
         return $this;
     }
 
-    public function setProtectedDefaultBranchPrivileged(bool $isProtectedDefaultBranchPrivileged): self
+    public function setCanManageProtectedDefaultBranch(bool $canManageProtectedDefaultBranch): self
     {
-        $this->protectedDefaultBranchPrivileged = $isProtectedDefaultBranchPrivileged;
+        $this->canManageProtectedDefaultBranch = $canManageProtectedDefaultBranch;
         return $this;
     }
 
-    public function isProtectedDefaultBranchPrivileged(): bool
+    public function canManageProtectedDefaultBranch(): bool
     {
-        return $this->protectedDefaultBranchPrivileged;
+        return $this->canManageProtectedDefaultBranch;
     }
 
     /**
@@ -75,8 +75,8 @@ class TokenCreateOptions extends TokenAbstractOptions
             $params['expiresIn'] = $this->getExpiresIn();
         }
 
-        if ($this->isProtectedDefaultBranchPrivileged()) {
-            $params['protectedDefaultBranchPrivileged'] = $this->isProtectedDefaultBranchPrivileged();
+        if ($this->canManageProtectedDefaultBranch()) {
+            $params['canManageProtectedDefaultBranch'] = $this->canManageProtectedDefaultBranch();
         }
 
         return $params;
