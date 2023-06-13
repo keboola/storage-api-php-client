@@ -593,7 +593,7 @@ class TokensTest extends StorageApiTestCase
         }
 
         try {
-            $options->setProtectedDefaultBranchPrivileged(true);
+            $options->setCanManageProtectedDefaultBranch(true);
             // pass in options without using helper method
             $this->tokens->createToken($options);
             $this->fail('Privileged token request without application token should fail');

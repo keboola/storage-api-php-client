@@ -52,7 +52,7 @@ class Tokens
                 'X-KBC-ManageApiToken' => $applicationToken,
             ],
         ];
-        $options->setProtectedDefaultBranchPrivileged(true);
+        $options->setCanManageProtectedDefaultBranch(true);
         $result = $this->client->apiPostJson(
             'tokens',
             $options->toParamsArray(true),
