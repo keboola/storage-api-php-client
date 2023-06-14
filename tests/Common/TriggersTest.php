@@ -954,7 +954,7 @@ class TriggersTest extends StorageApiTestCase
      */
     public function testTriggersRestrictionsForReadOnlyUser(): void
     {
-        $expectedError = 'Trigger manipulation is restricted for your user role "readOnly".';
+        $expectedError = 'You don\'t have access to the resource.';
         $readOnlyClient = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
 
         $table1 = $this->createTableWithRandomData('watched-1');
