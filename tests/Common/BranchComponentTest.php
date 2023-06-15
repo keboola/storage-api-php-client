@@ -57,10 +57,10 @@ class BranchComponentTest extends StorageApiTestCase
 
         // check that new config has different version identifier
         $mainConfig = $components->getConfiguration($componentId, $configurationId);
-        $mainVersionUniqueIdentifier = $mainConfig['currentVersion']['versionUniqueIdentifier'];
+        $mainVersionIdentifier = $mainConfig['currentVersion']['versionIdentifier'];
         $newConfigDetail = $components->getConfiguration($componentId, $newConfig['id']);
-        $newConfigVuid1 = $newConfigDetail['currentVersion']['versionUniqueIdentifier'];
-        $this->assertNotEquals($mainVersionUniqueIdentifier, $newConfigVuid1);
+        $newConfigVuid1 = $newConfigDetail['currentVersion']['versionIdentifier'];
+        $this->assertNotEquals($mainVersionIdentifier, $newConfigVuid1);
 
         $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($componentId)
@@ -90,7 +90,7 @@ class BranchComponentTest extends StorageApiTestCase
         $components->updateConfigurationRow($rowConfig);
 
         $configData = $components->getConfigurationVersion($componentId, $configurationId, 2);
-        $newConfigVuid2 = $configData['versionUniqueIdentifier'];
+        $newConfigVuid2 = $configData['versionIdentifier'];
         $this->assertNotEquals(
             $newConfigVuid1,
             $newConfigVuid2,
@@ -176,8 +176,8 @@ class BranchComponentTest extends StorageApiTestCase
         $updatedConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
 
         $this->assertNotSame(
-            $originalConfigurationInBranch['currentVersion']['versionUniqueIdentifier'],
-            $updatedConfigurationInBranch['currentVersion']['versionUniqueIdentifier'],
+            $originalConfigurationInBranch['currentVersion']['versionIdentifier'],
+            $updatedConfigurationInBranch['currentVersion']['versionIdentifier'],
             'If update configuration in branch, version identifier should change'
         );
 
