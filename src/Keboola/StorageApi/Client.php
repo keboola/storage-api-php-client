@@ -891,6 +891,16 @@ class Client
     }
 
     /**
+     * @param array{branchFromId: int, branchIntoId: int, title: string, description: ?string} $data
+     * @return int - created MR id
+     */
+    public function createMergeRequest(array $data): int
+    {
+        $createdMergeRequest = $this->apiPostJson('merge-request', $data);
+        return $createdMergeRequest['id'];
+    }
+
+    /**
      * Starts and waits for async creation of table from configuration
      */
     public function createTableWithConfiguration(string $bucketId, TableWithConfigurationOptions $data): string
