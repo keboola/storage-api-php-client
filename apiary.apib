@@ -1180,7 +1180,7 @@ Returns a guide on how exactly you should register the external bucket. The text
 + Parameters
     + backend (optional, enum[string]) - Bucket backend type; the default value is determined by the project settings.
         + Members
-            + snowflake 
+            + snowflake
     + path (required, array[string]) - Path to the schema. For Snowflake backend it's in a format ['database-name','schema-name']
 
 + Request (application/json)
@@ -4792,7 +4792,7 @@ Loads tables from Storage into a Workspace. Not supported for Teradata and Bigqu
                         Default: false
                     + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
                         Default: false
-                    + useView (optional, boolean) - (experimental, Azure Synapse only) view will be created in workspace instead of loading table (only source and destination options are allowed, aliases and linked bucket don't work)
+                    + useView (optional, boolean) - (experimental) Synapse (requires feature `workspace-view-load`),SNFLK (requires feature `input-mapping-read-only-storage`) view will be created in workspace instead of loading table (only source and destination options are allowed, aliases and linked bucket don't work)
                         Default: false
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
         Default: false
@@ -4922,7 +4922,7 @@ Loads tables from Storage into a Workspace in [Development Branch](#reference/de
                         Default: false
                     + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
                         Default: false
-                    + useView (optional, boolean) - (experimental, Azure Synapse only) view will be created in workspace instead of loading table (only source and destination options are allowed, aliases and linked bucket don't work)
+                    + useView (optional, boolean) - (experimental) Synapse (requires feature `workspace-view-load`),SNFLK (requires feature `input-mapping-read-only-storage`) view will be created in workspace instead of loading table (only source and destination options are allowed, aliases and linked bucket don't work)
                         Default: false
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
         Default: false
