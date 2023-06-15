@@ -5,6 +5,7 @@ namespace Keboola\Test\Common;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\TokenCreateOptions;
+use Keboola\StorageApi\Tokens;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\EventsQueryBuilder;
 
@@ -216,7 +217,7 @@ class DevBranchesTest extends StorageApiTestCase
         $this->assertCount(3, $adminDevBranches->listBranches());
     }
 
-    public function testNonAdminTokenRestrictions(): void
+    public function testNonAdminTokenBehavior(): void
     {
         $description = __CLASS__ . '\\' . $this->getName();
 
@@ -242,19 +243,11 @@ class DevBranchesTest extends StorageApiTestCase
 
         $this->assertCount(2, $adminDevBranches->listBranches());
 
-        try {
-            $branches->getBranch($branch['id']);
-            $this->fail('Branch detail with non-admin token should fail.');
-        } catch (ClientException $e) {
-            $this->assertAccessForbiddenException($e);
-        }
+        $branchFromApi = $branches->getBranch($branch['id']);
+        $this->assertSame($branch['id'], $branchFromApi['id']);
 
-        try {
-            $branches->listBranches();
-            $this->fail('List of branches with non-admin token should fail.');
-        } catch (ClientException $e) {
-            $this->assertAccessForbiddenException($e);
-        }
+        $branchesFromApi = $branches->listBranches();
+        $this->assertGreaterThan(1, count($branchesFromApi));
 
         try {
             $branches->deleteBranch($branch['id']);
