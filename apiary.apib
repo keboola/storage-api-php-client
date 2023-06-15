@@ -1185,6 +1185,7 @@ Returns a guide on how exactly you should register the external bucket. The text
 
 + Request (application/json)
     + Headers
+
             X-StorageApi-Token: your_token
 
 + Response 200 (application/json)
@@ -8675,36 +8676,87 @@ other buckets (production buckets or buckets belongs the other development branc
 
     + Body
 
-                {
-                    "id": 366,
-                    "status": "waiting",
-                    "url": "https:\/\/connection.keboola.com\/\/v2\/storage\/jobs\/366",
-                    "tableId": null,
-                    "operationName": "devBranchDelete",
-                    "operationParams": {
-                        "queue": "main",
-                        "values": {
-                            "id": 14
-                        }
-                    },
-                    "createdTime": "2020-09-05T18:58:11+0200",
-                    "startTime": null,
-                    "endTime": null,
-                    "runId": "994",
-                    "results": null,
-                    "creatorToken": {
-                        "id": "1",
-                        "description": "dev@keboola.com"
-                    },
-                    "metrics": {
-                        "inCompressed": false,
-                        "inBytes": 0,
-                        "inBytesUncompressed": 0,
-                        "outCompressed": false,
-                        "outBytes": 0,
-                        "outBytesUncompressed": 0
+            {
+                "id": 366,
+                "status": "waiting",
+                "url": "https:\/\/connection.keboola.com\/\/v2\/storage\/jobs\/366",
+                "tableId": null,
+                "operationName": "devBranchDelete",
+                "operationParams": {
+                    "queue": "main",
+                    "values": {
+                        "id": 14
                     }
+                },
+                "createdTime": "2020-09-05T18:58:11+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": "994",
+                "results": null,
+                "creatorToken": {
+                    "id": "1",
+                    "description": "dev@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
                 }
+            }
+
+## Merge requests [/v2/storage/merge-request/]
+
+### Create merge request [POST]
+
++ Attributes
+    + branchFromId (required, number) - ID of the branch to merge
+    + branchIntoId (required, number) - ID of the branch to merge into (default branch)
+    + title (required, string) - title of the merge request
+    + description (optional, string) - description of the merge request
+
++ Request (application/json)
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+                "branchFromId": 124
+                "branchIntoId": 123,
+                "title": "Refactor DB extractors",
+                "description": "DB exctractor have new columns now",
+            }
+
++ Response 201 (application/json)
+
+    + Body
+
+            {
+            "id": 11,
+            "creator": {
+                  "id": 7,
+                  "name": "John Doe"
+            },
+            "title": "Refactor DB extractors",
+            "description": "DB exctractor have new columns now",
+            "state": "development",
+            "branches": {
+                  "branchFromId": 124,
+                  "branchIntoId": 123
+            },
+            "merge": {
+                  "mergedAt": null,
+                  "mergerId": null,
+                  "mergerName": ""
+            },
+            "createdAt": "2023-06-15T10:20:58+0200"
+            }
+
 
 ## Data Structures
 
