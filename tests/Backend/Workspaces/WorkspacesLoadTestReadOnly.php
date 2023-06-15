@@ -3,13 +3,12 @@
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
-use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\Client;
-use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
+use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\StorageApiTestCase;
+use Throwable;
 
 class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
 {
@@ -66,14 +65,14 @@ class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
         $db = $backend->getDb();
 
         if ($shouldHaveRo) {
-            $tables = $db->fetchAll(sprintf('SHOW TABLES IN SCHEMA %s', $db->quoteIdentifier($testBucketId)));
+            $tables = $db->fetchAll(sprintf('SHOW TABLES IN SCHEMA %s', SnowflakeQuote::quoteSingleIdentifier($testBucketId)));
             $this->assertCount(1, $tables);
             $this->assertSame('animals', $tables[0]['name']);
         } else {
             try {
-                $db->fetchAll(sprintf('SHOW TABLES IN SCHEMA %s', $db->quoteIdentifier($testBucketId)));
+                $db->fetchAll(sprintf('SHOW TABLES IN SCHEMA %s', SnowflakeQuote::quoteSingleIdentifier($testBucketId)));
                 $this->fail('Should have failed');
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $this->assertSame(
                     'odbc_prepare(): SQL error: SQL compilation error:
 Object does not exist, or operation cannot be performed., SQL state 02000 in SQLPrepare',
@@ -109,7 +108,7 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         $testBucketId = $this->_client->createBucket($testBucketName, 'in');
 
         //setup test tables
-        $tableId = $this->linkingClient->createTableAsync(
+        $sharedTableId = $this->linkingClient->createTableAsync(
             $sharedBucket,
             'whales',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
@@ -136,10 +135,7 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
         );
 
-        /** @var SnowflakeWorkspaceBackend $backend */
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        $db = $backend->getDb();
-
+        $backend = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
         $projectDatabase = $workspace['connection']['database'];
 
         /* I know this is brittle, but the prefix is different on different stacks
@@ -147,31 +143,49 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         except maybe create a workspace there */
         $sharingProjectDatabase = str_replace($projectId, $sharingProjectId, $projectDatabase);
 
-        $quotedProjectDatabase = $db->quoteIdentifier($projectDatabase);
-        $quotedSharingProjectDatabase = $db->quoteIdentifier($sharingProjectDatabase);
-        $quotedTestBucketId = $db->quoteIdentifier($testBucketId);
-        $quotedSharedBucketId = $db->quoteIdentifier($sharedBucketId);
+        $quotedProjectDatabase = SnowflakeQuote::quoteSingleIdentifier($projectDatabase);
+        $quotedSharingProjectDatabase = SnowflakeQuote::quoteSingleIdentifier($sharingProjectDatabase);
+        $quotedTestBucketId = SnowflakeQuote::quoteSingleIdentifier($testBucketId);
+        $quotedSharedBucketId = SnowflakeQuote::quoteSingleIdentifier($sharedBucketId);
 
-        $db->query(sprintf(
+        $db = $backend->getDb();
+        $db->executeStatement(sprintf(
             'CREATE OR REPLACE TABLE "tableFromAnimals" AS SELECT * FROM %s.%s."animals"',
             $quotedProjectDatabase,
             $quotedTestBucketId
         ));
-        $this->assertCount(5, $db->fetchAll('SELECT * FROM "tableFromAnimals"'));
+        $this->assertCount(5, $backend->fetchAll('tableFromAnimals'));
 
-        $db->query(sprintf(
+        $db->executeStatement(sprintf(
             'CREATE OR REPLACE TABLE "tableFromTrains" AS SELECT * FROM %s.%s."trains"',
             $quotedProjectDatabase,
             $quotedTestBucketId
         ));
-        $this->assertCount(5, $db->fetchAll('SELECT * FROM "tableFromTrains"'));
+        $this->assertCount(5, $backend->fetchAll('tableFromTrains'));
 
-        $db->query(sprintf(
+        $db->executeStatement(sprintf(
             'CREATE OR REPLACE TABLE "tableFromWhales" AS SELECT * FROM %s.%s."whales"',
             $quotedSharingProjectDatabase,
             $quotedSharedBucketId
         ));
-        $this->assertCount(5, $db->fetchAll('SELECT * FROM "tableFromWhales"'));
+        $this->assertCount(5, $backend->fetchAll('tableFromWhales'));
+
+        //test load using view
+        $options = [
+            'input' => [
+                [
+                    'source' => str_replace($sharedBucket, $linkedBucketId, $sharedTableId),
+                    'destination' => 'testRO',
+                    'useView' => true,
+                ],
+            ],
+        ];
+        $workspaces = new Workspaces($this->_client);
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        $tableRef = $backend->getTableReflection('testRO');
+        $this->assertTrue($tableRef->isView());
+        $this->assertCount(5, $backend->fetchAll('testRO'));
     }
 
     public function testCreateWorkspaceWithReadOnlyIMUnlinkUnshare(): void
@@ -197,7 +211,7 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         $this->_client->linkBucket($linkedBucketName, 'in', $sharingProjectId, $sharedBucketId, null, false);
 
         //setup test tables
-        $this->linkingClient->createTableAsync(
+        $sharedTableId = $this->linkingClient->createTableAsync(
             $sharedBucket,
             'whales',
             new CsvFile(__DIR__ . '/../../_data/languages.csv')
@@ -210,10 +224,23 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
             $this->fail('This feature works only for Snowflake at the moment');
         }
 
-        /** @var SnowflakeWorkspaceBackend $backend */
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        $db = $backend->getDb();
+        $backend = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
+        $workspaces = new Workspaces($this->_client);
+        // load table as view
+        $workspaces->loadWorkspaceData(
+            $workspace['id'],
+            [
+                'input' => [
+                    [
+                        'source' => str_replace($sharedBucket, $linkedBucketId, $sharedTableId),
+                        'destination' => 'testRO',
+                        'useView' => true,
+                    ],
+                ],
+            ]
+        );
 
+        $db = $backend->getDb();
         $projectDatabase = $workspace['connection']['database'];
         $sharingProjectDatabase = str_replace($consumerProjectId, $sharingProjectId, $projectDatabase);
 
@@ -240,18 +267,26 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         assert($this->linkingClient !== null);
         $this->linkingClient->forceUnlinkBucket($sharedBucketId, $consumerProjectId, ['async' => true]);
         $this->assertCannotAccessLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId);
+
+        $tableRef = $backend->getTableReflection('testRO');
+        $this->assertTrue($tableRef->isView());
+        try {
+            $backend->fetchAll('testRO');
+        } catch (Throwable $e) {
+            $this->assertStringContainsString('does not exist or not authorized', $e->getMessage());
+        }
     }
 
     private function assertCannotAccessLinkedBucket(
-        Connection $db,
+        \Doctrine\DBAL\Connection $db,
         string $sharingProjectDatabase,
         string $sharedBucketId
     ): void {
-        $quotedSharingProjectDatabase = $db->quoteIdentifier($sharingProjectDatabase);
-        $quotedSharedBucketId = $db->quoteIdentifier($sharedBucketId);
+        $quotedSharingProjectDatabase = SnowflakeQuote::quoteSingleIdentifier($sharingProjectDatabase);
+        $quotedSharedBucketId = SnowflakeQuote::quoteSingleIdentifier($sharedBucketId);
 
         try {
-            $db->fetchAll(
+            $db->fetchAllAssociative(
                 sprintf(
                     'SELECT * FROM %s.%s."whales"',
                     $quotedSharingProjectDatabase,
@@ -260,22 +295,22 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
             );
             $this->fail('should fail');
         } catch (\Exception $e) {
-            $this->assertEquals(sprintf("odbc_prepare(): SQL error: SQL compilation error:
-Schema '%s.%s' does not exist or not authorized., SQL state 02000 in SQLPrepare", $sharingProjectDatabase, $quotedSharedBucketId), $e->getMessage());
+            $this->assertEquals(sprintf("An exception occurred while executing a query: SQL compilation error:
+Schema '%s.%s' does not exist or not authorized.", $sharingProjectDatabase, $quotedSharedBucketId), $e->getMessage());
         }
     }
 
     private function assertLoadDataFromLinkedBucket(
-        Connection $db,
+        \Doctrine\DBAL\Connection $db,
         string $sharingProjectDatabase,
         string $sharedBucketId
     ): void {
-        $quotedSharingProjectDatabase = $db->quoteIdentifier($sharingProjectDatabase);
-        $quotedSharedBucketId = $db->quoteIdentifier($sharedBucketId);
+        $quotedSharingProjectDatabase = SnowflakeQuote::quoteSingleIdentifier($sharingProjectDatabase);
+        $quotedSharedBucketId = SnowflakeQuote::quoteSingleIdentifier($sharedBucketId);
 
         $this->assertCount(
             5,
-            $db->fetchAll(
+            $db->fetchAllAssociative(
                 sprintf('SELECT * FROM %s.%s."whales"', $quotedSharingProjectDatabase, $quotedSharedBucketId)
             )
         );
