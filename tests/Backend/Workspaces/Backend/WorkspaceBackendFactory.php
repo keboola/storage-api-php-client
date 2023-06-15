@@ -14,13 +14,10 @@ use Keboola\Test\StorageApiTestCase;
 class WorkspaceBackendFactory
 {
     /**
-     * @param $workspace
-     * @return WorkspaceBackend
-     * @throws Exception
+     * @param array<mixed> $workspace
      */
-    public static function createWorkspaceBackend($workspace)
+    public static function createWorkspaceBackend(array $workspace): WorkspaceBackend
     {
-
         switch ($workspace['connection']['backend']) {
             case StorageApiTestCase::BACKEND_REDSHIFT:
                 return new RedshiftWorkspaceBackend($workspace);
@@ -37,5 +34,13 @@ class WorkspaceBackendFactory
             default:
                 throw new Exception($workspace['connection']['backend'] . ' workspaces are not supported.');
         }
+    }
+
+    /**
+     * @param array<mixed> $workspace
+     */
+    public static function createWorkspaceForSnowflakeDbal(array $workspace): SnowflakeWorkspaceBackendDBAL
+    {
+        return new SnowflakeWorkspaceBackendDBAL($workspace);
     }
 }
