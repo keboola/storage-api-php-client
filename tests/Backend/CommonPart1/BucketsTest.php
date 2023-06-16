@@ -27,7 +27,7 @@ class BucketsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientType
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @param ClientProvider::*_BRANCH $branchType
      */
     public function testBucketsList(string $branchType): void
@@ -63,7 +63,7 @@ class BucketsTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientType
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @param ClientProvider::*_BRANCH $branchType
      */
     public function testBucketDetail(string $branchType): void
@@ -368,5 +368,43 @@ class BucketsTest extends StorageApiTestCase
     {
         $this->assertTrue($this->_client->bucketExists($this->getTestBucketId()));
         $this->assertFalse($this->_client->bucketExists('in.ukulele'));
+    }
+
+    public function provideComponentsClientTypeBasedOnSuite()
+    {
+        $this->clientProvider = new ClientProvider($this);
+        $this->_client = $this->getDefaultClient();
+        $defaultAndBranchProvider = [
+            'defaultBranch + production-mananger' => [
+                ClientProvider::DEFAULT_BRANCH,
+                'production-manager',
+            ],
+            'devBranch + developer' => [
+                ClientProvider::DEV_BRANCH,
+                'developer',
+            ],
+        ];
+        $onlyDefaultProvider = [
+            'defaultBranch + admin' => [
+                ClientProvider::DEFAULT_BRANCH,
+                'admin',
+            ],
+        ];
+
+        if (SUITE_NAME === 'paratest-sox-snowflake') {
+            return $defaultAndBranchProvider;
+        }
+
+        // it's not set - so it's likely local run
+        if (SUITE_NAME === '' || SUITE_NAME === false) {
+            // select based on feature
+            $token = $this->getDefaultClient()->verifyToken();
+            $this->assertArrayHasKey('owner', $token);
+            if (in_array('protected-default-branch', $token['owner']['features'], true)) {
+                return $defaultAndBranchProvider;
+            }
+        }
+
+        return $onlyDefaultProvider;
     }
 }
