@@ -8767,6 +8767,46 @@ other buckets (production buckets or buckets belongs the other development branc
             }
 
 
+### Merge request detail [GET /v2/storage/merge-request/{id}]
+
+Detail of Merge request also contains `content` of changed objects.
++ Parameters
+    + id (required, number) - merge request ID
+
++ Request (application/json)
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+
++ Response 201 (application/json)
+
+    + Body
+
+            {
+            "id": 11,
+            "creator": {
+                  "id": 7,
+                  "name": "John Doe"
+            },
+            "title": "Refactor DB extractors",
+            "description": "DB exctractor have new columns now",
+            "state": "development",
+            "content": "",
+            "branches": {
+                  "branchFromId": 124,
+                  "branchIntoId": 123
+            },
+            "merge": {
+                  "mergedAt": null,
+                  "mergerId": null,
+                  "mergerName": ""
+            },
+            "createdAt": "2023-06-15T10:20:58+0200"
+            }
+
+
 ## Data Structures
 
 ### OrderByObject (object)
