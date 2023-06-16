@@ -876,6 +876,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $tableRef = $backend->getTableReflection('languages');
         $viewRef = $backend->getViewReflection('languages');
         // View definition should be available
+        self::assertTrue($tableRef->isView());
         self::assertStringStartsWith('CREATE VIEW', $viewRef->getViewDefinition());
         self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
         self::assertCount(5, $backend->fetchAll('languages'));
@@ -901,6 +902,12 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         } catch (Throwable $e) {
             $this->assertStringContainsString('View columns mismatch with view definition for view \'languages\'', $e->getMessage());
         }
+
+        // overwrite view and test if it works
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $tableRef = $backend->getTableReflection('languages');
+        self::assertEquals(['id', '_timestamp', 'newGuy'], $tableRef->getColumnsNames());
+        self::assertCount(5, $backend->fetchAll('languages'));
 
         // clear and create table again
         $backend->dropViewIfExists('languages');
@@ -941,21 +948,6 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                 ],
             ],
             'preserve' => true,
-        ];
-        $workspaces->loadWorkspaceData($workspace['id'], $options);
-        $tableRef = $backend->getTableReflection('languages');
-        self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
-        self::assertCount(5, $backend->fetchAll('languages'));
-
-        // test workspace is cleared load works
-        $options = [
-            'input' => [
-                [
-                    'source' => $tableId,
-                    'destination' => 'languages',
-                    'useView' => true,
-                ],
-            ],
         ];
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $tableRef = $backend->getTableReflection('languages');
