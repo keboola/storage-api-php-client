@@ -104,6 +104,21 @@ class ClientTestCase extends TestCase
         ]);
     }
 
+    protected function getDeveloperStorageApiClient(): Client
+    {
+        return $this->getClientForToken(STORAGE_API_DEVELOPER_TOKEN);
+    }
+
+    protected function getReviewerStorageApiClient(): Client
+    {
+        return $this->getClientForToken(STORAGE_API_REVIEWER_TOKEN);
+    }
+
+    protected function getReadOnlyStorageApiClient(): Client
+    {
+        return $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
+    }
+
     /**
      * @param string $token
      * @return Client
