@@ -6,6 +6,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
+use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\EventTesterUtils;
@@ -14,9 +15,13 @@ class BucketsTest extends StorageApiTestCase
 {
     use EventTesterUtils;
 
+    private ClientProvider $clientProvider;
+
     public function setUp(): void
     {
         parent::setUp();
+        $this->clientProvider = new ClientProvider($this);
+        $this->_client = $this->clientProvider->createClientForCurrentTest();
         $this->initEmptyTestBucketsForParallelTests();
     }
 
