@@ -975,6 +975,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         } catch (ClientException $e) {
             // this is expected edge case, view has also _timestamp col
             // which is ignored when validation incremental load
+            // https://keboola.atlassian.net/browse/SOX-76
             self::assertStringStartsWith('Some columns are missing in source table', $e->getMessage());
         }
 
