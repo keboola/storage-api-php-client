@@ -1,20 +1,12 @@
 <?php
-/**
- *
- * User: Martin Halamíček
- * Date: 16.5.12
- * Time: 11:46
- *
- */
+
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\Event;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
-use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Csv\CsvFile;
 use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\EventTesterUtils;
 
@@ -78,9 +70,9 @@ class BucketsTest extends StorageApiTestCase
         try {
             $this->_client->createBucket($displayName, self::STAGE_IN);
             $this->fail('Should throw exception');
-        } catch (\Keboola\StorageApi\ClientException $e) {
+        } catch (ClientException $e) {
             $this->assertSame('The display name "Romanov-Bucket" already exists in project.', $e->getMessage());
-        };
+        }
 
         $this->assertEquals($displayName, $bucket['displayName']);
 
@@ -88,7 +80,7 @@ class BucketsTest extends StorageApiTestCase
         try {
             $this->_client->updateBucket($bucketUpdateOptions);
             $this->fail('The display name already exists in project');
-        } catch (\Keboola\StorageApi\ClientException $e) {
+        } catch (ClientException $e) {
             $this->assertEquals('The display name "' . $displayName . '" already exists in project.', $e->getMessage());
             $this->assertEquals('storage.buckets.alreadyExists', $e->getStringCode());
             $this->assertEquals(400, $e->getCode());
@@ -98,7 +90,7 @@ class BucketsTest extends StorageApiTestCase
         try {
             $this->_client->updateBucket($bucketUpdateOptions);
             $this->fail('Wrong display name');
-        } catch (\Keboola\StorageApi\ClientException $e) {
+        } catch (ClientException $e) {
             $this->assertEquals('Invalid data - displayName: Only alphanumeric characters dash and underscores are allowed.', $e->getMessage());
             $this->assertEquals('storage.buckets.validation', $e->getStringCode());
             $this->assertEquals(400, $e->getCode());
@@ -192,7 +184,7 @@ class BucketsTest extends StorageApiTestCase
         try {
             $this->_client->createBucket('unknown-backend', 'in', 'desc', 'redshit');
             $this->fail('Exception should be thrown');
-        } catch (\Keboola\StorageApi\ClientException $e) {
+        } catch (ClientException $e) {
             $this->assertEquals('storage.buckets.validation', $e->getStringCode());
         }
     }
@@ -208,7 +200,7 @@ class BucketsTest extends StorageApiTestCase
             'description' => 'this is just a test',
         ];
 
-        $testBucketId = $bucketData['stage'] . '.c-'.$bucketData['name'];
+        $testBucketId = $bucketData['stage'] . '.c-' . $bucketData['name'];
 
         $this->dropBucketIfExists($this->_client, $testBucketId, true);
 
@@ -217,7 +209,7 @@ class BucketsTest extends StorageApiTestCase
             $bucketData['stage'],
             $bucketData['description'],
             null,
-            $bucketData['displayName']
+            $bucketData['displayName'],
         );
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -225,7 +217,7 @@ class BucketsTest extends StorageApiTestCase
         $sourceTableId = $this->_client->createTableAsync(
             $newBucketId,
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         try {
@@ -250,7 +242,7 @@ class BucketsTest extends StorageApiTestCase
             $bucketData['stage'],
             $bucketData['description'],
             null,
-            $bucketData['displayName']
+            $bucketData['displayName'],
         );
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
@@ -258,7 +250,7 @@ class BucketsTest extends StorageApiTestCase
         $sourceTableId = $this->_client->createTableAsync(
             $newBucketId,
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         $this->_client->dropBucket($newBucketId, ['async' => true, 'force' => true]);
@@ -268,7 +260,7 @@ class BucketsTest extends StorageApiTestCase
             $bucketData['stage'],
             $bucketData['description'],
             null,
-            $bucketData['displayName']
+            $bucketData['displayName'],
         );
 
         $newBucket = $this->_client->getBucket($newBucketId);
@@ -290,10 +282,10 @@ class BucketsTest extends StorageApiTestCase
                 $bucketData['stage'],
                 $bucketData['description'],
                 null,
-                $bucketData['displayName']
+                $bucketData['displayName'],
             );
             $this->fail('Display name already exist for project');
-        } catch (\Keboola\StorageApi\ClientException $e) {
+        } catch (ClientException $e) {
             $this->assertEquals('The display name "test-display-name" already exists in project.', $e->getMessage());
             $this->assertEquals('storage.buckets.alreadyExists', $e->getStringCode());
         }
@@ -304,10 +296,10 @@ class BucketsTest extends StorageApiTestCase
                 $bucketData['stage'],
                 $bucketData['description'],
                 null,
-                '$$$$$'
+                '$$$$$',
             );
             $this->fail('Display name provided is invalid');
-        } catch (\Keboola\StorageApi\ClientException $e) {
+        } catch (ClientException $e) {
             $this->assertEquals('Invalid data - displayName: Only alphanumeric characters dash and underscores are allowed.', $e->getMessage());
             $this->assertEquals('storage.buckets.validation', $e->getStringCode());
         }
@@ -317,7 +309,7 @@ class BucketsTest extends StorageApiTestCase
         $newBucketId = $this->_client->createBucket(
             $bucketData['name'],
             $bucketData['stage'],
-            $bucketData['description']
+            $bucketData['description'],
         );
 
         $newBucket = $this->_client->getBucket($newBucketId);
