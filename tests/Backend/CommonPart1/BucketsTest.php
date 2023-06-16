@@ -4,6 +4,7 @@ namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
@@ -25,7 +26,11 @@ class BucketsTest extends StorageApiTestCase
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testBucketsList(): void
+    /**
+     * @dataProvider provideComponentsClientType
+     * @param ClientProvider::*_BRANCH $branchType
+     */
+    public function testBucketsList(string $branchType): void
     {
         $buckets = $this->_client->listBuckets();
 
@@ -47,6 +52,14 @@ class BucketsTest extends StorageApiTestCase
         $firstBucket = reset($buckets);
         $this->assertArrayHasKey('displayName', $firstBucket);
         $this->assertNotEquals('', $firstBucket['displayName']);
+        $this->assertArrayHasKey('created', $firstBucket);
+        if ($branchType === ClientProvider::DEV_BRANCH) {
+            $this->assertEquals($this->clientProvider->getExistingBranchForTestCase()['id'], $firstBucket['idBranch']);
+        } else {
+            $branchesApi = new DevBranches($this->_client);
+            $defaultBranch = $branchesApi->getDefaultBranch();
+            $this->assertEquals($defaultBranch['id'], $firstBucket['idBranch']);
+        }
     }
 
     public function testBucketDetail(): void
