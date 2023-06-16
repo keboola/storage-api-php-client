@@ -299,6 +299,9 @@
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/BigqueryWorkspacesUnloadTest.php</file>
 	</testsuite>
+	<testsuite name="paratest-sox-snowflake">
+		<directory>tests/Backend/SOX</directory>
+	</testsuite>
 	<testsuite name="unit">
 		<directory>tests-unit</directory>
 	</testsuite>
