@@ -4,6 +4,7 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
@@ -12,6 +13,8 @@ use Throwable;
 class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
+
+    public const TEST_FILE_WORKSPACE = false;
 
     public function testCreateNotSupportedBackend(): void
     {
@@ -1009,43 +1012,45 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
         self::assertCount(10, $backend->fetchAll('languages'));
 
-//        $fileId = $this->workspaceSapiClient->uploadFile(
-//            (new CsvFile($importFile))->getPathname(),
-//            (new FileUploadOptions())
-//                ->setNotify(false)
-//                ->setIsPublic(false)
-//                ->setCompress(true)
-//                ->setTags(['test-file-1'])
-//        );
-//        // load data from file workspace Not supported yet on S3 on ABS and not used in SNFLK
-//        $fileWorkspace = $workspaces->createWorkspace(
-//            [
-//                'backend' => 'abs',
-//            ],
-//            true
-//        );
-//        $options = [
-//            'input' => [
-//                [
-//                    'dataFileId' => $fileId,
-//                    'destination' => 'languages',
-//                ],
-//            ],
-//        ];
-//        $workspaces->loadWorkspaceData($fileWorkspace['id'], $options);
-//        $this->_client->writeTableAsyncDirect(
-//            $tableId,
-//            [
-//                'dataWorkspaceId' => $fileWorkspace['id'],
-//                'dataObject' => 'languages/',
-//            ]
-//        );
-//        // test view is still working
-//        $tableRef = $backend->getTableReflection('languages');
-//        self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
-//        $backend->fetchAll('languages');
-//        self::assertCount(5, $backend->fetchAll('languages'));
-
+        // @phpstan-ignore-next-line
+        if (self::TEST_FILE_WORKSPACE) {
+            $fileId = $this->workspaceSapiClient->uploadFile(
+                (new CsvFile($importFile))->getPathname(),
+                (new FileUploadOptions())
+                    ->setNotify(false)
+                    ->setIsPublic(false)
+                    ->setCompress(true)
+                    ->setTags(['test-file-1'])
+            );
+            // load data from file workspace Not supported yet on S3 on ABS and not used in SNFLK
+            $fileWorkspace = $workspaces->createWorkspace(
+                [
+                    'backend' => 'abs',
+                ],
+                true
+            );
+            $options = [
+                'input' => [
+                    [
+                        'dataFileId' => $fileId,
+                        'destination' => 'languages',
+                    ],
+                ],
+            ];
+            $workspaces->loadWorkspaceData($fileWorkspace['id'], $options);
+            $this->_client->writeTableAsyncDirect(
+                $tableId,
+                [
+                    'dataWorkspaceId' => $fileWorkspace['id'],
+                    'dataObject' => 'languages/',
+                ]
+            );
+            // test view is still working
+            $tableRef = $backend->getTableReflection('languages');
+            self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
+            $backend->fetchAll('languages');
+            self::assertCount(5, $backend->fetchAll('languages'));
+        }
         // test drop table
         $this->_client->dropTable($tableId);
         $schemaRef = $backend->getSchemaReflection();
