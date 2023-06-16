@@ -62,16 +62,27 @@ class BucketsTest extends StorageApiTestCase
         }
     }
 
-    public function testBucketDetail(): void
+    /**
+     * @dataProvider provideComponentsClientType
+     * @param ClientProvider::*_BRANCH $branchType
+     */
+    public function testBucketDetail(string $branchType): void
     {
         $displayName = 'Romanov-Bucket';
         $bucketName = 'BucketsTest_testBucketDetail';
+
+        if ($branchType === ClientProvider::DEFAULT_BRANCH) {
+            $branch = (new DevBranches($this->_client))->getDefaultBranch();
+        } else {
+            $branch = $this->clientProvider->getExistingBranchForTestCase();
+        }
 
         $tokenData = $this->_client->verifyToken();
         $this->dropBucketIfExists($this->_client, 'in.c-' . $bucketName, true);
         $bucketId = $this->_client->createBucket($bucketName, self::STAGE_IN);
 
         $bucket = $this->_client->getBucket($bucketId);
+        $this->assertEquals($branch['id'], $bucket['idBranch']);
 
         $this->assertEquals($tokenData['owner']['defaultBackend'], $bucket['backend']);
         $this->assertNotEquals($displayName, $bucket['displayName']);
