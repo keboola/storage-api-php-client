@@ -33,6 +33,12 @@ class MergeRequestsTest extends StorageApiTestCase
             'title' => 'Change everything',
             'description' => 'Fix typo',
         ]);
+
+        $mrData = $this->_client->getMergeRequest($mrId);
+
+        $this->assertEquals('Change everything', $mrData['title']);
+        // check that detail also containts content
+        $this->assertArrayHasKey('content', $mrData);
     }
 
     public function testCreateMergeRequestFromInvalidBranches(): void
@@ -61,9 +67,5 @@ class MergeRequestsTest extends StorageApiTestCase
             'title' => 'Change everything',
             'description' => 'Fix typo',
         ]);
-
-        $mrData = $this->_client->getMergeRequest($mrId);
-
-        $this->assertEquals('Change everything', $mrData['title']);
     }
 }

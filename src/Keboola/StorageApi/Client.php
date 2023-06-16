@@ -905,7 +905,9 @@ class Client
      */
     public function getMergeRequest(int $mergeRequestId): array
     {
-        return $this->apiGet("merge-request/{$mergeRequestId}");
+        /** @var array $mrDetail */
+        $mrDetail = $this->apiGet("merge-request/{$mergeRequestId}");
+        return $mrDetail;
     }
 
     /**
