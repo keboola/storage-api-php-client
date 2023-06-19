@@ -3856,6 +3856,21 @@ parameters:
 			path: tests/Backend/Workspaces/Backend/SnowflakeWorkspaceBackend.php
 
 		-
+			message: "#^Cannot access offset 'schema' on mixed\\.$#"
+			count: 1
+			path: tests/Backend/Workspaces/Backend/SnowflakeWorkspaceBackendDBAL.php
+
+		-
+			message: "#^Parameter \\#1 \\$connection of method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\SnowflakeWorkspaceBackendDBAL\\:\\:getDbConnectionSnowflakeDBAL\\(\\) expects array, mixed given\\.$#"
+			count: 1
+			path: tests/Backend/Workspaces/Backend/SnowflakeWorkspaceBackendDBAL.php
+
+		-
+			message: "#^Property Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\SnowflakeWorkspaceBackendDBAL\\:\\:\\$schema \\(string\\) does not accept mixed\\.$#"
+			count: 1
+			path: tests/Backend/Workspaces/Backend/SnowflakeWorkspaceBackendDBAL.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\SynapseWorkspaceBackend\\:\\:__construct\\(\\) has parameter \\$workspace with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/Backend/SynapseWorkspaceBackend.php
@@ -4061,8 +4076,8 @@ parameters:
 			path: tests/Backend/Workspaces/Backend/WorkspaceBackend.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\WorkspaceBackendFactory\\:\\:createWorkspaceBackend\\(\\) has parameter \\$workspace with no type specified\\.$#"
-			count: 1
+			message: "#^Cannot access offset 'backend' on mixed\\.$#"
+			count: 2
 			path: tests/Backend/Workspaces/Backend/WorkspaceBackendFactory.php
 
 		-
