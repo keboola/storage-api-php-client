@@ -300,9 +300,12 @@
 		<file>tests/Backend/Workspaces/BigqueryWorkspacesUnloadTest.php</file>
 	</testsuite>
 	<testsuite name="paratest-sox-snowflake">
+		<!--This is temporary to check something-->
 		<directory>tests/Backend/SOX</directory>
 	</testsuite>
 	<testsuite name="sync-sox-snowflake">
+		<!--This is temporary to check something-->
+		<directory>tests/Backend/SOX</directory>
 	</testsuite>
 	<testsuite name="unit">
 		<directory>tests-unit</directory>
