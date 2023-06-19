@@ -104,6 +104,11 @@ class ClientTestCase extends TestCase
         ]);
     }
 
+    protected function getDefaultBranchStorageApiClient(): Client
+    {
+        return $this->getClientForToken(STORAGE_API_DEFAULT_BRANCH_TOKEN);
+    }
+
     protected function getDeveloperStorageApiClient(): Client
     {
         return $this->getClientForToken(STORAGE_API_DEVELOPER_TOKEN);
