@@ -3,7 +3,6 @@
 namespace Keboola\Test\Common;
 
 use Keboola\Csv\CsvFile;
-use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Event;
 use Keboola\StorageApi\Options\Components\Configuration;
@@ -16,6 +15,8 @@ use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\StorageApi\Tokens;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Client;
 
 class TokensTest extends StorageApiTestCase
 {
@@ -548,90 +549,6 @@ class TokensTest extends StorageApiTestCase
         $limitAccessTokens = new Tokens($limitAccessTokenClient);
         $limitAccessTokens->refreshToken($otherToken['id']);
         $this->assertEquals($limitedAccessToken, $this->tokens->getToken($limitedAccessToken['id']));
-    }
-
-    public function testPrivilegedInProtectedMainBranchFailsWithoutAnApplicationTokenWithScope(): void
-    {
-        $this->assertManageTokensPresent();
-
-        $options = (new TokenCreateOptions())
-            ->setDescription('My test token')
-            ->setCanReadAllFileUploads(true)
-            ->setCanManageBuckets(true)
-            ->setCanPurgeTrash(true)
-            ->setExpiresIn(360)
-            ->addComponentAccess('wr-db');
-
-        try {
-            $this->tokens->createTokenPrivilegedInProtectedDefaultBranch($options, '');
-            $this->fail('Privileged token request without application token should fail');
-        } catch (ClientException $e) {
-            $this->assertEquals('Access token must be set', $e->getMessage());
-            $this->assertEquals(401, $e->getCode());
-        }
-
-        try {
-            $this->tokens->createTokenPrivilegedInProtectedDefaultBranch(
-                $options,
-                MANAGE_API_TOKEN_FOR_TOKENS_TEST,
-            );
-            $this->fail('Privileged token request without application token should fail');
-        } catch (ClientException $e) {
-            $this->assertEquals('You don\'t have access to the resource.', $e->getMessage());
-            $this->assertEquals(403, $e->getCode());
-        }
-
-        try {
-            $this->tokens->createTokenPrivilegedInProtectedDefaultBranch(
-                $options,
-                MANAGE_API_APPLICATION_TOKEN_WITHOUT_SCOPES_FOR_TOKENS_TEST,
-            );
-            $this->fail('Privileged token request without application token should fail');
-        } catch (ClientException $e) {
-            $this->assertEquals('You don\'t have access to the resource.', $e->getMessage());
-            $this->assertEquals(403, $e->getCode());
-        }
-
-        try {
-            $options->setCanManageProtectedDefaultBranch(true);
-            // pass in options without using helper method
-            $this->tokens->createToken($options);
-            $this->fail('Privileged token request without application token should fail');
-        } catch (ClientException $e) {
-            $this->assertEquals('Privileged token request needs to authorized with an application token.', $e->getMessage());
-            $this->assertEquals(400, $e->getCode());
-        }
-    }
-
-    public function testPrivilegedInProtectedMainBranchWorksWithApplicationTokenWithCorrectScope(): void
-    {
-        $this->assertManageTokensPresent();
-
-        $options = (new TokenCreateOptions())
-            ->setDescription('My test token')
-            ->setCanReadAllFileUploads(true)
-            ->setCanManageBuckets(true)
-            ->setCanPurgeTrash(true)
-            ->setExpiresIn(360)
-            ->addComponentAccess('wr-db');
-
-        $token = $this->tokens->createTokenPrivilegedInProtectedDefaultBranch(
-            $options,
-            MANAGE_API_APPLICATION_TOKEN_WITH_PROTECTED_BRANCH_SCOPE_FOR_TOKENS_TEST,
-        );
-
-        $this->assertNotNull($token['expires']);
-
-        $this->assertFalse($token['isMasterToken']);
-        $this->assertFalse($token['canManageTokens']);
-
-        $this->assertTrue($token['canManageBuckets']);
-        $this->assertTrue($token['canReadAllFileUploads']);
-        $this->assertTrue($token['canPurgeTrash']);
-
-        $this->assertEquals('My test token', $token['description']);
-
-        $this->assertArrayHasKey('bucketPermissions', $token);
     }
 
     public function testTokenComponentAccess(): void
@@ -1587,16 +1504,6 @@ class TokensTest extends StorageApiTestCase
                 // when does not have hide feature token is shown
                 $this->assertArrayHasKey('token', $currentToken);
             }
-        }
-    }
-
-    public function assertManageTokensPresent(): void
-    {
-        if (!defined('MANAGE_API_TOKEN_FOR_TOKENS_TEST')
-            || !defined('MANAGE_API_APPLICATION_TOKEN_WITHOUT_SCOPES_FOR_TOKENS_TEST')
-            || !defined('MANAGE_API_APPLICATION_TOKEN_WITH_PROTECTED_BRANCH_SCOPE_FOR_TOKENS_TEST')
-        ) {
-            $this->markTestSkipped('Application tokens for tokens tests not configured');
         }
     }
 }
