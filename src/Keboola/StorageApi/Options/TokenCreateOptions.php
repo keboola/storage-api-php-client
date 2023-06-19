@@ -10,6 +10,8 @@ class TokenCreateOptions extends TokenAbstractOptions
     /** @var bool */
     private $canManageBuckets = false;
 
+    private bool $canManageProtectedDefaultBranch = false;
+
     /**
      * @return int|null
      */
@@ -46,6 +48,17 @@ class TokenCreateOptions extends TokenAbstractOptions
         return $this;
     }
 
+    public function setCanManageProtectedDefaultBranch(bool $canManageProtectedDefaultBranch): self
+    {
+        $this->canManageProtectedDefaultBranch = $canManageProtectedDefaultBranch;
+        return $this;
+    }
+
+    public function canManageProtectedDefaultBranch(): bool
+    {
+        return $this->canManageProtectedDefaultBranch;
+    }
+
     /**
      * @param bool $forJson return structure for form-data (false) or for JSON (true)
      * @return array
@@ -60,6 +73,10 @@ class TokenCreateOptions extends TokenAbstractOptions
 
         if ($this->getExpiresIn() !== null) {
             $params['expiresIn'] = $this->getExpiresIn();
+        }
+
+        if ($this->canManageProtectedDefaultBranch()) {
+            $params['canManageProtectedDefaultBranch'] = $this->canManageProtectedDefaultBranch();
         }
 
         return $params;
