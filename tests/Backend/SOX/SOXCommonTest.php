@@ -9,8 +9,14 @@ use Keboola\Test\StorageApiTestCase;
 
 class SOXCommonTest extends StorageApiTestCase
 {
-    public function testCantCreateBucketInDefaultBranch(): void
+    public function testCreateBucketInDefaultBranch(): void
     {
+        $client = $this->getDefaultBranchStorageApiClient();
+        $token = $client->verifyToken();
+        $this->assertArrayNotHasKey('admin', $token);
+        $bucketId = $client->createBucket('test', 'in');
+        $client->dropBucket($bucketId, ['async' => true]);
+
         $client = $this->getDefaultClient();
         $this->assertSame('productionManager', $client->verifyToken()['admin']['role']);
         try {
