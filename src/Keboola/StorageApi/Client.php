@@ -10,6 +10,7 @@ use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Utils;
+use Keboola\StorageApi\Client\ExtraHeadersMiddleware;
 use Keboola\StorageApi\Client\RequestTimeoutMiddleware;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Options\BackendConfiguration;
@@ -39,8 +40,12 @@ use Google\Cloud\Storage\StorageClient as GoogleStorageClient;
 class Client
 {
     // Request options
-    const ALLOWED_REQUEST_OPTIONS = [Client::REQUEST_OPTION_EXTENDED_TIMEOUT];
+    const ALLOWED_REQUEST_OPTIONS = [
+        Client::REQUEST_OPTION_EXTENDED_TIMEOUT,
+        Client::REQUEST_OPTION_HEADERS,
+    ];
     const REQUEST_OPTION_EXTENDED_TIMEOUT = 'isExtendedTimeout';
+    public const REQUEST_OPTION_HEADERS = 'headers';
 
     // Stage names
     const DEFAULT_RETRIES_COUNT = 15;
@@ -1439,6 +1444,15 @@ class Client
         $result = $this->tokens->createToken($options);
 
         $this->log("Token {$result["id"]} created", ['options' => $options->toParamsArray(), 'result' => $result]);
+
+        return $result['id'];
+    }
+
+    public function createTokenPrivilegedInProtectedDefaultBranch(TokenCreateOptions $options, string $applicationToken): string
+    {
+        $result = $this->tokens->createTokenPrivilegedInProtectedDefaultBranch($options, $applicationToken);
+
+        $this->log("Token {$result["id"]} created on behalf of user", ['options' => $options->toParamsArray(), 'result' => $result]);
 
         return $result['id'];
     }

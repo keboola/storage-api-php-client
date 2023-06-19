@@ -5,6 +5,7 @@ parameters:
     checkMissingIterableValueType: false
     ignoreErrors:
         - '#Constant STORAGE_API_[_A-Z0-9]+ not found.#'
+        - '#Constant MANAGE_API_[_A-Z0-9]+ not found.#'
         - '#Constant SUITE_NAME not found.#'
         - '#Constant TRAVIS_BUILD_ID not found.#'
         - '#Constant REDSHIFT_NODE_COUNT not found.#'
