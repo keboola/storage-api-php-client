@@ -302,6 +302,8 @@
 	<testsuite name="paratest-sox-snowflake">
 		<directory>tests/Backend/SOX</directory>
 	</testsuite>
+	<testsuite name="sync-sox-snowflake">
+	</testsuite>
 	<testsuite name="unit">
 		<directory>tests-unit</directory>
 	</testsuite>
