@@ -3,8 +3,7 @@
 namespace Keboola\Test\Backend;
 
 use Google\Cloud\BigQuery\BigQueryClient;
-use Keboola\Db\Import\Snowflake\Connection;
-use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnection;
+use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
 use Doctrine\DBAL\Connection as DBALConnection;
 use Keboola\Db\Import\Snowflake\Connection as SnowflakeConnection;
@@ -50,6 +49,27 @@ trait WorkspaceConnectionTrait
         ]);
         // set connection to use workspace schema
         $db->query(sprintf('USE SCHEMA %s;', $db->quoteIdentifier($connection['schema'])));
+
+        return $db;
+    }
+
+    public function getDbConnectionSnowflakeDBAL(array $connection): DBALConnection
+    {
+        assert($connection['backend'] === StorageApiTestCase::BACKEND_SNOWFLAKE);
+        $db = SnowflakeConnectionFactory::getConnection(
+            $connection['host'],
+            $connection['user'],
+            $connection['password'],
+            [
+                'database' => $connection['database'],
+                'warehouse' => $connection['warehouse'],
+            ]
+        );
+        // set connection to use workspace schema
+        $db->executeStatement(sprintf(
+            'USE SCHEMA %s;',
+            $db->quoteIdentifier($connection['schema'])
+        ));
 
         return $db;
     }
