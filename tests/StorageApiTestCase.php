@@ -23,6 +23,7 @@ use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Tokens;
 use Keboola\Test\ClientProvider\ClientProvider;
+use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\Utils\EventTesterUtils;
 use function array_key_exists;
 
@@ -570,16 +571,8 @@ abstract class StorageApiTestCase extends ClientTestCase
      */
     public function deleteBranchesByPrefix(DevBranches $devBranches, $branchPrefix)
     {
-        $branchesList = $devBranches->listBranches();
-        $branchesCreatedByThisTestMethod = array_filter(
-            $branchesList,
-            function ($branch) use ($branchPrefix) {
-                return strpos($branch['name'], $branchPrefix) === 0;
-            }
-        );
-        foreach ($branchesCreatedByThisTestMethod as $branch) {
-            $devBranches->deleteBranch($branch['id']);
-        }
+        $helper = new TestSetupHelper();
+        $helper->deleteBranchesByPrefix($devBranches, $branchPrefix);
     }
 
     protected function generateBranchNameForParallelTest($suffix = null)
