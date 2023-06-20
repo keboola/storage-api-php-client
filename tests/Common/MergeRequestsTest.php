@@ -27,12 +27,18 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $newBranch = $branches->createBranch('aaaa');
 
-        $this->_client->createMergeRequest([
+        $mrId = $this->_client->createMergeRequest([
             'branchFromId' => $newBranch['id'],
             'branchIntoId' => $oldBranches[0]['id'],
             'title' => 'Change everything',
             'description' => 'Fix typo',
         ]);
+
+        $mrData = $this->_client->getMergeRequest($mrId);
+
+        $this->assertEquals('Change everything', $mrData['title']);
+        // check that detail also containts content
+        $this->assertArrayHasKey('content', $mrData);
     }
 
     public function testCreateMergeRequestFromInvalidBranches(): void
