@@ -72,6 +72,7 @@ class BucketsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
+     * @group SOX-66
      */
     public function testBucketsList(string $devBranchType, string $userRole): void
     {
@@ -110,6 +111,7 @@ class BucketsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
+     * @group SOX-66
      */
     public function testBucketDetail(string $devBranchType, string $userRole): void
     {
