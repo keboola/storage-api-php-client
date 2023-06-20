@@ -26,42 +26,9 @@ class BucketsTest extends StorageApiTestCase
     public function setUp(): void
     {
         parent::setUp();
-        [$devBranchType, $userRole] = $this->getProvidedData();
-        $hasProjectProtectedDefaultbranch = in_array($userRole, ['reviewer', 'developer', 'production-manager']);
-
-        $this->_client = $this->getDefaultClient();
-        if ($hasProjectProtectedDefaultbranch) {
-            // default branch is protected, we need privileged client for production cleanup
-            $this->_client = $this->getClientForToken(STORAGE_API_DEFAULT_BRANCH_TOKEN);
-        }
-
-        /** @var BranchAwareClient|Client $client */
         $this->clientProvider = new ClientProvider($this);
-
-        if ($devBranchType === ClientProvider::DEFAULT_BRANCH && $userRole === 'production-manager') {
-            $this->_testClient = $this->getClientForToken(STORAGE_API_DEFAULT_BRANCH_TOKEN);
-        } elseif ($devBranchType === ClientProvider::DEV_BRANCH && $userRole === 'developer') {
-            $branchName = $this->clientProvider->getDevBranchName();
-            // dev can create & delete branches in production
-            $devBranches = new DevBranches($this->getClientForToken(STORAGE_API_DEVELOPER_TOKEN));
-            $this->deleteBranchesByPrefix($devBranches, $branchName);
-            $branch = $devBranches->createBranch($branchName);
-
-            // branched client for dev
-            $this->_testClient = $this->getBranchAwareClient($branch['id'], [
-                'token' => STORAGE_API_DEVELOPER_TOKEN,
-                'url' => STORAGE_API_URL,
-                'backoffMaxTries' => 1,
-                'jobPollRetryDelay' => function () {
-                    return 1;
-                },
-            ]);
-        } elseif ($devBranchType === ClientProvider::DEFAULT_BRANCH && $userRole === 'admin') {
-            // fallback for normal tests
-            $this->_testClient = $this->clientProvider->createClientForCurrentTest();
-        } else {
-            throw new \Exception(sprintf('Unknown combination of devBranchType "%s" and userRole "%s"', $devBranchType, $userRole));
-        }
+        [$devBranchType, $userRole] = $this->getProvidedData();
+        [$this->_client, $this->_testClient] = $this->setUpForProtectedDevBranch($this->clientProvider, $devBranchType, $userRole);
 
         if ($devBranchType === ClientProvider::DEV_BRANCH) {
             // buckets must be created in branch that the tests run in
@@ -492,5 +459,49 @@ class BucketsTest extends StorageApiTestCase
         }
 
         return $onlyDefaultProvider;
+    }
+
+    /**
+     * @param ClientProvider $clientProvider
+     * @param ClientProvider::*_BRANCH $devBranchType
+     * @param string $userRole
+     * @return array{0: Client, 1: Client}
+     */
+    public function setUpForProtectedDevBranch(ClientProvider $clientProvider, string $devBranchType, string $userRole): array
+    {
+        $hasProjectProtectedDefaultbranch = in_array($userRole, ['reviewer', 'developer', 'production-manager']);
+
+        $client = $this->getDefaultClient();
+        if ($hasProjectProtectedDefaultbranch) {
+            // default branch is protected, we need privileged client for production cleanup
+            $client = $this->getClientForToken(STORAGE_API_DEFAULT_BRANCH_TOKEN);
+        }
+
+        if ($devBranchType === ClientProvider::DEFAULT_BRANCH && $userRole === 'production-manager') {
+            $testClient = $this->getClientForToken(STORAGE_API_DEFAULT_BRANCH_TOKEN);
+        } elseif ($devBranchType === ClientProvider::DEV_BRANCH && $userRole === 'developer') {
+            $branchName = $clientProvider->getDevBranchName();
+            // dev can create & delete branches in production
+            $devBranches = new DevBranches($this->getClientForToken(STORAGE_API_DEVELOPER_TOKEN));
+            $this->deleteBranchesByPrefix($devBranches, $branchName);
+            $branch = $devBranches->createBranch($branchName);
+
+            // branched client for dev
+            $testClient = $this->getBranchAwareClient($branch['id'], [
+                'token' => STORAGE_API_DEVELOPER_TOKEN,
+                'url' => STORAGE_API_URL,
+                'backoffMaxTries' => 1,
+                'jobPollRetryDelay' => function () {
+                    return 1;
+                },
+            ]);
+        } elseif ($devBranchType === ClientProvider::DEFAULT_BRANCH && $userRole === 'admin') {
+            // fallback for normal tests
+            $testClient = $clientProvider->createClientForCurrentTest();
+        } else {
+            throw new \Exception(sprintf('Unknown combination of devBranchType "%s" and userRole "%s"', $devBranchType, $userRole));
+        }
+
+        return [$client, $testClient];
     }
 }
