@@ -471,23 +471,23 @@ class BucketsTest extends StorageApiTestCase
     {
         $hasProjectProtectedDefaultbranch = in_array($userRole, ['reviewer', 'developer', 'production-manager']);
 
-        $client = $this->getDefaultClient();
+        $client = $clientProvider->getDefaultClient();
         if ($hasProjectProtectedDefaultbranch) {
             // default branch is protected, we need privileged client for production cleanup
-            $client = $this->getClientForToken(STORAGE_API_DEFAULT_BRANCH_TOKEN);
+            $client = $clientProvider->getDefaultClient(['token' => STORAGE_API_DEFAULT_BRANCH_TOKEN]);
         }
 
         if ($devBranchType === ClientProvider::DEFAULT_BRANCH && $userRole === 'production-manager') {
-            $testClient = $this->getClientForToken(STORAGE_API_DEFAULT_BRANCH_TOKEN);
+            $testClient = $clientProvider->getDefaultClient(['token' => STORAGE_API_DEFAULT_BRANCH_TOKEN]);
         } elseif ($devBranchType === ClientProvider::DEV_BRANCH && $userRole === 'developer') {
             $branchName = $clientProvider->getDevBranchName();
             // dev can create & delete branches in production
-            $devBranches = new DevBranches($this->getClientForToken(STORAGE_API_DEVELOPER_TOKEN));
+            $devBranches = new DevBranches($clientProvider->getDefaultClient(['token' => STORAGE_API_DEVELOPER_TOKEN]));
             $this->deleteBranchesByPrefix($devBranches, $branchName);
             $branch = $devBranches->createBranch($branchName);
 
             // branched client for dev
-            $testClient = $this->getBranchAwareClient($branch['id'], [
+            $testClient = $clientProvider->getBranchAwareClient($branch['id'], [
                 'token' => STORAGE_API_DEVELOPER_TOKEN,
                 'url' => STORAGE_API_URL,
                 'backoffMaxTries' => 1,
