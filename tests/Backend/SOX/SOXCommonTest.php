@@ -14,6 +14,7 @@ class SOXCommonTest extends StorageApiTestCase
         $client = $this->getDefaultBranchStorageApiClient();
         $token = $client->verifyToken();
         $this->assertArrayNotHasKey('admin', $token);
+        $this->assertTrue($token['canManageProtectedDefaultBranch']);
         $bucketId = $client->createBucket('test', 'in');
         $client->dropBucket($bucketId, ['async' => true]);
 
