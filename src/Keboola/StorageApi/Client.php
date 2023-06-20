@@ -899,6 +899,16 @@ class Client
         $createdMergeRequest = $this->apiPostJson('merge-request', $data);
         return $createdMergeRequest['id'];
     }
+    /**
+     * @param int $mergeRequestId
+     * @return array mrData
+     */
+    public function getMergeRequest(int $mergeRequestId): array
+    {
+        /** @var array $mrDetail */
+        $mrDetail = $this->apiGet("merge-request/{$mergeRequestId}");
+        return $mrDetail;
+    }
 
     /**
      * Starts and waits for async creation of table from configuration
