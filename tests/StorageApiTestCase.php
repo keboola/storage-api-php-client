@@ -117,11 +117,11 @@ abstract class StorageApiTestCase extends ClientTestCase
         }
     }
 
-    protected function initEmptyTestBucketsForParallelTests($stages = [self::STAGE_OUT, self::STAGE_IN])
+    protected function initEmptyTestBucketsForParallelTests($stages = [self::STAGE_OUT, self::STAGE_IN], ?Client $client = null)
     {
         $description = $this->generateDescriptionForTestObject();
         foreach ($stages as $stage) {
-            $this->_bucketIds[$stage] = $this->initEmptyBucket($this->getTestBucketName($description), $stage, $description);
+            $this->_bucketIds[$stage] = $this->initEmptyBucket($this->getTestBucketName($description), $stage, $description, $client);
         }
     }
 
