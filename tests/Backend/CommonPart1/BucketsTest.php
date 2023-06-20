@@ -217,9 +217,13 @@ class BucketsTest extends StorageApiTestCase
         $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
     }
 
-    public function testBucketsListWithEmptyIncludeParameter(): void
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     * @group SOX-66
+     */
+    public function testBucketsListWithEmptyIncludeParameter(string $devBranchType, string $userRole): void
     {
-        $buckets = $this->_client->listBuckets([
+        $buckets = $this->_testClient->listBuckets([
             'include' => '',
         ]);
 
@@ -228,9 +232,13 @@ class BucketsTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('linkedBuckets', $firstBucket);
     }
 
-    public function testBucketsListWithIncludeMetadata(): void
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     * @group SOX-66
+     */
+    public function testBucketsListWithIncludeMetadata(string $devBranchType, string $userRole): void
     {
-        $buckets = $this->_client->listBuckets([
+        $buckets = $this->_testClient->listBuckets([
             'include' => 'metadata',
         ]);
         $firstBucket = array_filter($buckets, function ($bucket) {
@@ -242,7 +250,7 @@ class BucketsTest extends StorageApiTestCase
         self::assertArrayHasKey('metadata', $firstBucket);
         self::assertEmpty($firstBucket['metadata']);
 
-        $metadataApi = new Metadata($this->_client);
+        $metadataApi = new Metadata($this->_testClient);
         $metadataApi->postBucketMetadata($firstBucket['id'], 'storage-php-client-test', [
             [
                 'key' => 'test-key',
@@ -250,7 +258,7 @@ class BucketsTest extends StorageApiTestCase
             ],
         ]);
 
-        $buckets = $this->_client->listBuckets([
+        $buckets = $this->_testClient->listBuckets([
             'include' => 'metadata',
         ]);
 
@@ -267,19 +275,27 @@ class BucketsTest extends StorageApiTestCase
         self::assertEquals('test-value', $firstBucket['metadata'][0]['value']);
     }
 
-    public function testBucketCreateWithInvalidBackend(): void
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     * @group SOX-66
+     */
+    public function testBucketCreateWithInvalidBackend(string $devBranchType, string $userRole): void
     {
         try {
-            $this->_client->createBucket('unknown-backend', 'in', 'desc', 'redshit');
+            $this->_testClient->createBucket('unknown-backend', 'in', 'desc', 'redshit');
             $this->fail('Exception should be thrown');
         } catch (ClientException $e) {
             $this->assertEquals('storage.buckets.validation', $e->getStringCode());
         }
     }
 
-    public function testBucketManipulation(): void
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     * @group SOX-66
+     */
+    public function testBucketManipulation(string $devBranchType, string $userRole): void
     {
-        $tokenData = $this->_client->verifyToken();
+        $tokenData = $this->_testClient->verifyToken();
 
         $bucketData = [
             'name' => 'test',
@@ -290,9 +306,45 @@ class BucketsTest extends StorageApiTestCase
 
         $testBucketId = $bucketData['stage'] . '.c-' . $bucketData['name'];
 
-        $this->dropBucketIfExists($this->_client, $testBucketId, true);
+        $this->dropBucketIfExists($this->_testClient, $testBucketId, true);
 
-        $newBucketId = $this->_client->createBucket(
+        $newBucketId = $this->_testClient->createBucket(
+            $bucketData['name'],
+            $bucketData['stage'],
+            $bucketData['description'],
+            null,
+            $bucketData['displayName'],
+        );
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        if ($devBranchType === ClientProvider::DEV_BRANCH) {
+            self::markTestIncomplete('Branched filestorage is not yet ready');
+        }
+        // create and import data into source table
+        $sourceTableId = $this->_testClient->createTableAsync(
+            $newBucketId,
+            'languages',
+            new CsvFile($importFile),
+        );
+
+        try {
+            $this->_testClient->dropBucket($newBucketId);
+            $this->fail('Should throw exception');
+        } catch (ClientException $e) {
+            $this->assertSame('Only empty buckets can be deleted. There are 1 tables in the bucket.', $e->getMessage());
+            $this->assertSame('buckets.deleteNotEmpty', $e->getStringCode());
+        }
+        try {
+            $this->_testClient->dropBucket($newBucketId, ['async' => true]);
+            $this->fail('Should throw exception');
+        } catch (ClientException $e) {
+            $this->assertSame('Only empty buckets can be deleted. There are 1 tables in the bucket.', $e->getMessage());
+            $this->assertSame('buckets.deleteNotEmpty', $e->getStringCode());
+        }
+
+        $this->_testClient->dropBucket($newBucketId, ['force' => true, 'async' => true]);
+
+        $newBucketId = $this->_testClient->createBucket(
             $bucketData['name'],
             $bucketData['stage'],
             $bucketData['description'],
@@ -302,30 +354,15 @@ class BucketsTest extends StorageApiTestCase
 
         $importFile = __DIR__ . '/../../_data/languages.csv';
         // create and import data into source table
-        $sourceTableId = $this->_client->createTableAsync(
+        $sourceTableId = $this->_testClient->createTableAsync(
             $newBucketId,
             'languages',
             new CsvFile($importFile),
         );
 
-        try {
-            $this->_client->dropBucket($newBucketId);
-            $this->fail('Should throw exception');
-        } catch (ClientException $e) {
-            $this->assertSame('Only empty buckets can be deleted. There are 1 tables in the bucket.', $e->getMessage());
-            $this->assertSame('buckets.deleteNotEmpty', $e->getStringCode());
-        }
-        try {
-            $this->_client->dropBucket($newBucketId, ['async' => true]);
-            $this->fail('Should throw exception');
-        } catch (ClientException $e) {
-            $this->assertSame('Only empty buckets can be deleted. There are 1 tables in the bucket.', $e->getMessage());
-            $this->assertSame('buckets.deleteNotEmpty', $e->getStringCode());
-        }
+        $this->_testClient->dropBucket($newBucketId, ['async' => true, 'force' => true]);
 
-        $this->_client->dropBucket($newBucketId, ['force' => true, 'async' => true]);
-
-        $newBucketId = $this->_client->createBucket(
+        $newBucketId = $this->_testClient->createBucket(
             $bucketData['name'],
             $bucketData['stage'],
             $bucketData['description'],
@@ -333,25 +370,7 @@ class BucketsTest extends StorageApiTestCase
             $bucketData['displayName'],
         );
 
-        $importFile = __DIR__ . '/../../_data/languages.csv';
-        // create and import data into source table
-        $sourceTableId = $this->_client->createTableAsync(
-            $newBucketId,
-            'languages',
-            new CsvFile($importFile),
-        );
-
-        $this->_client->dropBucket($newBucketId, ['async' => true, 'force' => true]);
-
-        $newBucketId = $this->_client->createBucket(
-            $bucketData['name'],
-            $bucketData['stage'],
-            $bucketData['description'],
-            null,
-            $bucketData['displayName'],
-        );
-
-        $newBucket = $this->_client->getBucket($newBucketId);
+        $newBucket = $this->_testClient->getBucket($newBucketId);
         $this->assertEquals('c-' . $bucketData['name'], $newBucket['name'], 'bucket name');
         $this->assertEquals($bucketData['displayName'], $newBucket['displayName'], 'bucket displayName');
         $this->assertEquals($bucketData['stage'], $newBucket['stage'], 'bucket stage');
@@ -359,13 +378,13 @@ class BucketsTest extends StorageApiTestCase
         $this->assertEquals($tokenData['owner']['defaultBackend'], $newBucket['backend'], 'backend');
 
         // check if bucket is in list
-        $buckets = $this->_client->listBuckets();
+        $buckets = $this->_testClient->listBuckets();
         $this->assertTrue(in_array($newBucketId, array_map(function ($bucket) {
             return $bucket['id'];
         }, $buckets)));
 
         try {
-            $this->_client->createBucket(
+            $this->_testClient->createBucket(
                 $bucketData['name'] . '-' . time(),
                 $bucketData['stage'],
                 $bucketData['description'],
@@ -379,7 +398,7 @@ class BucketsTest extends StorageApiTestCase
         }
 
         try {
-            $this->_client->createBucket(
+            $this->_testClient->createBucket(
                 $bucketData['name'] . '-' . time(),
                 $bucketData['stage'],
                 $bucketData['description'],
@@ -392,15 +411,15 @@ class BucketsTest extends StorageApiTestCase
             $this->assertEquals('storage.buckets.validation', $e->getStringCode());
         }
 
-        $this->_client->dropBucket($newBucket['id'], ['async' => true]);
+        $this->_testClient->dropBucket($newBucket['id'], ['async' => true]);
 
-        $newBucketId = $this->_client->createBucket(
+        $newBucketId = $this->_testClient->createBucket(
             $bucketData['name'],
             $bucketData['stage'],
             $bucketData['description'],
         );
 
-        $newBucket = $this->_client->getBucket($newBucketId);
+        $newBucket = $this->_testClient->getBucket($newBucketId);
         $this->assertEquals('c-' . $bucketData['name'], $newBucket['name'], 'bucket name');
         $this->assertEquals($bucketData['name'], $newBucket['displayName'], 'bucket displayName');
         $this->assertEquals($bucketData['stage'], $newBucket['stage'], 'bucket stage');
@@ -408,25 +427,33 @@ class BucketsTest extends StorageApiTestCase
         $this->assertEquals($tokenData['owner']['defaultBackend'], $newBucket['backend'], 'backend');
 
         // check if bucket is in list
-        $buckets = $this->_client->listBuckets();
+        $buckets = $this->_testClient->listBuckets();
         $this->assertTrue(in_array($newBucketId, array_map(function ($bucket) {
             return $bucket['id'];
         }, $buckets)));
     }
 
-    public function testBucketCreateWithoutDescription(): void
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     * @group SOX-66
+     */
+    public function testBucketCreateWithoutDescription(string $devBranchType, string $userRole): void
     {
-        $this->dropBucketIfExists($this->_client, 'in.c-something', true);
-        $bucketId = $this->_client->createBucket('something', self::STAGE_IN);
-        $bucket = $this->_client->getBucket($bucketId);
+        $this->dropBucketIfExists($this->_testClient, 'in.c-something', true);
+        $bucketId = $this->_testClient->createBucket('something', self::STAGE_IN);
+        $bucket = $this->_testClient->getBucket($bucketId);
         $this->assertEmpty($bucket['description']);
-        $this->_client->dropBucket($bucket['id'], ['async' => true]);
+        $this->_testClient->dropBucket($bucket['id'], ['async' => true]);
     }
 
-    public function testBucketExists(): void
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     * @group SOX-66
+     */
+    public function testBucketExists(string $devBranchType, string $userRole): void
     {
-        $this->assertTrue($this->_client->bucketExists($this->getTestBucketId()));
-        $this->assertFalse($this->_client->bucketExists('in.ukulele'));
+        $this->assertTrue($this->_testClient->bucketExists($this->getTestBucketId()));
+        $this->assertFalse($this->_testClient->bucketExists('in.ukulele'));
     }
 
     public function provideComponentsClientTypeBasedOnSuite()
