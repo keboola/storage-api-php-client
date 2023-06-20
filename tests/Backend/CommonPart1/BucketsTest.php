@@ -3,6 +3,8 @@
 namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\BranchAwareClient;
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Metadata;
@@ -21,18 +23,59 @@ class BucketsTest extends StorageApiTestCase
     public function setUp(): void
     {
         parent::setUp();
+        [$devBranchType, $userRole] = $this->getProvidedData();
+        $hasProjectProtectedDefaultbranch = in_array($userRole, ['reviewer', 'developer', 'production-manager']);
+
+        $this->_client = $this->getDefaultClient();
+        if ($hasProjectProtectedDefaultbranch) {
+            // default branch is protected, we need privileged client for production cleanup
+            $this->_client = $this->getClientForToken(STORAGE_API_DEFAULT_BRANCH_TOKEN);
+        }
+
+        /** @var BranchAwareClient|Client $client */
         $this->clientProvider = new ClientProvider($this);
-        $this->_client = $this->clientProvider->createClientForCurrentTest();
-        $this->initEmptyTestBucketsForParallelTests();
+
+        if ($devBranchType === ClientProvider::DEFAULT_BRANCH && $userRole === 'production-manager') {
+            $this->_testClient = $this->getClientForToken(STORAGE_API_DEFAULT_BRANCH_TOKEN);
+        } elseif ($devBranchType === ClientProvider::DEV_BRANCH && $userRole === 'developer') {
+            $branchName = $this->clientProvider->getDevBranchName();
+            // dev can create & delete branches in production
+            $devBranches = new DevBranches($this->getClientForToken(STORAGE_API_DEVELOPER_TOKEN));
+            $this->deleteBranchesByPrefix($devBranches, $branchName);
+            $branch = $devBranches->createBranch($branchName);
+
+            // branched client for dev
+            $this->_testClient = $this->getBranchAwareClient($branch['id'], [
+                'token' => STORAGE_API_DEVELOPER_TOKEN,
+                'url' => STORAGE_API_URL,
+                'backoffMaxTries' => 1,
+                'jobPollRetryDelay' => function () {
+                    return 1;
+                },
+            ]);
+        } elseif ($devBranchType === ClientProvider::DEFAULT_BRANCH && $userRole === 'admin') {
+            // fallback for normal tests
+            $this->_testClient = $this->clientProvider->createClientForCurrentTest();
+        } else {
+            throw new \Exception(sprintf('Unknown combination of devBranchType "%s" and userRole "%s"', $devBranchType, $userRole));
+        }
+
+        if ($devBranchType === ClientProvider::DEV_BRANCH) {
+            // buckets must be created in branch that the tests run in
+            $this->initEmptyTestBucketsForParallelTests([self::STAGE_OUT, self::STAGE_IN], $this->_testClient);
+        } elseif ($devBranchType === ClientProvider::DEFAULT_BRANCH) {
+            $this->initEmptyTestBucketsForParallelTests();
+        } else {
+            throw new \Exception(sprintf('Unknown devBranchType "%s"', $devBranchType));
+        }
     }
 
     /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
-     * @param ClientProvider::*_BRANCH $branchType
      */
-    public function testBucketsList(string $branchType): void
+    public function testBucketsList(string $devBranchType, string $userRole): void
     {
-        $buckets = $this->_client->listBuckets();
+        $buckets = $this->_testClient->listBuckets();
 
         $this->assertTrue(count($buckets) >= 2);
 
@@ -53,35 +96,37 @@ class BucketsTest extends StorageApiTestCase
         $this->assertArrayHasKey('displayName', $firstBucket);
         $this->assertNotEquals('', $firstBucket['displayName']);
         $this->assertArrayHasKey('created', $firstBucket);
-        if ($branchType === ClientProvider::DEV_BRANCH) {
+        if ($devBranchType === ClientProvider::DEV_BRANCH) {
             $this->assertEquals($this->clientProvider->getExistingBranchForTestCase()['id'], $firstBucket['idBranch']);
-        } else {
+        } elseif ($devBranchType === ClientProvider::DEFAULT_BRANCH) {
+            // PM can't read branches in prod, so needs to be privileged token
             $branchesApi = new DevBranches($this->_client);
             $defaultBranch = $branchesApi->getDefaultBranch();
             $this->assertEquals($defaultBranch['id'], $firstBucket['idBranch']);
+        } else {
+            throw new \Exception(sprintf('Unknown devBranchType "%s"', $devBranchType));
         }
     }
 
     /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
-     * @param ClientProvider::*_BRANCH $branchType
      */
-    public function testBucketDetail(string $branchType): void
+    public function testBucketDetail(string $devBranchType, string $userRole): void
     {
         $displayName = 'Romanov-Bucket';
         $bucketName = 'BucketsTest_testBucketDetail';
 
-        if ($branchType === ClientProvider::DEFAULT_BRANCH) {
+        if ($devBranchType === ClientProvider::DEFAULT_BRANCH) {
             $branch = (new DevBranches($this->_client))->getDefaultBranch();
         } else {
             $branch = $this->clientProvider->getExistingBranchForTestCase();
         }
 
-        $tokenData = $this->_client->verifyToken();
-        $this->dropBucketIfExists($this->_client, 'in.c-' . $bucketName, true);
-        $bucketId = $this->_client->createBucket($bucketName, self::STAGE_IN);
+        $tokenData = $this->_testClient->verifyToken();
+        $this->dropBucketIfExists($this->_testClient, 'in.c-' . $bucketName, true);
+        $bucketId = $this->_testClient->createBucket($bucketName, self::STAGE_IN);
 
-        $bucket = $this->_client->getBucket($bucketId);
+        $bucket = $this->_testClient->getBucket($bucketId);
         $this->assertEquals($branch['id'], $bucket['idBranch']);
 
         $this->assertEquals($tokenData['owner']['defaultBackend'], $bucket['backend']);
@@ -89,15 +134,15 @@ class BucketsTest extends StorageApiTestCase
 
         $asyncBucketDisplayName = $displayName . '-async';
         $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $asyncBucketDisplayName, true);
-        $this->_client->updateBucket($bucketUpdateOptions);
+        $this->_testClient->updateBucket($bucketUpdateOptions);
 
-        $bucket = $this->_client->getBucket($bucketId);
+        $bucket = $this->_testClient->getBucket($bucketId);
         $this->assertEquals($asyncBucketDisplayName, $bucket['displayName']);
 
         $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $displayName);
-        $bucket = $this->_client->updateBucket($bucketUpdateOptions);
+        $bucket = $this->_testClient->updateBucket($bucketUpdateOptions);
         try {
-            $this->_client->createBucket($displayName, self::STAGE_IN);
+            $this->_testClient->createBucket($displayName, self::STAGE_IN);
             $this->fail('Should throw exception');
         } catch (ClientException $e) {
             $this->assertSame('The display name "Romanov-Bucket" already exists in project.', $e->getMessage());
@@ -107,7 +152,7 @@ class BucketsTest extends StorageApiTestCase
 
         $bucketUpdateOptions = new BucketUpdateOptions($this->getTestBucketId(), $displayName);
         try {
-            $this->_client->updateBucket($bucketUpdateOptions);
+            $this->_testClient->updateBucket($bucketUpdateOptions);
             $this->fail('The display name already exists in project');
         } catch (ClientException $e) {
             $this->assertEquals('The display name "' . $displayName . '" already exists in project.', $e->getMessage());
@@ -117,7 +162,7 @@ class BucketsTest extends StorageApiTestCase
 
         $bucketUpdateOptions = new BucketUpdateOptions($bucketId, '$$$$$');
         try {
-            $this->_client->updateBucket($bucketUpdateOptions);
+            $this->_testClient->updateBucket($bucketUpdateOptions);
             $this->fail('Wrong display name');
         } catch (ClientException $e) {
             $this->assertEquals('Invalid data - displayName: Only alphanumeric characters dash and underscores are allowed.', $e->getMessage());
@@ -125,14 +170,14 @@ class BucketsTest extends StorageApiTestCase
             $this->assertEquals(400, $e->getCode());
         }
 
-        $bucket = $this->_client->getBucket($bucketId);
+        $bucket = $this->_testClient->getBucket($bucketId);
         $this->assertEquals($displayName, $bucket['displayName']);
 
         // renaming bucket to the same name should be successful
         $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $displayName);
-        $bucket = $this->_client->updateBucket($bucketUpdateOptions);
+        $bucket = $this->_testClient->updateBucket($bucketUpdateOptions);
 
-        $this->_client->dropBucket($bucket['id'], ['async' => true]);
+        $this->_testClient->dropBucket($bucket['id'], ['async' => true]);
     }
 
     public function testBucketEvents(): void
