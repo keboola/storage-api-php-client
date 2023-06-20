@@ -18,6 +18,9 @@ class BucketsTest extends StorageApiTestCase
 {
     use EventTesterUtils;
 
+    /** @var BranchAwareClient|Client */
+    private $_testClient;
+
     private ClientProvider $clientProvider;
 
     public function setUp(): void
