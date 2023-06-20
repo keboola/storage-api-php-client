@@ -70,4 +70,24 @@ class MergeRequestsTest extends StorageApiTestCase
             'description' => 'Fix typo',
         ]);
     }
+
+    public function testPutInReview(): void
+    {
+        $branches = new DevBranches($this->_client);
+        $oldBranches = $branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        $newBranch = $branches->createBranch('aaaa');
+
+        $mrId = $this->_client->createMergeRequest([
+            'branchFromId' => $newBranch['id'],
+            'branchIntoId' => $oldBranches[0]['id'],
+            'title' => 'Change everything',
+            'description' => 'Fix typo',
+        ]);
+
+        $mrData = $this->_client->mergeRequestPutToReview($mrId);
+
+        $this->assertEquals('in_review', $mrData['state']);
+    }
 }
