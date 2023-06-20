@@ -110,6 +110,23 @@ class ClientProvider
 
     /**
      * @param array $config
+     * @return Client
+     */
+    public function getBranchAwareClient($branchId, $config = []): BranchAwareClient
+    {
+        $config = array_merge([
+            'token' => STORAGE_API_TOKEN,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+            'jobPollRetryDelay' => function () {
+                return 1;
+            },
+        ], $config);
+        return $this->testCase->getBranchAwareClient($branchId, $config);
+    }
+
+    /**
+     * @param array $config
      * @return BranchAwareClient
      */
     public function getDefaultBranchClient($config = [])
