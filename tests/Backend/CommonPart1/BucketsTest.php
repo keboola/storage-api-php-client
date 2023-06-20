@@ -182,27 +182,36 @@ class BucketsTest extends StorageApiTestCase
         $this->_testClient->dropBucket($bucket['id'], ['async' => true]);
     }
 
-    public function testBucketEvents(): void
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     * @group SOX-66
+     */
+    public function testBucketEvents(string $devBranchType, string $userRole): void
     {
-        $this->initEvents($this->_client);
+        $this->initEvents($this->_testClient);
 
         // create bucket event
-        $this->_client->listTables($this->getTestBucketId());
+        $this->_testClient->listTables($this->getTestBucketId());
 
-        $assertCallback = function ($events) {
+        $assertCallback = function ($events) use ($devBranchType) {
             $this->assertCount(1, $events);
             // check bucket events
             $this->assertSame('storage.tablesListed', $events[0]['event']);
             $this->assertSame('Listed tables', $events[0]['message']);
             $this->assertSame($this->getTestBucketId(), $events[0]['objectId']);
             $this->assertSame('bucket', $events[0]['objectType']);
+            if ($devBranchType === ClientProvider::DEFAULT_BRANCH) {
+                $this->assertSame($this->getDefaultBranchId($this), $events[0]['idBranch']);
+            } else {
+                $this->assertSame($this->_testClient->getCurrentBranchId(), $events[0]['idBranch']);
+            }
         };
 
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.tablesListed')
             ->setTokenId($this->tokenId)
             ->setObjectId($this->getTestBucketId());
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
     }
 
     public function testBucketsListWithEmptyIncludeParameter(): void
