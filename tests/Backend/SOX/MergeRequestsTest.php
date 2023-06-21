@@ -1,40 +1,43 @@
 <?php
 
-namespace Keboola\Test\Common;
+namespace Keboola\Test\Backend\SOX;
 
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\DevBranches;
 use Keboola\Test\StorageApiTestCase;
 
 class MergeRequestsTest extends StorageApiTestCase
 {
+    private Client $developerClient;
+    private DevBranches $branches;
+
     public function setUp(): void
     {
         parent::setUp();
-
-        $branches = new DevBranches($this->_client);
-        foreach ($branches->listBranches() as $branch) {
+        $this->developerClient = $this->getDeveloperStorageApiClient();
+        $this->branches = new DevBranches($this->developerClient);
+        foreach ($this->branches->listBranches() as $branch) {
             if ($branch['isDefault'] !== true) {
-                $branches->deleteBranch($branch['id']);
+                $this->branches->deleteBranch($branch['id']);
             }
         }
     }
 
     public function testCreateMergeRequest(): void
     {
-        $branches = new DevBranches($this->_client);
-        $oldBranches = $branches->listBranches();
+        $oldBranches = $this->branches->listBranches();
         $this->assertCount(1, $oldBranches);
 
-        $newBranch = $branches->createBranch('aaaa');
+        $newBranch = $this->branches->createBranch('aaaa');
 
-        $mrId = $this->_client->createMergeRequest([
+        $mrId = $this->developerClient->createMergeRequest([
             'branchFromId' => $newBranch['id'],
             'branchIntoId' => $oldBranches[0]['id'],
             'title' => 'Change everything',
             'description' => 'Fix typo',
         ]);
 
-        $mrData = $this->_client->getMergeRequest($mrId);
+        $mrData = $this->developerClient->getMergeRequest($mrId);
 
         $this->assertEquals('Change everything', $mrData['title']);
         // check that detail also containts content
@@ -44,7 +47,7 @@ class MergeRequestsTest extends StorageApiTestCase
     public function testCreateMergeRequestFromInvalidBranches(): void
     {
         $this->expectExceptionMessage('Cannot create merge request. Branch not found.');
-        $this->_client->createMergeRequest([
+        $this->developerClient->createMergeRequest([
             'branchFromId' => 123,
             'branchIntoId' => 345,
             'title' => 'Change everything',
@@ -55,13 +58,12 @@ class MergeRequestsTest extends StorageApiTestCase
     {
         $this->expectExceptionMessage('Cannot create merge request. Target branch is not default.');
 
-        $branches = new DevBranches($this->_client);
-        $oldBranches = $branches->listBranches();
+        $oldBranches = $this->branches->listBranches();
         $this->assertCount(1, $oldBranches);
 
-        $newBranch = $branches->createBranch('aaaa');
+        $newBranch = $this->branches->createBranch('aaaa');
 
-        $this->_client->createMergeRequest([
+        $this->developerClient->createMergeRequest([
             'branchFromId' => $oldBranches[0]['id'],
             'branchIntoId' => $newBranch['id'],
             'title' => 'Change everything',
