@@ -43,6 +43,7 @@ class ClientTestCase extends TestCase
     }
 
     /**
+     * in SOX-related tests, it is considered as production manager client
      * @return Client
      */
     public function getDefaultClient()

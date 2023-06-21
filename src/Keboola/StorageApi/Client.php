@@ -914,17 +914,6 @@ class Client
      * @param int $mergeRequestId
      * @return array mrData
      */
-    public function getMergeRequest(int $mergeRequestId): array
-    {
-        /** @var array $mrDetail */
-        $mrDetail = $this->apiGet("merge-request/{$mergeRequestId}");
-        return $mrDetail;
-    }
-
-    /**
-     * @param int $mergeRequestId
-     * @return array mrData
-     */
     public function mergeRequestPutToReview(int $mergeRequestId): array
     {
         /** @var array $mrDetail */

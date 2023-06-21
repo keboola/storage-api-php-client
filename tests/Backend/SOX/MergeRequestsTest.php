@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend\SOX;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\DevBranches;
 use Keboola\Test\StorageApiTestCase;
@@ -9,11 +10,13 @@ use Keboola\Test\StorageApiTestCase;
 class MergeRequestsTest extends StorageApiTestCase
 {
     private Client $developerClient;
+    private Client $prodManagerClient;
     private DevBranches $branches;
 
     public function setUp(): void
     {
         parent::setUp();
+        $this->prodManagerClient = $this->getDefaultClient();
         $this->developerClient = $this->getDeveloperStorageApiClient();
         $this->branches = new DevBranches($this->developerClient);
         foreach ($this->branches->listBranches() as $branch) {
@@ -73,21 +76,54 @@ class MergeRequestsTest extends StorageApiTestCase
 
     public function testPutInReview(): void
     {
-        $branches = new DevBranches($this->_client);
-        $oldBranches = $branches->listBranches();
+        $oldBranches = $this->branches->listBranches();
         $this->assertCount(1, $oldBranches);
 
-        $newBranch = $branches->createBranch('aaaa');
+        $newBranch = $this->branches->createBranch('aaaa');
 
-        $mrId = $this->_client->createMergeRequest([
+        $mrId = $this->developerClient->createMergeRequest([
             'branchFromId' => $newBranch['id'],
             'branchIntoId' => $oldBranches[0]['id'],
             'title' => 'Change everything',
             'description' => 'Fix typo',
         ]);
 
-        $mrData = $this->_client->mergeRequestPutToReview($mrId);
+        $mrData = $this->developerClient->mergeRequestPutToReview($mrId);
 
         $this->assertEquals('in_review', $mrData['state']);
+    }
+
+    public function testProManagerCannotPutBranchInReview(): void
+    {
+        $oldBranches = $this->branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        $newBranch = $this->branches->createBranch('aaaa');
+
+        try {
+            $this->prodManagerClient->createMergeRequest([
+                'branchFromId' => $newBranch['id'],
+                'branchIntoId' => $oldBranches[0]['id'],
+                'title' => 'Change everything',
+                'description' => 'Fix typo',
+            ]);
+            $this->fail('Prod manager should not be able to create merge request');
+        } catch (ClientException $e) {
+            $this->assertSame($e->getMessage(), 'You don\'t have access to the resource.');
+        }
+
+        $mrId = $this->developerClient->createMergeRequest([
+            'branchFromId' => $newBranch['id'],
+            'branchIntoId' => $oldBranches[0]['id'],
+            'title' => 'Change everything',
+            'description' => 'Fix typo',
+        ]);
+
+        try {
+            $this->prodManagerClient->mergeRequestPutToReview($mrId);
+            $this->fail('Prod manager should not be able to put merge request in review');
+        } catch (ClientException $e) {
+            $this->assertSame($e->getMessage(), 'You don\'t have access to the resource.');
+        }
     }
 }
