@@ -7,6 +7,7 @@ namespace Keboola\Test\Backend\SOX;
 use Generator;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Tokens;
 use Keboola\Test\StorageApiTestCase;
 
@@ -80,5 +81,28 @@ class SOXTokensTest extends StorageApiTestCase
             $this->assertSame(403, $e->getCode());
             $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
         }
+    }
+
+    /**
+     * @dataProvider tokensProvider
+     */
+    public function testDeleteOwnToken(Client $client): void
+    {
+        $token = $client->verifyToken();
+        $expectCannotCreateToken = false;
+        if (!array_key_exists('admin', $token) || $token['admin']['role'] === 'readOnly') {
+            $expectCannotCreateToken = true;
+        }
+        $tokens = new Tokens($client);
+        if ($expectCannotCreateToken) {
+            $this->expectExceptionMessage('You don\'t have access to the resource.');
+            $this->expectExceptionCode(403);
+        }
+        $newToken = $tokens->createToken(new TokenCreateOptions());
+
+        $this->expectNotToPerformAssertions();
+        $newTokenClient = $this->getClientForToken($newToken['token']);
+        $tokens = new Tokens($newTokenClient);
+        $tokens->dropToken($newToken['id']);
     }
 }
