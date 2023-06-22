@@ -922,6 +922,17 @@ class Client
     }
 
     /**
+     * @param int $mergeRequestId
+     * @return array mrData
+     */
+    public function mergeRequestAddApproval(int $mergeRequestId): array
+    {
+        /** @var array $mrDetail */
+        $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/add_approval", []);
+        return $mrDetail;
+    }
+
+    /**
      * Starts and waits for async creation of table from configuration
      */
     public function createTableWithConfiguration(string $bucketId, TableWithConfigurationOptions $data): string
