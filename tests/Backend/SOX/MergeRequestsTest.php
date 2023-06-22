@@ -118,6 +118,15 @@ class MergeRequestsTest extends StorageApiTestCase
         $mrData = $reviewerClient->mergeRequestAddApproval($mrId);
         $this->assertCount(2, $mrData['approvals']);
         $this->assertSame('approved', $mrData['state']);
+
+        $mrData = $reviewerClient->rejectMergeRequest($mrId);
+        $this->assertCount(0, $mrData['approvals']);
+        $this->assertSame('development', $mrData['state']);
+
+        $mrData = $reviewerClient->cancelMergeRequest($mrId);
+        $this->assertCount(0, $mrData['approvals']);
+        $this->assertSame('canceled', $mrData['state']);
+        $this->assertSame(null, $mrData['branches']['branchFromId']);
     }
 
     public function testProManagerCannotPutBranchInReview(): void
