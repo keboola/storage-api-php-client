@@ -163,17 +163,21 @@ class BucketsTest extends StorageApiTestCase
      */
     public function testBucketEvents(string $devBranchType, string $userRole): void
     {
+        $bucketName = sha1($this->generateDescriptionForTestObject()).'-test-events';
+        $bucketStringId = 'in.c-' . $bucketName;
+        $this->dropBucketIfExists($this->_testClient, $bucketStringId, true);
+        $bucketId = $this->_testClient->createBucket($bucketName, self::STAGE_IN);
         $this->initEvents($this->_testClient);
 
         // create bucket event
-        $this->_testClient->listTables($this->getTestBucketId());
+        $this->_testClient->listTables($bucketId);
 
-        $assertCallback = function ($events) use ($devBranchType) {
+        $assertCallback = function ($events) use ($devBranchType, $bucketId) {
             $this->assertCount(1, $events);
             // check bucket events
             $this->assertSame('storage.tablesListed', $events[0]['event']);
             $this->assertSame('Listed tables', $events[0]['message']);
-            $this->assertSame($this->getTestBucketId(), $events[0]['objectId']);
+            $this->assertSame($bucketId, $events[0]['objectId']);
             $this->assertSame('bucket', $events[0]['objectType']);
             if ($devBranchType === ClientProvider::DEFAULT_BRANCH) {
                 $this->assertSame($this->getDefaultBranchId($this), $events[0]['idBranch']);
@@ -185,8 +189,22 @@ class BucketsTest extends StorageApiTestCase
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.tablesListed')
             ->setTokenId($this->tokenId)
-            ->setObjectId($this->getTestBucketId());
+            ->setObjectId($bucketId);
         $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
+
+        $bucketEvents = $this->_testClient->listBucketEvents($bucketId);
+        if ($devBranchType === ClientProvider::DEFAULT_BRANCH) {
+            // there are already events in production
+            $this->assertGreaterThan(2, $bucketEvents);
+        } else {
+            $this->assertCount(2, $bucketEvents);
+        }
+        $this->assertSame('storage.tablesListed', $bucketEvents[0]['event']);
+        $this->assertSame('storage.bucketCreated', $bucketEvents[1]['event']);
+        $this->assertNotEmpty($bucketEvents[0]['idBranch']);
+        $this->assertNotEmpty($bucketEvents[1]['idBranch']);
+        $this->assertSame($bucketStringId, $bucketEvents[0]['objectId']);
+        $this->assertSame($bucketStringId, $bucketEvents[1]['objectId']);
     }
 
     /**
