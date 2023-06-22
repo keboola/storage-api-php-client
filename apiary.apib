@@ -8827,6 +8827,144 @@ Detail of Merge request also contains `content` of changed objects.
             }
 
 ### Put MR in review [PUT /v2/storage/merge-request/{id}/to_review]
+Will move Merge request state `development` -> `in_review`. If branch has an open Merge request in state different from `development`, it is considered as locked and no updates on it are available.
++ Parameters
+    + id (required, number) - merge request ID
+
++ Request (application/json)
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+            "id": 11,
+            "creator": {
+                  "id": 7,
+                  "name": "John Doe"
+            },
+            "title": "Refactor DB extractors",
+            "description": "DB exctractor have new columns now",
+            "state": "in_review",
+            "content": "",
+            "branches": {
+                  "branchFromId": 124,
+                  "branchIntoId": 123
+            },
+            "merge": {
+                  "mergedAt": null,
+                  "mergerId": null,
+                  "mergerName": ""
+            },
+            "approvals": [
+            {
+                  "approverId": 123,
+                  "approverName": "John Doe",
+                  "createdAt": "2023-06-16T10:20:58+0200"
+            }
+            ],
+            "createdAt": "2023-06-15T10:20:58+0200"
+            }
+
+### Add approval [PUT /v2/storage/merge-request/{id}/add_approval]
+
+Each project has defined required number of approvals. If the last approval arrives, MR changes it state to `approved`.
++ Parameters
+    + id (required, number) - merge request ID
+
++ Request (application/json)
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+            "id": 11,
+            "creator": {
+                  "id": 7,
+                  "name": "John Doe"
+            },
+            "title": "Refactor DB extractors",
+            "description": "DB exctractor have new columns now",
+            "state": "in_review",
+            "content": "",
+            "branches": {
+                  "branchFromId": 124,
+                  "branchIntoId": 123
+            },
+            "merge": {
+                  "mergedAt": null,
+                  "mergerId": null,
+                  "mergerName": ""
+            },
+            "approvals": [
+            {
+                  "approverId": 123,
+                  "approverName": "John Doe",
+                  "createdAt": "2023-06-16T10:20:58+0200"
+            }
+            ],
+            "createdAt": "2023-06-15T10:20:58+0200"
+            }
+
+### Reject merge request [PUT /v2/storage/merge-request/{id}/reject]
+
+Rejection will remove all approvals and move the Merge request to `development` state.
+
++ Parameters
+    + id (required, number) - merge request ID
+
++ Request (application/json)
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+            "id": 11,
+            "creator": {
+                  "id": 7,
+                  "name": "John Doe"
+            },
+            "title": "Refactor DB extractors",
+            "description": "DB exctractor have new columns now",
+            "state": "in_review",
+            "content": "",
+            "branches": {
+                  "branchFromId": 124,
+                  "branchIntoId": 123
+            },
+            "merge": {
+                  "mergedAt": null,
+                  "mergerId": null,
+                  "mergerName": ""
+            },
+            "approvals": [
+            {
+                  "approverId": 123,
+                  "approverName": "John Doe",
+                  "createdAt": "2023-06-16T10:20:58+0200"
+            }
+            ],
+            "createdAt": "2023-06-15T10:20:58+0200"
+            }
+
+### Cancel merge request [PUT /v2/storage/merge-request/{id}/reject]
 
 + Parameters
     + id (required, number) - merge request ID
