@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend\SOX;
 
+use Generator;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\DevBranches;
@@ -255,5 +256,50 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $this->assertSame('By reviewer', $mr['title']);
         $this->assertSame('With love to developer', $mr['description']);
+    }
+
+    /** @dataProvider cantMergeTokenProviders */
+    public function testDeveloperCantMerge(Client $client)
+    {
+        $oldBranches = $this->branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        $newBranch = $this->branches->createBranch('aaaa');
+
+        $mrId = $this->developerClient->createMergeRequest([
+            'branchFromId' => $newBranch['id'],
+            'branchIntoId' => $oldBranches[0]['id'],
+            'title' => 'Change everything',
+            'description' => 'Fix typo',
+        ]);
+
+        $reviewerClient = $this->getReviewerStorageApiClient();
+        $this->developerClient->mergeRequestPutToReview($mrId);
+
+        $mrData = $reviewerClient->mergeRequestAddApproval($mrId);
+
+        $this->assertEquals('in_review', $mrData['state']);
+        $this->assertCount(1, $mrData['approvals']);
+
+        $mrData = $reviewerClient->mergeRequestAddApproval($mrId);
+        $this->assertCount(2, $mrData['approvals']);
+        $this->assertSame('approved', $mrData['state']);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('You don\'t have access to the resource.');
+        $client->mergeMergeRequest($mrId);
+    }
+
+    public function cantMergeTokenProviders(): Generator
+    {
+        yield 'developer' => [
+            $this->getDeveloperStorageApiClient(),
+        ];
+        yield 'reviewer' => [
+            $this->getReviewerStorageApiClient(),
+        ];
+        yield 'readOnly' => [
+            $this->getReadOnlyStorageApiClient(),
+        ];
     }
 }
