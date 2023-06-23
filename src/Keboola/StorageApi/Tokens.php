@@ -45,6 +45,24 @@ class Tokens
         return $result;
     }
 
+    public function createTokenPrivilegedInProtectedDefaultBranch(TokenCreateOptions $options, string $applicationToken): array
+    {
+        $headers = [
+            Client::REQUEST_OPTION_HEADERS => [
+                'X-KBC-ManageApiToken' => $applicationToken,
+            ],
+        ];
+        $options->setCanManageProtectedDefaultBranch(true);
+        $result = $this->client->apiPostJson(
+            'tokens',
+            $options->toParamsArray(true),
+            true,
+            $headers
+        );
+        assert(is_array($result));
+        return $result;
+    }
+
     /**
      * @return array
      */
