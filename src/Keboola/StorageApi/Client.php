@@ -936,6 +936,11 @@ class Client
         return $mrDetail;
     }
 
+    public function mergeMergeRequest(int $mergeRequestId): array
+    {
+        return $this->apiPostJson("merge-request/{$mergeRequestId}/merge");
+    }
+
     public function mergeRequestPutToReview(int $mergeRequestId): array
     {
         /** @var array $mrDetail */
