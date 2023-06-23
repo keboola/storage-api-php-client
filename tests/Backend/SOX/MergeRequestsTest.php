@@ -319,7 +319,7 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setDescription('some desc');
         $components->addConfiguration($configuration);
 
-        $mrId = $this->createBranchMergeRequestAndApproveIt();
+        [$mrId, $branchId] = $this->createBranchMergeRequestAndApproveIt();
         // in default and dev branch is the same config with the same versionIdentifier
 
         // make change in default branch to create conflict
@@ -341,7 +341,53 @@ class MergeRequestsTest extends StorageApiTestCase
 //        $this->assertEquals('development', $mr['state']); todo
     }
 
-    private function createBranchMergeRequestAndApproveIt(): int
+    public function testConfigIsUpdatedInDefaultButBothConfigsAreDeleted()
+    {
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+        $components = new \Keboola\StorageApi\Components($this->getDefaultBranchStorageApiClient());
+
+        $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setDescription('some desc');
+        $components->addConfiguration($configuration);
+
+        [$mrId, $branchId] = $this->createBranchMergeRequestAndApproveIt();
+        // in default and dev branch is the same config with the same versionIdentifier
+
+        // make change in default branch to create conflict
+        $components->addConfigurationRow((new ConfigurationRow($configuration))
+            ->setRowId('firstRow')
+            ->setConfiguration(['value' => 1]));
+
+        // Delete in default branch
+        $components->deleteConfiguration($componentId, $configurationId);
+
+        try {
+            $this->prodManagerClient->mergeMergeRequest($mrId);
+            $this->fail('Should fail, MR has conflict.');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                $e->getMessage(),
+                sprintf('Merge request %s cannot be merged. Following configurations are not in the same state in both branches: componentId: "wr-db", configurationId: "main-1"', $mrId)
+            );
+        }
+
+        $devBranchComponents = new \Keboola\StorageApi\Components($this->getBranchAwareClient($branchId, [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+
+        $devBranchComponents->deleteConfiguration($componentId, $configurationId);
+
+        $this->prodManagerClient->mergeMergeRequest($mrId);
+        $mr = $this->developerClient->getMergeRequest($mrId);
+        $this->assertEquals('published', $mr['state']);
+    }
+
+    private function createBranchMergeRequestAndApproveIt(): array
     {
         $oldBranches = $this->branches->listBranches();
         $this->assertCount(1, $oldBranches);
@@ -361,6 +407,6 @@ class MergeRequestsTest extends StorageApiTestCase
         $reviewerClient->mergeRequestAddApproval($mrId);
         $reviewerClient->mergeRequestAddApproval($mrId);
 
-        return $mrId;
+        return [$mrId, $newBranch['id']];
     }
 }
