@@ -6,6 +6,7 @@ use Generator;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\DevBranches;
+use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\Test\StorageApiTestCase;
 
 class MergeRequestsTest extends StorageApiTestCase
@@ -25,6 +26,8 @@ class MergeRequestsTest extends StorageApiTestCase
                 $this->branches->deleteBranch($branch['id']);
             }
         }
+
+        $this->cleanupConfigurations();
     }
 
     public function testCreateMergeRequest(): void
@@ -301,5 +304,63 @@ class MergeRequestsTest extends StorageApiTestCase
         yield 'readOnly' => [
             $this->getReadOnlyStorageApiClient(),
         ];
+    }
+
+    public function testMrWithConflictCantBeMerged()
+    {
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+        $components = new \Keboola\StorageApi\Components($this->getDefaultBranchStorageApiClient());
+
+        $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setDescription('some desc');
+        $components->addConfiguration($configuration);
+
+        $mrId = $this->createBranchMergeRequestAndApproveIt();
+        // in default and dev branch is the same config with the same versionIdentifier
+
+        // make change in default branch to create conflict
+        $components->addConfigurationRow((new ConfigurationRow($configuration))
+            ->setRowId('firstRow')
+            ->setConfiguration(['value' => 1]));
+
+        try {
+            $this->prodManagerClient->mergeMergeRequest($mrId);
+            $this->fail('Should fail, MR has conflict.');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                $e->getMessage(),
+                sprintf('Merge request %s cannot be merged. Following configurations are not in the same state in both branches: componentId: "wr-db", configurationId: "main-1"', $mrId)
+            );
+        }
+        $mr = $this->developerClient->getMergeRequest($mrId);
+        $this->assertEquals('approved', $mr['state']);
+//        $this->assertEquals('development', $mr['state']); todo
+    }
+
+    private function createBranchMergeRequestAndApproveIt(): int
+    {
+        $oldBranches = $this->branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        $newBranch = $this->branches->createBranch('aaaa');
+
+        $mrId = $this->developerClient->createMergeRequest([
+            'branchFromId' => $newBranch['id'],
+            'branchIntoId' => $oldBranches[0]['id'],
+            'title' => 'Change everything',
+            'description' => 'Fix typo',
+        ]);
+
+        $reviewerClient = $this->getReviewerStorageApiClient();
+        $this->developerClient->mergeRequestPutToReview($mrId);
+
+        $reviewerClient->mergeRequestAddApproval($mrId);
+        $reviewerClient->mergeRequestAddApproval($mrId);
+
+        return $mrId;
     }
 }
