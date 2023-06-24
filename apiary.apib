@@ -312,7 +312,7 @@ In this case, you are allowed to set the `description` and token expiration via 
         + Default: false
     + expiresIn (optional, number) - Number of seconds until the token expires. If not provided, the token never expires.
     + canManageProtectedDefaultBranch (optional, boolean) - [EXPERIMENTAL] If set to true, the token will have privileged access to default branch of the project. Parameter is implicitly `false` for read-only role. In addition to normal token, requests using this parameter must be authenticated using application token with scope `storage:tokens:create-protected-default-branch-privileged` as well.
-    + canCreateJobs (optional, boolean) - [EXPERIMENTAL] If set to true, the token will have privileged to create token with canManageProtectedDefaultBranch
+    + canCreateJobs (optional, boolean) - [EXPERIMENTAL] If set to true, the token will have privileged to create token with canManageProtectedDefaultBranch. Creation of this type of token is restricted only for projects with `protected-default-branch` feature and for productionManager role.
 
 + Request (application/json)
     + Headers
