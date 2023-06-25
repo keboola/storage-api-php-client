@@ -27,7 +27,7 @@ class MergeRequestsTest extends StorageApiTestCase
             }
         }
 
-        $this->cleanupConfigurations();
+        $this->cleanupConfigurations($this->getDefaultBranchStorageApiClient());
     }
 
     public function testCreateMergeRequest(): void
@@ -262,7 +262,7 @@ class MergeRequestsTest extends StorageApiTestCase
     }
 
     /** @dataProvider cantMergeTokenProviders */
-    public function testDeveloperCantMerge(Client $client)
+    public function testSpecificRolesCantMerge(Client $client)
     {
         $oldBranches = $this->branches->listBranches();
         $this->assertCount(1, $oldBranches);
@@ -284,6 +284,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertEquals('in_review', $mrData['state']);
         $this->assertCount(1, $mrData['approvals']);
 
+        // todo its bug, the second approve must be done by another user
         $mrData = $reviewerClient->mergeRequestAddApproval($mrId);
         $this->assertCount(2, $mrData['approvals']);
         $this->assertSame('approved', $mrData['state']);
@@ -306,7 +307,7 @@ class MergeRequestsTest extends StorageApiTestCase
         ];
     }
 
-    public function testMrWithConflictCantBeMerged()
+    public function testMrWithConflictCantBeMergedButAfterResetCan()
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -339,6 +340,19 @@ class MergeRequestsTest extends StorageApiTestCase
         $mr = $this->developerClient->getMergeRequest($mrId);
         $this->assertEquals('approved', $mr['state']);
 //        $this->assertEquals('development', $mr['state']); todo
+
+        $branchAwareDeveloperStorageClient = $this->getBranchAwareClient($branchId, [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]);
+
+        $components = new \Keboola\StorageApi\Components($branchAwareDeveloperStorageClient);
+        $components->resetToDefault($componentId, $configurationId);
+
+        // todo now is works like this, but maybe it should go through approval process again
+        $this->prodManagerClient->mergeMergeRequest($mrId);
+        $mr = $this->developerClient->getMergeRequest($mrId);
+        $this->assertEquals('published', $mr['state']);
     }
 
     public function testConfigIsUpdatedInDefaultButBothConfigsAreDeleted()
@@ -405,6 +419,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->developerClient->mergeRequestPutToReview($mrId);
 
         $reviewerClient->mergeRequestAddApproval($mrId);
+        // todo its bug, the second approve must be done by another user
         $reviewerClient->mergeRequestAddApproval($mrId);
 
         return [$mrId, $newBranch['id']];
