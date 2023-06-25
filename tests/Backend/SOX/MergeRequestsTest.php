@@ -207,7 +207,26 @@ class MergeRequestsTest extends StorageApiTestCase
         $oldBranches = $this->branches->listBranches();
         $this->assertCount(1, $oldBranches);
 
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+        $components = new \Keboola\StorageApi\Components($this->getDefaultBranchStorageApiClient());
+
+        $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setDescription('some desc');
+        $components->addConfiguration($configuration);
+
         $newBranch = $this->branches->createBranch('aaaa');
+
+        $devBranchComponents = new \Keboola\StorageApi\Components($this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+        $devBranchComponents->addConfigurationRow((new ConfigurationRow($configuration))
+            ->setRowId('firstRow')
+            ->setConfiguration(['value' => 1]));
 
         $mrId = $this->developerClient->createMergeRequest([
             'branchFromId' => $newBranch['id'],
