@@ -26,7 +26,7 @@ class ClientProviderTest extends StorageApiTestCase
     {
         parent::setUp();
 
-        $this->cleanupConfigurations();
+        $this->cleanupConfigurations($this->_client);
 
         $this->clientProvider = new ClientProvider($this);
         $this->client = $this->clientProvider->createClientForCurrentTest();
