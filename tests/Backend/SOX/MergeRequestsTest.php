@@ -385,7 +385,7 @@ class MergeRequestsTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(
                 $e->getMessage(),
-                sprintf('Merge request %s cannot be merged. Following configurations are not in the same state in both branches: componentId: "wr-db", configurationId: "main-1"', $mrId)
+                sprintf('Merge request %s cannot be merged. Problem with following configurations: componentId: "wr-db", configurationId: "main-1"', $mrId)
             );
         }
 
