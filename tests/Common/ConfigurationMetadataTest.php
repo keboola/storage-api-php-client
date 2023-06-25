@@ -40,7 +40,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
     {
         parent::setUp();
 
-        $this->cleanupConfigurations();
+        $this->cleanupConfigurations($this->_client);
 
         $clientProvider = new ClientProvider($this);
         $this->client = $clientProvider->createBranchAwareClientForCurrentTest();

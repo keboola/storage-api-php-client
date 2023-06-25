@@ -23,7 +23,7 @@ class BranchComponentTest extends StorageApiTestCase
     {
         parent::setUp();
 
-        $this->cleanupConfigurations();
+        $this->cleanupConfigurations($this->_client);
     }
 
     /**
