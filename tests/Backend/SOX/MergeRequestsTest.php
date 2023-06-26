@@ -57,6 +57,7 @@ class MergeRequestsTest extends StorageApiTestCase
             'description' => 'Fix typo',
         ]);
     }
+
     public function testCreateMergeRequestIntoDevBranch(): void
     {
         $this->expectExceptionMessage('Cannot create merge request. Target branch is not default.');
@@ -195,5 +196,54 @@ class MergeRequestsTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame($e->getMessage(), 'You don\'t have access to the resource.');
         }
+    }
+
+    public function testUpdateMR()
+    {
+        $oldBranches = $this->branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        $newBranch = $this->branches->createBranch('aaaa');
+
+        $mrId = $this->developerClient->createMergeRequest([
+            'branchFromId' => $newBranch['id'],
+            'branchIntoId' => $oldBranches[0]['id'],
+            'title' => 'Change everything',
+            'description' => 'Fix typo',
+        ]);
+
+        try {
+            $this->prodManagerClient->updateMergeRequest(
+                $mrId,
+                'Lalala',
+                'Trololo',
+            );
+            $this->fail('Prod manager should not be able to create merge request');
+        } catch (ClientException $e) {
+            $this->assertSame($e->getMessage(), 'You don\'t have access to the resource.');
+        }
+
+        $this->developerClient->mergeRequestPutToReview($mrId);
+
+        try {
+            $this->developerClient->updateMergeRequest(
+                $mrId,
+                'Lalala',
+                'Trololo',
+            );
+            $this->fail('MR in review should not be able to update');
+        } catch (ClientException $e) {
+            $this->assertSame($e->getMessage(), 'You don\'t have access to the resource.');
+        }
+
+        $this->developerClient->rejectMergeRequest($mrId);
+        $mr = $this->developerClient->updateMergeRequest(
+            $mrId,
+            'Lalala',
+            'Trololo',
+        );
+
+        $this->assertSame('Lalala', $mr['title']);
+        $this->assertSame('Trololo', $mr['description']);
     }
 }
