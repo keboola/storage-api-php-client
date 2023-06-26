@@ -938,7 +938,7 @@ class Client
 
     public function mergeMergeRequest(int $mergeRequestId): array
     {
-        return $this->apiPostJson("merge-request/{$mergeRequestId}/merge");
+        return $this->apiPutJson("merge-request/{$mergeRequestId}/merge");
     }
 
     public function mergeRequestPutToReview(int $mergeRequestId): array
