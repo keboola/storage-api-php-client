@@ -115,6 +115,11 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertEquals('in_review', $mrData['state']);
         $this->assertCount(1, $mrData['approvals']);
 
+        $mrData = $this->getSecondReviewerStorageApiClient()->mergeRequestAddApproval($mrId);
+
+        $this->assertEquals('approved', $mrData['state']);
+        $this->assertCount(2, $mrData['approvals']);
+
         $mrData = $reviewerClient->rejectMergeRequest($mrId);
         $this->assertCount(0, $mrData['approvals']);
         $this->assertSame('development', $mrData['state']);
