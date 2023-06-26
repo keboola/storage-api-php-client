@@ -920,7 +920,7 @@ class TriggersTest extends StorageApiTestCase
             $this->assertEquals(400, $e->getCode());
             $this->assertEquals('storage.tokens.cannotDeleteDueToOrchestration', $e->getStringCode());
             $this->assertEquals(
-                'Cannot delete token, bacause it\'s used for event trigger inside component "orchestrator" with configuration id "123"',
+                'Cannot delete token, because it\'s used for event trigger inside component "orchestrator" with configuration id "123"',
                 $e->getMessage()
             );
         }
