@@ -281,7 +281,7 @@ class MergeRequestsTest extends StorageApiTestCase
     }
 
     /** @dataProvider cantMergeTokenProviders */
-    public function testSpecificRolesCantMerge(Client $client)
+    public function testSpecificRolesCantMerge(Client $client): void
     {
         $oldBranches = $this->branches->listBranches();
         $this->assertCount(1, $oldBranches);
@@ -325,7 +325,7 @@ class MergeRequestsTest extends StorageApiTestCase
         ];
     }
 
-    public function testMrWithConflictCantBeMergedButAfterResetCan()
+    public function testMrWithConflictCantBeMergedButAfterResetCan(): void
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -372,7 +372,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertEquals('published', $mr['state']);
     }
 
-    public function testConfigIsUpdatedInDefaultButBothConfigsAreDeleted()
+    public function testConfigIsUpdatedInDefaultButBothConfigsAreDeleted(): void
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
