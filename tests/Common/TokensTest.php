@@ -306,7 +306,7 @@ class TokensTest extends StorageApiTestCase
     public function testInvalidTokenWhenTokenIsFalse(): void
     {
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Request parameter "id" is missing.');
+        $this->expectExceptionMessage('resource not found');
         // false is not event sent, because "string" . false = "string"
         /** @phpstan-ignore-next-line */
         $this->tokens->dropToken(false);
@@ -315,7 +315,7 @@ class TokensTest extends StorageApiTestCase
     public function testInvalidTokenWhenTokenIsString(): void
     {
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Argument "id" is expected to be type "int", value "foo" given.');
+        $this->expectExceptionMessage('resource not found');
         /** @phpstan-ignore-next-line */
         $this->tokens->dropToken('foo');
     }
@@ -422,6 +422,23 @@ class TokensTest extends StorageApiTestCase
         $this->assertCount(count($initialTokens) + 1, $tokens);
 
         $this->tokens->dropToken($token['id']);
+
+        $tokens = $this->tokens->listTokens();
+        $this->assertCount(count($initialTokens), $tokens);
+    }
+
+    public function testDeleteOwnToken(): void
+    {
+        $initialTokens = $this->tokens->listTokens();
+
+        $newToken = $this->tokens->createToken(new TokenCreateOptions());
+
+        $tokens = $this->tokens->listTokens();
+        $this->assertCount(count($initialTokens) + 1, $tokens);
+
+        $newTokenClient = $this->getClientForToken($newToken['token']);
+        $tokens = new Tokens($newTokenClient);
+        $tokens->dropToken($newToken['id']);
 
         $tokens = $this->tokens->listTokens();
         $this->assertCount(count($initialTokens), $tokens);
