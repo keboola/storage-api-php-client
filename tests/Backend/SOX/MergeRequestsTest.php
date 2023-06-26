@@ -303,8 +303,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertEquals('in_review', $mrData['state']);
         $this->assertCount(1, $mrData['approvals']);
 
-        // todo its bug, the second approve must be done by another user
-        $mrData = $reviewerClient->mergeRequestAddApproval($mrId);
+        $mrData = $this->getSecondReviewerStorageApiClient()->mergeRequestAddApproval($mrId);
         $this->assertCount(2, $mrData['approvals']);
         $this->assertSame('approved', $mrData['state']);
 
@@ -352,13 +351,12 @@ class MergeRequestsTest extends StorageApiTestCase
             $this->fail('Should fail, MR has conflict.');
         } catch (ClientException $e) {
             $this->assertSame(
-                $e->getMessage(),
-                sprintf('Merge request %s cannot be merged. Following configurations are not in the same state in both branches: componentId: "wr-db", configurationId: "main-1"', $mrId)
+                sprintf('Merge request %s cannot be merged. Problem with following configurations: componentId: "wr-db", configurationId: "main-1"', $mrId),
+                $e->getMessage()
             );
         }
         $mr = $this->developerClient->getMergeRequest($mrId);
         $this->assertEquals('approved', $mr['state']);
-//        $this->assertEquals('development', $mr['state']); todo
 
         $branchAwareDeveloperStorageClient = $this->getBranchAwareClient($branchId, [
             'token' => STORAGE_API_DEVELOPER_TOKEN,
@@ -438,8 +436,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->developerClient->mergeRequestPutToReview($mrId);
 
         $reviewerClient->mergeRequestAddApproval($mrId);
-        // todo its bug, the second approve must be done by another user
-        $reviewerClient->mergeRequestAddApproval($mrId);
+        $this->getSecondReviewerStorageApiClient()->mergeRequestAddApproval($mrId);
 
         return [$mrId, $newBranch['id']];
     }
