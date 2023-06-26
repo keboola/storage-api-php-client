@@ -910,10 +910,6 @@ class Client
         return $mrDetail;
     }
 
-    /**
-     * @param int $mergeRequestId
-     * @return array mrData
-     */
     public function mergeRequestPutToReview(int $mergeRequestId): array
     {
         /** @var array $mrDetail */
@@ -921,10 +917,6 @@ class Client
         return $mrDetail;
     }
 
-    /**
-     * @param int $mergeRequestId
-     * @return array mrData
-     */
     public function mergeRequestAddApproval(int $mergeRequestId): array
     {
         /** @var array $mrDetail */
@@ -932,10 +924,6 @@ class Client
         return $mrDetail;
     }
 
-    /**
-     * @param int $mergeRequestId
-     * @return array mrData
-     */
     public function rejectMergeRequest(int $mergeRequestId): array
     {
         /** @var array $mrDetail */
@@ -943,10 +931,6 @@ class Client
         return $mrDetail;
     }
 
-    /**
-     * @param int $mergeRequestId
-     * @return array mrData
-     */
     public function cancelMergeRequest(int $mergeRequestId): array
     {
         /** @var array $mrDetail */
