@@ -447,10 +447,8 @@ abstract class StorageApiTestCase extends ClientTestCase
         }
     }
 
-    protected function createAndWaitForFile($path, FileUploadOptions $options, Client $sapiClient = null)
+    protected function createAndWaitForFile($path, FileUploadOptions $options, Client $client)
     {
-        $client = $sapiClient ? $sapiClient : $this->_client;
-
         $fileId = $client->uploadFile($path, $options);
         return $this->waitForFile($fileId, $client);
     }

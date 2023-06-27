@@ -6,31 +6,15 @@ use Exception;
 use Generator;
 use GuzzleHttp\Client;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
+use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
 
-use \Keboola\StorageApi\Options\FileUploadOptions;
-use \Keboola\StorageApi\Options\ListFilesOptions;
-use Symfony\Component\Filesystem\Filesystem;
-
 class CommonFileTest extends StorageApiTestCase
 {
-
-    public function testFileList(): void
-    {
-        $options = new FileUploadOptions();
-        $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', $options);
-        $files = $this->_client->listFiles(new ListFilesOptions());
-        $this->assertNotEmpty($files);
-
-        $uploadedFile = reset($files);
-        $this->assertEquals($fileId, $uploadedFile['id']);
-        $this->assertArrayHasKey('region', $uploadedFile);
-        $this->assertArrayNotHasKey('credentials', $uploadedFile);
-    }
-
     public function testGetFileWithoutCredentials(): void
     {
         $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', (new FileUploadOptions()));
@@ -225,27 +209,6 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertEquals(hash_file('md5', $filePath), hash_file('md5', $file['url']));
     }
 
-    public function testFileDelete(): void
-    {
-        $filePath = __DIR__ . '/../_data/files.upload.txt';
-        $options = new FileUploadOptions();
-
-        $fileId = $this->_client->uploadFile($filePath, $options);
-        $file = $this->_client->getFile($fileId);
-
-        $this->_client->deleteFile($fileId);
-
-        try {
-            $this->_client->getFile($fileId);
-            $this->fail('File should not exists');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals('storage.files.notFound', $e->getStringCode());
-        }
-        $this->expectExceptionCode(404);
-        $this->expectException(\GuzzleHttp\Exception\ClientException::class);
-        (new Client())->get($file['url']);
-    }
-
     public function testNotExistingFileUpload(): void
     {
         try {
@@ -348,76 +311,6 @@ class CommonFileTest extends StorageApiTestCase
         $file = $this->_client->prepareFileUpload($uploadOptions);
         $file = $this->_client->getFile($file['id']);
         $this->assertEquals(['first', 'second'], $file['tags']);
-    }
-
-    public function testDownloadFile(): void
-    {
-        $uploadOptions = (new FileUploadOptions())
-            ->setFileName('testing_file_name');
-        $sourceFilePath = __DIR__ . '/../_data/files.upload.txt';
-        $fileId = $this->_client->uploadFile($sourceFilePath, $uploadOptions);
-        $tmpDestination = __DIR__ . '/../_tmp/testing_file_name';
-        if (file_exists($tmpDestination)) {
-            $fs = new Filesystem();
-            $fs->remove($tmpDestination);
-        }
-
-        $this->_client->downloadFile($fileId, $tmpDestination);
-
-        $this->assertSame(
-            file_get_contents($sourceFilePath),
-            file_get_contents($tmpDestination)
-        );
-    }
-
-    public function testUploadAndDownloadSlicedFile(): void
-    {
-        $uploadOptions = (new FileUploadOptions())
-            ->setFileName('sliced_testing_file_name')
-            ->setIsSliced(true)
-        ;
-        $slices = [
-            __DIR__ . '/../_data/sliced/neco_0000_part_00',
-            __DIR__ . '/../_data/sliced/neco_0001_part_00',
-            __DIR__ . '/../_data/sliced/neco_0002_part_00',
-        ];
-        $fileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
-        $tmpDestinationFolder = __DIR__ . '/../_tmp/slicedUpload/';
-        $fs = new Filesystem();
-        if (file_exists($tmpDestinationFolder)) {
-            $fs->remove($tmpDestinationFolder);
-        }
-        $fs->mkdir($tmpDestinationFolder);
-
-        $donwloadFiles = $this->_client->downloadSlicedFile($fileId, $tmpDestinationFolder);
-        $this->assertFileEquals($slices[0], $donwloadFiles[0]);
-        $this->assertFileEquals($slices[1], $donwloadFiles[1]);
-        $this->assertFileEquals($slices[2], $donwloadFiles[2]);
-
-        $this->_client->deleteFile($fileId);
-    }
-
-    public function testTagging(): void
-    {
-        $filePath = __DIR__ . '/../_data/files.upload.txt';
-        $initialTags = ['gooddata', 'image'];
-        $fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setFederationToken(true)->setTags($initialTags));
-
-        $file = $this->_client->getFile($fileId);
-        $this->assertEquals($initialTags, $file['tags']);
-
-        $this->_client->deleteFileTag($fileId, 'gooddata');
-
-        $file = $this->_client->getFile($fileId);
-        $this->assertEquals(['image'], $file['tags']);
-
-        $this->_client->addFileTag($fileId, 'new');
-        $file = $this->_client->getFile($fileId);
-        $this->assertEquals(['image', 'new'], $file['tags']);
-
-        $this->_client->addFileTag($fileId, 'new');
-        $file = $this->_client->getFile($fileId);
-        $this->assertEquals(['image', 'new'], $file['tags'], 'duplicate tag add is ignored');
     }
 
     public function testReadOnlyRoleFilesPermissions(): void

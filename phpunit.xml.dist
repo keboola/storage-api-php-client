@@ -15,6 +15,7 @@
 <testsuites>
 	<testsuite name="common">
 		<directory>tests/Common</directory>
+		<file>tests/File/FileCrudTest.php</file>
 		<file>tests/File/CommonFileTest.php</file>
 		<exclude>tests/Common/BranchBucketsTest.php</exclude>
 		<exclude>tests/Common/BranchWorkspacesTest.php</exclude>
@@ -38,11 +39,13 @@
 
 	<testsuite name="file-storage-azure">
 		<file>tests/File/AzureFileTest.php</file>
+		<file>tests/File/FileCrudTest.php</file>
 		<file>tests/File/CommonFileTest.php</file>
 	</testsuite>
 
 	<testsuite name="file-storage-gcs">
 		<file>tests/File/GcsFileTest.php</file>
+		<file>tests/File/FileCrudTest.php</file>
 		<file>tests/File/CommonFileTest.php</file>
 	</testsuite>
 
