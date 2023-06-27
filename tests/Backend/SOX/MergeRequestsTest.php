@@ -5,7 +5,9 @@ namespace Keboola\Test\Backend\SOX;
 use Generator;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
+use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\Test\StorageApiTestCase;
 
@@ -209,9 +211,9 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $componentId = 'wr-db';
         $configurationId = 'main-1';
-        $components = new \Keboola\StorageApi\Components($this->getDefaultBranchStorageApiClient());
+        $components = new Components($this->getDefaultBranchStorageApiClient());
 
-        $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
+        $configuration = (new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId)
             ->setName('Main')
@@ -220,7 +222,7 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $newBranch = $this->branches->createBranch('aaaa');
 
-        $devBranchComponents = new \Keboola\StorageApi\Components($this->getBranchAwareClient($newBranch['id'], [
+        $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
             'token' => STORAGE_API_DEVELOPER_TOKEN,
             'url' => STORAGE_API_URL,
         ]));
@@ -329,9 +331,9 @@ class MergeRequestsTest extends StorageApiTestCase
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
-        $components = new \Keboola\StorageApi\Components($this->getDefaultBranchStorageApiClient());
+        $components = new Components($this->getDefaultBranchStorageApiClient());
 
-        $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
+        $configuration = (new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId)
             ->setName('Main')
@@ -363,7 +365,7 @@ class MergeRequestsTest extends StorageApiTestCase
             'url' => STORAGE_API_URL,
         ]);
 
-        $components = new \Keboola\StorageApi\Components($branchAwareDeveloperStorageClient);
+        $components = new Components($branchAwareDeveloperStorageClient);
         $components->resetToDefault($componentId, $configurationId);
 
         // todo now is works like this, but maybe it should go through approval process again
@@ -376,9 +378,9 @@ class MergeRequestsTest extends StorageApiTestCase
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
-        $components = new \Keboola\StorageApi\Components($this->getDefaultBranchStorageApiClient());
+        $components = new Components($this->getDefaultBranchStorageApiClient());
 
-        $configuration = (new \Keboola\StorageApi\Options\Components\Configuration())
+        $configuration = (new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId)
             ->setName('Main')
@@ -406,7 +408,7 @@ class MergeRequestsTest extends StorageApiTestCase
             );
         }
 
-        $devBranchComponents = new \Keboola\StorageApi\Components($this->getBranchAwareClient($branchId, [
+        $devBranchComponents = new Components($this->getBranchAwareClient($branchId, [
             'token' => STORAGE_API_DEVELOPER_TOKEN,
             'url' => STORAGE_API_URL,
         ]));
