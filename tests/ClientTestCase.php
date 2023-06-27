@@ -120,6 +120,14 @@ class ClientTestCase extends TestCase
         return $this->getClientForToken(STORAGE_API_REVIEWER_TOKEN);
     }
 
+    /**
+     * SOX projects require 2 approvals in the process, so we need second person to approve
+     */
+    protected function getSecondReviewerStorageApiClient(): Client
+    {
+        return $this->getClientForToken(STORAGE_API_SECOND_REVIEWER_TOKEN);
+    }
+
     protected function getReadOnlyStorageApiClient(): Client
     {
         return $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
