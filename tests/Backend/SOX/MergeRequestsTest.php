@@ -198,7 +198,7 @@ class MergeRequestsTest extends StorageApiTestCase
         }
     }
 
-    public function testUpdateMR()
+    public function testUpdateMR(): void
     {
         $oldBranches = $this->branches->listBranches();
         $this->assertCount(1, $oldBranches);
