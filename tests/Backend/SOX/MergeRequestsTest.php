@@ -81,12 +81,16 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $newBranch = $this->branches->createBranch('aaaa');
 
+        $title = 'Change everything ' . time();
         $mrId = $this->developerClient->createMergeRequest([
             'branchFromId' => $newBranch['id'],
             'branchIntoId' => $oldBranches[0]['id'],
-            'title' => 'Change everything',
+            'title' => $title,
             'description' => 'Fix typo',
         ]);
+
+        $list = $this->developerClient->listMergeRequests();
+        self::assertSame($title, $list[0]['title']);
 
         $mrData = $this->developerClient->mergeRequestPutToReview($mrId);
 
