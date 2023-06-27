@@ -899,6 +899,14 @@ class Client
         $createdMergeRequest = $this->apiPostJson('merge-request', $data);
         return $createdMergeRequest['id'];
     }
+
+    public function listMergeRequests(): array
+    {
+        /** @var array $data */
+        $data = $this->apiGet('merge-request');
+        return $data;
+    }
+
     /**
      * @param int $mergeRequestId
      * @return array mrData
