@@ -38,6 +38,16 @@ class SOXTokensTest extends StorageApiTestCase
         ];
     }
 
+    public function developerAndReviewerTokensProvider(): Generator
+    {
+        yield 'developer' => [
+            $this->getDeveloperStorageApiClient(),
+        ];
+        yield 'reviewer' => [
+            $this->getReviewerStorageApiClient(),
+        ];
+    }
+
     /**
      * @dataProvider tokensProvider
      */
@@ -197,6 +207,50 @@ class SOXTokensTest extends StorageApiTestCase
             || !defined('MANAGE_API_TOKEN_WITH_CREATE_PROTECTED_DEFAULT_BRANCH_TOKEN')
         ) {
             $this->markTestSkipped('Application tokens for tokens tests not configured');
+        }
+    }
+
+    public function testTokenWithCanCreateJobsFlagCanCreatePriviledgedToken(): void
+    {
+        // only productionManager can create token with canCreateJobs flag
+        $prodManagerClient = $this->getDefaultClient();
+        $prodManagerTokens = new Tokens($prodManagerClient);
+        $tokenWithCreateJobsFlag = $prodManagerTokens->createToken((new TokenCreateOptions())->setCanCreateJobs(true));
+        $clientWithCreateJobsFlag = new Client([
+            'token' => $tokenWithCreateJobsFlag['token'],
+            'url' => STORAGE_API_URL,
+        ]);
+        $createJobsFlagTokens = new Tokens($clientWithCreateJobsFlag);
+        $priviledgedToken = $createJobsFlagTokens->createTokenPrivilegedInProtectedDefaultBranch(
+            (new TokenCreateOptions())
+                ->setDescription('My priviledged token')
+                ->setCanReadAllFileUploads(true)
+                ->setCanManageBuckets(true)
+                ->setCanPurgeTrash(true)
+                ->addComponentAccess('wr-db'),
+            MANAGE_API_TOKEN_WITH_CREATE_PROTECTED_DEFAULT_BRANCH_TOKEN
+        );
+
+        $this->assertTrue($priviledgedToken['canManageProtectedDefaultBranch']);
+        $this->assertFalse($priviledgedToken['isMasterToken']);
+        $this->assertSame('My priviledged token', $priviledgedToken['description']);
+    }
+
+    /**
+     * @dataProvider developerAndReviewerTokensProvider
+     */
+    public function testNooneButProdManagerCannotCreateTokenWithCanCreateJobsFlag(Client $client): void
+    {
+        // only productionManager can create token with canCreateJobs flag
+        $tokens = new Tokens($client);
+        $createdTokenWithoutCanCreateJobs = $tokens->createToken((new TokenCreateOptions())->setCanCreateJobs(false));
+        $this->assertFalse($createdTokenWithoutCanCreateJobs['canCreateJobs']);
+
+        try {
+            $tokens->createToken((new TokenCreateOptions())->setCanCreateJobs(true));
+            $this->fail('Only productionManager can create token with canCreateJobs flag');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
         }
     }
 }
