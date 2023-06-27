@@ -910,14 +910,31 @@ class Client
         return $mrDetail;
     }
 
-    /**
-     * @param int $mergeRequestId
-     * @return array mrData
-     */
     public function mergeRequestPutToReview(int $mergeRequestId): array
     {
         /** @var array $mrDetail */
         $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/to_review", []);
+        return $mrDetail;
+    }
+
+    public function mergeRequestAddApproval(int $mergeRequestId): array
+    {
+        /** @var array $mrDetail */
+        $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/add_approval", []);
+        return $mrDetail;
+    }
+
+    public function rejectMergeRequest(int $mergeRequestId): array
+    {
+        /** @var array $mrDetail */
+        $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/reject", []);
+        return $mrDetail;
+    }
+
+    public function cancelMergeRequest(int $mergeRequestId): array
+    {
+        /** @var array $mrDetail */
+        $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/cancel", []);
         return $mrDetail;
     }
 

@@ -93,6 +93,72 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertEquals('in_review', $mrData['state']);
     }
 
+    public function testMRWorkflowFromDevelopmentToCancel(): void
+    {
+        $oldBranches = $this->branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        $newBranch = $this->branches->createBranch('aaaa');
+
+        $mrId = $this->developerClient->createMergeRequest([
+            'branchFromId' => $newBranch['id'],
+            'branchIntoId' => $oldBranches[0]['id'],
+            'title' => 'Change everything',
+            'description' => 'Fix typo',
+        ]);
+
+        $reviewerClient = $this->getReviewerStorageApiClient();
+        $this->developerClient->mergeRequestPutToReview($mrId);
+
+        $mrData = $reviewerClient->mergeRequestAddApproval($mrId);
+
+        $this->assertEquals('in_review', $mrData['state']);
+        $this->assertCount(1, $mrData['approvals']);
+
+        $mrData = $this->getSecondReviewerStorageApiClient()->mergeRequestAddApproval($mrId);
+
+        $this->assertEquals('approved', $mrData['state']);
+        $this->assertCount(2, $mrData['approvals']);
+
+        $mrData = $reviewerClient->rejectMergeRequest($mrId);
+        $this->assertCount(0, $mrData['approvals']);
+        $this->assertSame('development', $mrData['state']);
+
+        $mrData = $reviewerClient->cancelMergeRequest($mrId);
+        $this->assertCount(0, $mrData['approvals']);
+        $this->assertSame('canceled', $mrData['state']);
+        $this->assertNull($mrData['branches']['branchFromId']);
+    }
+
+    public function testAddSingleApprovalOnly(): void
+    {
+        $oldBranches = $this->branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        $newBranch = $this->branches->createBranch('aaaa');
+
+        $mrId = $this->developerClient->createMergeRequest([
+            'branchFromId' => $newBranch['id'],
+            'branchIntoId' => $oldBranches[0]['id'],
+            'title' => 'Change everything',
+            'description' => 'Fix typo',
+        ]);
+
+        $reviewerClient = $this->getReviewerStorageApiClient();
+        $this->developerClient->mergeRequestPutToReview($mrId);
+
+        $mrData = $reviewerClient->mergeRequestAddApproval($mrId);
+
+        $this->assertEquals('in_review', $mrData['state']);
+        $this->assertCount(1, $mrData['approvals']);
+
+        try {
+            $mrData = $reviewerClient->mergeRequestAddApproval($mrId);
+        } catch (ClientException $e) {
+            $this->assertSame('Operation canot be performed due: This reviewer has already approved this request.', $e->getMessage());
+        }
+    }
+
     public function testProManagerCannotPutBranchInReview(): void
     {
         $oldBranches = $this->branches->listBranches();
