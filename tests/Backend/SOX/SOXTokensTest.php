@@ -239,7 +239,7 @@ class SOXTokensTest extends StorageApiTestCase
     /**
      * @dataProvider developerAndReviwerTokensProvider
      */
-    public function testNooneButProdManagerCannotCreateTokenWithCanCreateJobsFlag($client): void
+    public function testNooneButProdManagerCannotCreateTokenWithCanCreateJobsFlag(Client $client): void
     {
         // only productionManager can create token with canCreateJobs flag
         $tokens = new Tokens($client);
