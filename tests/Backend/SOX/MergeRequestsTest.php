@@ -245,5 +245,15 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $this->assertSame('Lalala', $mr['title']);
         $this->assertSame('Trololo', $mr['description']);
+
+        // different user should also be able to update it
+        $mr = $this->getReviewerStorageApiClient()->updateMergeRequest(
+            $mrId,
+            'By reviewer',
+            'With love to developer',
+        );
+
+        $this->assertSame('By reviewer', $mr['title']);
+        $this->assertSame('With love to developer', $mr['description']);
     }
 }
