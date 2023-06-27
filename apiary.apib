@@ -8782,6 +8782,58 @@ other buckets (production buckets or buckets belongs the other development branc
             }
 
 
+### Update merge request [PUT]
+
++ Attributes
+    + title (required, string) - title of the merge request
+    + description (optional, string) - description of the merge request
+
++ Request (application/json)
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+                "title": "New title",
+                "description": "New desc",
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+            "id": 11,
+            "creator": {
+                  "id": 7,
+                  "name": "John Doe"
+            },
+            "title": "New title",
+            "description": "New desc",
+            "state": "development",
+            "branches": {
+                  "branchFromId": 124,
+                  "branchIntoId": 123
+            },
+            "merge": {
+                  "mergedAt": null,
+                  "mergerId": null,
+                  "mergerName": ""
+            },
+            "approvals": [
+            {
+                  "approverId": 123,
+                  "approverName": "John Doe",
+                  "createdAt": "2023-06-16T10:20:58+0200"
+            }
+            ],
+            "createdAt": "2023-06-15T10:20:58+0200"
+            }
+
+
 ### List Merge requests [GET /v2/storage/merge-request]
 List all merge requests available in the project defined by token.
 
