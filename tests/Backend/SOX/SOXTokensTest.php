@@ -246,6 +246,7 @@ class SOXTokensTest extends StorageApiTestCase
         $tokens = new Tokens($client);
         $createdTokenWithoutCanCreateJobs = $tokens->createToken((new TokenCreateOptions())->setCanCreateJobs(false));
         $this->assertFalse($createdTokenWithoutCanCreateJobs['canCreateJobs']);
+        $this->assertFalse($createdTokenWithoutCanCreateJobs['canManageProtectedDefaultBranch']);
 
         try {
             $tokens->createToken((new TokenCreateOptions())->setCanCreateJobs(true));
