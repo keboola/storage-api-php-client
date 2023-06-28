@@ -194,6 +194,7 @@ class SOXTokensTest extends StorageApiTestCase
         $this->assertTrue($token['canManageBuckets']);
         $this->assertTrue($token['canReadAllFileUploads']);
         $this->assertTrue($token['canPurgeTrash']);
+        $this->assertTrue($token['canManageProtectedDefaultBranch']);
 
         $this->assertEquals('My test token', $token['description']);
 
