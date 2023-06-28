@@ -38,6 +38,16 @@ class SOXTokensTest extends StorageApiTestCase
         ];
     }
 
+    public function developerAndReviewerTokensProvider(): Generator
+    {
+        yield 'developer' => [
+            $this->getDeveloperStorageApiClient(),
+        ];
+        yield 'reviewer' => [
+            $this->getReviewerStorageApiClient(),
+        ];
+    }
+
     /**
      * @dataProvider tokensProvider
      */
@@ -104,5 +114,145 @@ class SOXTokensTest extends StorageApiTestCase
         $newTokenClient = $this->getClientForToken($newToken['token']);
         $tokens = new Tokens($newTokenClient);
         $tokens->dropToken($newToken['id']);
+    }
+
+    public function testPrivilegedInProtectedMainBranchFailsWithoutAnApplicationTokenWithScope(): void
+    {
+        $this->assertManageTokensPresent();
+
+        $options = (new TokenCreateOptions())
+            ->setDescription('My test token')
+            ->setCanReadAllFileUploads(true)
+            ->setCanManageBuckets(true)
+            ->setCanPurgeTrash(true)
+            ->setExpiresIn(360)
+            ->addComponentAccess('wr-db');
+
+        try {
+            $this->tokens->createTokenPrivilegedInProtectedDefaultBranch($options, '');
+            $this->fail('Privileged token request without application token should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('Access token must be set', $e->getMessage());
+            $this->assertEquals(401, $e->getCode());
+        }
+
+        try {
+            $this->tokens->createTokenPrivilegedInProtectedDefaultBranch(
+                $options,
+                MANAGE_API_TOKEN_ADMIN,
+            );
+            $this->fail('Privileged token request without application token should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('You don\'t have access to the resource.', $e->getMessage());
+            $this->assertEquals(403, $e->getCode());
+        }
+
+        try {
+            $this->tokens->createTokenPrivilegedInProtectedDefaultBranch(
+                $options,
+                MANAGE_API_TOKEN_WITHOUT_SCOPE,
+            );
+            $this->fail('Privileged token request without application token should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('You don\'t have access to the resource.', $e->getMessage());
+            $this->assertEquals(403, $e->getCode());
+        }
+
+        try {
+            $options->setCanManageProtectedDefaultBranch(true);
+            // pass in options without using helper method
+            $this->tokens->createToken($options);
+            $this->fail('Privileged token request without application token should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('You don\'t have access to the resource.', $e->getMessage());
+            $this->assertEquals(403, $e->getCode());
+        }
+    }
+
+    public function testPrivilegedInProtectedMainBranchWorksWithApplicationTokenWithCorrectScope(): void
+    {
+        $this->assertManageTokensPresent();
+
+        $options = (new TokenCreateOptions())
+            ->setDescription('My test token')
+            ->setCanReadAllFileUploads(true)
+            ->setCanManageBuckets(true)
+            ->setCanPurgeTrash(true)
+            ->setExpiresIn(360)
+            ->addComponentAccess('wr-db');
+
+        $token = $this->tokens->createTokenPrivilegedInProtectedDefaultBranch(
+            $options,
+            MANAGE_API_TOKEN_WITH_CREATE_PROTECTED_DEFAULT_BRANCH_TOKEN,
+        );
+
+        $this->assertNotNull($token['expires']);
+
+        $this->assertFalse($token['isMasterToken']);
+        $this->assertFalse($token['canManageTokens']);
+
+        $this->assertTrue($token['canManageBuckets']);
+        $this->assertTrue($token['canReadAllFileUploads']);
+        $this->assertTrue($token['canPurgeTrash']);
+        $this->assertTrue($token['canManageProtectedDefaultBranch']);
+
+        $this->assertEquals('My test token', $token['description']);
+
+        $this->assertArrayHasKey('bucketPermissions', $token);
+    }
+
+    public function assertManageTokensPresent(): void
+    {
+        if (!defined('MANAGE_API_TOKEN_ADMIN')
+            || !defined('MANAGE_API_TOKEN_WITHOUT_SCOPE')
+            || !defined('MANAGE_API_TOKEN_WITH_CREATE_PROTECTED_DEFAULT_BRANCH_TOKEN')
+        ) {
+            $this->markTestSkipped('Application tokens for tokens tests not configured');
+        }
+    }
+
+    public function testTokenWithCanCreateJobsFlagCanCreatePriviledgedToken(): void
+    {
+        // only productionManager can create token with canCreateJobs flag
+        $prodManagerClient = $this->getDefaultClient();
+        $prodManagerTokens = new Tokens($prodManagerClient);
+        $tokenWithCreateJobsFlag = $prodManagerTokens->createToken((new TokenCreateOptions())->setCanCreateJobs(true));
+        $clientWithCreateJobsFlag = new Client([
+            'token' => $tokenWithCreateJobsFlag['token'],
+            'url' => STORAGE_API_URL,
+        ]);
+        $createJobsFlagTokens = new Tokens($clientWithCreateJobsFlag);
+        $priviledgedToken = $createJobsFlagTokens->createTokenPrivilegedInProtectedDefaultBranch(
+            (new TokenCreateOptions())
+                ->setDescription('My priviledged token')
+                ->setCanReadAllFileUploads(true)
+                ->setCanManageBuckets(true)
+                ->setCanPurgeTrash(true)
+                ->addComponentAccess('wr-db'),
+            MANAGE_API_TOKEN_WITH_CREATE_PROTECTED_DEFAULT_BRANCH_TOKEN
+        );
+
+        $this->assertTrue($priviledgedToken['canManageProtectedDefaultBranch']);
+        $this->assertFalse($priviledgedToken['isMasterToken']);
+        $this->assertSame('My priviledged token', $priviledgedToken['description']);
+    }
+
+    /**
+     * @dataProvider developerAndReviewerTokensProvider
+     */
+    public function testNooneButProdManagerCannotCreateTokenWithCanCreateJobsFlag(Client $client): void
+    {
+        // only productionManager can create token with canCreateJobs flag
+        $tokens = new Tokens($client);
+        $createdTokenWithoutCanCreateJobs = $tokens->createToken((new TokenCreateOptions())->setCanCreateJobs(false));
+        $this->assertFalse($createdTokenWithoutCanCreateJobs['canCreateJobs']);
+        $this->assertFalse($createdTokenWithoutCanCreateJobs['canManageProtectedDefaultBranch']);
+
+        try {
+            $tokens->createToken((new TokenCreateOptions())->setCanCreateJobs(true));
+            $this->fail('Only productionManager can create token with canCreateJobs flag');
+        } catch (ClientException $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
     }
 }
