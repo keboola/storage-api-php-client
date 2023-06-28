@@ -211,6 +211,18 @@ class SOXTokensTest extends StorageApiTestCase
         }
     }
 
+    public function testTokenWithCanCreateJobsFlagDoesNotHaveDecryptedToken()
+    {
+        $prodManagerClient = $this->getDefaultClient();
+        $prodManagerTokens = new Tokens($prodManagerClient);
+        $tokenWithCreateJobsFlag = $prodManagerTokens->createToken(
+            (new TokenCreateOptions())->setCanCreateJobs(true)
+        );
+
+        $tokenWithCreateJobsFlagDetail = $prodManagerTokens->getToken($tokenWithCreateJobsFlag['id']);
+        $this->assertArrayNotHasKey('token', $tokenWithCreateJobsFlagDetail);
+    }
+
     public function testTokenWithCanCreateJobsFlagCanCreatePriviledgedToken(): void
     {
         // only productionManager can create token with canCreateJobs flag
