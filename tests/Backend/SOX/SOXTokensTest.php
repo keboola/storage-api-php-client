@@ -209,7 +209,7 @@ class SOXTokensTest extends StorageApiTestCase
         }
     }
 
-    public function testTokenWithCanCreateJobsFlagDoesNotHaveDecryptedToken()
+    public function testTokenWithCanCreateJobsFlagDoesNotHaveDecryptedToken(): void
     {
         $prodManagerClient = $this->getDefaultClient();
         $prodManagerTokens = new Tokens($prodManagerClient);
