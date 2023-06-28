@@ -108,7 +108,7 @@ class SOXTokensTest extends StorageApiTestCase
             $this->expectExceptionMessage('You don\'t have access to the resource.');
             $this->expectExceptionCode(403);
         }
-        $newToken = $tokens->createToken(new TokenCreateOptions());
+        $newToken = $tokens->createToken($this->buildDefaultTokenOptions());
 
         $this->expectNotToPerformAssertions();
         $newTokenClient = $this->getClientForToken($newToken['token']);
@@ -120,12 +120,11 @@ class SOXTokensTest extends StorageApiTestCase
     {
         $this->assertManageTokensPresent();
 
-        $options = (new TokenCreateOptions())
+        $options = $this->buildDefaultTokenOptions()
             ->setDescription('My test token')
             ->setCanReadAllFileUploads(true)
             ->setCanManageBuckets(true)
             ->setCanPurgeTrash(true)
-            ->setExpiresIn(360)
             ->addComponentAccess('wr-db');
 
         try {
@@ -173,12 +172,11 @@ class SOXTokensTest extends StorageApiTestCase
     {
         $this->assertManageTokensPresent();
 
-        $options = (new TokenCreateOptions())
+        $options = $this->buildDefaultTokenOptions()
             ->setDescription('My test token')
             ->setCanReadAllFileUploads(true)
             ->setCanManageBuckets(true)
             ->setCanPurgeTrash(true)
-            ->setExpiresIn(360)
             ->addComponentAccess('wr-db');
 
         $token = $this->tokens->createTokenPrivilegedInProtectedDefaultBranch(
@@ -216,7 +214,7 @@ class SOXTokensTest extends StorageApiTestCase
         $prodManagerClient = $this->getDefaultClient();
         $prodManagerTokens = new Tokens($prodManagerClient);
         $tokenWithCreateJobsFlag = $prodManagerTokens->createToken(
-            (new TokenCreateOptions())->setCanCreateJobs(true)
+            $this->buildDefaultTokenOptions()->setCanCreateJobs(true)
         );
 
         $tokenWithCreateJobsFlagDetail = $prodManagerTokens->getToken($tokenWithCreateJobsFlag['id']);
@@ -228,14 +226,14 @@ class SOXTokensTest extends StorageApiTestCase
         // only productionManager can create token with canCreateJobs flag
         $prodManagerClient = $this->getDefaultClient();
         $prodManagerTokens = new Tokens($prodManagerClient);
-        $tokenWithCreateJobsFlag = $prodManagerTokens->createToken((new TokenCreateOptions())->setCanCreateJobs(true));
+        $tokenWithCreateJobsFlag = $prodManagerTokens->createToken($this->buildDefaultTokenOptions()->setCanCreateJobs(true));
         $clientWithCreateJobsFlag = new Client([
             'token' => $tokenWithCreateJobsFlag['token'],
             'url' => STORAGE_API_URL,
         ]);
         $createJobsFlagTokens = new Tokens($clientWithCreateJobsFlag);
         $priviledgedToken = $createJobsFlagTokens->createTokenPrivilegedInProtectedDefaultBranch(
-            (new TokenCreateOptions())
+            $this->buildDefaultTokenOptions()
                 ->setDescription('My priviledged token')
                 ->setCanReadAllFileUploads(true)
                 ->setCanManageBuckets(true)
@@ -256,15 +254,20 @@ class SOXTokensTest extends StorageApiTestCase
     {
         // only productionManager can create token with canCreateJobs flag
         $tokens = new Tokens($client);
-        $createdTokenWithoutCanCreateJobs = $tokens->createToken((new TokenCreateOptions())->setCanCreateJobs(false));
+        $createdTokenWithoutCanCreateJobs = $tokens->createToken($this->buildDefaultTokenOptions()->setCanCreateJobs(false));
         $this->assertFalse($createdTokenWithoutCanCreateJobs['canCreateJobs']);
         $this->assertFalse($createdTokenWithoutCanCreateJobs['canManageProtectedDefaultBranch']);
 
         try {
-            $tokens->createToken((new TokenCreateOptions())->setCanCreateJobs(true));
+            $tokens->createToken($this->buildDefaultTokenOptions()->setCanCreateJobs(true));
             $this->fail('Only productionManager can create token with canCreateJobs flag');
         } catch (ClientException $e) {
             $this->assertEquals(403, $e->getCode());
         }
+    }
+
+    private function buildDefaultTokenOptions(): TokenCreateOptions
+    {
+        return (new TokenCreateOptions())->setExpiresIn(360);
     }
 }
