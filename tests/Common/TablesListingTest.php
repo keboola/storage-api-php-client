@@ -186,6 +186,7 @@ class TablesListingTest extends StorageApiTestCase
         $this->assertArrayHasKey('columnMetadata', $firstTable);
         $this->assertArrayHasKey('metadata', $firstTable);
         $this->assertEmpty($firstTable['columnMetadata']);
+        $this->assertIsObject($firstTable['columnMetadata']);
 
         // let's post some column metadata to make sure it shows up correctly
         $metadataApi = new Metadata($this->_client);
