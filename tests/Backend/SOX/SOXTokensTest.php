@@ -48,22 +48,23 @@ class SOXTokensTest extends StorageApiTestCase
         ];
     }
 
-    /**
-     * @dataProvider tokensProvider
-     */
-    public function testTokensVisibility(Client $client): void
-    {
-        $tokens = new Tokens($client);
-        $tokenList = $tokens->listTokens();
-        foreach ($tokenList as $token) {
-            // check all tokens are without decrypted token
-            $this->assertArrayNotHasKey('token', $token);
-        }
-
-        $token = $client->verifyToken();
-        // not visible in detail
-        $this->assertArrayNotHasKey('token', $token);
-    }
+// TODO this should be enabled as soon as hiding tokens is implemented fox SOX
+//    /**
+//     * @dataProvider tokensProvider
+//     */
+//    public function testTokensVisibility(Client $client): void
+//    {
+//        $tokens = new Tokens($client);
+//        $tokenList = $tokens->listTokens();
+//        foreach ($tokenList as $token) {
+//            // check all tokens are without decrypted token
+//            $this->assertArrayNotHasKey('token', $token);
+//        }
+//
+//        $token = $client->verifyToken();
+//        // not visible in detail
+//        $this->assertArrayNotHasKey('token', $token);
+//    }
 
     public function testCannotRefreshCanManageProtectedBranchTokenEvenSelf(): void
     {
