@@ -717,7 +717,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame('description', $row2['description']);
     }
 
-    public function testUpdateConfigAndRow(): void
+    public function testRowsSortOrder(): void
     {
         $oldBranches = $this->branches->listBranches();
         $this->assertCount(1, $oldBranches);
@@ -731,6 +731,23 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setRowId('new-row')
             ->setConfiguration(['value' => 'row values']));
 
+        $components->addConfigurationRow((new ConfigurationRow((new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)))
+            ->setRowId('new-row-2')
+            ->setConfiguration(['value' => 'row2 values updated'])
+            ->setName('create row')
+            ->setDescription('description')
+        );
+
+        $components->updateConfiguration((new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setRowsSortOrder(['new-row-2', 'new-row'])
+        );
+        $config = $components->getConfiguration($componentId, $configurationId);
+        $this->assertSame(['new-row-2', 'new-row'], $config['rowsSortOrder']);
+
         // create dev branch, config from main copy to dev
         $newBranch = $this->branches->createBranch('my-awesome-branch');
 
@@ -743,63 +760,39 @@ class MergeRequestsTest extends StorageApiTestCase
         $configInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
         $this->assertSame('value', $configInDev['configuration']['main']);
         $this->assertSame(1, $configInDev['version']);
-        $this->assertSame('Copied from default branch configuration "Main" (main-1) version 2', $configInDev['changeDescription']);
+        $this->assertSame('Copied from default branch configuration "Main" (main-1) version 4', $configInDev['changeDescription']);
+        $this->assertSame(['new-row-2', 'new-row'], $configInDev['rowsSortOrder']);
 
         $row = $devBranchComponents->getConfigurationRow($componentId, $configurationId, 'new-row');
         $this->assertSame('row values', $row['configuration']['value']);
         $this->assertSame(1, $row['version']);
         $this->assertSame('Copied from default branch configuration row "" (new-row) version 1', $row['changeDescription']);
 
-        $configuration = (new Configuration())
-            ->setComponentId($componentId)
-            ->setConfigurationId('new-1')
-            ->setName('Dev branch new config')
-            ->setDescription('dev config')
-            ->setConfiguration(['main' => 'value']);
-        $devBranchComponents->addConfiguration($configuration);
-
-        $devBranchComponents->updateConfiguration((new Configuration())
-            ->setComponentId($componentId)
-            ->setConfigurationId($configurationId)
-            ->setName('Update')
-            ->setDescription('updated')
-            ->setConfiguration(['main' => 'value updated']));
-
         $devBranchComponents->addConfigurationRow((new ConfigurationRow((new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId)))
             ->setRowId('dev-row')
             ->setConfiguration(['value' => 'row values'])
-            ->setName('create row')
             ->setDescription('description')
         );
 
-        $devBranchComponents->updateConfigurationRow((new ConfigurationRow((new Configuration())
+        $devBranchComponents->updateConfiguration((new Configuration())
             ->setComponentId($componentId)
-            ->setConfigurationId($configurationId)))
-            ->setRowId('new-row')
-            ->setConfiguration(['value' => 'row values updated'])
-            ->setName('update row')
-            ->setDescription('updated description')
+            ->setConfigurationId($configurationId)
+            ->setRowsSortOrder(['new-row', 'dev-row', 'new-row-2'])
         );
+        $config = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame(['new-row', 'dev-row', 'new-row-2'], $config['rowsSortOrder']);
 
         $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
+
+        $config = $components->getConfiguration($componentId, $configurationId);
+        $this->assertSame(['new-row', 'dev-row', 'new-row-2'], $config['rowsSortOrder']);
 
         $rowsInDefault = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId));
-        $this->assertCount(2, $rowsInDefault);
-
-        $row1 = $components->getConfigurationRow($componentId, $configurationId, 'new-row');
-        $this->assertSame(2, $row1['version']);
-        $this->assertSame(['value' => 'row values updated'], $row1['configuration']);
-        $this->assertSame('update row', $row1['name']);
-        $this->assertSame('updated description', $row1['description']);
-        $row2 = $components->getConfigurationRow($componentId, $configurationId, 'dev-row');
-        $this->assertSame(1, $row2['version']);
-        $this->assertSame(['value' => 'row values'], $row2['configuration']);
-        $this->assertSame('create row', $row2['name']);
-        $this->assertSame('description', $row2['description']);
+        $this->assertCount(3, $rowsInDefault);
     }
 
     public function testDeleteConfiguration()
