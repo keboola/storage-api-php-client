@@ -9,6 +9,8 @@ use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
+use Keboola\StorageApi\Options\Components\ConfigurationRowState;
+use Keboola\StorageApi\Options\Components\ConfigurationState;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
@@ -471,10 +473,19 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setChangeDescription('last update')
             ->setConfiguration(['main' => 'update again']));
 
+        $configState = (new ConfigurationState())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setState(['dev-branch-state' => 'state'])
+        ;
+
+        $devBranchComponents->updateConfigurationState($configState);
+
         $configInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
         $this->assertSame('update again', $configInDev['configuration']['main']);
         $this->assertSame(3, $configInDev['version']);
         $this->assertSame('last update', $configInDev['changeDescription']);
+        $this->assertSame(['dev-branch-state' => 'state'], $configInDev['state']);
 
         // and merge it
         $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
@@ -484,6 +495,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame(2, $configInDefault['version']);
         $this->assertSame('second main updated', $configInDefault['name']);
         $this->assertSame('last update desc', $configInDefault['description']);
+        $this->assertSame(['main-state' => 'state'], $configInDefault['state']);
         $this->assertTrue($configInDefault['isDisabled']);
         $this->assertStringContainsString('Configuration merged from branch: "my-awesome-branch"', $configInDefault['changeDescription']);
         $versions = $components->listConfigurationVersions((new ListConfigurationVersionsOptions())
@@ -566,6 +578,9 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setRowId('new-row')
             ->setConfiguration(['value' => 'row values']));
 
+        $components->updateConfigurationRowState((new ConfigurationRowState($configuration))
+            ->setRowId('new-row')
+            ->setState(['main-row-state' => 'state']));
         $newBranch = $this->branches->createBranch('my-awesome-branch');
 
         $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
@@ -579,6 +594,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertCount(1, $rowsInDefault);
         $this->assertSame('row values', $rowsInDefault[0]['configuration']['value']);
         $this->assertSame(1, $rowsInDefault[0]['version']);
+        $this->assertSame(['main-row-state' => 'state'], $rowsInDefault[0]['state']);
 
         $configsInBranch = $devBranchComponents->listComponentConfigurations((new ListComponentConfigurationsOptions())->setComponentId($componentId));
         $this->assertCount(1, $configsInBranch);
@@ -602,9 +618,14 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setName('second update name')
             ->setDescription('second update')
         );
+
+        $devBranchComponents->updateConfigurationRowState((new ConfigurationRowState($configuration))
+            ->setRowId('new-row')
+            ->setState(['dev-branch-row-state' => 'state']));
         $updatedRow = $devBranchComponents->getConfigurationRow($componentId, $configurationId, 'new-row');
         $this->assertSame('final update', $updatedRow['configuration']['value']);
         $this->assertSame(3, $updatedRow['version']);
+        $this->assertSame(['dev-branch-row-state' => 'state'], $updatedRow['state']);
 
         $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
 
@@ -613,6 +634,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame('second update', $rowInDefault['description']);
         $this->assertSame('final update', $rowInDefault['configuration']['value']);
         $this->assertSame(2, $rowInDefault['version']);
+        $this->assertSame(['main-row-state' => 'state'], $rowsInDefault[0]['state']);
         $versions = $components->listConfigurationRowVersions((new ListConfigurationRowVersionsOptions())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
@@ -821,10 +843,19 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setConfiguration(['main' => 'value']);
         $components->addConfiguration($configuration);
 
+        $configState = (new ConfigurationState())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setState(['main-state' => 'state'])
+        ;
+
+        $components->updateConfigurationState($configState);
+
         $configInDefault = $components->getConfiguration($componentId, $configurationId);
         $this->assertSame('value', $configInDefault['configuration']['main']);
         $this->assertSame(1, $configInDefault['version']);
         $this->assertSame('Configuration created', $configInDefault['changeDescription']);
+        $this->assertSame(['main-state' => 'state'], $configInDefault['state']);
         $versions = $components->listConfigurationVersions((new ListConfigurationVersionsOptions())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId));
