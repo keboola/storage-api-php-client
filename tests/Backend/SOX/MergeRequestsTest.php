@@ -807,6 +807,55 @@ class MergeRequestsTest extends StorageApiTestCase
         );
     }
 
+    public function testDeleteConfiguration()
+    {
+        $oldBranches = $this->branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        // Create config in default branch
+        /** @var Components $components */
+        [$componentId, $configurationId, $components] = $this->prepareTestConfiguration();
+
+        // create dev branch, config from main copy to dev
+        $newBranch = $this->branches->createBranch('my-awesome-branch');
+
+        $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+
+        // check that the universe is OK and the configuration has been copied to the dev branch
+        $configInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame('value', $configInDev['configuration']['main']);
+        $this->assertSame(1, $configInDev['version']);
+        $this->assertSame('Copied from default branch configuration "Main" (main-1) version 1', $configInDev['changeDescription']);
+
+        $devBranchComponents->deleteConfiguration($componentId, $configurationId);
+        try {
+            $devBranchComponents->getConfiguration($componentId, $configurationId);
+            $this->fail('Configuration should not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+        }
+
+        try {
+            $devBranchComponents->deleteConfiguration($componentId, $configurationId);
+            $this->fail('Deleting configuration from trash is not allowed in development branches.');
+        } catch (ClientException $e) {
+            $this->assertSame(400, $e->getCode());
+            $this->assertSame('Deleting configuration from trash is not allowed in development branches.', $e->getMessage());
+        }
+
+        $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
+
+        try {
+            $components->getConfiguration($componentId, $configurationId);
+            $this->fail('Configuration should not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+        }
+    }
+
     private function createBranchMergeRequestAndApproveIt(): array
     {
         $oldBranches = $this->branches->listBranches();
