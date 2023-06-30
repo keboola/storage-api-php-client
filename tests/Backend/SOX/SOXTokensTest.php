@@ -121,7 +121,6 @@ class SOXTokensTest extends StorageApiTestCase
         $this->assertManageTokensPresent();
 
         $options = $this->buildDefaultTokenOptions()
-            ->setDescription('My test token')
             ->setCanReadAllFileUploads(true)
             ->setCanManageBuckets(true)
             ->setCanPurgeTrash(true)
@@ -173,7 +172,6 @@ class SOXTokensTest extends StorageApiTestCase
         $this->assertManageTokensPresent();
 
         $options = $this->buildDefaultTokenOptions()
-            ->setDescription('My test token')
             ->setCanReadAllFileUploads(true)
             ->setCanManageBuckets(true)
             ->setCanPurgeTrash(true)
@@ -235,7 +233,6 @@ class SOXTokensTest extends StorageApiTestCase
         $createJobsFlagTokens = new Tokens($clientWithCreateJobsFlag);
         $priviledgedToken = $createJobsFlagTokens->createTokenPrivilegedInProtectedDefaultBranch(
             $this->buildDefaultTokenOptions()
-                ->setDescription('My priviledged token')
                 ->setCanReadAllFileUploads(true)
                 ->setCanManageBuckets(true)
                 ->setCanPurgeTrash(true)
@@ -269,6 +266,8 @@ class SOXTokensTest extends StorageApiTestCase
 
     private function buildDefaultTokenOptions(): TokenCreateOptions
     {
-        return (new TokenCreateOptions())->setExpiresIn(360);
+        return (new TokenCreateOptions())
+            ->setExpiresIn(360)
+            ->setDescription($this->generateDescriptionForTestObject());
     }
 }
