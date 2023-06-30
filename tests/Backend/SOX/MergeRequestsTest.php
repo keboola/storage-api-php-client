@@ -800,11 +800,6 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame(['value' => 'row values'], $row2['configuration']);
         $this->assertSame('create row', $row2['name']);
         $this->assertSame('description', $row2['description']);
-        $row1Versions = $components->listConfigurationRowVersions((new ListConfigurationRowVersionsOptions())
-            ->setComponentId($componentId)
-            ->setConfigurationId($configurationId)
-            ->setRowId('new-row')
-        );
     }
 
     public function testDeleteConfiguration()
