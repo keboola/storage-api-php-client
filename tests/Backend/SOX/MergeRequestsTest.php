@@ -487,6 +487,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame('last update', $configInDev['changeDescription']);
         $this->assertSame(['dev-branch-state' => 'state'], $configInDev['state']);
 
+        $lastVersionIdentifierInDevBranch = $configInDev['currentVersion']['versionIdentifier'];
         // and merge it
         $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
 
@@ -498,6 +499,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame(['main-state' => 'state'], $configInDefault['state']);
         $this->assertTrue($configInDefault['isDisabled']);
         $this->assertStringContainsString('Configuration merged from branch: "my-awesome-branch"', $configInDefault['changeDescription']);
+        $this->assertNotSame($lastVersionIdentifierInDevBranch, $configInDefault['currentVersion']['versionIdentifier']);
         $versions = $components->listConfigurationVersions((new ListConfigurationVersionsOptions())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId));
@@ -626,6 +628,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame('final update', $updatedRow['configuration']['value']);
         $this->assertSame(3, $updatedRow['version']);
         $this->assertSame(['dev-branch-row-state' => 'state'], $updatedRow['state']);
+        $lastVersionIdentifierInDevBranch = $updatedRow['versionIdentifier'];
 
         $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
 
@@ -635,6 +638,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame('final update', $rowInDefault['configuration']['value']);
         $this->assertSame(2, $rowInDefault['version']);
         $this->assertSame(['main-row-state' => 'state'], $rowsInDefault[0]['state']);
+        $this->assertNotSame($lastVersionIdentifierInDevBranch, $rowInDefault['versionIdentifier']);
         $versions = $components->listConfigurationRowVersions((new ListConfigurationRowVersionsOptions())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
