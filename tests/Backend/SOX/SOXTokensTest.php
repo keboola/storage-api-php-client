@@ -216,6 +216,7 @@ class SOXTokensTest extends StorageApiTestCase
         $tokenWithCreateJobsFlag = $prodManagerTokens->createToken(
             $this->buildDefaultTokenOptions()->setCanCreateJobs(true)
         );
+        $this->assertArrayHasKey('token', $tokenWithCreateJobsFlag);
 
         $tokenWithCreateJobsFlagDetail = $prodManagerTokens->getToken($tokenWithCreateJobsFlag['id']);
         $this->assertArrayNotHasKey('token', $tokenWithCreateJobsFlagDetail);
