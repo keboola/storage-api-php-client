@@ -462,8 +462,7 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setDescription('First update description')
             ->setConfiguration(['main' => 'update'])
             ->setChangeDescription('Update config')
-            ->setIsDisabled(true)
-        );
+            ->setIsDisabled(true));
 
         $configInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
         $this->assertSame('update', $configInDev['configuration']['main']);
@@ -616,15 +615,13 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setRowId('new-row')
             ->setConfiguration(['value' => 'row values updated'])
             ->setName('first update name')
-            ->setDescription('first update')
-        );
+            ->setDescription('first update'));
 
         $devBranchComponents->updateConfigurationRow((new ConfigurationRow($configuration))
             ->setRowId('new-row')
             ->setConfiguration(['value' => 'final update'])
             ->setName('second update name')
-            ->setDescription('second update')
-        );
+            ->setDescription('second update'));
 
         $devBranchComponents->updateConfigurationRowState((new ConfigurationRowState($configuration))
             ->setRowId('new-row')
@@ -697,8 +694,7 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setRowId('new-row-2')
             ->setConfiguration(['value' => 'row2 values updated'])
             ->setName('create row')
-            ->setDescription('description')
-        );
+            ->setDescription('description'));
 
         $rowsInBranch = $devBranchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($componentId)
@@ -742,14 +738,12 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setRowId('new-row-2')
             ->setConfiguration(['value' => 'row2 values updated'])
             ->setName('create row')
-            ->setDescription('description')
-        );
+            ->setDescription('description'));
 
         $components->updateConfiguration((new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId)
-            ->setRowsSortOrder(['new-row-2', 'new-row'])
-        );
+            ->setRowsSortOrder(['new-row-2', 'new-row']));
         $config = $components->getConfiguration($componentId, $configurationId);
         $this->assertSame(['new-row-2', 'new-row'], $config['rowsSortOrder']);
 
@@ -778,14 +772,12 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setConfigurationId($configurationId)))
             ->setRowId('dev-row')
             ->setConfiguration(['value' => 'row values'])
-            ->setDescription('description')
-        );
+            ->setDescription('description'));
 
         $devBranchComponents->updateConfiguration((new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId)
-            ->setRowsSortOrder(['new-row', 'dev-row', 'new-row-2'])
-        );
+            ->setRowsSortOrder(['new-row', 'dev-row', 'new-row-2']));
         $config = $devBranchComponents->getConfiguration($componentId, $configurationId);
         $this->assertSame(['new-row', 'dev-row', 'new-row-2'], $config['rowsSortOrder']);
 
@@ -800,7 +792,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertCount(3, $rowsInDefault);
     }
 
-    public function testCopyMetadataAfterMerge()
+    public function testCopyMetadataAfterMerge(): void
     {
         $this->markTestSkipped('Not implemented yet');
         $oldBranches = $this->branches->listBranches();
@@ -916,7 +908,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertMetadataEquals($testMetadataConfig2[1], $listConfigurationMetadata[1]);
     }
 
-    public function testDeleteConfiguration()
+    public function testDeleteConfiguration(): void
     {
         $oldBranches = $this->branches->listBranches();
         $this->assertCount(1, $oldBranches);
@@ -1025,11 +1017,11 @@ class MergeRequestsTest extends StorageApiTestCase
         return [$componentId, $configurationId, $components];
     }
 
-    private function mergeDevBranchToProd($devBranch, $defaultBranch): void
+    private function mergeDevBranchToProd(int $branchFromId, int $branchIntoId): void
     {
         $mrId = $this->developerClient->createMergeRequest([
-            'branchFromId' => $devBranch,
-            'branchIntoId' => $defaultBranch,
+            'branchFromId' => $branchFromId,
+            'branchIntoId' => $branchIntoId,
             'title' => 'Change everything',
             'description' => 'Fix typo',
         ]);
