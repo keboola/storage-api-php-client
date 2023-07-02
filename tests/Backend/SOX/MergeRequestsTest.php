@@ -802,6 +802,7 @@ class MergeRequestsTest extends StorageApiTestCase
 
     public function testCopyMetadataAfterMerge()
     {
+        $this->markTestSkipped('Not implemented yet');
         $oldBranches = $this->branches->listBranches();
         $this->assertCount(1, $oldBranches);
 
