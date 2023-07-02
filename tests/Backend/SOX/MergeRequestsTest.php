@@ -8,17 +8,22 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\Configuration;
+use Keboola\StorageApi\Options\Components\ConfigurationMetadata;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ConfigurationRowState;
 use Keboola\StorageApi\Options\Components\ConfigurationState;
 use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationMetadataOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\MetadataUtils;
 
 class MergeRequestsTest extends StorageApiTestCase
 {
+    use MetadataUtils;
+
     private Client $developerClient;
     private Client $prodManagerClient;
     private DevBranches $branches;
@@ -793,6 +798,121 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId));
         $this->assertCount(3, $rowsInDefault);
+    }
+
+    public function testCopyMetadataAfterMerge()
+    {
+        $oldBranches = $this->branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        // Create config in default branch
+        /** @var Components $components */
+        [$componentId, $configurationId, $components] = $this->prepareTestConfiguration();
+
+        $testMetadata = [
+            [
+                'key' => 'KBC.SomeEnity.metadataKey',
+                'value' => 'some-value',
+            ],
+            [
+                'key' => 'someMetadataKey',
+                'value' => 'some-value',
+            ],
+        ];
+        $configurationOptions = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId);
+
+        $configurationMetadataOptions = (new ConfigurationMetadata($configurationOptions))
+            ->setMetadata($testMetadata);
+        $components->addConfigurationMetadata($configurationMetadataOptions);
+
+        $configuration = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-2')
+            ->setName('Main 2');
+        $components->addConfiguration($configuration);
+
+        // create dev branch, config from main copy to dev
+        $newBranch = $this->branches->createBranch('my-awesome-branch');
+
+        $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+
+        // check that the universe is OK and the configuration has been copied to the dev branch
+        $configInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame('value', $configInDev['configuration']['main']);
+        $this->assertSame(1, $configInDev['version']);
+        $this->assertSame('Copied from default branch configuration "Main" (main-1) version 1', $configInDev['changeDescription']);
+        $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId));
+        $this->assertCount(2, $listConfigurationMetadata);
+
+        $configInDev = $devBranchComponents->getConfiguration($componentId, 'main-2');
+        $this->assertEmpty($configInDev['configuration']);
+        $this->assertSame(1, $configInDev['version']);
+        $this->assertSame('Copied from default branch configuration "Main 2" (main-2) version 1', $configInDev['changeDescription']);
+        $listConfigurationMetadata = $devBranchComponents->listConfigurationMetadata((new ListConfigurationMetadataOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-2'));
+        $this->assertCount(0, $listConfigurationMetadata);
+
+        $testMetadataConfig2 = [
+            [
+                'key' => 'KBC.SomeEnity.metadataKey',
+                'value' => 'second-value',
+            ],
+            [
+                'key' => 'someMetadataKey',
+                'value' => 'second-value',
+            ],
+        ];
+        $configurationOptions = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-2');
+
+        $configurationMetadataOptions = (new ConfigurationMetadata($configurationOptions))
+            ->setMetadata($testMetadataConfig2);
+        $devBranchComponents->addConfigurationMetadata($configurationMetadataOptions);
+
+        $listConfigurationMetadata = $devBranchComponents->listConfigurationMetadata((new ListConfigurationMetadataOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-2'));
+        $this->assertCount(2, $listConfigurationMetadata);
+
+        $updatedMetadata = [
+            [
+                'key' => 'someMetadataKey',
+                'value' => 'updated-value',
+            ],
+        ];
+        $configurationOptions = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId);
+        $configurationMetadataOptions = (new ConfigurationMetadata($configurationOptions))
+            ->setMetadata($updatedMetadata);
+        $md = $devBranchComponents->addConfigurationMetadata($configurationMetadataOptions);
+        $this->assertMetadataEquals($testMetadata[0], $md[0]);
+        $this->assertMetadataEquals($updatedMetadata[0], $md[1]);
+
+        $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
+
+        $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId));
+        $this->assertCount(2, $listConfigurationMetadata);
+        $this->assertMetadataEquals($testMetadata[0], $listConfigurationMetadata[0]);
+        $this->assertMetadataEquals($updatedMetadata[0], $listConfigurationMetadata[1]);
+
+        $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-2'));
+        $this->assertCount(2, $listConfigurationMetadata);
+        $this->assertMetadataEquals($testMetadataConfig2[0], $listConfigurationMetadata[0]);
+        $this->assertMetadataEquals($testMetadataConfig2[1], $listConfigurationMetadata[1]);
     }
 
     public function testDeleteConfiguration()
