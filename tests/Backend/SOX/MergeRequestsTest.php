@@ -2,9 +2,13 @@
 
 namespace Keboola\Test\Backend\SOX;
 
+use Generator;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
+use Keboola\StorageApi\Options\Components\Configuration;
+use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\Test\StorageApiTestCase;
 
 class MergeRequestsTest extends StorageApiTestCase
@@ -24,6 +28,8 @@ class MergeRequestsTest extends StorageApiTestCase
                 $this->branches->deleteBranch($branch['id']);
             }
         }
+
+        $this->cleanupConfigurations($this->getDefaultBranchStorageApiClient());
     }
 
     public function testCreateMergeRequest(): void
@@ -203,7 +209,26 @@ class MergeRequestsTest extends StorageApiTestCase
         $oldBranches = $this->branches->listBranches();
         $this->assertCount(1, $oldBranches);
 
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+        $components = new Components($this->getDefaultBranchStorageApiClient());
+
+        $configuration = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setDescription('some desc');
+        $components->addConfiguration($configuration);
+
         $newBranch = $this->branches->createBranch('aaaa');
+
+        $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+        $devBranchComponents->addConfigurationRow((new ConfigurationRow($configuration))
+            ->setRowId('firstRow')
+            ->setConfiguration(['value' => 1]));
 
         $mrId = $this->developerClient->createMergeRequest([
             'branchFromId' => $newBranch['id'],
@@ -255,5 +280,166 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $this->assertSame('By reviewer', $mr['title']);
         $this->assertSame('With love to developer', $mr['description']);
+    }
+
+    /** @dataProvider cantMergeTokenProviders */
+    public function testSpecificRolesCantMerge(Client $client): void
+    {
+        $oldBranches = $this->branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        $newBranch = $this->branches->createBranch('aaaa');
+
+        $mrId = $this->developerClient->createMergeRequest([
+            'branchFromId' => $newBranch['id'],
+            'branchIntoId' => $oldBranches[0]['id'],
+            'title' => 'Change everything',
+            'description' => 'Fix typo',
+        ]);
+
+        $reviewerClient = $this->getReviewerStorageApiClient();
+        $this->developerClient->mergeRequestPutToReview($mrId);
+
+        $mrData = $reviewerClient->mergeRequestAddApproval($mrId);
+
+        $this->assertEquals('in_review', $mrData['state']);
+        $this->assertCount(1, $mrData['approvals']);
+
+        $mrData = $this->getSecondReviewerStorageApiClient()->mergeRequestAddApproval($mrId);
+        $this->assertCount(2, $mrData['approvals']);
+        $this->assertSame('approved', $mrData['state']);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('You don\'t have access to the resource.');
+        $client->mergeMergeRequest($mrId);
+    }
+
+    public function cantMergeTokenProviders(): Generator
+    {
+        yield 'developer' => [
+            $this->getDeveloperStorageApiClient(),
+        ];
+        yield 'reviewer' => [
+            $this->getReviewerStorageApiClient(),
+        ];
+        yield 'readOnly' => [
+            $this->getReadOnlyStorageApiClient(),
+        ];
+    }
+
+    public function testMrWithConflictCantBeMergedButAfterResetCan(): void
+    {
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+        $components = new Components($this->getDefaultBranchStorageApiClient());
+
+        $configuration = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setDescription('some desc');
+        $components->addConfiguration($configuration);
+
+        [$mrId, $branchId] = $this->createBranchMergeRequestAndApproveIt();
+        // in default and dev branch is the same config with the same versionIdentifier
+
+        // make change in default branch to create conflict
+        $components->addConfigurationRow((new ConfigurationRow($configuration))
+            ->setRowId('firstRow')
+            ->setConfiguration(['value' => 1]));
+
+        try {
+            $this->prodManagerClient->mergeMergeRequest($mrId);
+            $this->fail('Should fail, MR has conflict.');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                sprintf('Merge request %s cannot be merged. Problem with following configurations: componentId: "wr-db", configurationId: "main-1"', $mrId),
+                $e->getMessage()
+            );
+        }
+        $mr = $this->developerClient->getMergeRequest($mrId);
+        $this->assertEquals('approved', $mr['state']);
+
+        $branchAwareDeveloperStorageClient = $this->getBranchAwareClient($branchId, [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]);
+
+        $components = new Components($branchAwareDeveloperStorageClient);
+        $components->resetToDefault($componentId, $configurationId);
+
+        // todo now is works like this, but maybe it should go through approval process again
+        $this->prodManagerClient->mergeMergeRequest($mrId);
+        $mr = $this->developerClient->getMergeRequest($mrId);
+        $this->assertEquals('published', $mr['state']);
+    }
+
+    public function testConfigIsUpdatedInDefaultButBothConfigsAreDeleted(): void
+    {
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+        $components = new Components($this->getDefaultBranchStorageApiClient());
+
+        $configuration = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setDescription('some desc');
+        $components->addConfiguration($configuration);
+
+        [$mrId, $branchId] = $this->createBranchMergeRequestAndApproveIt();
+        // in default and dev branch is the same config with the same versionIdentifier
+
+        // make change in default branch to create conflict
+        $components->addConfigurationRow((new ConfigurationRow($configuration))
+            ->setRowId('firstRow')
+            ->setConfiguration(['value' => 1]));
+
+        // Delete in default branch
+        $components->deleteConfiguration($componentId, $configurationId);
+
+        try {
+            $this->prodManagerClient->mergeMergeRequest($mrId);
+            $this->fail('Should fail, MR has conflict.');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                $e->getMessage(),
+                sprintf('Merge request %s cannot be merged. Problem with following configurations: componentId: "wr-db", configurationId: "main-1"', $mrId)
+            );
+        }
+
+        $devBranchComponents = new Components($this->getBranchAwareClient($branchId, [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+
+        $devBranchComponents->deleteConfiguration($componentId, $configurationId);
+
+        $this->prodManagerClient->mergeMergeRequest($mrId);
+        $mr = $this->developerClient->getMergeRequest($mrId);
+        $this->assertEquals('published', $mr['state']);
+    }
+
+    private function createBranchMergeRequestAndApproveIt(): array
+    {
+        $oldBranches = $this->branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        $newBranch = $this->branches->createBranch('aaaa');
+
+        $mrId = $this->developerClient->createMergeRequest([
+            'branchFromId' => $newBranch['id'],
+            'branchIntoId' => $oldBranches[0]['id'],
+            'title' => 'Change everything',
+            'description' => 'Fix typo',
+        ]);
+
+        $reviewerClient = $this->getReviewerStorageApiClient();
+        $this->developerClient->mergeRequestPutToReview($mrId);
+
+        $reviewerClient->mergeRequestAddApproval($mrId);
+        $this->getSecondReviewerStorageApiClient()->mergeRequestAddApproval($mrId);
+
+        return [$mrId, $newBranch['id']];
     }
 }
