@@ -8,11 +8,22 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\Configuration;
+use Keboola\StorageApi\Options\Components\ConfigurationMetadata;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
+use Keboola\StorageApi\Options\Components\ConfigurationRowState;
+use Keboola\StorageApi\Options\Components\ConfigurationState;
+use Keboola\StorageApi\Options\Components\ListComponentConfigurationsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationMetadataOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
+use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\MetadataUtils;
 
 class MergeRequestsTest extends StorageApiTestCase
 {
+    use MetadataUtils;
+
     private Client $developerClient;
     private Client $prodManagerClient;
     private DevBranches $branches;
@@ -338,16 +349,29 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setConfigurationId($configurationId)
             ->setName('Main')
             ->setDescription('some desc');
-        $components->addConfiguration($configuration);
+        $nonUpdatedConfig = $components->addConfiguration($configuration);
 
+        $nonUpdatedConfigIdentifier = $nonUpdatedConfig['currentVersion']['versionIdentifier'];
         [$mrId, $branchId] = $this->createBranchMergeRequestAndApproveIt();
         // in default and dev branch is the same config with the same versionIdentifier
 
+        $devBranchComponents = new Components($this->getBranchAwareClient($branchId, [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+        $configInDevBranch = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame($nonUpdatedConfigIdentifier, $configInDevBranch['currentVersion']['versionIdentifier']);
         // make change in default branch to create conflict
         $components->addConfigurationRow((new ConfigurationRow($configuration))
             ->setRowId('firstRow')
             ->setConfiguration(['value' => 1]));
 
+        $actualIdentifierInMain = $components->getConfiguration($componentId, $configurationId);
+        $actualIdentifierInBranch = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertNotSame(
+            $actualIdentifierInBranch['currentVersion']['versionIdentifier'],
+            $actualIdentifierInMain['currentVersion']['versionIdentifier']
+        );
         try {
             $this->prodManagerClient->mergeMergeRequest($mrId);
             $this->fail('Should fail, MR has conflict.');
@@ -360,14 +384,14 @@ class MergeRequestsTest extends StorageApiTestCase
         $mr = $this->developerClient->getMergeRequest($mrId);
         $this->assertEquals('approved', $mr['state']);
 
-        $branchAwareDeveloperStorageClient = $this->getBranchAwareClient($branchId, [
-            'token' => STORAGE_API_DEVELOPER_TOKEN,
-            'url' => STORAGE_API_URL,
-        ]);
+        $devBranchComponents->resetToDefault($componentId, $configurationId);
 
-        $components = new Components($branchAwareDeveloperStorageClient);
-        $components->resetToDefault($componentId, $configurationId);
-
+        $actualIdentifierInMain = $components->getConfiguration($componentId, $configurationId);
+        $actualIdentifierInBranch = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame(
+            $actualIdentifierInBranch['currentVersion']['versionIdentifier'],
+            $actualIdentifierInMain['currentVersion']['versionIdentifier']
+        );
         // todo now is works like this, but maybe it should go through approval process again
         $this->prodManagerClient->mergeMergeRequest($mrId);
         $mr = $this->developerClient->getMergeRequest($mrId);
@@ -420,6 +444,558 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertEquals('published', $mr['state']);
     }
 
+    public function testConfigurationUpdatedInBranch(): void
+    {
+        $oldBranches = $this->branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        // Create config in default branch
+        /** @var Components $components */
+        [$componentId, $configurationId, $components] = $this->prepareTestConfiguration();
+
+        // create dev branch, config from main copy to dev
+        $newBranch = $this->branches->createBranch('my-awesome-branch');
+
+        $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+
+        // check that the universe is OK and the configuration has been copied to the dev branch
+        $configInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame('value', $configInDev['configuration']['main']);
+        $this->assertSame(1, $configInDev['version']);
+        $this->assertSame('Copied from default branch configuration "Main" (main-1) version 1', $configInDev['changeDescription']);
+
+        // update existing config several times in default branch to check that only one version is added after the merge
+        $devBranchComponents->updateConfiguration((new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main updated')
+            ->setDescription('First update description')
+            ->setConfiguration(['main' => 'update'])
+            ->setChangeDescription('Update config')
+            ->setIsDisabled(true));
+
+        $configInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame('update', $configInDev['configuration']['main']);
+        $this->assertSame(2, $configInDev['version']);
+        $this->assertSame('Update config', $configInDev['changeDescription']);
+
+        $devBranchComponents->updateConfiguration((new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('second main updated')
+            ->setDescription('last update desc')
+            ->setChangeDescription('last update')
+            ->setConfiguration(['main' => 'update again']));
+
+        $configState = (new ConfigurationState())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setState(['dev-branch-state' => 'state'])
+        ;
+
+        $devBranchComponents->updateConfigurationState($configState);
+
+        $configInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame('update again', $configInDev['configuration']['main']);
+        $this->assertSame(3, $configInDev['version']);
+        $this->assertSame('last update', $configInDev['changeDescription']);
+        $this->assertSame(['dev-branch-state' => 'state'], $configInDev['state']);
+
+        $lastVersionIdentifierInDevBranch = $configInDev['currentVersion']['versionIdentifier'];
+        // and merge it
+        $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
+
+        $configInDefault = $components->getConfiguration($componentId, $configurationId);
+        $this->assertSame('update again', $configInDefault['configuration']['main']);
+        $this->assertSame(2, $configInDefault['version']);
+        $this->assertSame('second main updated', $configInDefault['name']);
+        $this->assertSame('last update desc', $configInDefault['description']);
+        $this->assertSame(['main-state' => 'state'], $configInDefault['state']);
+        $this->assertTrue($configInDefault['isDisabled']);
+        $this->assertStringContainsString('Configuration merged from branch: "my-awesome-branch"', $configInDefault['changeDescription']);
+        $this->assertNotSame($lastVersionIdentifierInDevBranch, $configInDefault['currentVersion']['versionIdentifier']);
+        $versions = $components->listConfigurationVersions((new ListConfigurationVersionsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId));
+        $this->assertCount(2, $versions);
+    }
+
+    public function testCreateConfigurationInBranch(): void
+    {
+        $oldBranches = $this->branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        // Create config in default branch
+        [$componentId, $configurationId, $components] = $this->prepareTestConfiguration();
+
+        // create dev branch, config from main copy to dev
+        $newBranch = $this->branches->createBranch('my-awesome-branch');
+
+        $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+
+        // check that the universe is OK and the configuration has been copied to the dev branch
+        $configInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame('value', $configInDev['configuration']['main']);
+        $this->assertSame(1, $configInDev['version']);
+        $this->assertSame('Copied from default branch configuration "Main" (main-1) version 1', $configInDev['changeDescription']);
+        $lastIdentifierInConfig1 = $configInDev['currentVersion']['versionIdentifier'];
+        // create new config in dev branch
+        $configuration = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId('config-in-dev-branch')
+            ->setName('DevBranch')
+            ->setDescription('dev config')
+            ->setConfiguration(['dev' => 'value']);
+        $devBranchComponents->addConfiguration($configuration);
+
+        $configInDev = $devBranchComponents->getConfiguration($componentId, 'config-in-dev-branch');
+        $this->assertSame('value', $configInDev['configuration']['dev']);
+        $this->assertSame(1, $configInDev['version']);
+        $this->assertSame('Configuration created', $configInDev['changeDescription']);
+        $lastIdentifierInConfig2 = $configInDev['currentVersion']['versionIdentifier'];
+
+        $configurationOptions = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId('config-in-dev-branch');
+        $newRowInConfig = $devBranchComponents->addConfigurationRow((new ConfigurationRow($configurationOptions))
+            ->setName('Row 1')
+            ->setRowId('config-in-dev-branch-row-1'));
+        $newRowIdentifier = $newRowInConfig['versionIdentifier'];
+
+        // and merge it
+        $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
+
+        $configs = $components->listComponentConfigurations(
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+        );
+        $this->assertCount(2, $configs);
+
+        $firstConfigInDefault = $components->getConfiguration($componentId, $configurationId);
+        $this->assertSame('value', $firstConfigInDefault['configuration']['main']);
+        $this->assertSame(1, $firstConfigInDefault['version']);
+        $this->assertSame('Configuration created', $firstConfigInDefault['changeDescription']);
+        // if nothing updated in branch, nothing merged from branch and identifier is the same
+        $this->assertEquals($lastIdentifierInConfig1, $firstConfigInDefault['currentVersion']['versionIdentifier']);
+
+        $secondConfigInDefault = $components->getConfiguration($componentId, 'config-in-dev-branch');
+        $this->assertSame('value', $secondConfigInDefault['configuration']['dev']);
+        $this->assertSame(1, $secondConfigInDefault['version']);
+        $this->assertStringContainsString('Configuration merged from branch: "my-awesome-branch"', $secondConfigInDefault['changeDescription']);
+        $this->assertSame('DevBranch', $secondConfigInDefault['name']);
+        $this->assertSame('dev config', $secondConfigInDefault['description']);
+        $this->assertFalse($secondConfigInDefault['isDisabled']);
+        $this->assertNotEquals($lastIdentifierInConfig2, $secondConfigInDefault['currentVersion']['versionIdentifier']);
+        $this->assertCount(1, $secondConfigInDefault['rows']);
+        $this->assertNotEquals($newRowIdentifier, $secondConfigInDefault['rows'][0]['versionIdentifier']);
+    }
+
+    public function testUpdateRow(): void
+    {
+        $oldBranches = $this->branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        // Create config in default branch
+        /** @var Components $components */
+        [$componentId, $configurationId, $components] = $this->prepareTestConfiguration();
+
+        $configuration = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId);
+        $components->addConfigurationRow((new ConfigurationRow($configuration))
+            ->setRowId('new-row')
+            ->setConfiguration(['value' => 'row values']));
+
+        $components->updateConfigurationRowState((new ConfigurationRowState($configuration))
+            ->setRowId('new-row')
+            ->setState(['main-row-state' => 'state']));
+        $newBranch = $this->branches->createBranch('my-awesome-branch');
+
+        $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+
+        $rowsInDefault = $components->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId));
+        $this->assertCount(1, $rowsInDefault);
+        $this->assertSame('row values', $rowsInDefault[0]['configuration']['value']);
+        $this->assertSame(1, $rowsInDefault[0]['version']);
+        $this->assertSame(['main-row-state' => 'state'], $rowsInDefault[0]['state']);
+
+        $configsInBranch = $devBranchComponents->listComponentConfigurations((new ListComponentConfigurationsOptions())->setComponentId($componentId));
+        $this->assertCount(1, $configsInBranch);
+        $rowsInBranch = $devBranchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId));
+        $this->assertCount(1, $rowsInBranch);
+        $this->assertSame('row values', $rowsInBranch[0]['configuration']['value']);
+        $this->assertSame(1, $rowsInBranch[0]['version']);
+
+        $devBranchComponents->updateConfigurationRow((new ConfigurationRow($configuration))
+            ->setRowId('new-row')
+            ->setConfiguration(['value' => 'row values updated'])
+            ->setName('first update name')
+            ->setDescription('first update'));
+
+        $devBranchComponents->updateConfigurationRow((new ConfigurationRow($configuration))
+            ->setRowId('new-row')
+            ->setConfiguration(['value' => 'final update'])
+            ->setName('second update name')
+            ->setDescription('second update'));
+
+        $devBranchComponents->updateConfigurationRowState((new ConfigurationRowState($configuration))
+            ->setRowId('new-row')
+            ->setState(['dev-branch-row-state' => 'state']));
+        $updatedRow = $devBranchComponents->getConfigurationRow($componentId, $configurationId, 'new-row');
+        $this->assertSame('final update', $updatedRow['configuration']['value']);
+        $this->assertSame(3, $updatedRow['version']);
+        $this->assertSame(['dev-branch-row-state' => 'state'], $updatedRow['state']);
+        $lastVersionIdentifierInDevBranch = $updatedRow['versionIdentifier'];
+
+        $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
+
+        $rowInDefault = $components->getConfigurationRow($componentId, $configurationId, 'new-row');
+        $this->assertSame('second update name', $rowInDefault['name']);
+        $this->assertSame('second update', $rowInDefault['description']);
+        $this->assertSame('final update', $rowInDefault['configuration']['value']);
+        $this->assertSame(2, $rowInDefault['version']);
+        $this->assertSame(['main-row-state' => 'state'], $rowsInDefault[0]['state']);
+        $this->assertNotSame($lastVersionIdentifierInDevBranch, $rowInDefault['versionIdentifier']);
+        $versions = $components->listConfigurationRowVersions((new ListConfigurationRowVersionsOptions())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setRowId('new-row'));
+        $this->assertCount(2, $versions);
+
+        $configInDefault = $components->getConfiguration($componentId, $configurationId);
+        $this->assertStringContainsString('Configuration merged from branch: "my-awesome-branch"', $configInDefault['changeDescription']);
+        $versions = $components->listConfigurationVersions((new ListConfigurationVersionsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId));
+        $this->assertCount(3, $versions);
+    }
+
+    public function testAddRow(): void
+    {
+        $oldBranches = $this->branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        // Create config in default branch
+        [$componentId, $configurationId, $components] = $this->prepareTestConfiguration();
+
+        $configuration = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId);
+        $components->addConfigurationRow((new ConfigurationRow($configuration))
+            ->setRowId('new-row')
+            ->setConfiguration(['value' => 'row values']));
+
+        $newBranch = $this->branches->createBranch('my-awesome-branch');
+
+        $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+        $rowsInDefault = $components->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId));
+        $this->assertCount(1, $rowsInDefault);
+        $this->assertSame(1, $rowsInDefault[0]['version']);
+
+        $configsInBranch = $devBranchComponents->listComponentConfigurations((new ListComponentConfigurationsOptions())->setComponentId($componentId));
+        $this->assertCount(1, $configsInBranch);
+        $rowsInBranch = $devBranchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId));
+        $this->assertCount(1, $rowsInBranch);
+
+        $devBranchComponents->addConfigurationRow((new ConfigurationRow($configuration))
+            ->setRowId('new-row-2')
+            ->setConfiguration(['value' => 'row2 values updated'])
+            ->setName('create row')
+            ->setDescription('description'));
+
+        $rowsInBranch = $devBranchComponents->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId));
+        $this->assertCount(2, $rowsInBranch);
+
+        $configInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $lastIdentifierInConfig = $configInDev['currentVersion']['versionIdentifier'];
+        $row1 = $components->getConfigurationRow($componentId, $configurationId, 'new-row');
+        $lastRow1Identifier = $row1['versionIdentifier'];
+
+        $row2 = $devBranchComponents->getConfigurationRow($componentId, $configurationId, 'new-row-2');
+        $lastRow2Identifier = $row2['versionIdentifier'];
+
+        $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
+
+        $rowsInDefault = $components->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId));
+        $this->assertCount(2, $rowsInDefault);
+
+        $row1 = $components->getConfigurationRow($componentId, $configurationId, 'new-row');
+        $this->assertSame(1, $row1['version']);
+        $this->assertEquals($lastRow1Identifier, $row1['versionIdentifier']);// no chage in dev branch -> same identifier
+
+        $row2 = $components->getConfigurationRow($componentId, $configurationId, 'new-row-2');
+        $this->assertSame(1, $row2['version']);
+        $this->assertSame(['value' => 'row2 values updated'], $row2['configuration']);
+        $this->assertSame('create row', $row2['name']);
+        $this->assertSame('description', $row2['description']);
+        $this->assertNotEquals($lastRow2Identifier, $row2['versionIdentifier']);
+
+        $configInDev = $components->getConfiguration($componentId, $configurationId);
+        $this->assertNotEquals($lastIdentifierInConfig, $configInDev['currentVersion']['versionIdentifier']);
+    }
+
+    public function testRowsSortOrder(): void
+    {
+        $oldBranches = $this->branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        // Create config in default branch
+        /** @var Components $components */
+        [$componentId, $configurationId, $components] = $this->prepareTestConfiguration();
+        $components->addConfigurationRow((new ConfigurationRow((new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)))
+            ->setRowId('new-row')
+            ->setConfiguration(['value' => 'row values']));
+
+        $components->addConfigurationRow((new ConfigurationRow((new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)))
+            ->setRowId('new-row-2')
+            ->setConfiguration(['value' => 'row2 values updated'])
+            ->setName('create row')
+            ->setDescription('description'));
+
+        $components->updateConfiguration((new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setRowsSortOrder(['new-row-2', 'new-row']));
+        $config = $components->getConfiguration($componentId, $configurationId);
+        $this->assertSame(['new-row-2', 'new-row'], $config['rowsSortOrder']);
+
+        // create dev branch, config from main copy to dev
+        $newBranch = $this->branches->createBranch('my-awesome-branch');
+
+        $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+
+        // check that the universe is OK and the configuration has been copied to the dev branch
+        $configInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame('value', $configInDev['configuration']['main']);
+        $this->assertSame(1, $configInDev['version']);
+        $this->assertSame('Copied from default branch configuration "Main" (main-1) version 4', $configInDev['changeDescription']);
+        $this->assertSame(['new-row-2', 'new-row'], $configInDev['rowsSortOrder']);
+
+        $row = $devBranchComponents->getConfigurationRow($componentId, $configurationId, 'new-row');
+        $this->assertSame('row values', $row['configuration']['value']);
+        $this->assertSame(1, $row['version']);
+        $this->assertSame('Copied from default branch configuration row "" (new-row) version 1', $row['changeDescription']);
+
+        $devBranchComponents->addConfigurationRow((new ConfigurationRow((new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)))
+            ->setRowId('dev-row')
+            ->setConfiguration(['value' => 'row values'])
+            ->setDescription('description'));
+
+        $devBranchComponents->updateConfiguration((new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setRowsSortOrder(['new-row', 'dev-row', 'new-row-2']));
+        $config = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame(['new-row', 'dev-row', 'new-row-2'], $config['rowsSortOrder']);
+
+        $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
+
+        $config = $components->getConfiguration($componentId, $configurationId);
+        $this->assertSame(['new-row', 'dev-row', 'new-row-2'], $config['rowsSortOrder']);
+
+        $rowsInDefault = $components->listConfigurationRows((new ListConfigurationRowsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId));
+        $this->assertCount(3, $rowsInDefault);
+    }
+
+    public function testCopyMetadataAfterMerge(): void
+    {
+        $this->markTestSkipped('Not implemented yet');
+        $oldBranches = $this->branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        // Create config in default branch
+        /** @var Components $components */
+        [$componentId, $configurationId, $components] = $this->prepareTestConfiguration();
+
+        $testMetadata = [
+            [
+                'key' => 'KBC.SomeEnity.metadataKey',
+                'value' => 'some-value',
+            ],
+            [
+                'key' => 'someMetadataKey',
+                'value' => 'some-value',
+            ],
+        ];
+        $configurationOptions = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId);
+
+        $configurationMetadataOptions = (new ConfigurationMetadata($configurationOptions))
+            ->setMetadata($testMetadata);
+        $components->addConfigurationMetadata($configurationMetadataOptions);
+
+        $configuration = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-2')
+            ->setName('Main 2');
+        $components->addConfiguration($configuration);
+
+        // create dev branch, config from main copy to dev
+        $newBranch = $this->branches->createBranch('my-awesome-branch');
+
+        $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+
+        // check that the universe is OK and the configuration has been copied to the dev branch
+        $configInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame('value', $configInDev['configuration']['main']);
+        $this->assertSame(1, $configInDev['version']);
+        $this->assertSame('Copied from default branch configuration "Main" (main-1) version 1', $configInDev['changeDescription']);
+        $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId));
+        $this->assertCount(2, $listConfigurationMetadata);
+
+        $configInDev = $devBranchComponents->getConfiguration($componentId, 'main-2');
+        $this->assertEmpty($configInDev['configuration']);
+        $this->assertSame(1, $configInDev['version']);
+        $this->assertSame('Copied from default branch configuration "Main 2" (main-2) version 1', $configInDev['changeDescription']);
+        $listConfigurationMetadata = $devBranchComponents->listConfigurationMetadata((new ListConfigurationMetadataOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-2'));
+        $this->assertCount(0, $listConfigurationMetadata);
+
+        $testMetadataConfig2 = [
+            [
+                'key' => 'KBC.SomeEnity.metadataKey',
+                'value' => 'second-value',
+            ],
+            [
+                'key' => 'someMetadataKey',
+                'value' => 'second-value',
+            ],
+        ];
+        $configurationOptions = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-2');
+
+        $configurationMetadataOptions = (new ConfigurationMetadata($configurationOptions))
+            ->setMetadata($testMetadataConfig2);
+        $devBranchComponents->addConfigurationMetadata($configurationMetadataOptions);
+
+        $listConfigurationMetadata = $devBranchComponents->listConfigurationMetadata((new ListConfigurationMetadataOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-2'));
+        $this->assertCount(2, $listConfigurationMetadata);
+
+        $updatedMetadata = [
+            [
+                'key' => 'someMetadataKey',
+                'value' => 'updated-value',
+            ],
+        ];
+        $configurationOptions = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId);
+        $configurationMetadataOptions = (new ConfigurationMetadata($configurationOptions))
+            ->setMetadata($updatedMetadata);
+        $md = $devBranchComponents->addConfigurationMetadata($configurationMetadataOptions);
+        $this->assertMetadataEquals($testMetadata[0], $md[0]);
+        $this->assertMetadataEquals($updatedMetadata[0], $md[1]);
+
+        $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
+
+        $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId));
+        $this->assertCount(2, $listConfigurationMetadata);
+        $this->assertMetadataEquals($testMetadata[0], $listConfigurationMetadata[0]);
+        $this->assertMetadataEquals($updatedMetadata[0], $listConfigurationMetadata[1]);
+
+        $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId('main-2'));
+        $this->assertCount(2, $listConfigurationMetadata);
+        $this->assertMetadataEquals($testMetadataConfig2[0], $listConfigurationMetadata[0]);
+        $this->assertMetadataEquals($testMetadataConfig2[1], $listConfigurationMetadata[1]);
+    }
+
+    public function testDeleteConfiguration(): void
+    {
+        $oldBranches = $this->branches->listBranches();
+        $this->assertCount(1, $oldBranches);
+
+        // Create config in default branch
+        /** @var Components $components */
+        [$componentId, $configurationId, $components] = $this->prepareTestConfiguration();
+
+        // create dev branch, config from main copy to dev
+        $newBranch = $this->branches->createBranch('my-awesome-branch');
+
+        $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+
+        // check that the universe is OK and the configuration has been copied to the dev branch
+        $configInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame('value', $configInDev['configuration']['main']);
+        $this->assertSame(1, $configInDev['version']);
+        $this->assertSame('Copied from default branch configuration "Main" (main-1) version 1', $configInDev['changeDescription']);
+
+        $devBranchComponents->deleteConfiguration($componentId, $configurationId);
+        try {
+            $devBranchComponents->getConfiguration($componentId, $configurationId);
+            $this->fail('Configuration should not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+        }
+
+        try {
+            $devBranchComponents->deleteConfiguration($componentId, $configurationId);
+            $this->fail('Deleting configuration from trash is not allowed in development branches.');
+        } catch (ClientException $e) {
+            $this->assertSame(400, $e->getCode());
+            $this->assertSame('Deleting configuration from trash is not allowed in development branches.', $e->getMessage());
+        }
+
+        $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
+
+        try {
+            $components->getConfiguration($componentId, $configurationId);
+            $this->fail('Configuration should not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+        }
+    }
+
     private function createBranchMergeRequestAndApproveIt(): array
     {
         $oldBranches = $this->branches->listBranches();
@@ -441,5 +1017,58 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->getSecondReviewerStorageApiClient()->mergeRequestAddApproval($mrId);
 
         return [$mrId, $newBranch['id']];
+    }
+
+    /**
+     * @return array
+     */
+    public function prepareTestConfiguration(): array
+    {
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+        $components = new Components($this->getDefaultBranchStorageApiClient());
+
+        $configuration = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setDescription('main config')
+            ->setConfiguration(['main' => 'value']);
+        $components->addConfiguration($configuration);
+
+        $configState = (new ConfigurationState())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setState(['main-state' => 'state'])
+        ;
+
+        $components->updateConfigurationState($configState);
+
+        $configInDefault = $components->getConfiguration($componentId, $configurationId);
+        $this->assertSame('value', $configInDefault['configuration']['main']);
+        $this->assertSame(1, $configInDefault['version']);
+        $this->assertSame('Configuration created', $configInDefault['changeDescription']);
+        $this->assertSame(['main-state' => 'state'], $configInDefault['state']);
+        $versions = $components->listConfigurationVersions((new ListConfigurationVersionsOptions())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId));
+        $this->assertCount(1, $versions);
+        return [$componentId, $configurationId, $components];
+    }
+
+    private function mergeDevBranchToProd(int $branchFromId, int $branchIntoId): void
+    {
+        $mrId = $this->developerClient->createMergeRequest([
+            'branchFromId' => $branchFromId,
+            'branchIntoId' => $branchIntoId,
+            'title' => 'Change everything',
+            'description' => 'Fix typo',
+        ]);
+
+        $reviewerClient = $this->getReviewerStorageApiClient();
+        $this->developerClient->mergeRequestPutToReview($mrId);
+        $reviewerClient->mergeRequestAddApproval($mrId);
+        $this->getSecondReviewerStorageApiClient()->mergeRequestAddApproval($mrId);
+        $this->prodManagerClient->mergeMergeRequest($mrId);
     }
 }

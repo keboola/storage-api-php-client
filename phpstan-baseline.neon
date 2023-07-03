@@ -3256,6 +3256,11 @@ parameters:
 			path: tests/Backend/Redshift/WhereFilterTest.php
 
 		-
+			message: "#^Unreachable statement \\- code above always terminates\\.$#"
+			count: 1
+			path: tests/Backend/SOX/MergeRequestsTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\CloneIntoWorkspaceTest\\:\\:aliasSettingsProvider\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Snowflake/CloneIntoWorkspaceTest.php
