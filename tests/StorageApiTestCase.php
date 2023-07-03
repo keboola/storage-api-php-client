@@ -708,9 +708,9 @@ abstract class StorageApiTestCase extends ClientTestCase
         throw new \Exception(sprintf('Branch %s not found.', $branchId));
     }
 
-    public function cleanupConfigurations()
+    public function cleanupConfigurations(Client $client)
     {
-        $components = new Components($this->_client);
+        $components = new Components($client);
         foreach ($components->listComponents() as $component) {
             foreach ($component['configurations'] as $configuration) {
                 $components->deleteConfiguration($component['id'], $configuration['id']);
