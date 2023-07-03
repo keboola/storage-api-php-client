@@ -679,14 +679,7 @@ abstract class StorageApiTestCase extends ClientTestCase
     public function getDefaultBranchId(self $that)
     {
         $devBranch = new \Keboola\StorageApi\DevBranches($that->_client);
-        $branchesList = $devBranch->listBranches();
-        foreach ($branchesList as $branch) {
-            if ($branch['isDefault'] === true) {
-                return $branch['id'];
-            }
-        }
-
-        throw new \Exception('Default branch not found.');
+        return $devBranch->getDefaultBranch()['id'];
     }
 
     /**

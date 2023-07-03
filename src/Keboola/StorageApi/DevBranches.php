@@ -78,4 +78,18 @@ class DevBranches
         assert(is_array($result));
         return $result;
     }
+
+    /**
+     * @return array
+     */
+    public function getDefaultBranch(): array
+    {
+        $branches = $this->listBranches();
+        foreach ($branches as $branch) {
+            if ($branch['isDefault'] === true) {
+                return $branch;
+            }
+        }
+        throw new \LogicException('Default branch not found');
+    }
 }
