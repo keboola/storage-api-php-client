@@ -34,25 +34,33 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->prodManagerClient = $this->getDefaultClient();
         $this->developerClient = $this->getDeveloperStorageApiClient();
         $this->branches = new DevBranches($this->developerClient);
-        foreach ($this->branches->listBranches() as $branch) {
-            if ($branch['isDefault'] !== true) {
-                $this->branches->deleteBranch($branch['id']);
-            }
+        foreach ($this->getBranchesForCurrentTestCase() as $branch) {
+            $this->branches->deleteBranch($branch['id']);
         }
 
         $this->cleanupConfigurations($this->getDefaultBranchStorageApiClient());
     }
 
+    private function getBranchesForCurrentTestCase(): array
+    {
+        $prefix = $this->generateDescriptionForTestObject();
+        $branches = [];
+        foreach ($this->branches->listBranches() as $branch) {
+            if (str_starts_with($branch['name'], $prefix)) {
+                $branches[] = $branch;
+            }
+        }
+        return $branches;
+    }
+
     public function testCreateMergeRequest(): void
     {
-        $oldBranches = $this->branches->listBranches();
-        $this->assertCount(1, $oldBranches);
-
-        $newBranch = $this->branches->createBranch('aaaa');
+        $defaultBranch = $this->branches->getDefaultBranch();
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
 
         $mrId = $this->developerClient->createMergeRequest([
             'branchFromId' => $newBranch['id'],
-            'branchIntoId' => $oldBranches[0]['id'],
+            'branchIntoId' => $defaultBranch['id'],
             'title' => 'Change everything',
             'description' => 'Fix typo',
         ]);
@@ -79,13 +87,11 @@ class MergeRequestsTest extends StorageApiTestCase
     {
         $this->expectExceptionMessage('Cannot create merge request. Target branch is not default.');
 
-        $oldBranches = $this->branches->listBranches();
-        $this->assertCount(1, $oldBranches);
-
-        $newBranch = $this->branches->createBranch('aaaa');
+        $defaultBranch = $this->branches->getDefaultBranch();
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
 
         $this->developerClient->createMergeRequest([
-            'branchFromId' => $oldBranches[0]['id'],
+            'branchFromId' => $defaultBranch['id'],
             'branchIntoId' => $newBranch['id'],
             'title' => 'Change everything',
             'description' => 'Fix typo',
@@ -94,15 +100,13 @@ class MergeRequestsTest extends StorageApiTestCase
 
     public function testPutInReview(): void
     {
-        $oldBranches = $this->branches->listBranches();
-        $this->assertCount(1, $oldBranches);
-
-        $newBranch = $this->branches->createBranch('aaaa');
+        $defaultBranch = $this->branches->getDefaultBranch();
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
 
         $title = 'Change everything ' . time();
         $mrId = $this->developerClient->createMergeRequest([
             'branchFromId' => $newBranch['id'],
-            'branchIntoId' => $oldBranches[0]['id'],
+            'branchIntoId' => $defaultBranch['id'],
             'title' => $title,
             'description' => 'Fix typo',
         ]);
@@ -117,14 +121,13 @@ class MergeRequestsTest extends StorageApiTestCase
 
     public function testMRWorkflowFromDevelopmentToCancel(): void
     {
-        $oldBranches = $this->branches->listBranches();
-        $this->assertCount(1, $oldBranches);
+        $defaultBranch = $this->branches->getDefaultBranch();
 
-        $newBranch = $this->branches->createBranch('aaaa');
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
 
         $mrId = $this->developerClient->createMergeRequest([
             'branchFromId' => $newBranch['id'],
-            'branchIntoId' => $oldBranches[0]['id'],
+            'branchIntoId' => $defaultBranch['id'],
             'title' => 'Change everything',
             'description' => 'Fix typo',
         ]);
@@ -154,14 +157,13 @@ class MergeRequestsTest extends StorageApiTestCase
 
     public function testAddSingleApprovalOnly(): void
     {
-        $oldBranches = $this->branches->listBranches();
-        $this->assertCount(1, $oldBranches);
+        $defaultBranch = $this->branches->getDefaultBranch();
 
-        $newBranch = $this->branches->createBranch('aaaa');
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
 
         $mrId = $this->developerClient->createMergeRequest([
             'branchFromId' => $newBranch['id'],
-            'branchIntoId' => $oldBranches[0]['id'],
+            'branchIntoId' => $defaultBranch['id'],
             'title' => 'Change everything',
             'description' => 'Fix typo',
         ]);
@@ -183,15 +185,13 @@ class MergeRequestsTest extends StorageApiTestCase
 
     public function testProManagerCannotPutBranchInReview(): void
     {
-        $oldBranches = $this->branches->listBranches();
-        $this->assertCount(1, $oldBranches);
-
-        $newBranch = $this->branches->createBranch('aaaa');
+        $defaultBranch = $this->branches->getDefaultBranch();
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
 
         try {
             $this->prodManagerClient->createMergeRequest([
                 'branchFromId' => $newBranch['id'],
-                'branchIntoId' => $oldBranches[0]['id'],
+                'branchIntoId' => $defaultBranch['id'],
                 'title' => 'Change everything',
                 'description' => 'Fix typo',
             ]);
@@ -202,7 +202,7 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $mrId = $this->developerClient->createMergeRequest([
             'branchFromId' => $newBranch['id'],
-            'branchIntoId' => $oldBranches[0]['id'],
+            'branchIntoId' => $defaultBranch['id'],
             'title' => 'Change everything',
             'description' => 'Fix typo',
         ]);
@@ -217,8 +217,7 @@ class MergeRequestsTest extends StorageApiTestCase
 
     public function testUpdateMR(): void
     {
-        $oldBranches = $this->branches->listBranches();
-        $this->assertCount(1, $oldBranches);
+        $defaultBranch = $this->branches->getDefaultBranch();
 
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -231,7 +230,7 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setDescription('some desc');
         $components->addConfiguration($configuration);
 
-        $newBranch = $this->branches->createBranch('aaaa');
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
 
         $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
             'token' => STORAGE_API_DEVELOPER_TOKEN,
@@ -243,7 +242,7 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $mrId = $this->developerClient->createMergeRequest([
             'branchFromId' => $newBranch['id'],
-            'branchIntoId' => $oldBranches[0]['id'],
+            'branchIntoId' => $defaultBranch['id'],
             'title' => 'Change everything',
             'description' => 'Fix typo',
         ]);
@@ -296,14 +295,13 @@ class MergeRequestsTest extends StorageApiTestCase
     /** @dataProvider cantMergeTokenProviders */
     public function testSpecificRolesCantMerge(Client $client): void
     {
-        $oldBranches = $this->branches->listBranches();
-        $this->assertCount(1, $oldBranches);
+        $defaultBranch = $this->branches->getDefaultBranch();
 
-        $newBranch = $this->branches->createBranch('aaaa');
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
 
         $mrId = $this->developerClient->createMergeRequest([
             'branchFromId' => $newBranch['id'],
-            'branchIntoId' => $oldBranches[0]['id'],
+            'branchIntoId' => $defaultBranch['id'],
             'title' => 'Change everything',
             'description' => 'Fix typo',
         ]);
@@ -998,14 +996,12 @@ class MergeRequestsTest extends StorageApiTestCase
 
     private function createBranchMergeRequestAndApproveIt(): array
     {
-        $oldBranches = $this->branches->listBranches();
-        $this->assertCount(1, $oldBranches);
-
-        $newBranch = $this->branches->createBranch('aaaa');
+        $defaultBranch = $this->branches->getDefaultBranch();
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
 
         $mrId = $this->developerClient->createMergeRequest([
             'branchFromId' => $newBranch['id'],
-            'branchIntoId' => $oldBranches[0]['id'],
+            'branchIntoId' => $defaultBranch['id'],
             'title' => 'Change everything',
             'description' => 'Fix typo',
         ]);
