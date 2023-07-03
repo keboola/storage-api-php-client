@@ -149,7 +149,7 @@ class BranchEventsTest extends StorageApiTestCase
         $branchAwareClient = $this->getBranchAwareDefaultClient($branch['id']);
         $this->initEvents($branchAwareClient);
         // test allowed non branch aware event - create bucket detail event in main branch
-        $testBucketId = $this->_client->createBucket($configurationId, self::STAGE_IN);
+        $testBucketId = $branchAwareClient->createBucket($configurationId, self::STAGE_IN);
 
         // event about bucket create should be return from branch aware event list
         $assertCallback = function ($events) use ($testBucketId) {
