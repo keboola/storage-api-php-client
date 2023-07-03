@@ -2747,11 +2747,11 @@ class Client
     /**
      * @return mixed|string
      */
-    public function apiPutJson(string $url, array $data = [])
+    public function apiPutJson(string $url, array $data = [], bool $handleAsyncTask = true)
     {
         return $this->request('PUT', $url, [
             'json' => $data,
-        ]);
+        ], null, $handleAsyncTask);
     }
 
     /**
