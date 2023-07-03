@@ -444,15 +444,14 @@ class MergeRequestsTest extends StorageApiTestCase
 
     public function testConfigurationUpdatedInBranch(): void
     {
-        $oldBranches = $this->branches->listBranches();
-        $this->assertCount(1, $oldBranches);
+        $defaultBranch = $this->branches->getDefaultBranch();
 
         // Create config in default branch
         /** @var Components $components */
         [$componentId, $configurationId, $components] = $this->prepareTestConfiguration();
 
         // create dev branch, config from main copy to dev
-        $newBranch = $this->branches->createBranch('my-awesome-branch');
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaa');
 
         $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
             'token' => STORAGE_API_DEVELOPER_TOKEN,
@@ -504,7 +503,7 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $lastVersionIdentifierInDevBranch = $configInDev['currentVersion']['versionIdentifier'];
         // and merge it
-        $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
+        $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
 
         $configInDefault = $components->getConfiguration($componentId, $configurationId);
         $this->assertSame('update again', $configInDefault['configuration']['main']);
@@ -513,7 +512,13 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame('last update desc', $configInDefault['description']);
         $this->assertSame(['main-state' => 'state'], $configInDefault['state']);
         $this->assertTrue($configInDefault['isDisabled']);
-        $this->assertStringContainsString('Configuration merged from branch: "my-awesome-branch"', $configInDefault['changeDescription']);
+        $this->assertStringContainsString(
+            sprintf(
+                'Configuration merged from branch: "%s"',
+                $this->generateDescriptionForTestObject() . '_aaa'
+            ),
+            $configInDefault['changeDescription']
+        );
         $this->assertNotSame($lastVersionIdentifierInDevBranch, $configInDefault['currentVersion']['versionIdentifier']);
         $versions = $components->listConfigurationVersions((new ListConfigurationVersionsOptions())
             ->setComponentId($componentId)
@@ -523,14 +528,13 @@ class MergeRequestsTest extends StorageApiTestCase
 
     public function testCreateConfigurationInBranch(): void
     {
-        $oldBranches = $this->branches->listBranches();
-        $this->assertCount(1, $oldBranches);
+        $defaultBranch = $this->branches->getDefaultBranch();
 
         // Create config in default branch
         [$componentId, $configurationId, $components] = $this->prepareTestConfiguration();
 
         // create dev branch, config from main copy to dev
-        $newBranch = $this->branches->createBranch('my-awesome-branch');
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaa');
 
         $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
             'token' => STORAGE_API_DEVELOPER_TOKEN,
@@ -567,7 +571,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $newRowIdentifier = $newRowInConfig['versionIdentifier'];
 
         // and merge it
-        $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
+        $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
 
         $configs = $components->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
@@ -584,7 +588,13 @@ class MergeRequestsTest extends StorageApiTestCase
         $secondConfigInDefault = $components->getConfiguration($componentId, 'config-in-dev-branch');
         $this->assertSame('value', $secondConfigInDefault['configuration']['dev']);
         $this->assertSame(1, $secondConfigInDefault['version']);
-        $this->assertStringContainsString('Configuration merged from branch: "my-awesome-branch"', $secondConfigInDefault['changeDescription']);
+        $this->assertStringContainsString(
+            sprintf(
+                'Configuration merged from branch: "%s"',
+                $this->generateDescriptionForTestObject() . '_aaa'
+            ),
+            $secondConfigInDefault['changeDescription']
+        );
         $this->assertSame('DevBranch', $secondConfigInDefault['name']);
         $this->assertSame('dev config', $secondConfigInDefault['description']);
         $this->assertFalse($secondConfigInDefault['isDisabled']);
@@ -595,8 +605,7 @@ class MergeRequestsTest extends StorageApiTestCase
 
     public function testUpdateRow(): void
     {
-        $oldBranches = $this->branches->listBranches();
-        $this->assertCount(1, $oldBranches);
+        $defaultBranch = $this->branches->getDefaultBranch();
 
         // Create config in default branch
         /** @var Components $components */
@@ -612,7 +621,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $components->updateConfigurationRowState((new ConfigurationRowState($configuration))
             ->setRowId('new-row')
             ->setState(['main-row-state' => 'state']));
-        $newBranch = $this->branches->createBranch('my-awesome-branch');
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaa');
 
         $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
             'token' => STORAGE_API_DEVELOPER_TOKEN,
@@ -657,7 +666,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame(['dev-branch-row-state' => 'state'], $updatedRow['state']);
         $lastVersionIdentifierInDevBranch = $updatedRow['versionIdentifier'];
 
-        $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
+        $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
 
         $rowInDefault = $components->getConfigurationRow($componentId, $configurationId, 'new-row');
         $this->assertSame('second update name', $rowInDefault['name']);
@@ -673,7 +682,13 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertCount(2, $versions);
 
         $configInDefault = $components->getConfiguration($componentId, $configurationId);
-        $this->assertStringContainsString('Configuration merged from branch: "my-awesome-branch"', $configInDefault['changeDescription']);
+        $this->assertStringContainsString(
+            sprintf(
+                'Configuration merged from branch: "%s"',
+                $this->generateDescriptionForTestObject() . '_aaa'
+            ),
+            $configInDefault['changeDescription']
+        );
         $versions = $components->listConfigurationVersions((new ListConfigurationVersionsOptions())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId));
@@ -682,8 +697,7 @@ class MergeRequestsTest extends StorageApiTestCase
 
     public function testAddRow(): void
     {
-        $oldBranches = $this->branches->listBranches();
-        $this->assertCount(1, $oldBranches);
+        $defaultBranch = $this->branches->getDefaultBranch();
 
         // Create config in default branch
         [$componentId, $configurationId, $components] = $this->prepareTestConfiguration();
@@ -695,7 +709,7 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setRowId('new-row')
             ->setConfiguration(['value' => 'row values']));
 
-        $newBranch = $this->branches->createBranch('my-awesome-branch');
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaa');
 
         $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
             'token' => STORAGE_API_DEVELOPER_TOKEN,
@@ -733,7 +747,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $row2 = $devBranchComponents->getConfigurationRow($componentId, $configurationId, 'new-row-2');
         $lastRow2Identifier = $row2['versionIdentifier'];
 
-        $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
+        $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
 
         $rowsInDefault = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($componentId)
@@ -757,8 +771,7 @@ class MergeRequestsTest extends StorageApiTestCase
 
     public function testRowsSortOrder(): void
     {
-        $oldBranches = $this->branches->listBranches();
-        $this->assertCount(1, $oldBranches);
+        $defaultBranch = $this->branches->getDefaultBranch();
 
         // Create config in default branch
         /** @var Components $components */
@@ -785,7 +798,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame(['new-row-2', 'new-row'], $config['rowsSortOrder']);
 
         // create dev branch, config from main copy to dev
-        $newBranch = $this->branches->createBranch('my-awesome-branch');
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaa');
 
         $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
             'token' => STORAGE_API_DEVELOPER_TOKEN,
@@ -818,7 +831,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $config = $devBranchComponents->getConfiguration($componentId, $configurationId);
         $this->assertSame(['new-row', 'dev-row', 'new-row-2'], $config['rowsSortOrder']);
 
-        $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
+        $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
 
         $config = $components->getConfiguration($componentId, $configurationId);
         $this->assertSame(['new-row', 'dev-row', 'new-row-2'], $config['rowsSortOrder']);
@@ -832,8 +845,7 @@ class MergeRequestsTest extends StorageApiTestCase
     public function testCopyMetadataAfterMerge(): void
     {
         $this->markTestSkipped('Not implemented yet');
-        $oldBranches = $this->branches->listBranches();
-        $this->assertCount(1, $oldBranches);
+        $defaultBranch = $this->branches->getDefaultBranch();
 
         // Create config in default branch
         /** @var Components $components */
@@ -864,7 +876,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $components->addConfiguration($configuration);
 
         // create dev branch, config from main copy to dev
-        $newBranch = $this->branches->createBranch('my-awesome-branch');
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaa');
 
         $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
             'token' => STORAGE_API_DEVELOPER_TOKEN,
@@ -928,7 +940,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertMetadataEquals($testMetadata[0], $md[0]);
         $this->assertMetadataEquals($updatedMetadata[0], $md[1]);
 
-        $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
+        $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
 
         $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
             ->setComponentId($componentId)
@@ -947,15 +959,14 @@ class MergeRequestsTest extends StorageApiTestCase
 
     public function testDeleteConfiguration(): void
     {
-        $oldBranches = $this->branches->listBranches();
-        $this->assertCount(1, $oldBranches);
+        $defaultBranch = $this->branches->getDefaultBranch();
 
         // Create config in default branch
         /** @var Components $components */
         [$componentId, $configurationId, $components] = $this->prepareTestConfiguration();
 
         // create dev branch, config from main copy to dev
-        $newBranch = $this->branches->createBranch('my-awesome-branch');
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaa');
 
         $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
             'token' => STORAGE_API_DEVELOPER_TOKEN,
@@ -984,7 +995,7 @@ class MergeRequestsTest extends StorageApiTestCase
             $this->assertSame('Deleting configuration from trash is not allowed in development branches.', $e->getMessage());
         }
 
-        $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
+        $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
 
         try {
             $components->getConfiguration($componentId, $configurationId);
