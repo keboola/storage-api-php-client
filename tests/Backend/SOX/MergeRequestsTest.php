@@ -560,6 +560,14 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame('Configuration created', $configInDev['changeDescription']);
         $lastIdentifierInConfig2 = $configInDev['currentVersion']['versionIdentifier'];
 
+        $configurationOptions = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId('config-in-dev-branch');
+        $newRowInConfig = $devBranchComponents->addConfigurationRow((new ConfigurationRow($configurationOptions))
+            ->setName('Row 1')
+            ->setRowId('config-in-dev-branch-row-1'));
+        $newRowIdentifier = $newRowInConfig['versionIdentifier'];
+
         // and merge it
         $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
 
@@ -583,6 +591,8 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame('dev config', $secondConfigInDefault['description']);
         $this->assertFalse($secondConfigInDefault['isDisabled']);
         $this->assertNotEquals($lastIdentifierInConfig2, $secondConfigInDefault['currentVersion']['versionIdentifier']);
+        $this->assertCount(1, $secondConfigInDefault['rows']);
+        $this->assertNotEquals($newRowIdentifier, $secondConfigInDefault['rows'][0]['versionIdentifier']);
     }
 
     public function testUpdateRow(): void
