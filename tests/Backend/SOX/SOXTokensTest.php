@@ -54,15 +54,22 @@ class SOXTokensTest extends StorageApiTestCase
     public function testTokensVisibility(Client $client): void
     {
         $tokens = new Tokens($client);
+        $token = $client->verifyToken();
+        // not visible in detail
+        $this->assertArrayNotHasKey('token', $token);
+
+        if ($token['canManageTokens']) {
+            // if can manage tokens create new non admin token and test if it has hidden token
+            $tokens->createToken(
+                (new TokenCreateOptions())
+                    ->setDescription('Some description')
+            );
+        }
         $tokenList = $tokens->listTokens();
         foreach ($tokenList as $token) {
             // check all tokens are without decrypted token
             $this->assertArrayNotHasKey('token', $token);
         }
-
-        $token = $client->verifyToken();
-        // not visible in detail
-        $this->assertArrayNotHasKey('token', $token);
     }
 
     public function testCannotRefreshCanManageProtectedBranchTokenEvenSelf(): void
