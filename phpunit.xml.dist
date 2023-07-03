@@ -301,7 +301,7 @@
 	</testsuite>
 	<testsuite name="paratest-sox-snowflake">
 		<!--This is temporary to check something-->
-		<directory>tests/Backend/SOX</directory>
+		<file>tests/Backend/SOX/SOXTokensTest.php</file>
 	</testsuite>
 	<testsuite name="sync-sox-snowflake">
 		<!--This is temporary to check something-->
