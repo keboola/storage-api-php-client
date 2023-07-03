@@ -349,16 +349,29 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setConfigurationId($configurationId)
             ->setName('Main')
             ->setDescription('some desc');
-        $components->addConfiguration($configuration);
+        $nonUpdatedConfig = $components->addConfiguration($configuration);
 
+        $nonUpdatedConfigIdentifier = $nonUpdatedConfig['currentVersion']['versionIdentifier'];
         [$mrId, $branchId] = $this->createBranchMergeRequestAndApproveIt();
         // in default and dev branch is the same config with the same versionIdentifier
 
+        $devBranchComponents = new Components($this->getBranchAwareClient($branchId, [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+        $configInDevBranch = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame($nonUpdatedConfigIdentifier, $configInDevBranch['currentVersion']['versionIdentifier']);
         // make change in default branch to create conflict
         $components->addConfigurationRow((new ConfigurationRow($configuration))
             ->setRowId('firstRow')
             ->setConfiguration(['value' => 1]));
 
+        $actualIdentifierInMain = $components->getConfiguration($componentId, $configurationId);
+        $actualIdentifierInBranch = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertNotSame(
+            $actualIdentifierInBranch['currentVersion']['versionIdentifier'],
+            $actualIdentifierInMain['currentVersion']['versionIdentifier']
+        );
         try {
             $this->prodManagerClient->mergeMergeRequest($mrId);
             $this->fail('Should fail, MR has conflict.');
@@ -371,14 +384,14 @@ class MergeRequestsTest extends StorageApiTestCase
         $mr = $this->developerClient->getMergeRequest($mrId);
         $this->assertEquals('approved', $mr['state']);
 
-        $branchAwareDeveloperStorageClient = $this->getBranchAwareClient($branchId, [
-            'token' => STORAGE_API_DEVELOPER_TOKEN,
-            'url' => STORAGE_API_URL,
-        ]);
+        $devBranchComponents->resetToDefault($componentId, $configurationId);
 
-        $components = new Components($branchAwareDeveloperStorageClient);
-        $components->resetToDefault($componentId, $configurationId);
-
+        $actualIdentifierInMain = $components->getConfiguration($componentId, $configurationId);
+        $actualIdentifierInBranch = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame(
+            $actualIdentifierInBranch['currentVersion']['versionIdentifier'],
+            $actualIdentifierInMain['currentVersion']['versionIdentifier']
+        );
         // todo now is works like this, but maybe it should go through approval process again
         $this->prodManagerClient->mergeMergeRequest($mrId);
         $mr = $this->developerClient->getMergeRequest($mrId);
@@ -531,7 +544,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame('value', $configInDev['configuration']['main']);
         $this->assertSame(1, $configInDev['version']);
         $this->assertSame('Copied from default branch configuration "Main" (main-1) version 1', $configInDev['changeDescription']);
-
+        $lastIdentifierInConfig1 = $configInDev['currentVersion']['versionIdentifier'];
         // create new config in dev branch
         $configuration = (new Configuration())
             ->setComponentId($componentId)
@@ -545,6 +558,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame('value', $configInDev['configuration']['dev']);
         $this->assertSame(1, $configInDev['version']);
         $this->assertSame('Configuration created', $configInDev['changeDescription']);
+        $lastIdentifierInConfig2 = $configInDev['currentVersion']['versionIdentifier'];
 
         // and merge it
         $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
@@ -558,6 +572,8 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame('value', $firstConfigInDefault['configuration']['main']);
         $this->assertSame(1, $firstConfigInDefault['version']);
         $this->assertSame('Configuration created', $firstConfigInDefault['changeDescription']);
+        // if nothing updated in branch, nothing merged from branch and identifier is the same
+        $this->assertEquals($lastIdentifierInConfig1, $firstConfigInDefault['currentVersion']['versionIdentifier']);
 
         $secondConfigInDefault = $components->getConfiguration($componentId, 'config-in-dev-branch');
         $this->assertSame('value', $secondConfigInDefault['configuration']['dev']);
@@ -566,6 +582,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame('DevBranch', $secondConfigInDefault['name']);
         $this->assertSame('dev config', $secondConfigInDefault['description']);
         $this->assertFalse($secondConfigInDefault['isDisabled']);
+        $this->assertNotEquals($lastIdentifierInConfig2, $secondConfigInDefault['currentVersion']['versionIdentifier']);
     }
 
     public function testUpdateRow(): void
@@ -676,7 +693,6 @@ class MergeRequestsTest extends StorageApiTestCase
             'token' => STORAGE_API_DEVELOPER_TOKEN,
             'url' => STORAGE_API_URL,
         ]));
-
         $rowsInDefault = $components->listConfigurationRows((new ListConfigurationRowsOptions())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId));
@@ -701,6 +717,14 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setConfigurationId($configurationId));
         $this->assertCount(2, $rowsInBranch);
 
+        $configInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $lastIdentifierInConfig = $configInDev['currentVersion']['versionIdentifier'];
+        $row1 = $components->getConfigurationRow($componentId, $configurationId, 'new-row');
+        $lastRow1Identifier = $row1['versionIdentifier'];
+
+        $row2 = $devBranchComponents->getConfigurationRow($componentId, $configurationId, 'new-row-2');
+        $lastRow2Identifier = $row2['versionIdentifier'];
+
         $this->mergeDevBranchToProd($newBranch['id'], $oldBranches[0]['id']);
 
         $rowsInDefault = $components->listConfigurationRows((new ListConfigurationRowsOptions())
@@ -710,12 +734,17 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $row1 = $components->getConfigurationRow($componentId, $configurationId, 'new-row');
         $this->assertSame(1, $row1['version']);
+        $this->assertEquals($lastRow1Identifier, $row1['versionIdentifier']);// no chage in dev branch -> same identifier
 
         $row2 = $components->getConfigurationRow($componentId, $configurationId, 'new-row-2');
         $this->assertSame(1, $row2['version']);
         $this->assertSame(['value' => 'row2 values updated'], $row2['configuration']);
         $this->assertSame('create row', $row2['name']);
         $this->assertSame('description', $row2['description']);
+        $this->assertNotEquals($lastRow2Identifier, $row2['versionIdentifier']);
+
+        $configInDev = $components->getConfiguration($componentId, $configurationId);
+        $this->assertNotEquals($lastIdentifierInConfig, $configInDev['currentVersion']['versionIdentifier']);
     }
 
     public function testRowsSortOrder(): void
