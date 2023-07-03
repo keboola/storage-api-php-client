@@ -811,11 +811,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Parameter \\#1 \\$seconds of function sleep expects int, mixed given\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Parameter \\#3 \\$content of method MicrosoftAzure\\\\Storage\\\\Blob\\\\BlobRestProxy\\:\\:createBlockBlob\\(\\) expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string, string\\|false given\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
