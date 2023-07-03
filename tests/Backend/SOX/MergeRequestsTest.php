@@ -145,7 +145,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertEquals('approved', $mrData['state']);
         $this->assertCount(2, $mrData['approvals']);
 
-        $mrData = $reviewerClient->rejectMergeRequest($mrId);
+        $mrData = $reviewerClient->requestMergeRequestChanges($mrId);
         $this->assertCount(0, $mrData['approvals']);
         $this->assertSame('development', $mrData['state']);
 
@@ -271,7 +271,7 @@ class MergeRequestsTest extends StorageApiTestCase
             $this->assertSame($e->getMessage(), 'You don\'t have access to the resource.');
         }
 
-        $this->developerClient->rejectMergeRequest($mrId);
+        $this->developerClient->requestMergeRequestChanges($mrId);
         $mr = $this->developerClient->updateMergeRequest(
             $mrId,
             'Lalala',
