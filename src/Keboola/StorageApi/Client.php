@@ -957,10 +957,10 @@ class Client
         return $mrDetail;
     }
 
-    public function rejectMergeRequest(int $mergeRequestId): array
+    public function requestMergeRequestChanges(int $mergeRequestId): array
     {
         /** @var array $mrDetail */
-        $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/reject", []);
+        $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/request-changes", []);
         return $mrDetail;
     }
 
