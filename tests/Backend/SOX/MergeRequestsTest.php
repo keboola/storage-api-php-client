@@ -934,7 +934,6 @@ class MergeRequestsTest extends StorageApiTestCase
 
     public function testCopyMetadataAfterMerge(): void
     {
-        $this->markTestSkipped('Not implemented yet');
         $defaultBranch = $this->branches->getDefaultBranch();
 
         // Create config in default branch
