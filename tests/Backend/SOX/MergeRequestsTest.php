@@ -225,8 +225,13 @@ class MergeRequestsTest extends StorageApiTestCase
         }
         try {
             // try to merge second MR
+            // this is not 100% reliable
+            // MR1 merge job could end before this request and job for MR2 could be queued
             $this->prodManagerClient->apiPutJson("merge-request/{$mr2}/merge", [], false);
-            $this->fail('Second MR cannot be merged.');
+            $this->fail(sprintf(
+                'Second MR cannot be merged. (This could be race-condition because "%s" job ended before this request)',
+                $mrJob['id']
+            ));
         } catch (ClientException $e) {
             $this->assertSame('Cannot merge, another merge is in progress.', $e->getMessage());
         }
