@@ -145,7 +145,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertEquals('approved', $mrData['state']);
         $this->assertCount(2, $mrData['approvals']);
 
-        $mrData = $reviewerClient->rejectMergeRequest($mrId);
+        $mrData = $reviewerClient->requestMergeRequestChanges($mrId);
         $this->assertCount(0, $mrData['approvals']);
         $this->assertSame('development', $mrData['state']);
 
@@ -153,6 +153,96 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertCount(0, $mrData['approvals']);
         $this->assertSame('canceled', $mrData['state']);
         $this->assertNull($mrData['branches']['branchFromId']);
+    }
+
+
+    public function testMRWorkflowLock(): void
+    {
+        $defaultBranch = $this->branches->getDefaultBranch();
+
+        // create two branches
+        $newBranch1 = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_1');
+        $newBranch2 = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_2');
+
+        // create same configuration in branches to create conflict
+        $configuration = (new Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('Main')
+            ->setDescription('some desc');
+        (new Components(
+            $this->getBranchAwareClient($newBranch1['id'], [
+                'token' => STORAGE_API_DEVELOPER_TOKEN,
+                'url' => STORAGE_API_URL,
+            ])
+        ))->addConfiguration($configuration);
+        (new Components(
+            $this->getBranchAwareClient($newBranch2['id'], [
+                'token' => STORAGE_API_DEVELOPER_TOKEN,
+                'url' => STORAGE_API_URL,
+            ])
+        ))->addConfiguration($configuration);
+
+        // create MR for each branch
+        $mr1 = $this->developerClient->createMergeRequest([
+            'branchFromId' => $newBranch1['id'],
+            'branchIntoId' => $defaultBranch['id'],
+            'title' => 'Change everything',
+            'description' => 'Fix typo',
+        ]);
+        $mr2 = $this->developerClient->createMergeRequest([
+            'branchFromId' => $newBranch2['id'],
+            'branchIntoId' => $defaultBranch['id'],
+            'title' => 'Change everything',
+            'description' => 'Fix typo',
+        ]);
+
+        // set both MR to approved
+        $this->developerClient->mergeRequestPutToReview($mr1);
+        $this->developerClient->mergeRequestPutToReview($mr2);
+        $this->getReviewerStorageApiClient()->mergeRequestAddApproval($mr1);
+        $this->getReviewerStorageApiClient()->mergeRequestAddApproval($mr2);
+        $this->getSecondReviewerStorageApiClient()->mergeRequestAddApproval($mr1);
+        $this->getSecondReviewerStorageApiClient()->mergeRequestAddApproval($mr2);
+
+        // merge first MR
+        /** @var array{id: int} $mrJob */
+        $mrJob = $this->prodManagerClient->apiPutJson("merge-request/{$mr1}/merge", [], false);
+        try {
+            // try to create configuration on branch in_merge
+            (new Components(
+                $this->getBranchAwareClient($newBranch1['id'], [
+                    'token' => STORAGE_API_DEVELOPER_TOKEN,
+                    'url' => STORAGE_API_URL,
+                ])
+            ))->addConfiguration($configuration);
+        } catch (ClientException $e) {
+            // error messages should be improved in the future SOX-155
+            $this->assertSame(
+                'You don\'t have access to the resource.',
+                $e->getMessage()
+            );
+        }
+        try {
+            // try to merge second MR
+            // this is not 100% reliable
+            // MR1 merge job could end before this request and job for MR2 could be queued
+            $this->prodManagerClient->apiPutJson("merge-request/{$mr2}/merge", [], false);
+            $this->fail(sprintf(
+                'Second MR cannot be merged. (This could be race-condition because "%s" job ended before this request)',
+                $mrJob['id']
+            ));
+        } catch (ClientException $e) {
+            $this->assertSame('Cannot merge, another merge is in progress.', $e->getMessage());
+        }
+
+        $this->developerClient->waitForJob($mrJob['id']);
+
+        // MR1 is published MR2 is approved as merge had failed
+        $mr = $this->developerClient->getMergeRequest($mr1);
+        $this->assertEquals('published', $mr['state']);
+        $mr = $this->developerClient->getMergeRequest($mr2);
+        $this->assertEquals('approved', $mr['state']);
     }
 
     public function testAddSingleApprovalOnly(): void
@@ -271,7 +361,7 @@ class MergeRequestsTest extends StorageApiTestCase
             $this->assertSame($e->getMessage(), 'You don\'t have access to the resource.');
         }
 
-        $this->developerClient->rejectMergeRequest($mrId);
+        $this->developerClient->requestMergeRequestChanges($mrId);
         $mr = $this->developerClient->updateMergeRequest(
             $mrId,
             'Lalala',

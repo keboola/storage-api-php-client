@@ -957,10 +957,10 @@ class Client
         return $mrDetail;
     }
 
-    public function rejectMergeRequest(int $mergeRequestId): array
+    public function requestMergeRequestChanges(int $mergeRequestId): array
     {
         /** @var array $mrDetail */
-        $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/reject", []);
+        $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/request-changes", []);
         return $mrDetail;
     }
 
@@ -2747,11 +2747,11 @@ class Client
     /**
      * @return mixed|string
      */
-    public function apiPutJson(string $url, array $data = [])
+    public function apiPutJson(string $url, array $data = [], bool $handleAsyncTask = true)
     {
         return $this->request('PUT', $url, [
             'json' => $data,
-        ]);
+        ], null, $handleAsyncTask);
     }
 
     /**

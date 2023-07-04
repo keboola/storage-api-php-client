@@ -9066,9 +9066,9 @@ Apply changes in MR and all changes in configurations are moved to the productio
             }
 
 
-### Reject merge request [PUT /v2/storage/merge-request/{id}/reject]
+### Request merge request changes [PUT /v2/storage/merge-request/{id}/request-changes]
 
-Rejection will remove all approvals and move the Merge request to `development` state.
+Requesting changes will remove all approvals and move the Merge request to `development` state.
 
 + Parameters
     + id (required, number) - merge request ID
