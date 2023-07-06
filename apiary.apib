@@ -8924,7 +8924,7 @@ Detail of Merge request also contains `content` of changed objects.
             "createdAt": "2023-06-15T10:20:58+0200"
             }
 
-### Put MR in review [PUT /v2/storage/merge-request/{id}/to_review]
+### Put MR in review [PUT /v2/storage/merge-request/{id}/request-review]
 Will move Merge request state `development` -> `in_review`. If branch has an open Merge request in state different from `development`, it is considered as locked and no updates on it are available.
 + Parameters
     + id (required, number) - merge request ID
@@ -8969,7 +8969,7 @@ Will move Merge request state `development` -> `in_review`. If branch has an ope
             "createdAt": "2023-06-15T10:20:58+0200"
             }
 
-### Add approval [PUT /v2/storage/merge-request/{id}/add_approval]
+### Approve [PUT /v2/storage/merge-request/{id}/approve]
 
 Each project has defined required number of approvals. If the last approval arrives, MR changes it state to `approved`.
 + Parameters

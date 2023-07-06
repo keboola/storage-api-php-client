@@ -943,17 +943,17 @@ class Client
         return $mrDetail;
     }
 
-    public function mergeRequestPutToReview(int $mergeRequestId): array
+    public function mergeRequestRequestReview(int $mergeRequestId): array
     {
         /** @var array $mrDetail */
-        $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/to_review", []);
+        $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/request-review", []);
         return $mrDetail;
     }
 
-    public function mergeRequestAddApproval(int $mergeRequestId): array
+    public function mergeRequestApprove(int $mergeRequestId): array
     {
         /** @var array $mrDetail */
-        $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/add_approval", []);
+        $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/approve", []);
         return $mrDetail;
     }
 
