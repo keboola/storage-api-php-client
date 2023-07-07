@@ -114,7 +114,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $list = $this->developerClient->listMergeRequests();
         self::assertSame($title, $list[0]['title']);
 
-        $mrData = $this->developerClient->mergeRequestPutToReview($mrId);
+        $mrData = $this->developerClient->mergeRequestRequestReview($mrId);
 
         $this->assertEquals('in_review', $mrData['state']);
     }
@@ -133,14 +133,14 @@ class MergeRequestsTest extends StorageApiTestCase
         ]);
 
         $reviewerClient = $this->getReviewerStorageApiClient();
-        $this->developerClient->mergeRequestPutToReview($mrId);
+        $this->developerClient->mergeRequestRequestReview($mrId);
 
-        $mrData = $reviewerClient->mergeRequestAddApproval($mrId);
+        $mrData = $reviewerClient->mergeRequestApprove($mrId);
 
         $this->assertEquals('in_review', $mrData['state']);
         $this->assertCount(1, $mrData['approvals']);
 
-        $mrData = $this->getSecondReviewerStorageApiClient()->mergeRequestAddApproval($mrId);
+        $mrData = $this->getSecondReviewerStorageApiClient()->mergeRequestApprove($mrId);
 
         $this->assertEquals('approved', $mrData['state']);
         $this->assertCount(2, $mrData['approvals']);
@@ -198,12 +198,12 @@ class MergeRequestsTest extends StorageApiTestCase
         ]);
 
         // set both MR to approved
-        $this->developerClient->mergeRequestPutToReview($mr1);
-        $this->developerClient->mergeRequestPutToReview($mr2);
-        $this->getReviewerStorageApiClient()->mergeRequestAddApproval($mr1);
-        $this->getReviewerStorageApiClient()->mergeRequestAddApproval($mr2);
-        $this->getSecondReviewerStorageApiClient()->mergeRequestAddApproval($mr1);
-        $this->getSecondReviewerStorageApiClient()->mergeRequestAddApproval($mr2);
+        $this->developerClient->mergeRequestRequestReview($mr1);
+        $this->developerClient->mergeRequestRequestReview($mr2);
+        $this->getReviewerStorageApiClient()->mergeRequestApprove($mr1);
+        $this->getReviewerStorageApiClient()->mergeRequestApprove($mr2);
+        $this->getSecondReviewerStorageApiClient()->mergeRequestApprove($mr1);
+        $this->getSecondReviewerStorageApiClient()->mergeRequestApprove($mr2);
 
         // merge first MR
         /** @var array{id: int} $mrJob */
@@ -259,15 +259,15 @@ class MergeRequestsTest extends StorageApiTestCase
         ]);
 
         $reviewerClient = $this->getReviewerStorageApiClient();
-        $this->developerClient->mergeRequestPutToReview($mrId);
+        $this->developerClient->mergeRequestRequestReview($mrId);
 
-        $mrData = $reviewerClient->mergeRequestAddApproval($mrId);
+        $mrData = $reviewerClient->mergeRequestApprove($mrId);
 
         $this->assertEquals('in_review', $mrData['state']);
         $this->assertCount(1, $mrData['approvals']);
 
         try {
-            $mrData = $reviewerClient->mergeRequestAddApproval($mrId);
+            $mrData = $reviewerClient->mergeRequestApprove($mrId);
         } catch (ClientException $e) {
             $this->assertSame('Operation canot be performed due: This reviewer has already approved this request.', $e->getMessage());
         }
@@ -298,7 +298,7 @@ class MergeRequestsTest extends StorageApiTestCase
         ]);
 
         try {
-            $this->prodManagerClient->mergeRequestPutToReview($mrId);
+            $this->prodManagerClient->mergeRequestRequestReview($mrId);
             $this->fail('Prod manager should not be able to put merge request in review');
         } catch (ClientException $e) {
             $this->assertSame($e->getMessage(), 'You don\'t have access to the resource.');
@@ -348,7 +348,7 @@ class MergeRequestsTest extends StorageApiTestCase
             $this->assertSame($e->getMessage(), 'You don\'t have access to the resource.');
         }
 
-        $this->developerClient->mergeRequestPutToReview($mrId);
+        $this->developerClient->mergeRequestRequestReview($mrId);
 
         try {
             $this->developerClient->updateMergeRequest(
@@ -397,14 +397,14 @@ class MergeRequestsTest extends StorageApiTestCase
         ]);
 
         $reviewerClient = $this->getReviewerStorageApiClient();
-        $this->developerClient->mergeRequestPutToReview($mrId);
+        $this->developerClient->mergeRequestRequestReview($mrId);
 
-        $mrData = $reviewerClient->mergeRequestAddApproval($mrId);
+        $mrData = $reviewerClient->mergeRequestApprove($mrId);
 
         $this->assertEquals('in_review', $mrData['state']);
         $this->assertCount(1, $mrData['approvals']);
 
-        $mrData = $this->getSecondReviewerStorageApiClient()->mergeRequestAddApproval($mrId);
+        $mrData = $this->getSecondReviewerStorageApiClient()->mergeRequestApprove($mrId);
         $this->assertCount(2, $mrData['approvals']);
         $this->assertSame('approved', $mrData['state']);
 
@@ -1107,10 +1107,10 @@ class MergeRequestsTest extends StorageApiTestCase
         ]);
 
         $reviewerClient = $this->getReviewerStorageApiClient();
-        $this->developerClient->mergeRequestPutToReview($mrId);
+        $this->developerClient->mergeRequestRequestReview($mrId);
 
-        $reviewerClient->mergeRequestAddApproval($mrId);
-        $this->getSecondReviewerStorageApiClient()->mergeRequestAddApproval($mrId);
+        $reviewerClient->mergeRequestApprove($mrId);
+        $this->getSecondReviewerStorageApiClient()->mergeRequestApprove($mrId);
 
         return [$mrId, $newBranch['id']];
     }
@@ -1162,9 +1162,9 @@ class MergeRequestsTest extends StorageApiTestCase
         ]);
 
         $reviewerClient = $this->getReviewerStorageApiClient();
-        $this->developerClient->mergeRequestPutToReview($mrId);
-        $reviewerClient->mergeRequestAddApproval($mrId);
-        $this->getSecondReviewerStorageApiClient()->mergeRequestAddApproval($mrId);
+        $this->developerClient->mergeRequestRequestReview($mrId);
+        $reviewerClient->mergeRequestApprove($mrId);
+        $this->getSecondReviewerStorageApiClient()->mergeRequestApprove($mrId);
         $this->prodManagerClient->mergeMergeRequest($mrId);
     }
 }
