@@ -2602,7 +2602,7 @@ class Client
     /**
      * @param $bucketId
      * @param array $params
-     * @return mixed|string
+     * @return array
      */
     public function listBucketEvents($bucketId, $params = [])
     {

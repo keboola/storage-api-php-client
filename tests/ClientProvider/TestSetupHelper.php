@@ -6,6 +6,7 @@ namespace Keboola\Test\ClientProvider;
 
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\DevBranches;
+use Keboola\Test\StorageApiTestCase;
 
 class TestSetupHelper
 {
@@ -71,5 +72,45 @@ class TestSetupHelper
         }
 
         return [$client, $testClient];
+    }
+
+    /**
+     * @return array<string, array{0:ClientProvider::DEFAULT_BRANCH|ClientProvider::DEV_BRANCH,1:string}>
+     */
+    public function provideComponentsClientTypeBasedOnSuite(StorageApiTestCase $that): array
+    {
+        $clientProvider = new ClientProvider($that);
+        $defaultAndBranchProvider = [
+            'defaultBranch + production-mananger' => [
+                ClientProvider::DEFAULT_BRANCH,
+                'production-manager',
+            ],
+            'devBranch + developer' => [
+                ClientProvider::DEV_BRANCH,
+                'developer',
+            ],
+        ];
+        $onlyDefaultProvider = [
+            'defaultBranch + admin' => [
+                ClientProvider::DEFAULT_BRANCH,
+                'admin',
+            ],
+        ];
+
+        if (in_array(SUITE_NAME, ['paratest-sox-snowflake', 'sync-sox-snowflake'])) {
+            return $defaultAndBranchProvider;
+        }
+
+        // it's not set - so it's likely local run
+        if (SUITE_NAME === '' || SUITE_NAME === false) {
+            // select based on feature
+            $token = $clientProvider->getDefaultClient()->verifyToken();
+            assert(array_key_exists('owner', $token));
+            if (in_array('protected-default-branch', $token['owner']['features'], true)) {
+                return $defaultAndBranchProvider;
+            }
+        }
+
+        return $onlyDefaultProvider;
     }
 }
