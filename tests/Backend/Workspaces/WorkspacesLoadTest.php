@@ -11,6 +11,7 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\Test\Backend\Workspaces\Backend\InputMappingConverter;
+use Keboola\Test\Backend\Workspaces\Backend\LegacyInputMappingConverter;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesLoadTest extends ParallelWorkspacesTestCase
@@ -2164,6 +2165,40 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                 ],
             ],
         ]);
+        $this->assertSame(['id', 'name', 'city', 'sex'], $backend->getTableColumns('targetTable'));
+
+        // test also on legacy IM
+        $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            [
+                'input' => [
+                    [
+                        'source' => $devTableId,
+                        'destination' => 'targetTable',
+                        'sourceBranchId' => $branch['id'],
+                        'datatypes' => [
+                            'id' => [
+                                'column' => 'id',
+                                'type' => 'INT',
+                            ],
+                            'name' => [
+                                'column' => 'name',
+                                'type' => 'VARCHAR',
+                            ],
+                            'city' => [
+                                'column' => 'city',
+                                'type' => 'VARCHAR',
+                            ],
+                            'sex' => [
+                                'column' => 'sex',
+                                'type' => 'VARCHAR',
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         $this->assertSame(['id', 'name', 'city', 'sex'], $backend->getTableColumns('targetTable'));
     }
