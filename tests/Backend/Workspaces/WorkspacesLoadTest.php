@@ -11,7 +11,6 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\Test\Backend\Workspaces\Backend\InputMappingConverter;
-use Keboola\Test\Backend\Workspaces\Backend\LegacyInputMappingConverter;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesLoadTest extends ParallelWorkspacesTestCase
