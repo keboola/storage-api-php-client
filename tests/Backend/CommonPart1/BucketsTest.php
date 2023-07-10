@@ -182,6 +182,7 @@ class BucketsTest extends StorageApiTestCase
             if ($devBranchType === ClientProvider::DEFAULT_BRANCH) {
                 $this->assertSame($this->getDefaultBranchId($this), $events[0]['idBranch']);
             } else {
+                assert($this->_testClient instanceof BranchAwareClient);
                 $this->assertSame($this->_testClient->getCurrentBranchId(), $events[0]['idBranch']);
             }
         };
@@ -446,42 +447,8 @@ class BucketsTest extends StorageApiTestCase
         $this->assertFalse($this->_testClient->bucketExists('in.ukulele'));
     }
 
-    public function provideComponentsClientTypeBasedOnSuite()
+    public function provideComponentsClientTypeBasedOnSuite(): array
     {
-        $this->clientProvider = new ClientProvider($this);
-        $this->_client = $this->getDefaultClient();
-        $defaultAndBranchProvider = [
-            'defaultBranch + production-mananger' => [
-                ClientProvider::DEFAULT_BRANCH,
-                'production-manager',
-            ],
-            'devBranch + developer' => [
-                ClientProvider::DEV_BRANCH,
-                'developer',
-            ],
-        ];
-        $onlyDefaultProvider = [
-            'defaultBranch + admin' => [
-                ClientProvider::DEFAULT_BRANCH,
-                'admin',
-            ],
-        ];
-
-        if (SUITE_NAME === 'paratest-sox-snowflake') {
-            return $defaultAndBranchProvider;
-        }
-
-        // it's not set - so it's likely local run
-        if (SUITE_NAME === '' || SUITE_NAME === false) {
-            // select based on feature
-            $token = $this->getDefaultClient()->verifyToken();
-            $this->assertArrayHasKey('owner', $token);
-            if (in_array('protected-default-branch', $token['owner']['features'], true)) {
-                return $defaultAndBranchProvider;
-            }
-        }
-
-        return $onlyDefaultProvider;
+        return (new TestSetupHelper())->provideComponentsClientTypeBasedOnSuite($this);
     }
-
 }

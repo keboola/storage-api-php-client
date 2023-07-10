@@ -110,9 +110,8 @@ class ClientProvider
 
     /**
      * @param array $config
-     * @return Client
      */
-    public function getBranchAwareClient($branchId, $config = []): BranchAwareClient
+    public function getBranchAwareClient(int $branchId, array $config = []): BranchAwareClient
     {
         $config = array_merge([
             'token' => STORAGE_API_TOKEN,
