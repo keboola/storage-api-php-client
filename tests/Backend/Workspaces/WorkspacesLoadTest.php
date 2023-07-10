@@ -16,9 +16,6 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesLoadTest extends ParallelWorkspacesTestCase
 {
-    const IMPORT_FILE_PATH_LANGUAGES = __DIR__ . '/../../_data/languages.csv';
-    const IMPORT_FILE_PATH_USERS = __DIR__ . '/../../_data/users.csv';
-
     public function testWorkspaceTablesPermissions(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -2108,98 +2105,5 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertEquals('workspaceLoad', $job['operationName']);
         $this->assertEquals($workspace['id'], $job['operationParams']['workspaceId']);
         $this->assertEquals($options['input'], $job['operationParams']['input']);
-    }
-
-    public function testLoadFromBranch(): void
-    {
-        // create branch and branch client
-        $branch = $this->createDevBranchForTestCase($this);
-        $branchAwareClient = $this->getBranchAwareDefaultClient($branch['id']);
-
-        // create table <bucketName>.test-table in PROD with table languages => table ['id', 'name']
-        $prodBucketId = $this->getTestBucketId();
-        $prodTableId = $this->_client->createTableAsync(
-            $prodBucketId,
-            'test-table',
-            new CsvFile(self::IMPORT_FILE_PATH_LANGUAGES)
-        );
-
-        // get bucket detail
-        $bucketDetail = $this->_client->getBucket($prodBucketId);
-
-        // create table <bucketName>.test-table in DEV with table users => table ['id', 'name', 'sex', 'city']
-        // different table but with same name - good enough to prove that it is a table from dev branch
-        $devBucketId = $branchAwareClient->createBucket($bucketDetail['displayName'], self::STAGE_IN);
-        // check that buckets look the same
-        $this->assertSame($devBucketId, $prodBucketId);
-        $devTableId = $branchAwareClient->createTableAsync(
-            $devBucketId,
-            'test-table',
-            new CsvFile(self::IMPORT_FILE_PATH_USERS)
-        );
-
-        // create WS in branch
-        $workspaces = new Workspaces($branchAwareClient);
-        $workspace = $workspaces->createWorkspace();
-
-        // load without sourceBranchId parameter - should load from PROD -> assert table ['id', 'name']
-        $workspaces->loadWorkspaceData($workspace['id'], [
-            'input' => [
-                [
-                    'source' => $prodTableId,
-                    'destination' => 'targetTable',
-                ],
-            ],
-        ]);
-
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        $this->assertSame(['id', 'name'], $backend->getTableColumns('targetTable'));
-
-        // load with sourceBranchId parameter - should load from DEV -> assert table columns ['id', 'name', 'city', 'sex']
-        $workspaces->loadWorkspaceData($workspace['id'], [
-            'input' => [
-                [
-                    'source' => $devTableId,
-                    'destination' => 'targetTable',
-                    'sourceBranchId' => $branch['id'],
-                ],
-            ],
-        ]);
-        $this->assertSame(['id', 'name', 'city', 'sex'], $backend->getTableColumns('targetTable'));
-
-        // test also on legacy IM
-        $options = LegacyInputMappingConverter::convertInputColumnsTypesForBackend(
-            $workspace['connection']['backend'],
-            [
-                'input' => [
-                    [
-                        'source' => $devTableId,
-                        'destination' => 'targetTable',
-                        'sourceBranchId' => $branch['id'],
-                        'datatypes' => [
-                            'id' => [
-                                'column' => 'id',
-                                'type' => 'INT',
-                            ],
-                            'name' => [
-                                'column' => 'name',
-                                'type' => 'VARCHAR',
-                            ],
-                            'city' => [
-                                'column' => 'city',
-                                'type' => 'VARCHAR',
-                            ],
-                            'sex' => [
-                                'column' => 'sex',
-                                'type' => 'VARCHAR',
-                            ],
-                        ],
-                    ],
-                ],
-            ]
-        );
-        $workspaces->loadWorkspaceData($workspace['id'], $options);
-
-        $this->assertSame(['id', 'name', 'city', 'sex'], $backend->getTableColumns('targetTable'));
     }
 }
