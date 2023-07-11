@@ -84,7 +84,7 @@ class ExportTableTest extends StorageApiTestCase
 
         $developerDefaultBranchExporter = new TableExporter($developerDefaultBranchClient);
 
-        // Test developer cannot export table exist in dev branch using default branch
+        // Test developer cannot export dev table using default branch file storage (dev table -> default file)
         try {
             $developerDefaultBranchExporter->exportTable($tableId, $this->downloadPath, []);
             $this->fail('Cannot export from table in devBranch via default branch client');
