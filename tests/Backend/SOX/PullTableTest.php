@@ -5,6 +5,7 @@ namespace Keboola\Test\Backend\SOX;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\DevBranches;
+use Keboola\StorageApi\Event;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\Metadata\TableMetadataUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -43,6 +44,7 @@ class PullTableTest extends StorageApiTestCase
     public function testPullTableFromDefaultBranch(): void
     {
         $description = $this->generateDescriptionForTestObject();
+        $defaultBranch = $this->branches->getDefaultBranch();
         $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject());
 
         $privilegedClient = $this->getDefaultBranchStorageApiClient();
@@ -84,10 +86,37 @@ class PullTableTest extends StorageApiTestCase
             'token' => STORAGE_API_DEVELOPER_TOKEN,
             'url' => STORAGE_API_URL,
         ]);
+        // set tokenId to fetch events
+        $this->tokenId = explode('-', STORAGE_API_DEVELOPER_TOKEN)[1];
 
+        $runId = $privilegedClient->generateRunId();
+        $branchClient->setRunId($runId);
+
+        $event = $this->createAndWaitForEvent(
+            (new Event())->setComponent('dummy')->setMessage('dummy'),
+            $branchClient
+        );
+        $this->lastEventId = $event['id'];
         $newTableId = $branchClient->pullTableToBranch($productionTableId);
-        $newTable = $branchClient->getTable($newTableId);
+        // Check events created
+        $bucketCreateEvent = $this->listEvents(
+            $branchClient,
+            'storage.bucketCreated',
+            $productionBucketId,
+            2
+        );
+        $this->assertCount(1, $bucketCreateEvent);
+        $pullEvent = $this->listEvents($branchClient, 'storage.tableCopyToBucket');
+        $this->assertCount(1, $pullEvent);
+        $this->assertSame([
+            'sourceBucketId' => $productionBucketId,
+            'sourceBucketBranch' => $defaultBranch['id'],
+            'destinationBucketId' => $productionBucketId,
+            'destinationBucketBranch' => $newBranch['id'],
+        ], $pullEvent[0]['params']);
 
+        // check table created
+        $newTable = $branchClient->getTable($newTableId);
         $this->assertNotSame($productionTable['created'], $newTable['created']);
 
         $this->assertSame($newBranch['id'], $newTable['bucket']['idBranch']);
@@ -124,7 +153,28 @@ class PullTableTest extends StorageApiTestCase
                 ]
             )
         );
+
+        $event = $this->createAndWaitForEvent(
+            (new Event())->setComponent('dummy')->setMessage('dummy'),
+            $branchClient
+        );
+        $this->lastEventId = $event['id'];
         $newTableId = $branchClient->pullTableToBranch($productionTableId);
+        // Check events created
+        // note that there is no bucket create event since bucket already exists
+        $events = $branchClient->listEvents([
+            'sinceId' => $this->lastEventId,
+            'limit' => 2,
+            'q' => sprintf('token.id:%s', $this->tokenId),
+        ]);
+        $this->assertCount(1, $events);
+        $this->assertSame([
+            'sourceBucketId' => $productionBucketId,
+            'sourceBucketBranch' => $defaultBranch['id'],
+            'destinationBucketId' => $productionBucketId,
+            'destinationBucketBranch' => $newBranch['id'],
+        ], $events[0]['params']);
+
         $newTable = $branchClient->getTable($newTableId);
         $this->assertCount(1, $newTable['columnMetadata']);
         $this->assertArrayHasKey('id', $newTable['columnMetadata']);
