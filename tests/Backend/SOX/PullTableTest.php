@@ -12,6 +12,7 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\MetadataUtils;
 
 class PullTableTest extends StorageApiTestCase
@@ -89,45 +90,53 @@ class PullTableTest extends StorageApiTestCase
             'token' => STORAGE_API_DEVELOPER_TOKEN,
             'url' => STORAGE_API_URL,
         ]);
-        // set tokenId to fetch events
-        $this->tokenId = explode('-', STORAGE_API_DEVELOPER_TOKEN)[1];
-
-        $runId = $privilegedClient->generateRunId();
-        $branchClient->setRunId($runId);
-
+        $tokenId = explode('-', STORAGE_API_DEVELOPER_TOKEN)[1];
         $event = $this->createAndWaitForEvent(
             (new Event())->setComponent('dummy')->setMessage('dummy'),
             $branchClient
         );
         $this->lastEventId = $event['id'];
         $newTableId = $branchClient->pullTableToBranch($productionTableId);
+
         // Check events created
-        $bucketCreateEvent = $this->listEvents(
-            $branchClient,
-            'storage.bucketCreated',
-            $productionBucketId,
-            2
-        );
-        $this->assertCount(1, $bucketCreateEvent);
-        $pullEvent = $this->listEvents($branchClient, 'storage.tableCopyToBucket');
-        $this->assertCount(1, $pullEvent);
-        $this->assertSame([
-            'sourceBucketId' => $productionBucketId,
-            'sourceBucketBranch' => $defaultBranch['id'],
-            'destinationBucketId' => $productionBucketId,
-            'destinationBucketBranch' => $newBranch['id'],
-        ], $pullEvent[0]['params']);
+        $assertCallback = function ($events) use ($productionBucketId) {
+            $this->assertCount(1, $events);
+            // check bucket event
+            $this->assertSame('storage.bucketCreated', $events[0]['event']);
+            $this->assertSame($productionBucketId, $events[0]['objectId']);
+            $this->assertSame('bucket', $events[0]['objectType']);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setTokenId($tokenId);
+        $query->setEvent('storage.bucketCreated');
+        $this->assertEventWithRetries($branchClient, $assertCallback, $query);
+
+        // Check events created
+        $assertCallback = function ($events) use ($productionBucketId, $defaultBranch, $newBranch, $productionTable) {
+            $this->assertCount(1, $events);
+            // check table event
+            $this->assertSame('storage.tableCopyToBucket', $events[0]['event']);
+            $this->assertSame($productionTable['id'], $events[0]['objectId']);
+            $this->assertSame([
+                'sourceBucketId' => $productionBucketId,
+                'sourceBucketBranch' => $defaultBranch['id'],
+                'destinationBucketId' => $productionBucketId,
+                'destinationBucketBranch' => $newBranch['id'],
+            ], $events[0]['params']);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setTokenId($tokenId);
+        $query->setEvent('storage.tableCopyToBucket');
+        $this->assertEventWithRetries($branchClient, $assertCallback, $query);
 
         // check table created
         $newTable = $branchClient->getTable($newTableId);
         $this->assertNotSame($productionTable['created'], $newTable['created']);
-
         $this->assertSame($newBranch['id'], $newTable['bucket']['idBranch']);
         $this->assertCount(1, $newTable['columnMetadata']);
         $this->assertArrayHasKey('id', $newTable['columnMetadata']);
         $this->assertCount(1, $newTable['columnMetadata']['id']);
         $this->assertSame('testvalCol', $newTable['columnMetadata']['id'][0]['value']);
-
         $this->assertCount(1, $newTable['metadata']);
         $this->assertSame('testvalTable', $newTable['metadata'][0]['value']);
 
@@ -165,18 +174,22 @@ class PullTableTest extends StorageApiTestCase
         $newTableId = $branchClient->pullTableToBranch($productionTableId);
         // Check events created
         // note that there is no bucket create event since bucket already exists
-        $events = $branchClient->listEvents([
-            'sinceId' => $this->lastEventId,
-            'limit' => 2,
-            'q' => sprintf('token.id:%s', $this->tokenId),
-        ]);
-        $this->assertCount(1, $events);
-        $this->assertSame([
-            'sourceBucketId' => $productionBucketId,
-            'sourceBucketBranch' => $defaultBranch['id'],
-            'destinationBucketId' => $productionBucketId,
-            'destinationBucketBranch' => $newBranch['id'],
-        ], $events[0]['params']);
+        $assertCallback = function ($events) use ($productionBucketId, $defaultBranch, $newBranch, $productionTable) {
+            $this->assertCount(1, $events);
+            // check table event
+            $this->assertSame('storage.tableCopyToBucket', $events[0]['event']);
+            $this->assertSame($productionTable['id'], $events[0]['objectId']);
+            $this->assertSame([
+                'sourceBucketId' => $productionBucketId,
+                'sourceBucketBranch' => $defaultBranch['id'],
+                'destinationBucketId' => $productionBucketId,
+                'destinationBucketBranch' => $newBranch['id'],
+            ], $events[0]['params']);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setTokenId($tokenId);
+        $query->setEvent('storage.tableCopyToBucket');
+        $this->assertEventWithRetries($branchClient, $assertCallback, $query);
 
         $newTable = $branchClient->getTable($newTableId);
         $this->assertCount(1, $newTable['columnMetadata']);
