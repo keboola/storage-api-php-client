@@ -52,7 +52,7 @@ class ExportTableTest extends StorageApiTestCase
 
         $tableId = $developerDevBranchClient->createTableAsync($devBranchBucketId, 'languages', $importFile);
 
-        // test developer can export table exist in dev branch
+        // test developer can export dev table in dev branch (dev table -> dev file)
         $developerDevBranchExporter = new TableExporter($developerDevBranchClient);
         $developerDevBranchExporter->exportTable($tableId, $this->downloadPath, []);
 
