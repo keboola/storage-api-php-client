@@ -4752,6 +4752,7 @@ Loads tables from Storage into a Workspace. Not supported for Teradata and Bigqu
             + (object)
                 + Properties
                     + source (optional) - Required for loading table. Full table identifier of the source table (e.g.: in.c-bucket.mytable)
+                    + sourceBranchId (optional) - Branch ID where to load the `source` from. If not provided, default branch will be used. Applicable when loading from `source` only.
                     + dataFileId (optional, number) - Required for loading file. File upload id. Can be used only to load file to file workspace.
                     + destination (required) - Destination table name or folder for file workspace
                     + rows (optional, number) - Limits the number of returned rows
@@ -4882,6 +4883,7 @@ Loads tables from Storage into a Workspace in [Development Branch](#reference/de
             + (object)
                 + Properties
                     + source (optional) - Required for loading table. Full table identifier of the source table (e.g.: in.c-bucket.mytable)
+                    + sourceBranchId (optional) - Branch ID where to load the `source` from. If not provided, default branch will be used. Applicable when loading from `source` only.
                     + dataFileId (optional, number) - Required for loading file. File upload id. Can be used only to load file to file workspace.
                     + destination (required) - Destination table name or folder for file workspace
                     + rows (optional, number) - Limits the number of returned rows
@@ -5021,6 +5023,7 @@ when any of the row values were changed during an incremental import.
             + (object)
                 + Properties
                     + source (required) - Full table identifier of the source table (e.g.: in.c-bucket.mytable)
+                    + sourceBranchId (optional) - Branch ID where to load the `source` from. If not provided, default branch will be used. Applicable when loading from `source` only.
                     + destination (required) - Destination table name
                     + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
                         Default: false
