@@ -52,6 +52,7 @@ class ExportTableTest extends StorageApiTestCase
 
         $tableId = $developerDevBranchClient->createTableAsync($devBranchBucketId, 'languages', $importFile);
 
+        // test developer can export table exist in dev branch
         $developerDevBranchExporter = new TableExporter($developerDevBranchClient);
         $developerDevBranchExporter->exportTable($tableId, $this->downloadPath, []);
 
@@ -83,6 +84,7 @@ class ExportTableTest extends StorageApiTestCase
 
         $developerDefaultBranchExporter = new TableExporter($developerDefaultBranchClient);
 
+        // Test developer cannot export table exist in dev branch using default branch
         try {
             $developerDefaultBranchExporter->exportTable($tableId, $this->downloadPath, []);
             $this->fail('Cannot export from table in devBranch via default branch client');
@@ -111,6 +113,7 @@ class ExportTableTest extends StorageApiTestCase
 
         $tableId = $projectManagerDefaultBranchClient->createTableAsync($productionBucketId, 'languages', $importFile);
 
+        // test project manager can export table exist in default branch
         $projectManagerDefaultBranchExporter = new TableExporter($projectManagerDefaultBranchClient);
         $projectManagerDefaultBranchExporter->exportTable($tableId, $this->downloadPath, []);
 
