@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Test\Backend\SOX;
 
+use DateTime;
 use Generator;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
@@ -79,6 +80,24 @@ class SOXTokensTest extends StorageApiTestCase
         $this->expectExceptionCode(400);
         $this->expectExceptionMessage('Token with canManageProtectedDefaultBranch privilege cannot be refreshed');
         $tokens->refreshToken($this->getDefaultBranchTokenId());
+    }
+
+    /**
+     * @dataProvider developerAndReviewerTokensProvider
+     */
+    public function testRefreshToken(Client $client): void
+    {
+        $tokens = new Tokens($client);
+        $token = $tokens->createToken((new TokenCreateOptions()));
+
+        sleep(1);
+
+        $token = $tokens->refreshToken($token['id']);
+
+        $this->assertGreaterThan(
+            (new DateTime($token['created']))->getTimestamp(),
+            (new DateTime($token['refreshed']))->getTimestamp()
+        );
     }
 
     /**
