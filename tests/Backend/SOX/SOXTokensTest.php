@@ -39,13 +39,26 @@ class SOXTokensTest extends StorageApiTestCase
         ];
     }
 
-    public function developerAndReviewerTokensProvider(): Generator
+    public function developerAndReviewerClientProvider(): Generator
     {
         yield 'developer' => [
             $this->getDeveloperStorageApiClient(),
         ];
         yield 'reviewer' => [
             $this->getReviewerStorageApiClient(),
+        ];
+    }
+
+    public function prodManagerClientProvider(): Generator
+    {
+        yield 'prodManager' => [
+            $this->getDefaultClient(),
+        ];
+    }
+    public function priviledgedTokenClientProvider(): Generator
+    {
+        yield 'privileged' => [
+            $this->getDefaultBranchStorageApiClient(),
         ];
     }
 
@@ -73,17 +86,23 @@ class SOXTokensTest extends StorageApiTestCase
         }
     }
 
-    public function testCannotRefreshCanManageProtectedBranchTokenEvenSelf(): void
+    /**
+     * @dataProvider developerAndReviewerClientProvider
+     * @dataProvider prodManagerClientProvider
+     * @dataProvider priviledgedTokenClientProvider
+     */
+    public function testCannotRefreshCanManageProtectedBranchTokenEvenSelf(Client $client): void
     {
-        $client = $this->getDefaultBranchStorageApiClient();
         $tokens = new Tokens($client);
         $this->expectExceptionCode(400);
         $this->expectExceptionMessage('Token with canManageProtectedDefaultBranch privilege cannot be refreshed');
+        // getDefaultBranchTokenId = priviledged token
         $tokens->refreshToken($this->getDefaultBranchTokenId());
     }
 
     /**
-     * @dataProvider developerAndReviewerTokensProvider
+     * @dataProvider developerAndReviewerClientProvider
+     * @dataProvider prodManagerClientProvider
      */
     public function testRefreshToken(Client $client): void
     {
@@ -264,7 +283,7 @@ class SOXTokensTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider developerAndReviewerTokensProvider
+     * @dataProvider developerAndReviewerClientProvider
      */
     public function testNooneButProdManagerCannotCreateTokenWithCanCreateJobsFlag(Client $client): void
     {
