@@ -2540,6 +2540,55 @@ Request is handled asynchronously which means that the create request is created
             }
         }
 
+## Pull table from default branch to dev branch [/v2/storage/tables/{table_id}/pull]
+
+### Pull table from default branch to dev branch [POST]
+
+**EXPERIMENTAL**
+
+Pull table from default branch to dev branch with all data and metadata, if table already exists in dev branch, it will be overwritten.
+
+Request is handled asynchronously which means that the create request is created and added to a queue and the job resource URL for status polling is returned.
+
++ Parameters
+    + table_id (required) - The table string Id
+
++ Request (application/json)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202 (application/json)
+
+        {
+            "id": 356,
+            "status": "waiting",
+            "url": "https:\/\/localhost:8700\/v2\/storage\/jobs\/356",
+            "tableId": in.c-bucket.production-table-1,
+            "operationName": "devBranchTablePull",
+            "operationParams": {
+                "sourceBranchId": 10,
+                "targetBranchId": 11
+            },
+            "createdTime": "2021-05-24T11:09:47+0200",
+            "startTime": null,
+            "endTime": null,
+            "runId": "5107",
+            "results": null,
+            "creatorToken": {
+                "id": "553",
+                "description": "devel+test-backend_admin@keboola.com"
+            },
+            "metrics": {
+                "inCompressed": false,
+                "inBytes": 0,
+                "inBytesUncompressed": 0,
+                "outCompressed": false,
+                "outBytes": 0,
+                "outBytesUncompressed": 0
+            }
+        }
+
 ## Create Table Asynchronously [/v2/storage/buckets/{bucket_id}/tables-async]
 
 ### Create new table from CSV file asynchronously [POST]

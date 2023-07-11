@@ -896,6 +896,22 @@ class Client
     }
 
     /**
+     * Supplied table will be pulled from default branch to dev branch
+     *
+     * @param string $tableId - table to pull from default branch
+     * @return string - created table id
+     * @throws ClientException
+     */
+    public function pullTableToBranch(string $tableId): string
+    {
+        if (!$this instanceof BranchAwareClient) {
+            throw new ClientException('Pulling table to branch is supported only in dev branch. Use BranchAwareClient instance.');
+        }
+        $createdTable = $this->apiPostJson("tables/{$tableId}/pull");
+        return $createdTable['id'];
+    }
+
+    /**
      * @param array{branchFromId: int, branchIntoId: int, title: string, description: ?string} $data
      * @return int - created MR id
      */
