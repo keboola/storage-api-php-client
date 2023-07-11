@@ -8,6 +8,9 @@ use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Event;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\Metadata\TableMetadataUpdateOptions;
+use Keboola\StorageApi\Workspaces;
+use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\MetadataUtils;
 
@@ -182,5 +185,180 @@ class PullTableTest extends StorageApiTestCase
 
         $this->assertCount(1, $newTable['metadata']);
         $this->assertSame('testvalTableUpdated', $newTable['metadata'][0]['value']);
+
+        // try add new column
+        $privilegedClient->addTableColumn($productionTableId, 'newCol');
+        $table = $branchClient->getTable($newTableId);
+        $this->assertCount(2, $table['columns']);
+        $table = $privilegedClient->getTable($productionTableId);
+        $this->assertCount(3, $table['columns']);
+        $newTableId = $branchClient->pullTableToBranch($productionTableId);
+        $table = $branchClient->getTable($newTableId);
+        $this->assertCount(3, $table['columns']);
+        $table = $privilegedClient->getTable($productionTableId);
+        $this->assertCount(3, $table['columns']);
+
+        //try drop column
+        $privilegedClient->deleteTableColumn($productionTableId, 'newCol');
+        $table = $branchClient->getTable($newTableId);
+        $this->assertCount(3, $table['columns']);
+        $table = $privilegedClient->getTable($productionTableId);
+        $this->assertCount(2, $table['columns']);
+        $newTableId = $branchClient->pullTableToBranch($productionTableId);
+        $table = $branchClient->getTable($newTableId);
+        $this->assertCount(2, $table['columns']);
+        $table = $privilegedClient->getTable($productionTableId);
+        $this->assertCount(2, $table['columns']);
+    }
+
+    public function testPullTypedTableFromDefaultBranch(): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject());
+
+        $privilegedClient = $this->getDefaultBranchStorageApiClient();
+        $productionBucketId = $this->initEmptyBucket(
+            $this->getTestBucketName($description),
+            self::STAGE_IN,
+            $description,
+            $privilegedClient
+        );
+        $productionTableId = $privilegedClient->createTableDefinition(
+            $productionBucketId,
+            [
+                'name' => 'languages',
+                'primaryKeysNames' => [],
+                'columns' => [
+                    [
+                        'name' => 'id',
+                        'definition' => [
+                            'type' => 'INT',
+                            'nullable' => false,
+                        ],
+                    ],
+                    [
+                        'name' => 'name',
+                        'definition' => [
+                            'type' => 'VARCHAR',
+                        ],
+                    ],
+                ],
+            ]
+        );
+        $branchClient = $this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]);
+        $newTableId = $branchClient->pullTableToBranch($productionTableId);
+
+        // clone table to WS so we can check the column type
+        $wsApi = new Workspaces($branchClient);
+        $ws = $wsApi->createWorkspace();
+        $wsApi->cloneIntoWorkspace($ws['id'], [
+            'input' => [
+                [
+                    'source' => $newTableId,
+                    'destination' => 'test',
+                    'dropTimestampColumn' => true,
+                ],
+            ],
+        ]);
+        $backend = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($ws);
+        $ref = $backend->getTableReflection('test');
+        /** @var SnowflakeColumn[] $defs */
+        $defs = iterator_to_array($ref->getColumnsDefinitions());
+        $this->assertSame('NUMBER', $defs[0]->getColumnDefinition()->getType());
+        $this->assertSame('38,0', $defs[0]->getColumnDefinition()->getLength());
+
+        // check table created
+        $newTable = $branchClient->getTable($newTableId);
+        $expectedColumnsDefinitions = [
+            [
+                'name' => 'id',
+                'definition' => [
+                    'type' => 'NUMBER',
+                    'nullable' => false,
+                    'length' => '38,0',
+                ],
+                'basetype' => 'NUMERIC',
+                'canBeFiltered' => true,
+            ],
+            [
+                'name' => 'name',
+                'definition' => [
+                    'type' => 'VARCHAR',
+                    'nullable' => true,
+                    'length' => '16777216',
+                ],
+                'basetype' => 'STRING',
+                'canBeFiltered' => true,
+            ],
+        ];
+        $this->assertSame([
+            'primaryKeysNames' => [],
+            'columns' => $expectedColumnsDefinitions,
+        ], $newTable['definition']);
+
+        // try add new column
+        $expectedColumnsDefinitionsExtraColumn = [
+            ...$expectedColumnsDefinitions,
+            [
+                'name' => 'newCol',
+                'definition' => [
+                    'type' => 'VARCHAR',
+                    'nullable' => true,
+                    'length' => '16777216',
+                ],
+                'basetype' => 'STRING',
+                'canBeFiltered' => true,
+            ],
+        ];
+
+        $privilegedClient->addTableColumn($productionTableId, 'newCol', null, 'STRING');
+        $table = $branchClient->getTable($newTableId);
+        $this->assertSame([
+            'primaryKeysNames' => [],
+            'columns' => $expectedColumnsDefinitions,
+        ], $table['definition']);
+        $table = $privilegedClient->getTable($productionTableId);
+        $this->assertSame([
+            'primaryKeysNames' => [],
+            'columns' => $expectedColumnsDefinitionsExtraColumn,
+        ], $table['definition']);
+        $newTableId = $branchClient->pullTableToBranch($productionTableId);
+        $table = $branchClient->getTable($newTableId);
+        $this->assertSame([
+            'primaryKeysNames' => [],
+            'columns' => $expectedColumnsDefinitionsExtraColumn,
+        ], $table['definition']);
+        $table = $privilegedClient->getTable($productionTableId);
+        $this->assertSame([
+            'primaryKeysNames' => [],
+            'columns' => $expectedColumnsDefinitionsExtraColumn,
+        ], $table['definition']);
+
+        // try drop column
+        $privilegedClient->deleteTableColumn($productionTableId, 'newCol');
+        $table = $branchClient->getTable($newTableId);
+        $this->assertSame([
+            'primaryKeysNames' => [],
+            'columns' => $expectedColumnsDefinitionsExtraColumn,
+        ], $table['definition']);
+        $table = $privilegedClient->getTable($productionTableId);
+        $this->assertSame([
+            'primaryKeysNames' => [],
+            'columns' => $expectedColumnsDefinitions,
+        ], $table['definition']);
+        $newTableId = $branchClient->pullTableToBranch($productionTableId);
+        $table = $branchClient->getTable($newTableId);
+        $this->assertSame([
+            'primaryKeysNames' => [],
+            'columns' => $expectedColumnsDefinitions,
+        ], $table['definition']);
+        $table = $privilegedClient->getTable($productionTableId);
+        $this->assertSame([
+            'primaryKeysNames' => [],
+            'columns' => $expectedColumnsDefinitions,
+        ], $table['definition']);
     }
 }
