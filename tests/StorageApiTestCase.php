@@ -864,4 +864,16 @@ abstract class StorageApiTestCase extends ClientTestCase
             self::markTestSkipped($message);
         }
     }
+
+    protected function getBranchesForCurrentTestCase(DevBranches $devBranch): array
+    {
+        $prefix = $this->generateDescriptionForTestObject();
+        $branches = [];
+        foreach ($devBranch->listBranches() as $branch) {
+            if (str_starts_with($branch['name'], $prefix)) {
+                $branches[] = $branch;
+            }
+        }
+        return $branches;
+    }
 }
