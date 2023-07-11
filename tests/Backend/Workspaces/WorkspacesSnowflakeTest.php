@@ -1161,5 +1161,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         $this->assertSame(['id', 'name', 'city', 'sex'], $backend->getTableColumns('targetTable'));
+
+        $workspaces->deleteWorkspace($workspace['id']);
     }
 }
