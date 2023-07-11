@@ -14,7 +14,6 @@ use Keboola\Test\StorageApiTestCase;
 class ExportTableTest extends StorageApiTestCase
 {
     private Client $developerClient;
-    private DevBranches $branches;
 
     private string $downloadPath;
 
@@ -168,17 +167,5 @@ class ExportTableTest extends StorageApiTestCase
                 '1200.csv',
             ],
         ];
-    }
-
-    private function getBranchesForCurrentTestCase(): array
-    {
-        $prefix = $this->generateDescriptionForTestObject();
-        $branches = [];
-        foreach ($this->branches->listBranches() as $branch) {
-            if (str_starts_with($branch['name'], $prefix)) {
-                $branches[] = $branch;
-            }
-        }
-        return $branches;
     }
 }
