@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Test\Backend\SOX;
 
 use Keboola\Csv\CsvFile;
+use Keboola\Csv\InvalidArgumentException;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
@@ -28,11 +29,9 @@ class ExportTableTest extends StorageApiTestCase
         $this->downloadPath = $this->getExportFilePathForTest('languages.sliced.csv');
     }
 
-    /**
-     * @dataProvider tableExportData
-     */
-    public function testTableAsyncExportInDevBranch(CsvFile $importFile, string $expectationsFileName, array $exportOptions = []): void
+    public function testTableAsyncExportInDevBranch(): void
     {
+        [$importFile, $expectationsFileName] = $this->tableExportData();
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
 
         $description = $this->generateDescriptionForTestObject();
@@ -54,7 +53,7 @@ class ExportTableTest extends StorageApiTestCase
         $tableId = $developerDevBranchClient->createTableAsync($devBranchBucketId, 'languages', $importFile);
 
         $developerDevBranchExporter = new TableExporter($developerDevBranchClient);
-        $developerDevBranchExporter->exportTable($tableId, $this->downloadPath, $exportOptions);
+        $developerDevBranchExporter->exportTable($tableId, $this->downloadPath, []);
 
         // compare data
         $this->assertTrue(file_exists($this->downloadPath));
@@ -67,7 +66,7 @@ class ExportTableTest extends StorageApiTestCase
 
         $projectManagerDevBranchExporter = new TableExporter($projectManagerDevBranchClient);
         try {
-            $projectManagerDevBranchExporter->exportTable($tableId, $this->downloadPath, $exportOptions);
+            $projectManagerDevBranchExporter->exportTable($tableId, $this->downloadPath, []);
             $this->fail('Project manager cannot export from table in devBranch');
         } catch (ClientException $e) {
             $this->assertStringContainsString(
@@ -85,7 +84,7 @@ class ExportTableTest extends StorageApiTestCase
         $developerDefaultBranchExporter = new TableExporter($developerDefaultBranchClient);
 
         try {
-            $developerDefaultBranchExporter->exportTable($tableId, $this->downloadPath, $exportOptions);
+            $developerDefaultBranchExporter->exportTable($tableId, $this->downloadPath, []);
             $this->fail('Cannot export from table in devBranch via default branch client');
         } catch (ClientException $e) {
             $this->assertStringContainsString(
@@ -95,11 +94,9 @@ class ExportTableTest extends StorageApiTestCase
         }
     }
 
-    /**
-     * @dataProvider tableExportData
-     */
-    public function testTableAsyncExportInDefaultBranch(CsvFile $importFile, string $expectationsFileName, array $exportOptions = []): void
+    public function testTableAsyncExportInDefaultBranch(): void
     {
+        [$importFile, $expectationsFileName] = $this->tableExportData();
         $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
 
         $description = $this->generateDescriptionForTestObject();
@@ -115,7 +112,7 @@ class ExportTableTest extends StorageApiTestCase
         $tableId = $projectManagerDefaultBranchClient->createTableAsync($productionBucketId, 'languages', $importFile);
 
         $projectManagerDefaultBranchExporter = new TableExporter($projectManagerDefaultBranchClient);
-        $projectManagerDefaultBranchExporter->exportTable($tableId, $this->downloadPath, $exportOptions);
+        $projectManagerDefaultBranchExporter->exportTable($tableId, $this->downloadPath, []);
 
         // compare data
         $this->assertTrue(file_exists($this->downloadPath));
@@ -130,7 +127,7 @@ class ExportTableTest extends StorageApiTestCase
         $devBranchExporter = new TableExporter($projectManagerDevBranchBranchClient);
 
         try {
-            $devBranchExporter->exportTable($tableId, $this->downloadPath, $exportOptions);
+            $devBranchExporter->exportTable($tableId, $this->downloadPath, []);
             $this->fail('Cannot export from table in default branch via dev branch client');
         } catch (ClientException $e) {
             $this->assertStringContainsString(
@@ -148,7 +145,7 @@ class ExportTableTest extends StorageApiTestCase
         $developerDefaultBranchExporter = new TableExporter($developerDefaultBranchClient);
 
         try {
-            $developerDefaultBranchExporter->exportTable($tableId, $this->downloadPath, $exportOptions);
+            $developerDefaultBranchExporter->exportTable($tableId, $this->downloadPath, []);
             $this->fail('Developer cannot export from table in default branch');
         } catch (ClientException $e) {
             $this->assertStringContainsString(
@@ -158,14 +155,12 @@ class ExportTableTest extends StorageApiTestCase
         }
     }
 
-    public function tableExportData(): array
+    private function tableExportData(): array
     {
         $filesBasePath = __DIR__ . '/../../_data/';
         return [
-            '1200 columns - plain csv' => [
-                new CsvFile($filesBasePath . '1200.csv'),
-                '1200.csv',
-            ],
+            new CsvFile($filesBasePath . '1200.csv'),
+            '1200.csv',
         ];
     }
 }
