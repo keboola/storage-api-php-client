@@ -35,7 +35,14 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->developerClient = $this->getDeveloperStorageApiClient();
         $this->branches = new DevBranches($this->developerClient);
         foreach ($this->getBranchesForCurrentTestCase() as $branch) {
-            $this->branches->deleteBranch($branch['id']);
+            try {
+                // branch is being deleted in async job when MR being merged. So can skip 404 exceptions
+                $this->branches->deleteBranch($branch['id']);
+            } catch (ClientException $e) {
+                if ($e->getCode() !== 404 || $e->getMessage() !== 'Branch not found') {
+                    throw $e;
+                }
+            }
         }
 
         $this->cleanupConfigurations($this->getDefaultBranchStorageApiClient());
