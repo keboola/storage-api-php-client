@@ -113,7 +113,7 @@ class ExportTableTest extends StorageApiTestCase
 
         $tableId = $projectManagerDefaultBranchClient->createTableAsync($productionBucketId, 'languages', $importFile);
 
-        // test project manager can export table exist in default branch
+        // test project manager can export prod table in default branch (prod table -> prod file)
         $projectManagerDefaultBranchExporter = new TableExporter($projectManagerDefaultBranchClient);
         $projectManagerDefaultBranchExporter->exportTable($tableId, $this->downloadPath, []);
 
