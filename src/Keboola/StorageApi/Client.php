@@ -110,6 +110,10 @@ class Client
 
     /** @var Tokens */
     private $tokens;
+    /**
+     * Cache config to be able create new instance of BranchAwareClient for development branch
+     */
+    private array $config;
 
     /**
      * Clients accept an array of constructor parameters.
@@ -175,6 +179,7 @@ class Client
 
         $this->initClient($config);
         $this->tokens = new Tokens($this);
+        $this->config = $config;
     }
 
     private function initClient(array $config)
@@ -3254,5 +3259,13 @@ class Client
                 return $this->creds;
             }
         };
+    }
+
+    /**
+     * @param int|string $branchId
+     */
+    public function getBranchAwareClient($branchId): BranchAwareClient
+    {
+        return new BranchAwareClient($branchId, $this->config);
     }
 }

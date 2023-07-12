@@ -8,6 +8,11 @@ class BranchAwareClient extends Client
     private $branchId;
 
     /**
+     * Cache config to be able create new instance of Client for default branch
+     */
+    private array $config;
+
+    /**
      * @param int|string $branchId
      * @param array $config
      */
@@ -18,6 +23,7 @@ class BranchAwareClient extends Client
             throw new \InvalidArgumentException(sprintf('Branch "%s" is not valid.', $branchId));
         }
         $this->branchId = $branchId;
+        $this->config = $config;
     }
 
     public function request($method, $url, $options = [], $responseFileName = null, $handleAsyncTask = true)
@@ -35,5 +41,10 @@ class BranchAwareClient extends Client
     public function getCurrentBranchId()
     {
         return $this->branchId;
+    }
+
+    public function getDefaultBranchClient(): Client
+    {
+        return new Client($this->config);
     }
 }
