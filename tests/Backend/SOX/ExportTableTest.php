@@ -18,12 +18,14 @@ class ExportTableTest extends StorageApiTestCase
 
     private string $downloadPath;
 
+    private DevBranches $branches;
+
     public function setUp(): void
     {
         parent::setUp();
         $this->developerClient = $this->getDeveloperStorageApiClient();
         $this->branches = new DevBranches($this->developerClient);
-        foreach ($this->getBranchesForCurrentTestCase() as $branch) {
+        foreach ($this->getBranchesForCurrentTestCase($this->branches) as $branch) {
             $this->branches->deleteBranch($branch['id']);
         }
         $this->downloadPath = $this->getExportFilePathForTest('languages.sliced.csv');
