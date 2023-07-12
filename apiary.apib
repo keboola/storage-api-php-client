@@ -3321,6 +3321,7 @@ will show information about the created file and caching:
 
 + Attributes
     + limit (optional, number) - Limit the number of returned rows.
+    + sourceBranchId (optional) - Branch ID where to load the `source` from. If not provided, default branch will be used. Applicable when loading from `source` only.
     + days (optional, number) - **Deprecated** (use changedSince instead). ~~It returns rows created or updated in the last X days.~~
     + format (optional, enum[string]) - File format
         + Members
