@@ -9,6 +9,7 @@ use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\MetadataUtils;
+use Symfony\Component\Filesystem\Filesystem;
 use Throwable;
 
 class BranchStorageTest extends StorageApiTestCase
@@ -79,7 +80,7 @@ class BranchStorageTest extends StorageApiTestCase
         }
     }
 
-    public function testLoadTable(): void
+    public function testTableImportExport(): void
     {
         [$privilegedClient, $productionTableId, $branchClient, $devTableId] = $this->initResources();
         $this->assertTableRowsCount(5, $devTableId, $branchClient);
@@ -104,6 +105,14 @@ class BranchStorageTest extends StorageApiTestCase
         );
         $this->assertTableRowsCount(8, $devTableId, $branchClient);
         $this->assertTableRowsCount(12, $productionTableId, $privilegedClient);
+
+        // test export
+        $results = $branchClient->exportTableAsync($devTableId);
+        // @todo SOX-20 will save file to branch storage and we can use $branchClient but for now we need to use $privilegedClient
+        $this->assertFileRowsCount(8, $results['file']['id'], $privilegedClient);
+
+        $results = $privilegedClient->exportTableAsync($productionTableId);
+        $this->assertFileRowsCount(12, $results['file']['id'], $privilegedClient);
     }
 
     public function testTableOperations(): void
@@ -232,5 +241,24 @@ class BranchStorageTest extends StorageApiTestCase
     private function assertTableRowsCount(int $expectedRows, string $tableId, Client $client): void
     {
         $this->assertCount($expectedRows, Client::parseCsv($client->getTableDataPreview($tableId)));
+    }
+
+    private function assertFileRowsCount(int $expectedRows, int $fileId, Client $client): void
+    {
+        $tmpDestinationFolder = __DIR__ . '/../_tmp/branch-storage-export/';
+        $fs = new Filesystem();
+        if (file_exists($tmpDestinationFolder)) {
+            $fs->remove($tmpDestinationFolder);
+        }
+        $fs->mkdir($tmpDestinationFolder);
+        $slices = $client->downloadSlicedFile($fileId, $tmpDestinationFolder);
+
+        $csv = '';
+        foreach ($slices as $slice) {
+            $csv .= file_get_contents($slice);
+        }
+
+        $parsedData = Client::parseCsv($csv, false, ',', '"');
+        $this->assertCount($expectedRows, $parsedData);
     }
 }
