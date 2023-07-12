@@ -34,7 +34,16 @@ class TableExporter
 
     private function handleExportedFile($tableId, $fileId, $destination, $exportOptions, $gzipOutput)
     {
-        $table = $this->client->getTable($tableId);
+        try {
+            $table = $this->client->getTable($tableId);
+        } catch (ClientException $e) {
+            if ($this->client instanceof BranchAwareClient && $e->getCode() === 404) {
+                // try to get table from default branch if not found in dev branch
+                $table = $this->client->getDefaultBranchClient()->getTable($tableId);
+            } else {
+                throw $e;
+            }
+        }
         $getFileResponse = $this->client->getFile(
             $fileId,
             (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true)

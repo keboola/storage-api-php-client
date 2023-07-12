@@ -1672,6 +1672,7 @@ class Client
     {
         $allowedOptions = [
             'limit',
+            'sourceBranchId',
             'changedSince',
             'changedUntil',
             'format',
