@@ -19,6 +19,7 @@ use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\MetadataUtils;
+use Throwable;
 
 class MergeRequestsTest extends StorageApiTestCase
 {
@@ -38,7 +39,7 @@ class MergeRequestsTest extends StorageApiTestCase
             try {
                 // branch is being deleted in async job when MR being merged. So can skip 404 exceptions
                 $this->branches->deleteBranch($branch['id']);
-            } catch (ClientException $e) {
+            } catch (Throwable $e) {
                 if ($e->getCode() !== 404 || $e->getMessage() !== 'Branch not found') {
                     throw $e;
                 }
