@@ -219,6 +219,7 @@ class ExportTableTest extends StorageApiTestCase
     public function testExportTableExistInDevBranchOnly(): void
     {
         [$importFile, $expectationsFileName] = $this->tableExportData();
+        $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
 
         $description = $this->generateDescriptionForTestObject();
 
@@ -237,6 +238,12 @@ class ExportTableTest extends StorageApiTestCase
         );
 
         $tableIdInDevBranch = $developerDevBranchBranchClient->createTableAsync($devBranchBucketId, 'languages', $importFile);
+
+        $devBranchExporter = new TableExporter($developerDevBranchBranchClient);
+        $devBranchExporter->exportTable($tableIdInDevBranch, $this->downloadPath, ['sourceBranchId' => $newBranch['id']]);
+        // compare data
+        $this->assertTrue(file_exists($this->downloadPath));
+        $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($this->downloadPath), 'imported data comparison');
 
         $defaultBranch = $this->branches->getDefaultBranch();
         $projectManagerDefaultBranchClient = $this->getBranchAwareClient($defaultBranch['id'], [
