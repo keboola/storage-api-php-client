@@ -2540,7 +2540,7 @@ Request is handled asynchronously which means that the create request is created
             }
         }
 
-## Pull table from default branch to dev branch [/v2/storage/tables/{table_id}/pull]
+## Pull table from default branch to dev branch [/v2/storage/branch/{branch_id}/tables/{table_id}/pull]
 
 ### Pull table from default branch to dev branch [POST]
 
@@ -2552,6 +2552,7 @@ Request is handled asynchronously which means that the create request is created
 
 + Parameters
     + table_id (required) - The table string Id
+    + branch_id - Id of development branch
 
 + Request (application/json)
     + Headers
