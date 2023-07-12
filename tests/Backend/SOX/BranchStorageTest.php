@@ -115,7 +115,7 @@ class BranchStorageTest extends StorageApiTestCase
         $this->assertFileRowsCount(12, $results['file']['id'], $privilegedClient);
     }
 
-    public function testTableOperations(): void
+    public function testTableColumnOperations(): void
     {
         [$privilegedClient, $productionTableId, $branchClient, $devTableId] = $this->initResources();
         $this->assertSame(['id', 'name'], $branchClient->getTable($devTableId)['columns']);
@@ -138,8 +138,12 @@ class BranchStorageTest extends StorageApiTestCase
         $privilegedClient->deleteTableColumn($productionTableId, 'colX');
         $this->assertSame(['id', 'name'], $branchClient->getTable($devTableId)['columns']);
         $this->assertSame(['id', 'name'], $privilegedClient->getTable($productionTableId)['columns']);
+    }
 
-        // add drop primary key on dev table
+
+    public function testTablePrimaryKeyOperations(): void
+    {
+        [$privilegedClient, $productionTableId, $branchClient, $devTableId] = $this->initResources();
         $branchClient->createTablePrimaryKey($devTableId, ['id']);
         $this->assertSame(['id'], $branchClient->getTable($devTableId)['primaryKey']);
         $this->assertSame([], $privilegedClient->getTable($productionTableId)['primaryKey']);
@@ -156,8 +160,12 @@ class BranchStorageTest extends StorageApiTestCase
         $privilegedClient->removeTablePrimaryKey($productionTableId);
         $this->assertSame([], $branchClient->getTable($devTableId)['primaryKey']);
         $this->assertSame([], $privilegedClient->getTable($productionTableId)['primaryKey']);
+    }
 
-        // test delete rows on table
+
+    public function testTableDeleteRowsOperations(): void
+    {
+        [$privilegedClient, $productionTableId, $branchClient, $devTableId] = $this->initResources();
         $branchClient->deleteTableRows($devTableId, [
             'whereColumn' => 'id',
             'whereValues' => ['1'],
@@ -171,8 +179,11 @@ class BranchStorageTest extends StorageApiTestCase
         ]);
         $this->assertTableRowsCount(4, $devTableId, $branchClient);
         $this->assertTableRowsCount(4, $productionTableId, $privilegedClient);
+    }
 
-        // test table update
+    public function testTableUpdateOperation(): void
+    {
+        [$privilegedClient, $productionTableId, $branchClient, $devTableId] = $this->initResources();
         $branchClient->updateTable($devTableId, [
             'displayName' => 'new_name',
         ]);
