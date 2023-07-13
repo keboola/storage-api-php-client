@@ -486,16 +486,13 @@ class MergeRequestsTest extends StorageApiTestCase
             $actualIdentifierInBranch['currentVersion']['versionIdentifier'],
             $actualIdentifierInMain['currentVersion']['versionIdentifier']
         );
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
         // todo now is works like this, but maybe it should go through approval process again
         $this->prodManagerClient->mergeMergeRequest($mrId);
         $mr = $this->developerClient->getMergeRequest($mrId);
         $this->assertEquals('published', $mr['state']);
 
-        $devBranch = new DevBranches($this->developerClient);
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Branch not found');
-        $this->expectExceptionCode(404);
-        $devBranch->getBranch($branchId);
+        $this->assertBranchIsDeleted($branchId);
     }
 
     public function testConfigIsUpdatedInDefaultButBothConfigsAreDeleted(): void
@@ -538,16 +535,12 @@ class MergeRequestsTest extends StorageApiTestCase
         ]));
 
         $devBranchComponents->deleteConfiguration($componentId, $configurationId);
-
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
         $this->prodManagerClient->mergeMergeRequest($mrId);
         $mr = $this->developerClient->getMergeRequest($mrId);
         $this->assertEquals('published', $mr['state']);
 
-        $devBranch = new DevBranches($this->developerClient);
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Branch not found');
-        $this->expectExceptionCode(404);
-        $devBranch->getBranch($branchId);
+        $this->assertBranchIsDeleted($branchId);
     }
 
     public function testConfigurationUpdatedInBranch(): void
