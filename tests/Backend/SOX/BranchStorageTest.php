@@ -209,6 +209,30 @@ class BranchStorageTest extends StorageApiTestCase
         $this->assertTableRowsCount(4, $newDevTableId, $branchClient);
     }
 
+    public function testListingTablesBuckets(): void
+    {
+        [$privilegedClient, $productionTableId, $branchClient, $devTableId] = $this->initResources();
+        $prodTable = $privilegedClient->getTable($productionTableId);
+        $devTable = $branchClient->getTable($devTableId);
+        // check that table is and bucket id are same in prod and dev
+        $this->assertSame($prodTable['bucket']['id'], $devTable['bucket']['id']);
+        $this->assertSame($prodTable['id'], $devTable['id']);
+        // assert tables listing
+        $tablesInProd = array_filter(
+            $privilegedClient->listTables(),
+            fn(array $table) => $table['bucket']['id'] === $prodTable['bucket']['id'] && $table['id'] === $productionTableId
+        );
+        $this->assertCount(1, $tablesInProd);
+        $this->assertCount(1, $branchClient->listTables());
+        // assert buckets listing
+        $bucketsInProd = array_filter(
+            $privilegedClient->listBuckets(),
+            fn(array $bucket) => $bucket['id'] === $prodTable['bucket']['id']
+        );
+        $this->assertCount(1, $bucketsInProd);
+        $this->assertCount(1, $branchClient->listBuckets());
+    }
+
     /**
      * @return array{Client, string, BranchAwareClient, string}
      */
