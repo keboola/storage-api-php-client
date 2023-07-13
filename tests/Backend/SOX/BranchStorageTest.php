@@ -23,25 +23,13 @@ class BranchStorageTest extends StorageApiTestCase
         parent::setUp();
         $developerClient = $this->getDeveloperStorageApiClient();
         $this->branches = new DevBranches($developerClient);
-        foreach ($this->getBranchesForCurrentTestCase() as $branch) {
+        foreach ($this->getBranchesForCurrentTestCase($this->branches) as $branch) {
             try {
                 $this->branches->deleteBranch($branch['id']);
             } catch (Throwable $e) {
                 // ignore if delete fails
             }
         }
-    }
-
-    private function getBranchesForCurrentTestCase(): array
-    {
-        $prefix = $this->generateDescriptionForTestObject();
-        $branches = [];
-        foreach ($this->branches->listBranches() as $branch) {
-            if (str_starts_with($branch['name'], $prefix)) {
-                $branches[] = $branch;
-            }
-        }
-        return $branches;
     }
 
     public function testDeleteTable(): void
