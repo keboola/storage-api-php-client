@@ -18,6 +18,7 @@ use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\MetadataUtils;
 use Throwable;
 
@@ -41,7 +42,8 @@ class MergeRequestsTest extends StorageApiTestCase
                 // branch is being deleted in async job when MR being merged. So can skip 404 exceptions
                 $this->branches->deleteBranch($branch['id']);
             } catch (Throwable $e) {
-                if ($e->getCode() !== 404 || $e->getMessage() !== 'Branch not found') {
+                // this could fail in both job and http request but with same message
+                if ($e->getMessage() !== 'Branch not found') {
                     throw $e;
                 }
             }
@@ -202,6 +204,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->getSecondReviewerStorageApiClient()->mergeRequestApprove($mr1);
         $this->getSecondReviewerStorageApiClient()->mergeRequestApprove($mr2);
 
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
         // merge first MR
         /** @var array{id: int} $mrJob */
         $mrJob = $this->prodManagerClient->apiPutJson("merge-request/{$mr1}/merge", [], false);
@@ -245,11 +248,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $branch2 = $devBranch->getBranch($newBranch2['id']);
         $this->assertNotEmpty($branch2);
 
-        $devBranch = new DevBranches($this->developerClient);
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Branch not found');
-        $this->expectExceptionCode(404);
-        $devBranch->getBranch($newBranch1['id']);
+        $this->assertBranchIsDeleted($newBranch1['id']);
     }
 
     public function testAddSingleApprovalOnly(): void
@@ -611,6 +610,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame(['dev-branch-state' => 'state'], $configInDev['state']);
 
         $lastVersionIdentifierInDevBranch = $configInDev['currentVersion']['versionIdentifier'];
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
         // and merge it
         $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
 
@@ -634,11 +634,7 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setConfigurationId($configurationId));
         $this->assertCount(2, $versions);
 
-        $devBranch = new DevBranches($this->developerClient);
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Branch not found');
-        $this->expectExceptionCode(404);
-        $devBranch->getBranch($newBranch['id']);
+        $this->assertBranchIsDeleted($newBranch['id']);
     }
 
     public function testCreateConfigurationInBranch(): void
@@ -685,6 +681,7 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setRowId('config-in-dev-branch-row-1'));
         $newRowIdentifier = $newRowInConfig['versionIdentifier'];
 
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
         // and merge it
         $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
 
@@ -717,11 +714,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertCount(1, $secondConfigInDefault['rows']);
         $this->assertNotEquals($newRowIdentifier, $secondConfigInDefault['rows'][0]['versionIdentifier']);
 
-        $devBranch = new DevBranches($this->developerClient);
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Branch not found');
-        $this->expectExceptionCode(404);
-        $devBranch->getBranch($newBranch['id']);
+        $this->assertBranchIsDeleted($newBranch['id']);
     }
 
     public function testUpdateRow(): void
@@ -787,6 +780,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame(['dev-branch-row-state' => 'state'], $updatedRow['state']);
         $lastVersionIdentifierInDevBranch = $updatedRow['versionIdentifier'];
 
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
         $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
 
         $rowInDefault = $components->getConfigurationRow($componentId, $configurationId, 'new-row');
@@ -815,11 +809,7 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setConfigurationId($configurationId));
         $this->assertCount(3, $versions);
 
-        $devBranch = new DevBranches($this->developerClient);
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Branch not found');
-        $this->expectExceptionCode(404);
-        $devBranch->getBranch($newBranch['id']);
+        $this->assertBranchIsDeleted($newBranch['id']);
     }
 
     public function testAddRow(): void
@@ -874,6 +864,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $row2 = $devBranchComponents->getConfigurationRow($componentId, $configurationId, 'new-row-2');
         $lastRow2Identifier = $row2['versionIdentifier'];
 
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
         $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
 
         $rowsInDefault = $components->listConfigurationRows((new ListConfigurationRowsOptions())
@@ -895,11 +886,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $configInDev = $components->getConfiguration($componentId, $configurationId);
         $this->assertNotEquals($lastIdentifierInConfig, $configInDev['currentVersion']['versionIdentifier']);
 
-        $devBranch = new DevBranches($this->developerClient);
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Branch not found');
-        $this->expectExceptionCode(404);
-        $devBranch->getBranch($newBranch['id']);
+        $this->assertBranchIsDeleted($newBranch['id']);
     }
 
     public function testRowsSortOrder(): void
@@ -964,6 +951,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $config = $devBranchComponents->getConfiguration($componentId, $configurationId);
         $this->assertSame(['new-row', 'dev-row', 'new-row-2'], $config['rowsSortOrder']);
 
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
         $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
 
         $config = $components->getConfiguration($componentId, $configurationId);
@@ -974,11 +962,7 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setConfigurationId($configurationId));
         $this->assertCount(3, $rowsInDefault);
 
-        $devBranch = new DevBranches($this->developerClient);
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Branch not found');
-        $this->expectExceptionCode(404);
-        $devBranch->getBranch($newBranch['id']);
+        $this->assertBranchIsDeleted($newBranch['id']);
     }
 
     public function testCopyMetadataAfterMerge(): void
@@ -1078,6 +1062,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertMetadataEquals($testMetadata[0], $md[0]);
         $this->assertMetadataEquals($updatedMetadata[0], $md[1]);
 
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
         $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
 
         $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
@@ -1094,11 +1079,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertMetadataEquals($testMetadataConfig2[0], $listConfigurationMetadata[0]);
         $this->assertMetadataEquals($testMetadataConfig2[1], $listConfigurationMetadata[1]);
 
-        $devBranch = new DevBranches($this->developerClient);
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Branch not found');
-        $this->expectExceptionCode(404);
-        $devBranch->getBranch($newBranch['id']);
+        $this->assertBranchIsDeleted($newBranch['id']);
     }
 
     public function testDeleteConfiguration(): void
@@ -1139,6 +1120,7 @@ class MergeRequestsTest extends StorageApiTestCase
             $this->assertSame('Deleting configuration from trash is not allowed in development branches.', $e->getMessage());
         }
 
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
         $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
 
         try {
@@ -1148,11 +1130,7 @@ class MergeRequestsTest extends StorageApiTestCase
             $this->assertSame(404, $e->getCode());
         }
 
-        $devBranch = new DevBranches($this->developerClient);
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Branch not found');
-        $this->expectExceptionCode(404);
-        $devBranch->getBranch($newBranch['id']);
+        $this->assertBranchIsDeleted($newBranch['id']);
     }
 
     private function createBranchMergeRequestAndApproveIt(): array
@@ -1227,5 +1205,29 @@ class MergeRequestsTest extends StorageApiTestCase
         $reviewerClient->mergeRequestApprove($mrId);
         $this->getSecondReviewerStorageApiClient()->mergeRequestApprove($mrId);
         $this->prodManagerClient->mergeMergeRequest($mrId);
+    }
+
+    /**
+     * @param string|int $id
+     */
+    private function assertBranchIsDeleted($id): void
+    {
+        $this->assertEventWithRetries(
+            $this->getDeveloperStorageApiClient(),
+            function ($events) use ($id) {
+                $this->assertCount(1, $events);
+                $this->assertSame('storage.devBranchDeleted', $events[0]['event']);
+                $this->assertSame($id, $events[0]['objectId']);
+            },
+            (new EventsQueryBuilder())
+                ->setEvent('storage.devBranchDeleted')
+                ->setObjectId((string) $id)
+        );
+
+        $devBranch = new DevBranches($this->developerClient);
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Branch not found');
+        $this->expectExceptionCode(404);
+        $devBranch->getBranch((int) $id);
     }
 }
