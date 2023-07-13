@@ -97,7 +97,6 @@ class ExportTableTest extends StorageApiTestCase
                 $e->getMessage()
             );
         }
-        $this->dropBucketIfExists($developerDevBranchClient, 'in.c-' . $bucketName, true);
     }
 
     public function testTableAsyncExportInDefaultBranch(): void
@@ -161,8 +160,6 @@ class ExportTableTest extends StorageApiTestCase
                 $e->getMessage()
             );
         }
-
-        $this->dropBucketIfExists($projectManagerDefaultBranchClient, 'in.c-' . $bucketName, true);
     }
 
     public function testExportTableExistInDefaultOnly(): void
@@ -228,8 +225,6 @@ class ExportTableTest extends StorageApiTestCase
         // compare data
         $this->assertTrue(file_exists($this->downloadPath));
         $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($this->downloadPath), 'imported data comparison');
-
-        $this->dropBucketIfExists($projectManagerDefaultBranchClient, 'in.c-' . $bucketName, true);
     }
 
     public function testExportTableExistInDevBranchOnly(): void
@@ -247,7 +242,6 @@ class ExportTableTest extends StorageApiTestCase
         ]);
 
         $bucketName = $this->getTestBucketName($description);
-        $this->dropBucketIfExists($developerDevBranchBranchClient, 'in.c-' . $bucketName, true);
         $devBranchBucketId = $this->initEmptyBucket(
             $bucketName,
             self::STAGE_IN,
