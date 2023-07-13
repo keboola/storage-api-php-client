@@ -135,8 +135,8 @@ class ExportTableTest extends StorageApiTestCase
             $devBranchExporter->exportTable($tableId, $this->downloadPath, []);
             $this->fail('Cannot export from table in default branch via dev branch client');
         } catch (ClientException $e) {
-            $this->assertStringContainsString(
-                sprintf('The table "languages" was not found in the bucket "%s" in the project ', $productionBucketId),
+            $this->assertSame(
+                'You don\'t have access to the resource.',
                 $e->getMessage()
             );
         }
@@ -155,6 +155,124 @@ class ExportTableTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertStringContainsString(
                 'You don\'t have access to the resource.',
+                $e->getMessage()
+            );
+        }
+    }
+
+    public function testExportTableExistInDefaultOnly(): void
+    {
+        [$importFile, $expectationsFileName] = $this->tableExportData();
+        $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
+
+        $description = $this->generateDescriptionForTestObject();
+        $projectManagerDefaultBranchClient = $this->getDefaultBranchStorageApiClient();
+
+        $productionBucketId = $this->initEmptyBucket(
+            $this->getTestBucketName($description),
+            self::STAGE_IN,
+            $description,
+            $projectManagerDefaultBranchClient
+        );
+
+        $tableIdInDefault = $projectManagerDefaultBranchClient->createTableAsync($productionBucketId, 'languages', $importFile);
+
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_devBranch');
+
+        $developerDevBranchBranchClient = $this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]);
+
+        // check that there is no bucket in the default branch
+        $this->assertCount(0, $developerDevBranchBranchClient->listBuckets());
+        $devBranchExporter = new TableExporter($developerDevBranchBranchClient);
+
+        // try export prod table -> dev file, without `sourceBranchId` param
+        try {
+            $devBranchExporter->exportTable($tableIdInDefault, $this->downloadPath, []);
+            $this->fail('Table not exist in dev branch and sourceBranchId is not set.');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString(
+                sprintf('The table "languages" was not found in the bucket "%s" in the project ', $productionBucketId),
+                $e->getMessage()
+            );
+        }
+
+        // try export prod table -> dev file, with `sourceBranchId` param
+        $defaultBranch = $this->branches->getDefaultBranch();
+        $devBranchExporter->exportTable($tableIdInDefault, $this->downloadPath, ['sourceBranchId' => $defaultBranch['id']]);
+
+        // compare data
+        $this->assertTrue(file_exists($this->downloadPath));
+        $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($this->downloadPath), 'imported data comparison');
+
+        // export prod table -> prod file with `sourceBranchId` param = prod branch
+        // runner will always send this parameter
+        $defaultBranchExporter = new TableExporter($projectManagerDefaultBranchClient);
+        $defaultBranchExporter->exportTable($tableIdInDefault, $this->downloadPath, ['sourceBranchId' => $defaultBranch['id']]);
+        // compare data
+        $this->assertTrue(file_exists($this->downloadPath));
+        $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($this->downloadPath), 'imported data comparison');
+    }
+
+    public function testExportTableExistInDevBranchOnly(): void
+    {
+        [$importFile, $expectationsFileName] = $this->tableExportData();
+        $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
+
+        $description = $this->generateDescriptionForTestObject();
+
+        $newBranch = $this->branches->createBranch($description . '_devBranch');
+
+        $developerDevBranchBranchClient = $this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]);
+
+        $devBranchBucketId = $this->initEmptyBucket(
+            $this->getTestBucketName($description),
+            self::STAGE_IN,
+            $description,
+            $developerDevBranchBranchClient
+        );
+
+        $tableIdInDevBranch = $developerDevBranchBranchClient->createTableAsync($devBranchBucketId, 'languages', $importFile);
+
+        $devBranchExporter = new TableExporter($developerDevBranchBranchClient);
+        $devBranchExporter->exportTable($tableIdInDevBranch, $this->downloadPath, ['sourceBranchId' => $newBranch['id']]);
+        // compare data
+        $this->assertTrue(file_exists($this->downloadPath));
+        $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($this->downloadPath), 'imported data comparison');
+
+        $defaultBranch = $this->branches->getDefaultBranch();
+        $projectManagerDefaultBranchClient = $this->getBranchAwareClient($defaultBranch['id'], [
+            'token' => STORAGE_API_DEFAULT_BRANCH_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]);
+//        $this->assertCount(0, $projectManagerDefaultBranchClient->listBuckets()); todo due to a bug in storage it is now foiling
+
+        $defaultBranchExporter = new TableExporter($projectManagerDefaultBranchClient);
+
+        // try export dev table -> prod file, without `sourceBranchId` param
+        try {
+            $defaultBranchExporter->exportTable($tableIdInDevBranch, $this->downloadPath, []);
+            $this->fail('Table not exist in dev branch and sourceBranchId is not set.');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString(
+                sprintf('The table "languages" was not found in the bucket "%s" in the project ', $devBranchBucketId),
+                $e->getMessage()
+            );
+        }
+
+        // try export dev table -> prod file, with `sourceBranchId` param
+        // api export endpoint supports this but the client does not support this yet
+        try {
+            $defaultBranchExporter->exportTable($tableIdInDevBranch, $this->downloadPath, ['sourceBranchId' => $newBranch['id']]);
+            $this->fail('It is not implemented in the client, the api endpoint supports it but the client cannot get information about the bucket');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString(
+                sprintf('The table "languages" was not found in the bucket "%s" in the project ', $devBranchBucketId),
                 $e->getMessage()
             );
         }
