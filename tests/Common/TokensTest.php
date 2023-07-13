@@ -1480,6 +1480,16 @@ class TokensTest extends StorageApiTestCase
         $this->assertCount(count($initialTokens), $tokens);
     }
 
+    public function testCreateTokenWithCanCreateJobsFlagOnNonSOXProjects(): void
+    {
+        // flag has no use in non-sox projects, but token can be created
+        $tokenWithCreateJobsFlag = (new Tokens($this->_client))
+            ->createToken(
+                (new TokenCreateOptions())->setCanCreateJobs(true)
+            );
+        $this->assertTrue($tokenWithCreateJobsFlag['canCreateJobs']);
+    }
+
     public function provideInvalidOptionsForGuestUser()
     {
         yield 'invalid expiration' => [
