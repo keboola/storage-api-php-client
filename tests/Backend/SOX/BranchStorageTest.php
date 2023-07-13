@@ -96,8 +96,7 @@ class BranchStorageTest extends StorageApiTestCase
 
         // test export
         $results = $branchClient->exportTableAsync($devTableId);
-        // @todo SOX-20 will save file to branch storage and we can use $branchClient but for now we need to use $privilegedClient
-        $this->assertFileRowsCount(8, $results['file']['id'], $privilegedClient);
+        $this->assertFileRowsCount(8, $results['file']['id'], $branchClient);
 
         $results = $privilegedClient->exportTableAsync($productionTableId);
         $this->assertFileRowsCount(12, $results['file']['id'], $privilegedClient);
