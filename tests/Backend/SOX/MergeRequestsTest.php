@@ -1287,7 +1287,31 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->developerClient->mergeRequestRequestReview($mrId);
         $reviewerClient->mergeRequestApprove($mrId);
         $this->getSecondReviewerStorageApiClient()->mergeRequestApprove($mrId);
+
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
         $this->prodManagerClient->mergeMergeRequest($mrId);
+        $assertCallback = function ($events) {
+            $this->assertCount(2, $events);
+            $params = $events[0]['params'];
+            unset($params['mergeRequestId']);
+            $this->assertEquals([
+                'operation' => 'publish',
+                'stateFrom' => 'in_merge',
+                'stateTo' => 'published',
+            ], $params);
+            $params = $events[1]['params'];
+            unset($params['mergeRequestId']);
+            $this->assertEquals([
+                'operation' => 'merge',
+                'stateFrom' => 'approved',
+                'stateTo' => 'in_merge',
+            ], $params);
+        };
+        $eventsQuery = new EventsQueryBuilder();
+        $eventsQuery->setEvent('storage.mergeRequestStateChanged');
+        $eventsQuery->setObjectId((string) $mrId);
+        $eventsQuery->setObjectType('mergeRequest');
+        $this->assertEventWithRetries($this->getDefaultClient(), $assertCallback, $eventsQuery);
     }
 
     /**
