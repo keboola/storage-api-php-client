@@ -34,7 +34,16 @@ class TableExporter
 
     private function handleExportedFile($tableId, $fileId, $destination, $exportOptions, $gzipOutput)
     {
-        $table = $this->client->getTable($tableId);
+        try {
+            $table = $this->client->getTable($tableId);
+        } catch (ClientException $e) {
+            if ($this->client instanceof BranchAwareClient && $e->getCode() === 404) {
+                // try to get table from default branch if not found in dev branch
+                $table = $this->client->getDefaultBranchClient()->getTable($tableId);
+            } else {
+                throw $e;
+            }
+        }
         $getFileResponse = $this->client->getFile(
             $fileId,
             (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true)
@@ -172,7 +181,16 @@ class TableExporter
                 $table['exportOptions'] = [];
             }
             if (empty($table['exportOptions']['columns'])) {
-                $tableDetail = $this->client->getTable($table['tableId']);
+                try {
+                    $tableDetail = $this->client->getTable($table['tableId']);
+                } catch (ClientException $e) {
+                    if ($this->client instanceof BranchAwareClient && $e->getCode() === 404) {
+                        // try to get table from default branch if not found in dev branch
+                        $tableDetail = $this->client->getDefaultBranchClient()->getTable($table['tableId']);
+                    } else {
+                        throw $e;
+                    }
+                }
                 $table['exportOptions']['columns'] = $tableDetail['columns'];
             }
             $exportOptions[$table['tableId']] = $table['exportOptions'];
