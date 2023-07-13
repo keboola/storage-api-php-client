@@ -45,8 +45,9 @@ class ExportTableTest extends StorageApiTestCase
             'url' => STORAGE_API_URL,
         ]);
 
+        $bucketName = $this->getTestBucketName($description);
         $devBranchBucketId = $this->initEmptyBucket(
-            $this->getTestBucketName($description),
+            $bucketName,
             self::STAGE_IN,
             $description,
             $developerDevBranchClient
@@ -96,6 +97,7 @@ class ExportTableTest extends StorageApiTestCase
                 $e->getMessage()
             );
         }
+        $this->dropBucketIfExists($developerDevBranchClient, 'in.c-' . $bucketName, true);
     }
 
     public function testTableAsyncExportInDefaultBranch(): void
@@ -106,8 +108,9 @@ class ExportTableTest extends StorageApiTestCase
         $description = $this->generateDescriptionForTestObject();
         $projectManagerDefaultBranchClient = $this->getDefaultBranchStorageApiClient();
 
+        $bucketName = $this->getTestBucketName($description);
         $productionBucketId = $this->initEmptyBucket(
-            $this->getTestBucketName($description),
+            $bucketName,
             self::STAGE_IN,
             $description,
             $projectManagerDefaultBranchClient
@@ -158,6 +161,8 @@ class ExportTableTest extends StorageApiTestCase
                 $e->getMessage()
             );
         }
+
+        $this->dropBucketIfExists($projectManagerDefaultBranchClient, 'in.c-' . $bucketName, true);
     }
 
     public function testExportTableExistInDefaultOnly(): void
@@ -168,8 +173,9 @@ class ExportTableTest extends StorageApiTestCase
         $description = $this->generateDescriptionForTestObject();
         $projectManagerDefaultBranchClient = $this->getDefaultBranchStorageApiClient();
 
+        $bucketName = $this->getTestBucketName($description);
         $productionBucketId = $this->initEmptyBucket(
-            $this->getTestBucketName($description),
+            $bucketName,
             self::STAGE_IN,
             $description,
             $projectManagerDefaultBranchClient
@@ -214,6 +220,8 @@ class ExportTableTest extends StorageApiTestCase
         // compare data
         $this->assertTrue(file_exists($this->downloadPath));
         $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($this->downloadPath), 'imported data comparison');
+
+        $this->dropBucketIfExists($projectManagerDefaultBranchClient, 'in.c-' . $bucketName, true);
     }
 
     public function testExportTableExistInDevBranchOnly(): void
@@ -230,8 +238,10 @@ class ExportTableTest extends StorageApiTestCase
             'url' => STORAGE_API_URL,
         ]);
 
+        $bucketName = $this->getTestBucketName($description);
+        $this->dropBucketIfExists($developerDevBranchBranchClient, 'in.c-' . $bucketName, true);
         $devBranchBucketId = $this->initEmptyBucket(
-            $this->getTestBucketName($description),
+            $bucketName,
             self::STAGE_IN,
             $description,
             $developerDevBranchBranchClient
@@ -250,7 +260,7 @@ class ExportTableTest extends StorageApiTestCase
             'token' => STORAGE_API_DEFAULT_BRANCH_TOKEN,
             'url' => STORAGE_API_URL,
         ]);
-//        $this->assertCount(0, $projectManagerDefaultBranchClient->listBuckets()); todo due to a bug in storage it is now foiling
+        $this->assertCount(0, $projectManagerDefaultBranchClient->listBuckets());
 
         $defaultBranchExporter = new TableExporter($projectManagerDefaultBranchClient);
 
