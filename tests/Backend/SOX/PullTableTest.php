@@ -78,12 +78,7 @@ class PullTableTest extends StorageApiTestCase
             'token' => STORAGE_API_DEVELOPER_TOKEN,
             'url' => STORAGE_API_URL,
         ]);
-        $tokenId = explode('-', STORAGE_API_DEVELOPER_TOKEN)[1];
-        $event = $this->createAndWaitForEvent(
-            (new Event())->setComponent('dummy')->setMessage('dummy'),
-            $branchClient
-        );
-        $this->lastEventId = $event['id'];
+        $this->initEvents($branchClient);
         $newTableId = $branchClient->pullTableToBranch($productionTableId);
 
         // Check events created
@@ -95,7 +90,7 @@ class PullTableTest extends StorageApiTestCase
             $this->assertSame('bucket', $events[0]['objectType']);
         };
         $query = new EventsQueryBuilder();
-        $query->setTokenId($tokenId);
+        $query->setTokenId(explode('-', STORAGE_API_DEVELOPER_TOKEN)[1]);
         $query->setEvent('storage.bucketCreated');
         $this->assertEventWithRetries($branchClient, $assertCallback, $query);
 
@@ -113,7 +108,7 @@ class PullTableTest extends StorageApiTestCase
             ], $events[0]['params']);
         };
         $query = new EventsQueryBuilder();
-        $query->setTokenId($tokenId);
+        $query->setTokenId(explode('-', STORAGE_API_DEVELOPER_TOKEN)[1]);
         $query->setEvent('storage.tableCopyToBucket');
         $this->assertEventWithRetries($branchClient, $assertCallback, $query);
 
@@ -154,11 +149,7 @@ class PullTableTest extends StorageApiTestCase
             )
         );
 
-        $event = $this->createAndWaitForEvent(
-            (new Event())->setComponent('dummy')->setMessage('dummy'),
-            $branchClient
-        );
-        $this->lastEventId = $event['id'];
+        $this->initEvents($branchClient);
         $newTableId = $branchClient->pullTableToBranch($productionTableId);
         // Check events created
         // note that there is no bucket create event since bucket already exists
@@ -175,7 +166,7 @@ class PullTableTest extends StorageApiTestCase
             ], $events[0]['params']);
         };
         $query = new EventsQueryBuilder();
-        $query->setTokenId($tokenId);
+        $query->setTokenId(explode('-', STORAGE_API_DEVELOPER_TOKEN)[1]);
         $query->setEvent('storage.tableCopyToBucket');
         $this->assertEventWithRetries($branchClient, $assertCallback, $query);
 
