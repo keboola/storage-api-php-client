@@ -55,7 +55,8 @@ class SOXTokensTest extends StorageApiTestCase
             $this->getDefaultClient(),
         ];
     }
-    public function priviledgedTokenClientProvider(): Generator
+
+    public function privilegedTokenClientProvider(): Generator
     {
         yield 'privileged' => [
             $this->getDefaultBranchStorageApiClient(),
@@ -89,20 +90,21 @@ class SOXTokensTest extends StorageApiTestCase
     /**
      * @dataProvider developerAndReviewerClientProvider
      * @dataProvider prodManagerClientProvider
-     * @dataProvider priviledgedTokenClientProvider
+     * privileged token can refresh self so it's not testes since it would broke test suite
      */
     public function testCannotRefreshCanManageProtectedBranchTokenEvenSelf(Client $client): void
     {
         $tokens = new Tokens($client);
-        $this->expectExceptionCode(400);
-        $this->expectExceptionMessage('Token with canManageProtectedDefaultBranch privilege cannot be refreshed');
-        // getDefaultBranchTokenId = priviledged token
+        $this->expectExceptionCode(403);
+        $this->expectExceptionMessage('You don\'t have access to the resource.');
+        // getDefaultBranchTokenId = privileged token
         $tokens->refreshToken($this->getDefaultBranchTokenId());
     }
 
     /**
      * @dataProvider developerAndReviewerClientProvider
      * @dataProvider prodManagerClientProvider
+     * in sox project nobody can refresh token which is not self
      */
     public function testRefreshToken(Client $client): void
     {
@@ -111,12 +113,20 @@ class SOXTokensTest extends StorageApiTestCase
 
         sleep(1);
 
-        $token = $tokens->refreshToken($token['id']);
+        $this->expectExceptionCode(403);
+        $this->expectExceptionMessage('You don\'t have access to the resource.');
+        $tokens->refreshToken($token['id']);
+    }
 
-        $this->assertGreaterThan(
-            (new DateTime($token['created']))->getTimestamp(),
-            (new DateTime($token['refreshed']))->getTimestamp()
-        );
+    public function testTokenSelfRefresh(): void
+    {
+        $tokens = new Tokens($this->getDefaultClient());
+        $token = $tokens->createToken((new TokenCreateOptions()));
+
+        $client = $this->getClientForToken($token['token']);
+        $refreshedToken = (new Tokens($client))->refreshToken($token['id']);
+        $this->assertSame($token['id'], $refreshedToken['id']);
+        $this->assertNotSame($token['token'], $refreshedToken['token']);
     }
 
     /**
@@ -244,6 +254,29 @@ class SOXTokensTest extends StorageApiTestCase
         $this->assertEquals('My test token', $token['description']);
 
         $this->assertArrayHasKey('bucketPermissions', $token);
+    }
+
+    public function testPrivilegedTokenCanRefreshSelf(): void
+    {
+        $this->assertManageTokensPresent();
+
+        $options = (new TokenCreateOptions())
+            ->setDescription('My test token')
+            ->setCanReadAllFileUploads(true)
+            ->setCanManageBuckets(true)
+            ->setCanPurgeTrash(true)
+            ->setExpiresIn(360)
+            ->addComponentAccess('wr-db');
+
+        $token = $this->tokens->createTokenPrivilegedInProtectedDefaultBranch(
+            $options,
+            MANAGE_API_TOKEN_WITH_CREATE_PROTECTED_DEFAULT_BRANCH_TOKEN,
+        );
+
+        $client = $this->getClientForToken($token['token']);
+        $refreshedToken = (new Tokens($client))->refreshToken($token['id']);
+        $this->assertSame($token['id'], $refreshedToken['id']);
+        $this->assertNotSame($token['token'], $refreshedToken['token']);
     }
 
     public function assertManageTokensPresent(): void
