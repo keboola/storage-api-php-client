@@ -123,39 +123,54 @@ class MergeRequestsTest extends StorageApiTestCase
     {
         // init everything
         $privClient = $this->getDefaultBranchStorageApiClient();
-        $this->initEvents($privClient);
 
         $defaultBranch = $this->branches->getDefaultBranch();
 
         $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
+        $creatorId = $this->developerClient->verifyToken()['admin']['id'];
 
+        // create MR
+        $this->initEvents($privClient);
         $mrId = $this->developerClient->createMergeRequest([
             'branchFromId' => $newBranch['id'],
             'branchIntoId' => $defaultBranch['id'],
             'title' => 'Change everything',
             'description' => 'Fix typo',
         ]);
-
         $eventsQuery = new EventsQueryBuilder();
         $eventsQuery->setEvent('storage.mergeRequestStateChanged');
         $eventsQuery->setObjectId((string) $mrId);
         $eventsQuery->setObjectType('mergeRequest');
 
+        $assertCallbackForCreated = function ($events) use ($mrId, $creatorId) {
+            $this->assertCount(1, $events);
+            $this->assertEquals([
+                'creatorId' => $creatorId,
+                'mergeRequestId' => $mrId,
+            ], $events[0]['params']);
+        };
+        $eventsQueryForCreate = new EventsQueryBuilder();
+        $eventsQueryForCreate->setEvent('storage.mergeRequestCreated');
+        $eventsQueryForCreate->setObjectId((string) $mrId);
+        $eventsQueryForCreate->setObjectType('mergeRequest');
+
+        $this->assertEventWithRetries($this->getDefaultClient(), $assertCallbackForCreated, $eventsQueryForCreate);
+
+        $this->initEvents($privClient);
         // lets go!
         $reviewerClient = $this->getReviewerStorageApiClient();
 
         // request review
         $this->developerClient->mergeRequestRequestReview($mrId);
 
-        $assertCallback = function ($events) {
+        $assertCallback = function ($events) use ($mrId) {
             $this->assertCount(1, $events);
-            $params = $events[0]['params'];
-            unset($params['mergeRequestId']);
             $this->assertEquals([
                 'operation' => 'request_review',
                 'stateFrom' => 'development',
                 'stateTo' => 'in_review',
-            ], $params);
+                'mergeRequestId' => $mrId,
+            ], $events[0]['params']);
         };
 
         $this->assertEventWithRetries($this->getDefaultClient(), $assertCallback, $eventsQuery);
@@ -164,15 +179,14 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->initEvents($privClient);
         $mrData = $reviewerClient->mergeRequestApprove($mrId);
 
-        $assertCallback = function ($events) {
+        $assertCallback = function ($events) use ($mrId) {
             $this->assertCount(1, $events);
-            $params = $events[0]['params'];
-            unset($params['mergeRequestId']);
             $this->assertEquals([
                 'operation' => 'approve',
                 'stateFrom' => 'in_review',
                 'stateTo' => 'in_review',
-            ], $params);
+                'mergeRequestId' => $mrId,
+            ], $events[0]['params']);
         };
         $this->assertEventWithRetries($this->getDefaultClient(), $assertCallback, $eventsQuery);
 
@@ -183,23 +197,21 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->initEvents($privClient);
         $mrData = $this->getSecondReviewerStorageApiClient()->mergeRequestApprove($mrId);
 
-        $assertCallback = function ($events) {
+        $assertCallback = function ($events) use ($mrId) {
             $this->assertCount(2, $events);
-            $params = $events[0]['params'];
-            unset($params['mergeRequestId']);
             $this->assertEquals([
                 'operation' => 'finnish_review',
                 'stateFrom' => 'in_review',
                 'stateTo' => 'approved',
-            ], $params);
+                'mergeRequestId' => $mrId,
+            ], $events[0]['params']);
 
-            $params = $events[1]['params'];
-            unset($params['mergeRequestId']);
             $this->assertEquals([
                 'operation' => 'approve',
                 'stateFrom' => 'in_review',
                 'stateTo' => 'in_review',
-            ], $params);
+                'mergeRequestId' => $mrId,
+            ], $events[1]['params']);
         };
         $this->assertEventWithRetries($this->getDefaultClient(), $assertCallback, $eventsQuery);
 
@@ -210,15 +222,14 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->initEvents($privClient);
         $mrData = $reviewerClient->requestMergeRequestChanges($mrId);
 
-        $assertCallback = function ($events) {
+        $assertCallback = function ($events) use ($mrId) {
             $this->assertCount(1, $events);
-            $params = $events[0]['params'];
-            unset($params['mergeRequestId']);
             $this->assertEquals([
                 'operation' => 'request_changes',
                 'stateFrom' => 'approved',
                 'stateTo' => 'development',
-            ], $params);
+                'mergeRequestId' => $mrId,
+            ], $events[0]['params']);
         };
         $this->assertEventWithRetries($this->getDefaultClient(), $assertCallback, $eventsQuery);
 
@@ -228,15 +239,14 @@ class MergeRequestsTest extends StorageApiTestCase
         // cancel MR
         $this->initEvents($privClient);
         $mrData = $reviewerClient->cancelMergeRequest($mrId);
-        $assertCallback = function ($events) {
+        $assertCallback = function ($events) use ($mrId) {
             $this->assertCount(1, $events);
-            $params = $events[0]['params'];
-            unset($params['mergeRequestId']);
             $this->assertEquals([
                 'operation' => 'cancel',
                 'stateFrom' => 'development',
                 'stateTo' => 'canceled',
-            ], $params);
+                'mergeRequestId' => $mrId,
+            ], $events[0]['params']);
         };
         $this->assertEventWithRetries($this->getDefaultClient(), $assertCallback, $eventsQuery);
 
