@@ -183,7 +183,7 @@ class DevBranchesTest extends StorageApiTestCase
             $this->fail('Delete non-existing branch should fail.');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
-            $this->assertSame(sprintf('Branch not found'), $e->getMessage());
+            $this->assertSame(sprintf('Branch id:"%s" was not found.', $branchId), $e->getMessage());
         }
 
         // now branch can be created with same name as deleted branch
