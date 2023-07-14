@@ -45,8 +45,9 @@ class ExportTableTest extends StorageApiTestCase
             'url' => STORAGE_API_URL,
         ]);
 
+        $bucketName = $this->getTestBucketName($description);
         $devBranchBucketId = $this->initEmptyBucket(
-            $this->getTestBucketName($description),
+            $bucketName,
             self::STAGE_IN,
             $description,
             $developerDevBranchClient
@@ -106,8 +107,9 @@ class ExportTableTest extends StorageApiTestCase
         $description = $this->generateDescriptionForTestObject();
         $projectManagerDefaultBranchClient = $this->getDefaultBranchStorageApiClient();
 
+        $bucketName = $this->getTestBucketName($description);
         $productionBucketId = $this->initEmptyBucket(
-            $this->getTestBucketName($description),
+            $bucketName,
             self::STAGE_IN,
             $description,
             $projectManagerDefaultBranchClient
@@ -168,8 +170,9 @@ class ExportTableTest extends StorageApiTestCase
         $description = $this->generateDescriptionForTestObject();
         $projectManagerDefaultBranchClient = $this->getDefaultBranchStorageApiClient();
 
+        $bucketName = $this->getTestBucketName($description);
         $productionBucketId = $this->initEmptyBucket(
-            $this->getTestBucketName($description),
+            $bucketName,
             self::STAGE_IN,
             $description,
             $projectManagerDefaultBranchClient
@@ -184,8 +187,16 @@ class ExportTableTest extends StorageApiTestCase
             'url' => STORAGE_API_URL,
         ]);
 
-        // check that there is no bucket in the default branch
-        $this->assertCount(0, $developerDevBranchBranchClient->listBuckets());
+        // check that there is no table in the default branch
+        try {
+            $developerDevBranchBranchClient->getTable($tableIdInDefault);
+            $this->fail('Table should not exist in dev branch');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString(
+                sprintf('The table "%s" was not found in the bucket "%s" in the project ', 'languages', $productionBucketId),
+                $e->getMessage()
+            );
+        }
         $devBranchExporter = new TableExporter($developerDevBranchBranchClient);
 
         // try export prod table -> dev file, without `sourceBranchId` param
@@ -230,8 +241,9 @@ class ExportTableTest extends StorageApiTestCase
             'url' => STORAGE_API_URL,
         ]);
 
+        $bucketName = $this->getTestBucketName($description);
         $devBranchBucketId = $this->initEmptyBucket(
-            $this->getTestBucketName($description),
+            $bucketName,
             self::STAGE_IN,
             $description,
             $developerDevBranchBranchClient
@@ -250,7 +262,15 @@ class ExportTableTest extends StorageApiTestCase
             'token' => STORAGE_API_DEFAULT_BRANCH_TOKEN,
             'url' => STORAGE_API_URL,
         ]);
-//        $this->assertCount(0, $projectManagerDefaultBranchClient->listBuckets()); todo due to a bug in storage it is now foiling
+        try {
+            $projectManagerDefaultBranchClient->getTable($tableIdInDevBranch);
+            $this->fail('Table should not exist in default branch');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString(
+                sprintf('The table "%s" was not found in the bucket "%s" in the project ', 'languages', $devBranchBucketId),
+                $e->getMessage()
+            );
+        }
 
         $defaultBranchExporter = new TableExporter($projectManagerDefaultBranchClient);
 
