@@ -123,24 +123,41 @@ class MergeRequestsTest extends StorageApiTestCase
     {
         // init everything
         $privClient = $this->getDefaultBranchStorageApiClient();
-        $this->initEvents($privClient);
 
         $defaultBranch = $this->branches->getDefaultBranch();
 
         $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
+        $creatorId = $this->developerClient->verifyToken()['admin']['id'];
 
+        // create MR
+        $this->initEvents($privClient);
         $mrId = $this->developerClient->createMergeRequest([
             'branchFromId' => $newBranch['id'],
             'branchIntoId' => $defaultBranch['id'],
             'title' => 'Change everything',
             'description' => 'Fix typo',
         ]);
-
         $eventsQuery = new EventsQueryBuilder();
         $eventsQuery->setEvent('storage.mergeRequestStateChanged');
         $eventsQuery->setObjectId((string) $mrId);
         $eventsQuery->setObjectType('mergeRequest');
 
+        $assertCallbackForCreated = function ($events) use ($mrId, $creatorId) {
+            $this->assertCount(1, $events);
+            $params = $events[0]['params'];
+            $this->assertEquals([
+                'creatorId' => $creatorId,
+                'mergeRequestId' => $mrId,
+            ], $params);
+        };
+        $eventsQueryForCreate = new EventsQueryBuilder();
+        $eventsQueryForCreate->setEvent('storage.mergeRequestCreated');
+        $eventsQueryForCreate->setObjectId((string) $mrId);
+        $eventsQueryForCreate->setObjectType('mergeRequest');
+
+        $this->assertEventWithRetries($this->getDefaultClient(), $assertCallbackForCreated, $eventsQueryForCreate);
+
+        $this->initEvents($privClient);
         // lets go!
         $reviewerClient = $this->getReviewerStorageApiClient();
 
