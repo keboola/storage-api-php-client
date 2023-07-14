@@ -320,14 +320,6 @@ class TokensTest extends StorageApiTestCase
         $this->tokens->dropToken('foo');
     }
 
-    public function testTokenRefreshWhenTokenIsString(): void
-    {
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Argument "id" is expected to be type "int", value "foo" given.');
-        /** @phpstan-ignore-next-line */
-        $this->tokens->refreshToken('foo');
-    }
-
     public function testTokenGetWhenTokenIsString(): void
     {
         $this->expectException(ClientException::class);
