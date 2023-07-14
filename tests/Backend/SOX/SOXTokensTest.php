@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Test\Backend\SOX;
 
+use DateTime;
 use Generator;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
@@ -38,13 +39,27 @@ class SOXTokensTest extends StorageApiTestCase
         ];
     }
 
-    public function developerAndReviewerTokensProvider(): Generator
+    public function developerAndReviewerClientProvider(): Generator
     {
         yield 'developer' => [
             $this->getDeveloperStorageApiClient(),
         ];
         yield 'reviewer' => [
             $this->getReviewerStorageApiClient(),
+        ];
+    }
+
+    public function prodManagerClientProvider(): Generator
+    {
+        yield 'prodManager' => [
+            $this->getDefaultClient(),
+        ];
+    }
+
+    public function privilegedTokenClientProvider(): Generator
+    {
+        yield 'privileged' => [
+            $this->getDefaultBranchStorageApiClient(),
         ];
     }
 
@@ -72,13 +87,46 @@ class SOXTokensTest extends StorageApiTestCase
         }
     }
 
-    public function testCannotRefreshCanManageProtectedBranchTokenEvenSelf(): void
+    /**
+     * @dataProvider developerAndReviewerClientProvider
+     * @dataProvider prodManagerClientProvider
+     * privileged token can refresh self so it's not testes since it would broke test suite
+     */
+    public function testCannotRefreshCanManageProtectedBranchTokenEvenSelf(Client $client): void
     {
-        $client = $this->getDefaultBranchStorageApiClient();
         $tokens = new Tokens($client);
-        $this->expectExceptionCode(400);
-        $this->expectExceptionMessage('Token with canManageProtectedDefaultBranch privilege cannot be refreshed');
+        $this->expectExceptionCode(403);
+        $this->expectExceptionMessage('You don\'t have access to the resource.');
+        // getDefaultBranchTokenId = privileged token
         $tokens->refreshToken($this->getDefaultBranchTokenId());
+    }
+
+    /**
+     * @dataProvider developerAndReviewerClientProvider
+     * @dataProvider prodManagerClientProvider
+     * in sox project nobody can refresh token which is not self
+     */
+    public function testRefreshToken(Client $client): void
+    {
+        $tokens = new Tokens($client);
+        $token = $tokens->createToken((new TokenCreateOptions()));
+
+        sleep(1);
+
+        $this->expectExceptionCode(403);
+        $this->expectExceptionMessage('You don\'t have access to the resource.');
+        $tokens->refreshToken($token['id']);
+    }
+
+    public function testTokenSelfRefresh(): void
+    {
+        $tokens = new Tokens($this->getDefaultClient());
+        $token = $tokens->createToken((new TokenCreateOptions()));
+
+        $client = $this->getClientForToken($token['token']);
+        $refreshedToken = (new Tokens($client))->refreshToken($token['id']);
+        $this->assertSame($token['id'], $refreshedToken['id']);
+        $this->assertNotSame($token['token'], $refreshedToken['token']);
     }
 
     /**
@@ -208,6 +256,29 @@ class SOXTokensTest extends StorageApiTestCase
         $this->assertArrayHasKey('bucketPermissions', $token);
     }
 
+    public function testPrivilegedTokenCanRefreshSelf(): void
+    {
+        $this->assertManageTokensPresent();
+
+        $options = (new TokenCreateOptions())
+            ->setDescription('My test token')
+            ->setCanReadAllFileUploads(true)
+            ->setCanManageBuckets(true)
+            ->setCanPurgeTrash(true)
+            ->setExpiresIn(360)
+            ->addComponentAccess('wr-db');
+
+        $token = $this->tokens->createTokenPrivilegedInProtectedDefaultBranch(
+            $options,
+            MANAGE_API_TOKEN_WITH_CREATE_PROTECTED_DEFAULT_BRANCH_TOKEN,
+        );
+
+        $client = $this->getClientForToken($token['token']);
+        $refreshedToken = (new Tokens($client))->refreshToken($token['id']);
+        $this->assertSame($token['id'], $refreshedToken['id']);
+        $this->assertNotSame($token['token'], $refreshedToken['token']);
+    }
+
     public function assertManageTokensPresent(): void
     {
         if (!defined('MANAGE_API_TOKEN_ADMIN')
@@ -245,7 +316,7 @@ class SOXTokensTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider developerAndReviewerTokensProvider
+     * @dataProvider developerAndReviewerClientProvider
      */
     public function testNooneButProdManagerCannotCreateTokenWithCanCreateJobsFlag(Client $client): void
     {
