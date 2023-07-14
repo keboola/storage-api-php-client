@@ -27,6 +27,7 @@ class MergeRequestsTest extends StorageApiTestCase
     use MetadataUtils;
 
     private Client $developerClient;
+
     private Client $prodManagerClient;
 
     private DevBranches $branches;
@@ -118,8 +119,12 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertEquals('in_review', $mrData['state']);
     }
 
-    public function testMRWorkflowFromDevelopmentToCancel(): void
+    public function testMRWorkflowFromDevelopmentToCancelWithEvents(): void
     {
+        // init everything
+        $privClient = $this->getDefaultBranchStorageApiClient();
+        $this->initEvents($privClient);
+
         $defaultBranch = $this->branches->getDefaultBranch();
 
         $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
@@ -131,29 +136,114 @@ class MergeRequestsTest extends StorageApiTestCase
             'description' => 'Fix typo',
         ]);
 
+        $eventsQuery = new EventsQueryBuilder();
+        $eventsQuery->setEvent('storage.mergeRequestStateChanged');
+        $eventsQuery->setObjectId((string) $mrId);
+        $eventsQuery->setObjectType('mergeRequest');
+
+        // lets go!
         $reviewerClient = $this->getReviewerStorageApiClient();
+
+        // request review
         $this->developerClient->mergeRequestRequestReview($mrId);
 
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+            $params = $events[0]['params'];
+            unset($params['mergeRequestId']);
+            $this->assertEquals([
+                'operation' => 'request_review',
+                'stateFrom' => 'development',
+                'stateTo' => 'in_review',
+            ], $params);
+        };
+
+        $this->assertEventWithRetries($this->getDefaultClient(), $assertCallback, $eventsQuery);
+
+        // add first approval
+        $this->initEvents($privClient);
         $mrData = $reviewerClient->mergeRequestApprove($mrId);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+            $params = $events[0]['params'];
+            unset($params['mergeRequestId']);
+            $this->assertEquals([
+                'operation' => 'approve',
+                'stateFrom' => 'in_review',
+                'stateTo' => 'in_review',
+            ], $params);
+        };
+        $this->assertEventWithRetries($this->getDefaultClient(), $assertCallback, $eventsQuery);
 
         $this->assertEquals('in_review', $mrData['state']);
         $this->assertCount(1, $mrData['approvals']);
 
+        // add second approval -> all finish review
+        $this->initEvents($privClient);
         $mrData = $this->getSecondReviewerStorageApiClient()->mergeRequestApprove($mrId);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(2, $events);
+            $params = $events[0]['params'];
+            unset($params['mergeRequestId']);
+            $this->assertEquals([
+                'operation' => 'finnish_review',
+                'stateFrom' => 'in_review',
+                'stateTo' => 'approved',
+            ], $params);
+
+            $params = $events[1]['params'];
+            unset($params['mergeRequestId']);
+            $this->assertEquals([
+                'operation' => 'approve',
+                'stateFrom' => 'in_review',
+                'stateTo' => 'in_review',
+            ], $params);
+        };
+        $this->assertEventWithRetries($this->getDefaultClient(), $assertCallback, $eventsQuery);
 
         $this->assertEquals('approved', $mrData['state']);
         $this->assertCount(2, $mrData['approvals']);
 
+        // request changes
+        $this->initEvents($privClient);
         $mrData = $reviewerClient->requestMergeRequestChanges($mrId);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+            $params = $events[0]['params'];
+            unset($params['mergeRequestId']);
+            $this->assertEquals([
+                'operation' => 'request_changes',
+                'stateFrom' => 'approved',
+                'stateTo' => 'development',
+            ], $params);
+        };
+        $this->assertEventWithRetries($this->getDefaultClient(), $assertCallback, $eventsQuery);
+
         $this->assertCount(0, $mrData['approvals']);
         $this->assertSame('development', $mrData['state']);
 
+        // cancel MR
+        $this->initEvents($privClient);
         $mrData = $reviewerClient->cancelMergeRequest($mrId);
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+            $params = $events[0]['params'];
+            unset($params['mergeRequestId']);
+            $this->assertEquals([
+                'operation' => 'cancel',
+                'stateFrom' => 'development',
+                'stateTo' => 'canceled',
+            ], $params);
+        };
+        $this->assertEventWithRetries($this->getDefaultClient(), $assertCallback, $eventsQuery);
+
         $this->assertCount(0, $mrData['approvals']);
         $this->assertSame('canceled', $mrData['state']);
         $this->assertNull($mrData['branches']['branchFromId']);
     }
-
 
     public function testMRWorkflowLock(): void
     {
@@ -1197,7 +1287,31 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->developerClient->mergeRequestRequestReview($mrId);
         $reviewerClient->mergeRequestApprove($mrId);
         $this->getSecondReviewerStorageApiClient()->mergeRequestApprove($mrId);
+
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
         $this->prodManagerClient->mergeMergeRequest($mrId);
+        $assertCallback = function ($events) {
+            $this->assertCount(2, $events);
+            $params = $events[0]['params'];
+            unset($params['mergeRequestId']);
+            $this->assertEquals([
+                'operation' => 'publish',
+                'stateFrom' => 'in_merge',
+                'stateTo' => 'published',
+            ], $params);
+            $params = $events[1]['params'];
+            unset($params['mergeRequestId']);
+            $this->assertEquals([
+                'operation' => 'merge',
+                'stateFrom' => 'approved',
+                'stateTo' => 'in_merge',
+            ], $params);
+        };
+        $eventsQuery = new EventsQueryBuilder();
+        $eventsQuery->setEvent('storage.mergeRequestStateChanged');
+        $eventsQuery->setObjectId((string) $mrId);
+        $eventsQuery->setObjectType('mergeRequest');
+        $this->assertEventWithRetries($this->getDefaultClient(), $assertCallback, $eventsQuery);
     }
 
     /**
