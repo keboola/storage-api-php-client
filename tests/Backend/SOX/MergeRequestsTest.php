@@ -44,7 +44,7 @@ class MergeRequestsTest extends StorageApiTestCase
                 $this->branches->deleteBranch($branch['id']);
             } catch (Throwable $e) {
                 // this could fail in both job and http request but with same message
-                if ($e->getMessage() !== 'Branch not found') {
+                if ($e->getMessage() !== sprintf('Branch id:"%s" not found', $branch['id'])) {
                     throw $e;
                 }
             }
@@ -74,7 +74,7 @@ class MergeRequestsTest extends StorageApiTestCase
 
     public function testCreateMergeRequestFromInvalidBranches(): void
     {
-        $this->expectExceptionMessage('Cannot create merge request. Branch not found.');
+        $this->expectExceptionMessage('Cannot create merge request. Branch id:"345" was not found.');
         $this->developerClient->createMergeRequest([
             'branchFromId' => 123,
             'branchIntoId' => 345,
@@ -1343,7 +1343,7 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $devBranch = new DevBranches($this->developerClient);
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Branch not found');
+        $this->expectExceptionMessage(sprintf('Branch id:"%s" was not found.', $id));
         $this->expectExceptionCode(404);
         $devBranch->getBranch((int) $id);
     }
