@@ -70,6 +70,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertEquals('Change everything', $mrData['title']);
         // check that detail also containts content
         $this->assertArrayHasKey('content', $mrData);
+        $this->assertSame([], $mrData['content'], 'Content of an empty MR should be empty object');
     }
 
     public function testCreateMergeRequestFromInvalidBranches(): void
