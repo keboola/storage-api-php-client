@@ -200,7 +200,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $assertCallback = function ($events) use ($mrId) {
             $this->assertCount(2, $events);
             $this->assertEquals([
-                'operation' => 'finnish_review',
+                'operation' => 'finish_review',
                 'stateFrom' => 'in_review',
                 'stateTo' => 'approved',
                 'mergeRequestId' => $mrId,
