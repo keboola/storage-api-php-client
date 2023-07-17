@@ -3,8 +3,8 @@
 namespace Keboola\Test\Backend\SOX;
 
 use Generator;
-use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\Configuration;
@@ -793,6 +793,135 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertCount(2, $versions);
 
         $this->assertBranchIsDeleted($newBranch['id']);
+    }
+
+    public function testChangeLogIsStoredInContent(): void
+    {
+        $defaultBranch = $this->branches->getDefaultBranch();
+
+        // Create config in default branch
+        /** @var Components $components */
+        [$componentId, $configurationId, $components] = $this->prepareTestConfiguration();
+
+        // create dev branch, config from main copy to dev
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaa');
+
+        $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+
+        // check that the universe is OK and the configuration has been copied to the dev branch
+        $configInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame('value', $configInDev['configuration']['main']);
+        $this->assertSame(1, $configInDev['version']);
+        $this->assertSame('Copied from default branch configuration "Main" (main-1) version 1', $configInDev['changeDescription']);
+
+        // update existing config several times in default branch to check that only one version is added after the merge
+        $devBranchComponents->updateConfiguration((new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main updated')
+            ->setDescription('First update description')
+            ->setConfiguration(['main' => 'update'])
+            ->setChangeDescription('Update config')
+            ->setIsDisabled(true));
+
+        $configInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame('update', $configInDev['configuration']['main']);
+        $this->assertSame(2, $configInDev['version']);
+        $this->assertSame('Update config', $configInDev['changeDescription']);
+
+        $devBranchComponents->updateConfiguration((new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('second main updated')
+            ->setDescription('last update desc')
+            ->setChangeDescription('last update')
+            ->setConfiguration(['main' => 'update again']));
+
+        $configState = (new ConfigurationState())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setState(['dev-branch-state' => 'state'])
+        ;
+
+        $devBranchComponents->updateConfigurationState($configState);
+
+        $configInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $this->assertSame('update again', $configInDev['configuration']['main']);
+        $this->assertSame(3, $configInDev['version']);
+        $this->assertSame('last update', $configInDev['changeDescription']);
+        $this->assertSame(['dev-branch-state' => 'state'], $configInDev['state']);
+
+        $lastVersionIdentifierInDevBranch = $configInDev['currentVersion']['versionIdentifier'];
+
+        $newConfigId = $this->generateUniqueNameForString('new-config');
+        $devBranchComponents->addConfiguration(
+            (new Configuration())
+                ->setComponentId($componentId)
+                ->setConfigurationId($newConfigId)
+                ->setConfiguration(['main' => 'created in branch'])
+            ->setName($this->generateDescriptionForTestObject()),
+        );
+
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
+
+        $mrId = $this->developerClient->createMergeRequest([
+            'branchFromId' => $newBranch['id'],
+            'branchIntoId' => $defaultBranch['id'],
+            'title' => $this->generateUniqueNameForString('mr-title'),
+            'description' => $this->generateUniqueNameForString('mr-description'),
+        ]);
+
+        $reviewerClient = $this->getReviewerStorageApiClient();
+        $this->developerClient->mergeRequestRequestReview($mrId);
+        $mr = $reviewerClient->getMergeRequest($mrId);
+        $this->assertArrayHasKey('content', $mr);
+        $this->assertArrayHasKey('changedConfigurations', $mr['content']);
+        $this->assertCount(2, $mr['content']['changedConfigurations']);
+        foreach ($mr['content']['changedConfigurations'] as $changedConfiguration) {
+            $this->assertArrayHasKey('isDeleted', $changedConfiguration);
+            $this->assertArrayHasKey('componentId', $changedConfiguration);
+            $this->assertArrayHasKey('configurationId', $changedConfiguration);
+            $this->assertArrayHasKey('lastVersionIdentifier', $changedConfiguration);
+            $config = $devBranchComponents->getConfiguration(
+                $changedConfiguration['componentId'],
+                $changedConfiguration['configurationId']
+            );
+            $this->assertSame($config['currentVersion']['versionIdentifier'], $changedConfiguration['lastVersionIdentifier']);
+        }
+
+        $reviewerClient->requestMergeRequestChanges($mrId);
+
+        $newConfigId = $this->generateUniqueNameForString('new-config-after-review');
+        $devBranchComponents->addConfiguration(
+            (new Configuration())
+                ->setComponentId($componentId)
+                ->setConfigurationId($newConfigId)
+                ->setConfiguration(['main' => 'created in branch'])
+                ->setName($this->generateDescriptionForTestObject()),
+        );
+
+        $this->developerClient->mergeRequestRequestReview($mrId);
+
+        // reassert that the changelog is updated after review request
+        $mr = $reviewerClient->getMergeRequest($mrId);
+        $this->assertArrayHasKey('content', $mr);
+        $this->assertArrayHasKey('changedConfigurations', $mr['content']);
+
+        $this->assertCount(3, $mr['content']['changedConfigurations']);
+        foreach ($mr['content']['changedConfigurations'] as $changedConfiguration) {
+            $this->assertArrayHasKey('isDeleted', $changedConfiguration);
+            $this->assertArrayHasKey('componentId', $changedConfiguration);
+            $this->assertArrayHasKey('configurationId', $changedConfiguration);
+            $this->assertArrayHasKey('lastVersionIdentifier', $changedConfiguration);
+            $config = $devBranchComponents->getConfiguration(
+                $changedConfiguration['componentId'],
+                $changedConfiguration['configurationId']
+            );
+            $this->assertSame($config['currentVersion']['versionIdentifier'], $changedConfiguration['lastVersionIdentifier']);
+        }
     }
 
     public function testCreateConfigurationInBranch(): void
