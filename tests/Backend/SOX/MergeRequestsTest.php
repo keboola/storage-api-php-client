@@ -519,6 +519,29 @@ class MergeRequestsTest extends StorageApiTestCase
         $client->mergeMergeRequest($mrId);
     }
 
+    public function testReviewerCannotApproveOwnMR(): void
+    {
+        $reviewerClient = $this->getReviewerStorageApiClient();
+
+        $this->branches = new DevBranches($reviewerClient);
+        $defaultBranch = $this->branches->getDefaultBranch();
+
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
+
+        $mrId = $reviewerClient->createMergeRequest([
+            'branchFromId' => $newBranch['id'],
+            'branchIntoId' => $defaultBranch['id'],
+            'title' => 'Change everything',
+            'description' => 'Fix typo',
+        ]);
+
+        $reviewerClient->mergeRequestRequestReview($mrId);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Operation canot be performed due: Request creator cannot approve their own request.');
+        $reviewerClient->mergeRequestApprove($mrId);
+    }
+
     public function cantMergeTokenProviders(): Generator
     {
         yield 'developer' => [
