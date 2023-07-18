@@ -69,8 +69,8 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $this->assertEquals('Change everything', $mrData['title']);
         // check that detail also containts content
-        $this->assertArrayHasKey('content', $mrData);
-        $this->assertSame([], $mrData['content'], 'Content of an empty MR should be empty object');
+        $this->assertArrayHasKey('changeLog', $mrData);
+        $this->assertSame([], $mrData['changeLog'], 'Content of an empty MR should be empty object');
     }
 
     public function testCreateMergeRequestFromInvalidBranches(): void
@@ -795,7 +795,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertBranchIsDeleted($newBranch['id']);
     }
 
-    public function testChangeLogIsStoredInContent(): void
+    public function testChangeLog(): void
     {
         $defaultBranch = $this->branches->getDefaultBranch();
 
@@ -877,10 +877,10 @@ class MergeRequestsTest extends StorageApiTestCase
         $reviewerClient = $this->getReviewerStorageApiClient();
         $this->developerClient->mergeRequestRequestReview($mrId);
         $mr = $reviewerClient->getMergeRequest($mrId);
-        $this->assertArrayHasKey('content', $mr);
-        $this->assertArrayHasKey('changedConfigurations', $mr['content']);
-        $this->assertCount(2, $mr['content']['changedConfigurations']);
-        foreach ($mr['content']['changedConfigurations'] as $changedConfiguration) {
+        $this->assertArrayHasKey('changeLog', $mr);
+        $this->assertArrayHasKey('configurations', $mr['changeLog']);
+        $this->assertCount(2, $mr['changeLog']['configurations']);
+        foreach ($mr['changeLog']['configurations'] as $changedConfiguration) {
             $this->assertArrayHasKey('isDeleted', $changedConfiguration);
             $this->assertArrayHasKey('componentId', $changedConfiguration);
             $this->assertArrayHasKey('configurationId', $changedConfiguration);
@@ -907,11 +907,11 @@ class MergeRequestsTest extends StorageApiTestCase
 
         // reassert that the changelog is updated after review request
         $mr = $reviewerClient->getMergeRequest($mrId);
-        $this->assertArrayHasKey('content', $mr);
-        $this->assertArrayHasKey('changedConfigurations', $mr['content']);
+        $this->assertArrayHasKey('changeLog', $mr);
+        $this->assertArrayHasKey('configurations', $mr['changeLog']);
 
-        $this->assertCount(3, $mr['content']['changedConfigurations']);
-        foreach ($mr['content']['changedConfigurations'] as $changedConfiguration) {
+        $this->assertCount(3, $mr['changeLog']['configurations']);
+        foreach ($mr['changeLog']['configurations'] as $changedConfiguration) {
             $this->assertArrayHasKey('isDeleted', $changedConfiguration);
             $this->assertArrayHasKey('componentId', $changedConfiguration);
             $this->assertArrayHasKey('configurationId', $changedConfiguration);
