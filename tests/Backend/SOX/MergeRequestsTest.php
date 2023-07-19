@@ -379,7 +379,7 @@ class MergeRequestsTest extends StorageApiTestCase
         }
     }
 
-    public function testProManagerCannotPutBranchInReview(): void
+    public function testProdManagerCannotPutBranchInReview(): void
     {
         $defaultBranch = $this->branches->getDefaultBranch();
         $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
@@ -409,6 +409,47 @@ class MergeRequestsTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame($e->getMessage(), 'You don\'t have access to the resource.');
         }
+    }
+    public function testProdManagerCanRequestChanges(): void
+    {
+        $defaultBranch = $this->branches->getDefaultBranch();
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
+
+        // create and approve MR
+        $mrId = $this->developerClient->createMergeRequest([
+            'branchFromId' => $newBranch['id'],
+            'branchIntoId' => $defaultBranch['id'],
+            'title' => 'Change everything',
+            'description' => 'Fix typo',
+        ]);
+
+        $reviewerClient = $this->getReviewerStorageApiClient();
+        $this->developerClient->mergeRequestRequestReview($mrId);
+
+        $reviewerClient->mergeRequestApprove($mrId);
+        $this->getSecondReviewerStorageApiClient()->mergeRequestApprove($mrId);
+
+        // request changes by PM and check the events
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
+        $mrData = $this->prodManagerClient->requestMergeRequestChanges($mrId);
+
+        $assertCallback = function ($events) use ($mrId) {
+            $this->assertCount(1, $events);
+            $this->assertEquals([
+                'operation' => 'request_changes',
+                'stateFrom' => 'approved',
+                'stateTo' => 'development',
+                'mergeRequestId' => $mrId,
+            ], $events[0]['params']);
+        };
+
+        $eventsQuery = new EventsQueryBuilder();
+        $eventsQuery->setEvent('storage.mergeRequestStateChanged');
+        $eventsQuery->setObjectId((string) $mrId);
+        $eventsQuery->setObjectType('mergeRequest');
+        $this->assertEventWithRetries($this->getDefaultClient(), $assertCallback, $eventsQuery);
+
+        $this->assertEquals('development', $mrData['state']);
     }
 
     public function testUpdateMR(): void
