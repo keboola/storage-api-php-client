@@ -19,6 +19,8 @@ class BranchStorageTest extends StorageApiTestCase
 
     private DevBranches $branches;
 
+    private int $defaultBranchId;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -324,6 +326,14 @@ class BranchStorageTest extends StorageApiTestCase
 
     private function assertBranchEvent(Client $client, string $eventName, ?string $objectId, ?string $objectType): void
     {
+        if (!isset($this->defaultBranchId)) {
+            $this->defaultBranchId = $this->getDefaultBranchId($this);
+        }
+        if ($client instanceof BranchAwareClient) {
+            $branchId = $client->getCurrentBranchId();
+        } else {
+            $branchId = $this->defaultBranchId;
+        }
         $eventsQuery = new EventsQueryBuilder();
         $eventsQuery->setEvent($eventName);
         if ($objectId !== null) {
@@ -333,9 +343,11 @@ class BranchStorageTest extends StorageApiTestCase
             $eventsQuery->setObjectType($objectType);
         }
         // expect only one drop table event
-        $assertEventCallback = function ($events) use ($eventName) {
+        $assertEventCallback = function ($events) use ($eventName, $branchId) {
             $this->assertCount(1, $events);
             $this->assertSame($events[0]['event'], $eventName);
+            $this->assertNotEmpty($events[0]['idBranch']);
+            $this->assertSame($events[0]['idBranch'], $branchId);
         };
 
         $this->assertEventWithRetries($client, $assertEventCallback, $eventsQuery);
