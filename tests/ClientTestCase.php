@@ -48,14 +48,7 @@ class ClientTestCase extends TestCase
      */
     public function getDefaultClient()
     {
-        return $this->getClient([
-            'token' => STORAGE_API_TOKEN,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1,
-            'jobPollRetryDelay' => function () {
-                return 1;
-            },
-        ]);
+        return $this->getClientForToken(STORAGE_API_TOKEN);
     }
 
     /**
@@ -63,14 +56,7 @@ class ClientTestCase extends TestCase
      */
     public function getBranchAwareDefaultClient($branchId)
     {
-        return $this->getBranchAwareClient($branchId, [
-            'token' => STORAGE_API_TOKEN,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1,
-            'jobPollRetryDelay' => function () {
-                return 1;
-            },
-        ]);
+        return $this->getBranchAwareClient($branchId, $this->getClientOptionsForToken(STORAGE_API_TOKEN));
     }
 
     /**
@@ -90,19 +76,9 @@ class ClientTestCase extends TestCase
         ]);
     }
 
-    /**
-     * @return Client
-     */
-    protected function getGuestStorageApiClient()
+    protected function getGuestStorageApiClient(): Client
     {
-        return $this->getClient([
-            'token' => STORAGE_API_GUEST_TOKEN,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1,
-            'jobPollRetryDelay' => function () {
-                return 1;
-            },
-        ]);
+        return $this->getClientForToken(STORAGE_API_GUEST_TOKEN);
     }
 
     protected function getDefaultBranchStorageApiClient(): Client
@@ -133,20 +109,9 @@ class ClientTestCase extends TestCase
         return $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
     }
 
-    /**
-     * @param string $token
-     * @return Client
-     */
-    public function getClientForToken($token)
+    public function getClientForToken(string $token): Client
     {
-        return $this->getClient([
-            'token' => $token,
-            'url' => STORAGE_API_URL,
-            'backoffMaxTries' => 1,
-            'jobPollRetryDelay' => function () {
-                return 1;
-            },
-        ]);
+        return $this->getClient($this->getClientOptionsForToken($token));
     }
 
     /**
@@ -194,5 +159,17 @@ class ClientTestCase extends TestCase
     {
         $tokenData = $client->verifyToken();
         return $tokenData['owner']['defaultBackend'];
+    }
+
+    public function getClientOptionsForToken(string $token): array
+    {
+        return [
+            'token' => $token,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+            'jobPollRetryDelay' => function () {
+                return 1;
+            },
+        ];
     }
 }
