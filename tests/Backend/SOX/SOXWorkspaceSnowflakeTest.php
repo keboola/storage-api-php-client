@@ -11,6 +11,8 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Workspaces;
+use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnection;
+use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Throwable;
@@ -96,8 +98,18 @@ class SOXWorkspaceSnowflakeTest extends SOXWorkspaceTestCase
         self::assertEquals(['id', '_timestamp', 'newGuy'], $tableRef->getColumnsNames());
         self::assertCount(5, $backend->fetchAll('languages'));
 
-        // clear and create table again
-        $backend->dropViewIfExists('languages');
+        // run load without preserve to drop the view
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'dummy',
+                    'sourceBranchId' => $workspaceSapiClient->getCurrentBranchId(),
+                ],
+            ],
+        ]);
+        $backend->dropTable('dummy');
+
         $this->testClient->dropTable($tableId);
         $tableId = $this->testClient->createTableAsync(
             $bucketId,
