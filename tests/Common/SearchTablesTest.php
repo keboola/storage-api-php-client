@@ -40,10 +40,12 @@ class SearchTablesTest extends StorageApiTestCase
 
     public function testSearchTables(): void
     {
+        $testedKey = sha1($this->generateDescriptionForTestObject()) . 'key';
+        $testedValue = sha1($this->generateDescriptionForTestObject()) . 'value';
         $this->_initTable('tableX', [
             [
-                'key' => 'testkey',
-                'value' => 'testValue',
+                'key' => $testedKey,
+                'value' => $testedValue,
             ],
         ]);
         $this->_initTable('tableX', [], self::STAGE_OUT); // table in different bucket
@@ -56,7 +58,7 @@ class SearchTablesTest extends StorageApiTestCase
         $this->_initTable('table-nometa', []);
 
         $result = $this->_client->searchTables(
-            new SearchTablesOptions('testkey', null, null)
+            new SearchTablesOptions($testedKey, null, null)
         );
         $this->assertCount(1, $result);
 
@@ -65,7 +67,7 @@ class SearchTablesTest extends StorageApiTestCase
         $this->assertArrayHasKey('displayName', $firstResult);
 
         $result = $this->_client->searchTables(
-            new SearchTablesOptions(null, 'testValue', null)
+            new SearchTablesOptions(null, $testedValue, null)
         );
         $this->assertCount(1, $result);
 
@@ -75,7 +77,7 @@ class SearchTablesTest extends StorageApiTestCase
         $this->assertCount(2, $result);
 
         $result = $this->_client->searchTables(
-            new SearchTablesOptions('testkey', 'testValue', self::TEST_PROVIDER)
+            new SearchTablesOptions($testedKey, $testedValue, self::TEST_PROVIDER)
         );
         $this->assertCount(1, $result);
     }
