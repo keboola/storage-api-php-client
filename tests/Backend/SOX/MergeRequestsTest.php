@@ -250,6 +250,7 @@ class MergeRequestsTest extends StorageApiTestCase
             ], $events[0]['params']);
         };
         $this->assertEventWithRetries($this->getDefaultClient(), $assertCallback, $eventsQuery);
+        $this->assertBranchIsDeleted($newBranch['id']);
 
         $this->assertCount(0, $mrData['approvals']);
         $this->assertSame('canceled', $mrData['state']);
