@@ -94,10 +94,34 @@ class ClientProvider
     public function getDefaultClient($config = [])
     {
         if ($config) {
+            $config = array_merge([
+                'token' => STORAGE_API_TOKEN,
+                'url' => STORAGE_API_URL,
+                'backoffMaxTries' => 1,
+                'jobPollRetryDelay' => function () {
+                    return 1;
+                },
+            ], $config);
             return $this->testCase->getClient($config);
         } else {
             return $this->testCase->getDefaultClient();
         }
+    }
+
+    /**
+     * @param array $config
+     */
+    public function getBranchAwareClient(int $branchId, array $config = []): BranchAwareClient
+    {
+        $config = array_merge([
+            'token' => STORAGE_API_TOKEN,
+            'url' => STORAGE_API_URL,
+            'backoffMaxTries' => 1,
+            'jobPollRetryDelay' => function () {
+                return 1;
+            },
+        ], $config);
+        return $this->testCase->getBranchAwareClient($branchId, $config);
     }
 
     /**
