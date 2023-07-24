@@ -1421,6 +1421,51 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertBranchIsDeleted($newBranch['id']);
     }
 
+    public function testMergerRequestIsCanceledWhenBranchIsDeleted(): void
+    {
+        $createMr = function () {
+            $defaultBranch = $this->branches->getDefaultBranch();
+            $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
+            $mrId = $this->developerClient->createMergeRequest([
+                'branchFromId' => $newBranch['id'],
+                'branchIntoId' => $defaultBranch['id'],
+                'title' => 'Change everything',
+                'description' => 'Fix typo',
+            ]);
+            return [$mrId, $newBranch['id']];
+        };
+
+        // state in development
+        [$mrId, $branchId] = $createMr();
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
+        $this->developerClient->cancelMergeRequest($mrId);
+        $this->assertBranchIsDeleted($branchId);
+
+        // state in review
+        [$mrId, $branchId] = $createMr();
+        $this->developerClient->mergeRequestRequestReview($mrId);
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
+        $this->developerClient->cancelMergeRequest($mrId);
+        $this->assertBranchIsDeleted($branchId);
+
+        // state approved
+        [$mrId, $branchId] = $createMr();
+        $this->developerClient->mergeRequestRequestReview($mrId);
+        $this->getReviewerStorageApiClient()->mergeRequestApprove($mrId);
+        $this->getSecondReviewerStorageApiClient()->mergeRequestApprove($mrId);
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
+        $this->developerClient->cancelMergeRequest($mrId);
+        $this->assertBranchIsDeleted($branchId);
+
+        // state in development after changes requested
+        [$mrId, $branchId] = $createMr();
+        $this->developerClient->mergeRequestRequestReview($mrId);
+        $this->getReviewerStorageApiClient()->requestMergeRequestChanges($mrId);
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
+        $this->developerClient->cancelMergeRequest($mrId);
+        $this->assertBranchIsDeleted($branchId);
+    }
+
     private function createBranchMergeRequestAndApproveIt(): array
     {
         $defaultBranch = $this->branches->getDefaultBranch();
