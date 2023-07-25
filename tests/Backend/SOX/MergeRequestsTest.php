@@ -239,7 +239,7 @@ class MergeRequestsTest extends StorageApiTestCase
 
         // cancel MR
         $this->initEvents($privClient);
-        $mrData = $reviewerClient->cancelMergeRequest($mrId);
+        $reviewerClient->cancelMergeRequest($mrId);
         $assertCallback = function ($events) use ($mrId) {
             $this->assertCount(1, $events);
             $this->assertEquals([
@@ -252,6 +252,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertEventWithRetries($this->getDefaultClient(), $assertCallback, $eventsQuery);
         $this->assertBranchIsDeleted($newBranch['id']);
 
+        $mrData = $reviewerClient->getMergeRequest($mrId);
         $this->assertCount(0, $mrData['approvals']);
         $this->assertSame('canceled', $mrData['state']);
         $this->assertNull($mrData['branches']['branchFromId']);
