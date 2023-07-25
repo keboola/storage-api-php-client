@@ -239,7 +239,7 @@ class MergeRequestsTest extends StorageApiTestCase
 
         // cancel MR
         $this->initEvents($privClient);
-        $mrData = $reviewerClient->cancelMergeRequest($mrId);
+        $reviewerClient->cancelMergeRequest($mrId);
         $assertCallback = function ($events) use ($mrId) {
             $this->assertCount(1, $events);
             $this->assertEquals([
@@ -250,7 +250,9 @@ class MergeRequestsTest extends StorageApiTestCase
             ], $events[0]['params']);
         };
         $this->assertEventWithRetries($this->getDefaultClient(), $assertCallback, $eventsQuery);
+        $this->assertBranchIsDeleted($newBranch['id']);
 
+        $mrData = $reviewerClient->getMergeRequest($mrId);
         $this->assertCount(0, $mrData['approvals']);
         $this->assertSame('canceled', $mrData['state']);
         $this->assertNull($mrData['branches']['branchFromId']);
@@ -1420,6 +1422,59 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertBranchIsDeleted($newBranch['id']);
     }
 
+    public function testMergerRequestIsCanceledWhenBranchIsDeleted(): void
+    {
+        $createMr = function () {
+            $defaultBranch = $this->branches->getDefaultBranch();
+            $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
+            $mrId = $this->developerClient->createMergeRequest([
+                'branchFromId' => $newBranch['id'],
+                'branchIntoId' => $defaultBranch['id'],
+                'title' => 'Change everything',
+                'description' => 'Fix typo',
+            ]);
+            return [$mrId, $newBranch['id']];
+        };
+
+        // state in development
+        [$mrId, $branchId] = $createMr();
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
+        (new DevBranches($this->developerClient))->deleteBranch($branchId);
+        $this->assertBranchIsDeleted($branchId);
+        $mr = $this->developerClient->getMergeRequest($mrId);
+        $this->assertSame('canceled', $mr['state']);
+
+        // state in review
+        [$mrId, $branchId] = $createMr();
+        $this->developerClient->mergeRequestRequestReview($mrId);
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
+        (new DevBranches($this->developerClient))->deleteBranch($branchId);
+        $this->assertBranchIsDeleted($branchId);
+        $mr = $this->developerClient->getMergeRequest($mrId);
+        $this->assertSame('canceled', $mr['state']);
+
+        // state approved
+        [$mrId, $branchId] = $createMr();
+        $this->developerClient->mergeRequestRequestReview($mrId);
+        $this->getReviewerStorageApiClient()->mergeRequestApprove($mrId);
+        $this->getSecondReviewerStorageApiClient()->mergeRequestApprove($mrId);
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
+        (new DevBranches($this->developerClient))->deleteBranch($branchId);
+        $this->assertBranchIsDeleted($branchId);
+        $mr = $this->developerClient->getMergeRequest($mrId);
+        $this->assertSame('canceled', $mr['state']);
+
+        // state in development after changes requested
+        [$mrId, $branchId] = $createMr();
+        $this->developerClient->mergeRequestRequestReview($mrId);
+        $this->getReviewerStorageApiClient()->requestMergeRequestChanges($mrId);
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
+        (new DevBranches($this->developerClient))->deleteBranch($branchId);
+        $this->assertBranchIsDeleted($branchId);
+        $mr = $this->developerClient->getMergeRequest($mrId);
+        $this->assertSame('canceled', $mr['state']);
+    }
+
     private function createBranchMergeRequestAndApproveIt(): array
     {
         $defaultBranch = $this->branches->getDefaultBranch();
@@ -1536,9 +1591,12 @@ class MergeRequestsTest extends StorageApiTestCase
         );
 
         $devBranch = new DevBranches($this->developerClient);
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage(sprintf('Branch id:"%s" was not found.', $id));
-        $this->expectExceptionCode(404);
-        $devBranch->getBranch((int) $id);
+        try {
+            $devBranch->getBranch((int) $id);
+            $this->fail(sprintf('Branch id:"%s" should not exist.', $id));
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame(sprintf('Branch id:"%s" was not found.', $id), $e->getMessage());
+        }
     }
 }
