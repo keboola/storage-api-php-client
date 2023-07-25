@@ -309,6 +309,7 @@
 	<testsuite name="sync-sox-snowflake">
 		<file>tests/Backend/SOX/SOXCommonTest.php</file>
 		<file>tests/Backend/SOX/MergeRequestsTest.php</file>
+		<file>tests/Backend/SOX/SOXWorkspaceTestCase.php</file>
 	</testsuite>
 	<testsuite name="unit">
 		<directory>tests-unit</directory>

@@ -916,8 +916,18 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         self::assertEquals(['id', '_timestamp', 'newGuy'], $tableRef->getColumnsNames());
         self::assertCount(5, $backend->fetchAll('languages'));
 
+        // run load without preserve to drop the view
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'dummy',
+                ],
+            ],
+        ]);
+        $backend->dropTable('dummy');
+
         // clear and create table again
-        $backend->dropViewIfExists('languages');
         $this->_client->dropTable($tableId);
         $tableId = $this->_client->createTableAsync(
             $bucketId,
