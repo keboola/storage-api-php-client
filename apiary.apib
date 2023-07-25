@@ -9259,66 +9259,6 @@ Requesting changes will remove all approvals and move the Merge request to `deve
             "createdAt": "2023-06-15T10:20:58+0200"
             }
 
-### Cancel merge request [PUT /v2/storage/merge-request/{id}/cancel]
-
-+ Parameters
-    + id (required, number) - merge request ID
-
-+ Request (application/json)
-
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-
-+ Response 200 (application/json)
-
-    + Body
-
-            {
-            "id": 11,
-            "creator": {
-                  "id": 7,
-                  "name": "John Doe"
-            },
-            "title": "Refactor DB extractors",
-            "description": "DB exctractor have new columns now",
-            "state": "in_review",
-            "changeLog": {
-                "configurations": [
-                    {
-                        "isDeleted": false,
-                        "componentId": "wr-db",
-                        "configurationId": "main-1",
-                        "lastVersionIdentifier": "01H5M1BDJHD1K6N3G14EZ8XDE2"
-                    },
-                    {
-                        "isDeleted": false,
-                        "componentId": "wr-db",
-                        "configurationId": "main-2",
-                        "lastVersionIdentifier": "01H5M1B47BX3W4GM4CDH40J330"
-                    }
-                ]
-            }
-            "branches": {
-                  "branchFromId": 124,
-                  "branchIntoId": 123
-            },
-            "merge": {
-                  "mergedAt": null,
-                  "mergerId": null,
-                  "mergerName": ""
-            },
-            "approvals": [
-            {
-                  "approverId": 123,
-                  "approverName": "John Doe",
-                  "createdAt": "2023-06-16T10:20:58+0200"
-            }
-            ],
-            "createdAt": "2023-06-15T10:20:58+0200"
-            }
-
 ## Data Structures
 
 ### OrderByObject (object)
