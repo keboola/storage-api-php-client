@@ -239,7 +239,7 @@ class MergeRequestsTest extends StorageApiTestCase
 
         // cancel MR
         $this->initEvents($privClient);
-        $reviewerClient->cancelMergeRequest($mrId);
+        (new DevBranches($reviewerClient))->deleteBranch($newBranch['id']);
         $assertCallback = function ($events) use ($mrId) {
             $this->assertCount(1, $events);
             $this->assertEquals([
