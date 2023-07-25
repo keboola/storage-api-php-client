@@ -1590,9 +1590,12 @@ class MergeRequestsTest extends StorageApiTestCase
         );
 
         $devBranch = new DevBranches($this->developerClient);
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage(sprintf('Branch id:"%s" was not found.', $id));
-        $this->expectExceptionCode(404);
-        $devBranch->getBranch((int) $id);
+        try {
+            $devBranch->getBranch((int) $id);
+            $this->fail(sprintf('Branch id:"%s" should not exist.', $id));
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame(sprintf('Branch id:"%s" was not found.', $id), $e->getMessage());
+        }
     }
 }
