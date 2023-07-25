@@ -985,13 +985,6 @@ class Client
         return $mrDetail;
     }
 
-    public function cancelMergeRequest(int $mergeRequestId): array
-    {
-        /** @var array $mrDetail */
-        $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/cancel", []);
-        return $mrDetail;
-    }
-
     /**
      * Starts and waits for async creation of table from configuration
      */
