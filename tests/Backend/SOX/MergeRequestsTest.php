@@ -1441,7 +1441,7 @@ class MergeRequestsTest extends StorageApiTestCase
         (new DevBranches($this->developerClient))->deleteBranch($branchId);
         $this->assertBranchIsDeleted($branchId);
         $mr = $this->developerClient->getMergeRequest($mrId);
-        $this->assertSame('CANCELED', $mr['state']);
+        $this->assertSame('canceled', $mr['state']);
 
         // state in review
         [$mrId, $branchId] = $createMr();
@@ -1450,7 +1450,7 @@ class MergeRequestsTest extends StorageApiTestCase
         (new DevBranches($this->developerClient))->deleteBranch($branchId);
         $this->assertBranchIsDeleted($branchId);
         $mr = $this->developerClient->getMergeRequest($mrId);
-        $this->assertSame('CANCELED', $mr['state']);
+        $this->assertSame('canceled', $mr['state']);
 
         // state approved
         [$mrId, $branchId] = $createMr();
@@ -1461,7 +1461,7 @@ class MergeRequestsTest extends StorageApiTestCase
         (new DevBranches($this->developerClient))->deleteBranch($branchId);
         $this->assertBranchIsDeleted($branchId);
         $mr = $this->developerClient->getMergeRequest($mrId);
-        $this->assertSame('CANCELED', $mr['state']);
+        $this->assertSame('canceled', $mr['state']);
 
         // state in development after changes requested
         [$mrId, $branchId] = $createMr();
@@ -1471,7 +1471,7 @@ class MergeRequestsTest extends StorageApiTestCase
         (new DevBranches($this->developerClient))->deleteBranch($branchId);
         $this->assertBranchIsDeleted($branchId);
         $mr = $this->developerClient->getMergeRequest($mrId);
-        $this->assertSame('CANCELED', $mr['state']);
+        $this->assertSame('canceled', $mr['state']);
     }
 
     private function createBranchMergeRequestAndApproveIt(): array
