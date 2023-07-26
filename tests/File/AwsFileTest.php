@@ -68,7 +68,7 @@ class AwsFileTest extends StorageApiTestCase
             [
                 $path,
                 (new FileUploadOptions())
-                    ->setIsPublic(true),
+                    ->setIsPublic(false),
             ],
             [
                 $path,
