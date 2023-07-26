@@ -5,18 +5,43 @@ namespace Keboola\Test\File;
 use Exception;
 use Generator;
 use GuzzleHttp\Client;
+use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\GetFileOptions;
-use Keboola\StorageApi\Options\TokenCreateOptions;
-use Keboola\StorageApi\Options\TokenUpdateOptions;
+use Keboola\Test\ClientProvider\ClientProvider;
+use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\StorageApiTestCase;
-
 use \Keboola\StorageApi\Options\FileUploadOptions;
 use \Keboola\StorageApi\Options\ListFilesOptions;
 use Symfony\Component\Filesystem\Filesystem;
 
 class CommonFileTest extends StorageApiTestCase
 {
+    /** @var BranchAwareClient|Client */
+    private $_testClient;
+
+    private ClientProvider $clientProvider;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->clientProvider = new ClientProvider($this);
+        [$devBranchType, $userRole] = $this->getProvidedData();
+        [$this->_client, $this->_testClient] = (new TestSetupHelper())->setUpForProtectedDevBranch(
+            $this->clientProvider,
+            $devBranchType,
+            $userRole
+        );
+
+        if ($devBranchType === ClientProvider::DEV_BRANCH) {
+            // buckets must be created in branch that the tests run in
+            $this->initEmptyTestBucketsForParallelTests([self::STAGE_OUT, self::STAGE_IN], $this->_testClient);
+        } elseif ($devBranchType === ClientProvider::DEFAULT_BRANCH) {
+            $this->initEmptyTestBucketsForParallelTests();
+        } else {
+            throw new \Exception(sprintf('Unknown devBranchType "%s"', $devBranchType));
+        }
+    }
 
     public function testFileList(): void
     {
@@ -427,5 +452,9 @@ class CommonFileTest extends StorageApiTestCase
     {
         yield 'non-sliced file' => [false];
         yield 'sliced file' => [true];
+
+    public function provideComponentsClientTypeBasedOnSuite(): array
+    {
+        return (new TestSetupHelper())->provideComponentsClientTypeBasedOnSuite($this);
     }
 }
