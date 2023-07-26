@@ -900,21 +900,25 @@ class MergeRequestsTest extends StorageApiTestCase
         $components = new Components($this->getDefaultClient());
         $query = new ListConfigurationVersionsOptions();
         $query->setConfigurationId($configurationId)->setComponentId($componentId);
+        $configuration = $components->getConfiguration($componentId, $configurationId);
         $configVersions = $components->listConfigurationVersions($query);
 
         $latestVersion = $configVersions[0];
 
-        $this->assertSame($lastVIOfUpdatedConfigInDevBranch, $lastVIFromChangeLogOfUpdatedConfig);
-        $this->assertSame($latestVersion['versionIdentifier'], $lastVIFromChangeLogOfUpdatedConfig);
+        $this->assertSame($configuration['currentVersion']['versionIdentifier'], $lastVIFromChangeLogOfCreatedConfig);
+        $this->assertSame($lastVIOfUpdatedConfigInDevBranch, $lastVIFromChangeLogOfCreatedConfig);
+        $this->assertSame($latestVersion['versionIdentifier'], $lastVIFromChangeLogOfCreatedConfig);
 
         // assert VI of created config
         $components = new Components($this->getDefaultClient());
         $query = new ListConfigurationVersionsOptions();
         $query->setConfigurationId($devConfigurationId)->setComponentId($componentId);
+        $configuration = $components->getConfiguration($componentId, $devConfigurationId);
         $configVersions = $components->listConfigurationVersions($query);
 
         $latestVersion = $configVersions[0];
 
+        $this->assertSame($configuration['currentVersion']['versionIdentifier'], $lastVIFromChangeLogOfCreatedConfig);
         $this->assertSame($lastVIOfCreatedConfigInDevBranch, $lastVIFromChangeLogOfCreatedConfig);
         $this->assertSame($latestVersion['versionIdentifier'], $lastVIFromChangeLogOfCreatedConfig);
     }
