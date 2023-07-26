@@ -828,7 +828,7 @@ class MergeRequestsTest extends StorageApiTestCase
 
         // Create config in default branch
         /** @var Components $components */
-        [$componentId, $configurationId, $components] = $this->prepareTestConfiguration();
+        [$componentId, $configurationId] = $this->prepareTestConfiguration(true);
 
         // create dev branch, config from main copy to dev
         $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaa');
@@ -850,16 +850,24 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setIsDisabled(true));
 
         // second update
-        $devBranchComponents->updateConfiguration((new Configuration())
+        $configurationObject = (new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId)
             ->setName('second main updated')
             ->setDescription('last update desc')
             ->setChangeDescription('last update')
-            ->setConfiguration(['main' => 'update again']));
+            ->setConfiguration(['main' => 'update again']);
+        $devBranchComponents->updateConfiguration($configurationObject);
+
+        $devBranchComponents->updateConfigurationRow((new ConfigurationRow($configurationObject))
+            ->setRowId('firstRow')
+            ->setConfiguration(['value' => 2]));
 
         $updatedConfigInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
         $lastVIOfUpdatedConfigInDevBranch = $updatedConfigInDev['currentVersion']['versionIdentifier'];
+
+        $updatedRow = $devBranchComponents->getConfigurationRow($componentId, $configurationId, 'firstRow');
+        $lastVIOfUpdatedRowInDevBranch = $updatedRow['versionIdentifier'];
 
         // create a new configuration in branch
         $devConfigurationId = 'main-1-created-in-dev-branch';
@@ -871,6 +879,13 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setDescription('tralalala')
             ->setConfiguration(['main' => 'value']);
         $devBranchComponents->addConfiguration($configuration);
+
+        $devBranchComponents->addConfigurationRow((new ConfigurationRow($configuration))
+            ->setRowId('firstRow')
+            ->setConfiguration(['value' => 3]));
+
+        $createdRow = $devBranchComponents->getConfigurationRow($componentId, $configurationId, 'firstRow');
+        $lastVIOfCreatedRowInDevBranch = $createdRow['versionIdentifier'];
 
         $createdConfigInDev = $devBranchComponents->getConfiguration($componentId, $devConfigurationId);
         $lastVIOfCreatedConfigInDevBranch = $createdConfigInDev['currentVersion']['versionIdentifier'];
@@ -905,9 +920,9 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $latestVersion = $configVersions[0];
 
-        $this->assertSame($configuration['currentVersion']['versionIdentifier'], $lastVIFromChangeLogOfCreatedConfig);
-        $this->assertSame($lastVIOfUpdatedConfigInDevBranch, $lastVIFromChangeLogOfCreatedConfig);
-        $this->assertSame($latestVersion['versionIdentifier'], $lastVIFromChangeLogOfCreatedConfig);
+        $this->assertSame($configuration['currentVersion']['versionIdentifier'], $lastVIFromChangeLogOfUpdatedConfig);
+        $this->assertSame($lastVIOfUpdatedConfigInDevBranch, $lastVIFromChangeLogOfUpdatedConfig);
+        $this->assertSame($latestVersion['versionIdentifier'], $lastVIFromChangeLogOfUpdatedConfig);
 
         // assert VI of created config
         $components = new Components($this->getDefaultClient());
@@ -980,8 +995,6 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame(3, $configInDev['version']);
         $this->assertSame('last update', $configInDev['changeDescription']);
         $this->assertSame(['dev-branch-state' => 'state'], $configInDev['state']);
-
-        $lastVersionIdentifierInDevBranch = $configInDev['currentVersion']['versionIdentifier'];
 
         $newConfigId = $this->generateUniqueNameForString('new-config');
         $devBranchComponents->addConfiguration(
@@ -1624,7 +1637,7 @@ class MergeRequestsTest extends StorageApiTestCase
     /**
      * @return array
      */
-    public function prepareTestConfiguration(): array
+    public function prepareTestConfiguration(bool $addRow = false): array
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -1654,6 +1667,13 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId));
         $this->assertCount(1, $versions);
+
+        if ($addRow) {
+            $components->addConfigurationRow((new ConfigurationRow($configuration))
+                ->setRowId('firstRow')
+                ->setConfiguration(['value' => 1]));
+        }
+
         return [$componentId, $configurationId, $components];
     }
 
