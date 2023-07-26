@@ -3,15 +3,40 @@
 namespace Keboola\Test\File;
 
 use GuzzleHttp\Client;
+use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Options\FileUploadOptions;
+use Keboola\Test\ClientProvider\ClientProvider;
+use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\StorageApiTestCase;
 
 class AwsFileTest extends StorageApiTestCase
 {
+    /** @var BranchAwareClient|Client */
+    private $_testClient;
+
+    private ClientProvider $clientProvider;
+
     public function setUp(): void
     {
         parent::setUp();
-        $token = $this->_client->verifyToken();
+
+        $this->clientProvider = new ClientProvider($this);
+        [$devBranchType, $userRole] = $this->getProvidedData();
+        [$this->_client, $this->_testClient] = (new TestSetupHelper())->setUpForProtectedDevBranch(
+            $this->clientProvider,
+            $devBranchType,
+            $userRole
+        );
+
+        if ($devBranchType === ClientProvider::DEV_BRANCH) {
+            // buckets must be created in branch that the tests run in
+            $this->initEmptyTestBucketsForParallelTests([self::STAGE_OUT, self::STAGE_IN], $this->_testClient);
+        } elseif ($devBranchType === ClientProvider::DEFAULT_BRANCH) {
+            $this->initEmptyTestBucketsForParallelTests();
+        } else {
+            throw new \Exception(sprintf('Unknown devBranchType "%s"', $devBranchType));
+        }
+        $token = $this->_testClient->verifyToken();
         $this->assertSame(
             'aws',
             $token['owner']['fileStorageProvider'],
@@ -95,6 +120,10 @@ class AwsFileTest extends StorageApiTestCase
                     ->setTags(['sapi-import', 'martin']),
             ],
         ];
+
+    public function provideComponentsClientTypeBasedOnSuite(): array
+    {
+        return (new TestSetupHelper())->provideComponentsClientTypeBasedOnSuite($this);
     }
 
     /**
