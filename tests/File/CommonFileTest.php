@@ -43,11 +43,14 @@ class CommonFileTest extends StorageApiTestCase
         }
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testFileList(): void
     {
         $options = new FileUploadOptions();
-        $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', $options);
-        $files = $this->_client->listFiles(new ListFilesOptions());
+        $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', $options, $this->_testClient);
+        $files = $this->_testClient->listFiles(new ListFilesOptions());
         $this->assertNotEmpty($files);
 
         $uploadedFile = reset($files);
@@ -56,31 +59,37 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('credentials', $uploadedFile);
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testGetFileWithoutCredentials(): void
     {
-        $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', (new FileUploadOptions()));
-        $file = $this->_client->getFile($fileId, (new GetFileOptions())->setFederationToken(false));
+        $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', (new FileUploadOptions()), $this->_testClient);
+        $file = $this->_testClient->getFile($fileId, (new GetFileOptions())->setFederationToken(false));
         $this->assertArrayNotHasKey('credentials', $file);
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testFilesListFilterByTags(): void
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
 
-        $this->createAndWaitForFile($filePath, new FileUploadOptions());
+        $this->createAndWaitForFile($filePath, new FileUploadOptions(), $this->_testClient);
         $tag = uniqid('tag-test');
-        $fileId = $this->createAndWaitForFile($filePath, (new FileUploadOptions())->setTags([$tag]));
+        $fileId = $this->createAndWaitForFile($filePath, (new FileUploadOptions())->setTags([$tag]), $this->_testClient);
 
-        $files = $this->_client->listFiles((new ListFilesOptions())->setTags([$tag]));
+        $files = $this->_testClient->listFiles((new ListFilesOptions())->setTags([$tag]));
 
         $this->assertCount(1, $files);
         $file = reset($files);
         $this->assertEquals($fileId, $file['id']);
 
         $tag2 = uniqid('tag-test-2');
-        $fileId2 = $this->createAndWaitForFile($filePath, (new FileUploadOptions())->setTags([$tag, $tag2]));
+        $fileId2 = $this->createAndWaitForFile($filePath, (new FileUploadOptions())->setTags([$tag, $tag2]), $this->_testClient);
 
-        $files = $this->_client->listFiles((new ListFilesOptions())->setTags([$tag, $tag2]));
+        $files = $this->_testClient->listFiles((new ListFilesOptions())->setTags([$tag, $tag2]));
         $this->assertCount(2, $files, 'files with one or more matching tags are returned');
         $file2 = array_shift($files);
         $file = array_shift($files);
@@ -88,10 +97,13 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertEquals($fileId, $file['id']);
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testFilesListFilterByInvalidValues(): void
     {
         try {
-            $this->_client->apiGet('files?' . http_build_query([
+            $this->_testClient->apiGet('files?' . http_build_query([
                     'tags' => 'tag',
                 ]));
             $this->fail('Validation error should be thrown');
@@ -100,9 +112,12 @@ class CommonFileTest extends StorageApiTestCase
         }
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testSetTagsFromArrayWithGaps(): void
     {
-        $file = $this->_client->prepareFileUpload((new FileUploadOptions())
+        $file = $this->_testClient->prepareFileUpload((new FileUploadOptions())
             ->setFileName('test.json')
             ->setFederationToken(true)
             ->setTags([
@@ -112,23 +127,29 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertEquals(['neco', 'another'], $file['tags']);
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testFileListSearch(): void
     {
 
-        $fileId = $this->_client->uploadFile(__DIR__ . '/../_data/users.csv', new FileUploadOptions());
-        $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', new FileUploadOptions());
+        $fileId = $this->_testClient->uploadFile(__DIR__ . '/../_data/users.csv', new FileUploadOptions());
+        $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', new FileUploadOptions(), $this->_testClient);
 
-        $files = $this->_client->listFiles((new ListFilesOptions())->setQuery('users')->setLimit(1));
+        $files = $this->_testClient->listFiles((new ListFilesOptions())->setQuery('users')->setLimit(1));
 
         $this->assertCount(1, $files);
         $file = reset($files);
         $this->assertEquals($fileId, $file['id']);
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testSyntaxErrorInQueryShouldReturnUserError(): void
     {
         try {
-            $this->_client->listFiles((new ListFilesOptions())->setQuery('tags[]:sd'));
+            $this->_testClient->listFiles((new ListFilesOptions())->setQuery('tags[]:sd'));
             $this->fail('exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals(400, $e->getCode());
@@ -136,29 +157,35 @@ class CommonFileTest extends StorageApiTestCase
         }
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testFileListFilterBySinceIdMaxId(): void
     {
-        $files = $this->_client->listFiles((new ListFilesOptions())
+        $files = $this->_testClient->listFiles((new ListFilesOptions())
             ->setLimit(1)
             ->setOffset(0));
 
         $lastFile = reset($files);
         $lastFileId = $lastFile['id'];
 
-        $firstFileId = $this->createAndWaitForFile(__DIR__ . '/../_data/users.csv', new FileUploadOptions());
-        $secondFileId = $this->createAndWaitForFile(__DIR__ . '/../_data/users.csv', new FileUploadOptions());
+        $firstFileId = $this->createAndWaitForFile(__DIR__ . '/../_data/users.csv', new FileUploadOptions(), $this->_testClient);
+        $secondFileId = $this->createAndWaitForFile(__DIR__ . '/../_data/users.csv', new FileUploadOptions(), $this->_testClient);
 
-        $files = $this->_client->listFiles((new ListFilesOptions())->setSinceId($lastFileId));
+        $files = $this->_testClient->listFiles((new ListFilesOptions())->setSinceId($lastFileId));
         $this->assertCount(2, $files);
 
         $this->assertEquals($firstFileId, $files[1]['id']);
         $this->assertEquals($secondFileId, $files[0]['id']);
 
-        $files = $this->_client->listFiles((new ListFilesOptions())->setMaxId($secondFileId)->setLimit(1));
+        $files = $this->_testClient->listFiles((new ListFilesOptions())->setMaxId($secondFileId)->setLimit(1));
         $this->assertCount(1, $files);
         $this->assertEquals($firstFileId, $files[0]['id']);
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testFileListFilterByRunId(): void
     {
         $options = new FileUploadOptions();
@@ -166,24 +193,27 @@ class CommonFileTest extends StorageApiTestCase
             ->setFederationToken(true);
 
         $runId = $this->_client->generateRunId();
-        $this->_client->setRunId($runId);
+        $this->_testClient->setRunId($runId);
 
-        $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/users.csv', $options);
-        $file = $this->_client->getFile($fileId);
+        $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/users.csv', $options, $this->_testClient);
+        $file = $this->_testClient->getFile($fileId);
         $this->assertEquals($runId, $file['runId']);
 
-        $files = $this->_client->listFiles((new ListFilesOptions())->setRunId($runId));
+        $files = $this->_testClient->listFiles((new ListFilesOptions())->setRunId($runId));
 
         $this->assertCount(1, $files);
         $this->assertEquals($file['id'], $files[0]['id']);
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testEmptyFileUpload(): void
     {
         $options = new FileUploadOptions();
         $filePath = __DIR__ . '/../_data/empty.csv';
-        $fileId = $this->_client->uploadFile($filePath, $options);
-        $file = $this->_client->getFile($fileId);
+        $fileId = $this->_testClient->uploadFile($filePath, $options);
+        $file = $this->_testClient->getFile($fileId);
 
         $this->assertEquals($options->getIsPublic(), $file['isPublic']);
         $this->assertEquals(basename($filePath), $file['name']);
@@ -196,7 +226,7 @@ class CommonFileTest extends StorageApiTestCase
         sort($fileTags);
         $this->assertEquals($tags, $fileTags);
 
-        $info = $this->_client->verifyToken();
+        $info = $this->_testClient->verifyToken();
         $this->assertEquals($file['creatorToken']['id'], (int) $info['id']);
         $this->assertEquals($file['creatorToken']['description'], $info['description']);
         $this->assertEquals($file['isEncrypted'], $options->getIsEncrypted());
@@ -216,12 +246,13 @@ class CommonFileTest extends StorageApiTestCase
 
     /**
      * with compress = true
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
      */
     public function testFileUploadCompress(): void
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
-        $fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setCompress(true));
-        $file = $this->_client->getFile($fileId);
+        $fileId = $this->_testClient->uploadFile($filePath, (new FileUploadOptions())->setCompress(true));
+        $file = $this->_testClient->getFile($fileId);
 
         $this->assertEquals(basename($filePath) . '.gz', $file['name']);
 
@@ -232,6 +263,9 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertEquals(file_get_contents($filePath), gzread($gzFile, 524288));
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testFileUploadLargeFile(): void
     {
         $filePath = __DIR__ . '/../_tmp/files.upload.large.csv';
@@ -243,25 +277,28 @@ class CommonFileTest extends StorageApiTestCase
             fputs($fileHandle, '0123456789');
         }
         fclose($fileHandle);
-        $fileId = $this->_client->uploadFile($filePath, new FileUploadOptions());
-        $file = $this->_client->getFile($fileId);
+        $fileId = $this->_testClient->uploadFile($filePath, new FileUploadOptions());
+        $file = $this->_testClient->getFile($fileId);
 
         $this->assertEquals(basename($filePath), $file['name']);
         $this->assertEquals(hash_file('md5', $filePath), hash_file('md5', $file['url']));
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testFileDelete(): void
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
         $options = new FileUploadOptions();
 
-        $fileId = $this->_client->uploadFile($filePath, $options);
-        $file = $this->_client->getFile($fileId);
+        $fileId = $this->_testClient->uploadFile($filePath, $options);
+        $file = $this->_testClient->getFile($fileId);
 
-        $this->_client->deleteFile($fileId);
+        $this->_testClient->deleteFile($fileId);
 
         try {
-            $this->_client->getFile($fileId);
+            $this->_testClient->getFile($fileId);
             $this->fail('File should not exists');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('storage.files.notFound', $e->getStringCode());
@@ -271,10 +308,13 @@ class CommonFileTest extends StorageApiTestCase
         (new Client())->get($file['url']);
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testNotExistingFileUpload(): void
     {
         try {
-            $this->_client->uploadFile('invalid.csv', new FileUploadOptions());
+            $this->_testClient->uploadFile('invalid.csv', new FileUploadOptions());
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('fileNotReadable', $e->getStringCode());
         }
@@ -290,24 +330,27 @@ class CommonFileTest extends StorageApiTestCase
             ->setFileName('test.txt')
             ->setFederationToken(true)
             ->setTags(['first', 'first', 'second']);
-        $file = $this->_client->prepareFileUpload($uploadOptions);
-        $file = $this->_client->getFile($file['id']);
+        $file = $this->_testClient->prepareFileUpload($uploadOptions);
+        $file = $this->_testClient->getFile($file['id']);
         $this->assertEquals(['first', 'second'], $file['tags']);
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testDownloadFile(): void
     {
         $uploadOptions = (new FileUploadOptions())
             ->setFileName('testing_file_name');
         $sourceFilePath = __DIR__ . '/../_data/files.upload.txt';
-        $fileId = $this->_client->uploadFile($sourceFilePath, $uploadOptions);
+        $fileId = $this->_testClient->uploadFile($sourceFilePath, $uploadOptions);
         $tmpDestination = __DIR__ . '/../_tmp/testing_file_name';
         if (file_exists($tmpDestination)) {
             $fs = new Filesystem();
             $fs->remove($tmpDestination);
         }
 
-        $this->_client->downloadFile($fileId, $tmpDestination);
+        $this->_testClient->downloadFile($fileId, $tmpDestination);
 
         $this->assertSame(
             file_get_contents($sourceFilePath),
@@ -315,6 +358,9 @@ class CommonFileTest extends StorageApiTestCase
         );
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testUploadAndDownloadSlicedFile(): void
     {
         $uploadOptions = (new FileUploadOptions())
@@ -326,7 +372,7 @@ class CommonFileTest extends StorageApiTestCase
             __DIR__ . '/../_data/sliced/neco_0001_part_00',
             __DIR__ . '/../_data/sliced/neco_0002_part_00',
         ];
-        $fileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
+        $fileId = $this->_testClient->uploadSlicedFile($slices, $uploadOptions);
         $tmpDestinationFolder = __DIR__ . '/../_tmp/slicedUpload/';
         $fs = new Filesystem();
         if (file_exists($tmpDestinationFolder)) {
@@ -334,48 +380,54 @@ class CommonFileTest extends StorageApiTestCase
         }
         $fs->mkdir($tmpDestinationFolder);
 
-        $donwloadFiles = $this->_client->downloadSlicedFile($fileId, $tmpDestinationFolder);
+        $donwloadFiles = $this->_testClient->downloadSlicedFile($fileId, $tmpDestinationFolder);
         $this->assertFileEquals($slices[0], $donwloadFiles[0]);
         $this->assertFileEquals($slices[1], $donwloadFiles[1]);
         $this->assertFileEquals($slices[2], $donwloadFiles[2]);
 
-        $this->_client->deleteFile($fileId);
+        $this->_testClient->deleteFile($fileId);
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testTagging(): void
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
         $initialTags = ['gooddata', 'image'];
-        $fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setFederationToken(true)->setTags($initialTags));
+        $fileId = $this->_testClient->uploadFile($filePath, (new FileUploadOptions())->setFederationToken(true)->setTags($initialTags));
 
-        $file = $this->_client->getFile($fileId);
+        $file = $this->_testClient->getFile($fileId);
         $this->assertEquals($initialTags, $file['tags']);
 
-        $this->_client->deleteFileTag($fileId, 'gooddata');
+        $this->_testClient->deleteFileTag($fileId, 'gooddata');
 
-        $file = $this->_client->getFile($fileId);
+        $file = $this->_testClient->getFile($fileId);
         $this->assertEquals(['image'], $file['tags']);
 
-        $this->_client->addFileTag($fileId, 'new');
-        $file = $this->_client->getFile($fileId);
+        $this->_testClient->addFileTag($fileId, 'new');
+        $file = $this->_testClient->getFile($fileId);
         $this->assertEquals(['image', 'new'], $file['tags']);
 
-        $this->_client->addFileTag($fileId, 'new');
-        $file = $this->_client->getFile($fileId);
+        $this->_testClient->addFileTag($fileId, 'new');
+        $file = $this->_testClient->getFile($fileId);
         $this->assertEquals(['image', 'new'], $file['tags'], 'duplicate tag add is ignored');
     }
 
-    public function testReadOnlyRoleFilesPermissions(): void
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testReadOnlyRoleFilesPermissions(string $devBranchType, string $userRole): void
     {
         $expectedError = 'You don\'t have access to the resource.';
         $readOnlyClient = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
 
         $options = new FileUploadOptions();
-        $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', $options);
-        $originalFile = $this->_client->getFile($fileId);
+        $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', $options, $this->_testClient);
+        $originalFile = $this->_testClient->getFile($fileId);
         unset($originalFile['url']);
 
-        $filesCount = count($this->_client->listFiles(new ListFilesOptions()));
+        $filesCount = count($this->_testClient->listFiles(new ListFilesOptions()));
         $this->assertGreaterThan(0, $filesCount);
 
         $this->assertCount($filesCount, $readOnlyClient->listFiles(new ListFilesOptions()));
@@ -398,32 +450,41 @@ class CommonFileTest extends StorageApiTestCase
             $this->assertSame($expectedError, $e->getMessage());
         }
 
-        $file = $this->_client->getFile($fileId);
+        $file = $this->_testClient->getFile($fileId);
         unset($file['url']);
         $this->assertSame($originalFile, $file);
     }
 
 
     /** @dataProvider invalidIdDataProvider */
-    public function testInvalidFileId($fileId): void
+    public function testInvalidFileId(string $devBranchType, string $userRole, ?string $fileId): void
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('File id cannot be empty');
-        $this->_client->getFile($fileId);
+        $this->_testClient->getFile($fileId);
     }
 
     public function invalidIdDataProvider()
     {
-        return [
-            [null],
-            [''],
+        $invalidData = [
+            'null' => [null],
+            'empty string' => [''],
         ];
+        $clientProvider = $this->provideComponentsClientTypeBasedOnSuite();
+
+        foreach ($invalidData as $desc1 => $invalid) {
+            foreach ($clientProvider as $desc2 => $client) {
+                $combinedData = array_merge($client, $invalid);
+                $description = $desc2 . ' + ' . $desc1;
+                yield $description => $combinedData;
+            }
+        }
     }
 
     /**
      * @dataProvider downloadFileNotFoundErrorHandlingProvider
      */
-    public function testDownloadFileNotFoundErrorHandling(bool $isSliced): void
+    public function testDownloadFileNotFoundErrorHandling(string $devBranchType, string $userRole, bool $isSliced): void
     {
         $uploadOptions = (new FileUploadOptions())
             ->setFileName('testing_file_name')
@@ -431,7 +492,7 @@ class CommonFileTest extends StorageApiTestCase
             ->setFederationToken(true)
         ;
 
-        $file = $this->_client->prepareFileUpload($uploadOptions);
+        $file = $this->_testClient->prepareFileUpload($uploadOptions);
         $tmpDestination = __DIR__ . '/../_tmp/testing_file_name';
 
         $this->expectException(ClientException::class);
@@ -442,16 +503,29 @@ class CommonFileTest extends StorageApiTestCase
         ));
 
         if (!$isSliced) {
-            $this->_client->downloadFile($file['id'], $tmpDestination);
+            $this->_testClient->downloadFile($file['id'], $tmpDestination);
         } else {
-            $this->_client->downloadSlicedFile($file['id'], $tmpDestination);
+            $this->_testClient->downloadSlicedFile($file['id'], $tmpDestination);
         }
     }
 
     public function downloadFileNotFoundErrorHandlingProvider(): Generator
     {
-        yield 'non-sliced file' => [false];
-        yield 'sliced file' => [true];
+        $slicingProvider = [
+            'non-sliced file' => [false],
+            'sliced file' => [true],
+        ];
+
+        $clientProvider = $this->provideComponentsClientTypeBasedOnSuite();
+
+        foreach ($slicingProvider as $desc1 => $sliced) {
+            foreach ($clientProvider as $desc2 => $client) {
+                $combinedData = array_merge($client, $sliced);
+                $description = $desc2 . ' + ' . $desc1;
+                yield $description => $combinedData;
+            }
+        }
+    }
 
     public function provideComponentsClientTypeBasedOnSuite(): array
     {
