@@ -54,7 +54,7 @@ class AwsFileTest extends StorageApiTestCase
         $file = $this->_testClient->getFile($fileId);
 
         $this->assertEquals($options->getIsPublic(), $file['isPublic']);
-        $this->assertEquals($file['isEncrypted'], $options->getIsEncrypted());
+        $this->assertEquals($options->getIsEncrypted(), $file['isEncrypted']);
 
         $this->assertEquals(basename($filePath), $file['name']);
         $this->assertEquals(filesize($filePath), $file['sizeBytes']);
