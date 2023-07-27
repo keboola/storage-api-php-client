@@ -366,7 +366,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertCount(1, $mrData['approvals']);
 
         try {
-            $mrData = $reviewerClient->mergeRequestApprove($mrId);
+            $reviewerClient->mergeRequestApprove($mrId);
         } catch (ClientException $e) {
             $this->assertSame('Operation canot be performed due: This reviewer has already approved this request.', $e->getMessage());
         }
