@@ -157,7 +157,39 @@ class TriggersTest extends StorageApiTestCase
         }
     }
 
-    public function testCreateTriggerInBranch(): void
+    public function clientProvider(): Generator
+    {
+        yield 'nobody can create trigger in branch (privileged)' => [
+            $this->getDefaultBranchStorageApiClient(),
+        ];
+        yield 'nobody can create trigger in branch (productionManager)' => [
+            $this->getDefaultClient(),
+        ];
+        yield 'nobody can create trigger in branch (developer)' => [
+            $this->getDeveloperStorageApiClient(),
+        ];
+        yield 'nobody can create trigger in branch (reviewer)' => [
+            $this->getReviewerStorageApiClient(),
+        ];
+        yield 'nobody can create trigger in branch (readOnly)' => [
+            $this->getReadOnlyStorageApiClient(),
+        ];
+    }
+
+    /**
+     * @dataProvider clientProvider
+     */
+    public function testTriggerCannotBeCreatedInBranch(Client $client): void
+    {
+        ['id' => $branchId] = (new DevBranches($this->getDeveloperStorageApiClient()))->createBranch($this->generateDescriptionForTestObject());
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Not implemented');
+        $this->expectExceptionCode(501);
+        $client->getBranchAwareClient($branchId)->createTrigger([]);
+    }
+
+    public function testCreateTriggerInDefaultBranchWithTableInBranch(): void
     {
         $description = $this->generateDescriptionForTestObject();
 
