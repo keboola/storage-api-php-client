@@ -162,12 +162,7 @@ class CommonFileTest extends StorageApiTestCase
      */
     public function testFileListFilterBySinceIdMaxId(): void
     {
-        $files = $this->_testClient->listFiles((new ListFilesOptions())
-            ->setLimit(1)
-            ->setOffset(0));
-
-        $lastFile = reset($files);
-        $lastFileId = $lastFile['id'];
+        $lastFileId = $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', new FileUploadOptions(), $this->_testClient);
 
         $firstFileId = $this->createAndWaitForFile(__DIR__ . '/../_data/users.csv', new FileUploadOptions(), $this->_testClient);
         $secondFileId = $this->createAndWaitForFile(__DIR__ . '/../_data/users.csv', new FileUploadOptions(), $this->_testClient);
