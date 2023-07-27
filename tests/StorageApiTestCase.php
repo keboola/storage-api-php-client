@@ -884,9 +884,11 @@ abstract class StorageApiTestCase extends ClientTestCase
         }
     }
 
-    /* returns <branchType - dev/default> + <role> + <dataset defined above>
+    /* combines two data providers so that it can be used as one
+     * combines the two data provider fields to preserve the keys
+     * that are used to print the progress when running unit tests,
+     * so that it is possible to determine exactly at which position the test crashed
      * e.g. "defaultBranch + production-manager + isPublic: false"
-     * having SOX related combinations depends on Suite where it is running in
      */
     protected function combineProviders(array $provider1, array $clientProvider): Generator
     {
