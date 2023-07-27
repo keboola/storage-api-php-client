@@ -4,6 +4,7 @@ namespace Keboola\Test\File;
 
 use GuzzleHttp\Client;
 use Keboola\StorageApi\BranchAwareClient;
+use Keboola\StorageApi\Client as StorageApiClient;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\ClientProvider\TestSetupHelper;
@@ -11,7 +12,7 @@ use Keboola\Test\StorageApiTestCase;
 
 class AwsFileTest extends StorageApiTestCase
 {
-    /** @var BranchAwareClient|Client */
+    /** @var BranchAwareClient|StorageApiClient */
     private $_testClient;
 
     private ClientProvider $clientProvider;
