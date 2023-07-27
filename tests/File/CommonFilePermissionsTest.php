@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Keboola\Test\File;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\FileUploadOptions;
+use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -92,5 +94,43 @@ class CommonFilePermissionsTest extends StorageApiTestCase
 
         $files = $newTokenClient->listFiles();
         $this->assertEmpty($files);
+    }
+
+    public function testReadOnlyRoleFilesPermissions(): void
+    {
+        $expectedError = 'You don\'t have access to the resource.';
+        $readOnlyClient = $this->getClientForToken(STORAGE_API_READ_ONLY_TOKEN);
+
+        $options = new FileUploadOptions();
+        $fileId = $this->createAndWaitForFile(__DIR__ . '/../_data/files.upload.txt', $options);
+        $originalFile = $this->_client->getFile($fileId);
+        unset($originalFile['url']);
+
+        $filesCount = count($this->_client->listFiles(new ListFilesOptions()));
+        $this->assertGreaterThan(0, $filesCount);
+
+        $this->assertCount($filesCount, $readOnlyClient->listFiles(new ListFilesOptions()));
+
+        try {
+            $readOnlyClient->addFileTag($fileId, 'test');
+            $this->fail('Files API POST request should be restricted for readOnly user');
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('accessDenied', $e->getStringCode());
+            $this->assertSame($expectedError, $e->getMessage());
+        }
+
+        try {
+            $readOnlyClient->deleteFile($fileId);
+            $this->fail('Files API DELETE request should be restricted for readOnly user');
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('accessDenied', $e->getStringCode());
+            $this->assertSame($expectedError, $e->getMessage());
+        }
+
+        $file = $this->_client->getFile($fileId);
+        unset($file['url']);
+        $this->assertSame($originalFile, $file);
     }
 }
