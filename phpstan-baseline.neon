@@ -5041,11 +5041,6 @@ parameters:
 			path: tests/File/AzureFileTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\File\\\\CommonFileTest\\:\\:invalidIdDataProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/File/CommonFileTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\File\\\\CommonFileTest\\:\\:testInvalidFileId\\(\\) has parameter \\$fileId with no type specified\\.$#"
 			count: 1
 			path: tests/File/CommonFileTest.php
