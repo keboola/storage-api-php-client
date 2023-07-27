@@ -413,6 +413,7 @@ class MergeRequestsTest extends StorageApiTestCase
             $this->assertSame($e->getMessage(), 'You don\'t have access to the resource.');
         }
     }
+
     public function testProdManagerCanRequestChanges(): void
     {
         $defaultBranch = $this->branches->getDefaultBranch();
@@ -637,10 +638,34 @@ class MergeRequestsTest extends StorageApiTestCase
             $this->prodManagerClient->mergeMergeRequest($mrId);
             $this->fail('Should fail, MR has conflict.');
         } catch (ClientException $e) {
+            $expectedError = sprintf(
+                'Configuration "main-1" for component "wr-db" in the dev branch is not based on the latest version from the default branch. Version identifier in the dev branch: "%s". Version identifier in the default branch: "%s".',
+                $actualIdentifierInBranch['currentVersion']['versionIdentifier'],
+                $actualIdentifierInMain['currentVersion']['versionIdentifier'],
+            );
             $this->assertSame(
-                sprintf('Merge request %s cannot be merged. Problem with following configurations: componentId: "wr-db", configurationId: "main-1"', $mrId),
+                sprintf(
+                    'Merge request %s cannot be merged. 
+ Errors: 
+ - %s
+',
+                    $mrId,
+                    $expectedError
+                ),
                 $e->getMessage()
             );
+            $this->assertSame([
+                'errors' => [
+                    0 => [
+                        'message' => $expectedError,
+                        'componentId' => 'wr-db',
+                        'configurationId' => 'main-1',
+                        'isDeleted' => false,
+                        'devBranchVersionIdentifier' => $actualIdentifierInBranch['currentVersion']['versionIdentifier'],
+                        'defaultBranchVersionIdentifier' => $actualIdentifierInMain['currentVersion']['versionIdentifier'],
+                    ],
+                ],
+            ], $e->getContextParams()['params']);
         }
         $mr = $this->developerClient->getMergeRequest($mrId);
         $this->assertEquals('approved', $mr['state']);
@@ -685,15 +710,22 @@ class MergeRequestsTest extends StorageApiTestCase
 
         // Delete in default branch
         $components->deleteConfiguration($componentId, $configurationId);
+        $actualIdentifierInBranch = (new Components($this->getDeveloperStorageApiClient()->getBranchAwareClient($branchId)))
+            ->getConfiguration($componentId, $configurationId);
 
         try {
             $this->prodManagerClient->mergeMergeRequest($mrId);
             $this->fail('Should fail, MR has conflict.');
         } catch (ClientException $e) {
-            $this->assertSame(
-                $e->getMessage(),
-                sprintf('Merge request %s cannot be merged. Problem with following configurations: componentId: "wr-db", configurationId: "main-1"', $mrId)
+            // assert with assertStringStartsWith since we can't get new versionIdentifier from default branch as configuration is deleted
+            $this->assertStringStartsWith(
+                sprintf(
+                    'Merge request %s cannot be merged.',
+                    $mrId,
+                ),
+                $e->getMessage()
             );
+            $this->assertCount(1, $e->getContextParams()['params']['errors']);
         }
 
         $devBranchComponents = new Components($this->getBranchAwareClient($branchId, [
@@ -758,8 +790,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $configState = (new ConfigurationState())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId)
-            ->setState(['dev-branch-state' => 'state'])
-        ;
+            ->setState(['dev-branch-state' => 'state']);
 
         $devBranchComponents->updateConfigurationState($configState);
 
@@ -845,8 +876,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $configState = (new ConfigurationState())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId)
-            ->setState(['dev-branch-state' => 'state'])
-        ;
+            ->setState(['dev-branch-state' => 'state']);
 
         $devBranchComponents->updateConfigurationState($configState);
 
@@ -864,7 +894,7 @@ class MergeRequestsTest extends StorageApiTestCase
                 ->setComponentId($componentId)
                 ->setConfigurationId($newConfigId)
                 ->setConfiguration(['main' => 'created in branch'])
-            ->setName($this->generateDescriptionForTestObject()),
+                ->setName($this->generateDescriptionForTestObject()),
         );
 
         $this->initEvents($this->getDefaultBranchStorageApiClient());
@@ -1516,8 +1546,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $configState = (new ConfigurationState())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId)
-            ->setState(['main-state' => 'state'])
-        ;
+            ->setState(['main-state' => 'state']);
 
         $components->updateConfigurationState($configState);
 
