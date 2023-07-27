@@ -418,7 +418,7 @@ class CommonFileTest extends StorageApiTestCase
         $this->_testClient->getFile($fileId);
     }
 
-    public function invalidIdDataProvider()
+    public function invalidIdDataProvider(): Generator
     {
         $invalidData = [
             'null' => [null],
@@ -426,13 +426,7 @@ class CommonFileTest extends StorageApiTestCase
         ];
         $clientProvider = $this->provideComponentsClientTypeBasedOnSuite();
 
-        foreach ($invalidData as $desc1 => $invalid) {
-            foreach ($clientProvider as $desc2 => $client) {
-                $combinedData = array_merge($client, $invalid);
-                $description = $desc2 . ' + ' . $desc1;
-                yield $description => $combinedData;
-            }
-        }
+        return $this->combineProviders($invalidData, $clientProvider);
     }
 
     /**
@@ -472,13 +466,7 @@ class CommonFileTest extends StorageApiTestCase
 
         $clientProvider = $this->provideComponentsClientTypeBasedOnSuite();
 
-        foreach ($slicingProvider as $desc1 => $sliced) {
-            foreach ($clientProvider as $desc2 => $client) {
-                $combinedData = array_merge($client, $sliced);
-                $description = $desc2 . ' + ' . $desc1;
-                yield $description => $combinedData;
-            }
-        }
+        return $this->combineProviders($slicingProvider, $clientProvider);
     }
 
     public function provideComponentsClientTypeBasedOnSuite(): array

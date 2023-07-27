@@ -124,13 +124,7 @@ class AwsFileTest extends StorageApiTestCase
 
         $clientProvider = $this->provideComponentsClientTypeBasedOnSuite();
 
-        foreach ($uploadData as $desc1 => $upload) {
-            foreach ($clientProvider as $desc2 => $client) {
-                $combinedData = array_merge($client, $upload);
-                $description = $desc2 . ' + ' . $desc1;
-                yield $description => $combinedData;
-            }
-        }
+        return $this->combineProviders($uploadData, $clientProvider);
     }
 
     public function provideComponentsClientTypeBasedOnSuite(): array
@@ -194,13 +188,7 @@ class AwsFileTest extends StorageApiTestCase
 
         $clientProvider = $this->provideComponentsClientTypeBasedOnSuite();
 
-        foreach ($encryptedData as $desc1 => $encrypt) {
-            foreach ($clientProvider as $desc2 => $client) {
-                $combinedData = array_merge($client, $encrypt);
-                $description = $desc2 . ' + ' . $desc1;
-                yield $description => $combinedData;
-            }
-        }
+        return $this->combineProviders($encryptedData, $clientProvider);
     }
 
     /**
