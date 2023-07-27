@@ -10,6 +10,7 @@
 namespace Keboola\Test;
 
 use Exception;
+use Generator;
 use Google\Auth\FetchAuthTokenInterface;
 use Google\Cloud\Storage\StorageClient as GoogleStorageClient;
 use Keboola\Csv\CsvFile;
@@ -879,6 +880,21 @@ abstract class StorageApiTestCase extends ClientTestCase
                 $branches->deleteBranch($branch['id']);
             } catch (Throwable $e) {
                 // ignore if delete fails
+            }
+        }
+    }
+
+    /* returns <branchType - dev/default> + <role> + <dataset defined above>
+     * e.g. "defaultBranch + production-manager + isPublic: false"
+     * having SOX related combinations depends on Suite where it is running in
+     */
+    protected function combineProviders(array $provider1, array $clientProvider): Generator
+    {
+        foreach ($provider1 as $desc1 => $provider) {
+            foreach ($clientProvider as $desc2 => $client) {
+                $combinedData = array_merge($client, $provider);
+                $description = $desc2 . ' + ' . $desc1;
+                yield $description => $combinedData;
             }
         }
     }
