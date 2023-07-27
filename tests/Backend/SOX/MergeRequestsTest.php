@@ -822,13 +822,86 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertBranchIsDeleted($newBranch['id']);
     }
 
-    public function testVersionIdentifiers(): void
+    public function testVersionIdentifiersWhenCreatedConfigurationInBranch(): void
     {
+        $rowId = 'firstRow';
+        $componentId = 'wr-db';
+        $devConfigurationId = 'main-1-created-in-dev-branch';
+
+        // create dev branch, config from main copy to dev
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaa');
+
+        $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+
+        // create a new configuration in branch
+        $configuration = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($devConfigurationId)
+            ->setName('The one from branch')
+            ->setDescription('tralalala')
+            ->setConfiguration(['main' => 'value']);
+        $devBranchComponents->addConfiguration($configuration);
+
+        $devBranchComponents->addConfigurationRow((new ConfigurationRow($configuration))
+            ->setRowId($rowId)
+            ->setConfiguration(['value' => 1]));
+
+        // update it so it takes the last one
+        $devBranchComponents->updateConfigurationRow((new ConfigurationRow($configuration))
+            ->setRowId($rowId)
+            ->setConfiguration(['value' => 2]));
+
+        $createdRow = $devBranchComponents->getConfigurationRow($componentId, $devConfigurationId, $rowId);
+        $lastVIOfCreatedRowInDevBranch = $createdRow['versionIdentifier'];
+
+        $createdConfigInDev = $devBranchComponents->getConfiguration($componentId, $devConfigurationId);
+        $lastVIOfCreatedConfigInDevBranch = $createdConfigInDev['currentVersion']['versionIdentifier'];
+
+        // and merge it
+        $mrId = $this->mergeDevBranchToProd($newBranch['id'], $this->branches->getDefaultBranch()['id']);
+
+        $mr = $this->developerClient->getMergeRequest($mrId);
+
+        $lastVIFromChangeLogOfCreatedConfig = $mr['changeLog']['configurations'][0]['lastVersionIdentifier'];
+
+        // assert VI of created config
+        $components = new Components($this->getDefaultClient());
+        $query = new ListConfigurationVersionsOptions();
+        $query->setConfigurationId($devConfigurationId)->setComponentId($componentId);
+        $configuration = $components->getConfiguration($componentId, $devConfigurationId);
+        $configVersions = $components->listConfigurationVersions($query);
+        $rowInProd = $components->getConfigurationRow($componentId, $devConfigurationId, $rowId);
+
+        $latestVersion = $configVersions[0];
+
+        $this->assertSame($configuration['currentVersion']['versionIdentifier'], $lastVIFromChangeLogOfCreatedConfig);
+        $this->assertSame($lastVIOfCreatedConfigInDevBranch, $lastVIFromChangeLogOfCreatedConfig);
+        $this->assertSame($latestVersion['versionIdentifier'], $lastVIFromChangeLogOfCreatedConfig);
+        $this->assertSame($rowInProd['versionIdentifier'], $lastVIOfCreatedRowInDevBranch);
+    }
+
+    public function testVersionIdentifiersWhenConfigurationExistsInProduction(): void
+    {
+        $rowId = 'firstRow';
         $defaultBranch = $this->branches->getDefaultBranch();
 
         // Create config in default branch
         /** @var Components $components */
-        [$componentId, $configurationId] = $this->prepareTestConfiguration(true);
+        [$componentId, $configurationId, $components] = $this->prepareTestConfiguration();
+
+        $configurationObject = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setDescription('main config')
+            ->setConfiguration(['main' => 'value']);
+
+        $components->addConfigurationRow((new ConfigurationRow($configurationObject))
+            ->setRowId('firstRow')
+            ->setConfiguration(['value' => 1]));
 
         // create dev branch, config from main copy to dev
         $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaa');
@@ -849,67 +922,22 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setChangeDescription('Update config')
             ->setIsDisabled(true));
 
-        // second update
-        $configurationObject = (new Configuration())
-            ->setComponentId($componentId)
-            ->setConfigurationId($configurationId)
-            ->setName('second main updated')
-            ->setDescription('last update desc')
-            ->setChangeDescription('last update')
-            ->setConfiguration(['main' => 'update again']);
-        $devBranchComponents->updateConfiguration($configurationObject);
-
         $devBranchComponents->updateConfigurationRow((new ConfigurationRow($configurationObject))
-            ->setRowId('firstRow')
+            ->setRowId($rowId)
             ->setConfiguration(['value' => 2]));
 
         $updatedConfigInDev = $devBranchComponents->getConfiguration($componentId, $configurationId);
         $lastVIOfUpdatedConfigInDevBranch = $updatedConfigInDev['currentVersion']['versionIdentifier'];
 
-        $updatedRow = $devBranchComponents->getConfigurationRow($componentId, $configurationId, 'firstRow');
+        $updatedRow = $devBranchComponents->getConfigurationRow($componentId, $configurationId, $rowId);
         $lastVIOfUpdatedRowInDevBranch = $updatedRow['versionIdentifier'];
-
-        // create a new configuration in branch
-        $devConfigurationId = 'main-1-created-in-dev-branch';
-
-        $configuration = (new Configuration())
-            ->setComponentId($componentId)
-            ->setConfigurationId($devConfigurationId)
-            ->setName('The one from branch')
-            ->setDescription('tralalala')
-            ->setConfiguration(['main' => 'value']);
-        $devBranchComponents->addConfiguration($configuration);
-
-        $devBranchComponents->addConfigurationRow((new ConfigurationRow($configuration))
-            ->setRowId('firstRow')
-            ->setConfiguration(['value' => 3]));
-
-        $createdRow = $devBranchComponents->getConfigurationRow($componentId, $configurationId, 'firstRow');
-        $lastVIOfCreatedRowInDevBranch = $createdRow['versionIdentifier'];
-
-        $createdConfigInDev = $devBranchComponents->getConfiguration($componentId, $devConfigurationId);
-        $lastVIOfCreatedConfigInDevBranch = $createdConfigInDev['currentVersion']['versionIdentifier'];
 
         // and merge it
         $mrId = $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
 
         $mr = $this->developerClient->getMergeRequest($mrId);
 
-        $lastVIFromChangeLogOfUpdatedConfig = null;
-        $lastVIFromChangeLogOfCreatedConfig = null;
-
-        // get last version identifiers from changelog
-        foreach ($mr['changeLog']['configurations'] as $configInChangelog){
-            if ($configInChangelog['configurationId'] === $configurationId){
-                $lastVIFromChangeLogOfUpdatedConfig = $configInChangelog['lastVersionIdentifier'];
-            }
-            if ($configInChangelog['configurationId'] === $devConfigurationId){
-                $lastVIFromChangeLogOfCreatedConfig = $configInChangelog['lastVersionIdentifier'];
-            }
-        }
-
-        assert($lastVIFromChangeLogOfUpdatedConfig !== null);
-        assert($lastVIFromChangeLogOfCreatedConfig !== null);
+        $lastVIFromChangeLogOfUpdatedConfig = $mr['changeLog']['configurations'][0]['lastVersionIdentifier'];
 
         // assert VI of updated config
         $components = new Components($this->getDefaultClient());
@@ -917,25 +945,14 @@ class MergeRequestsTest extends StorageApiTestCase
         $query->setConfigurationId($configurationId)->setComponentId($componentId);
         $configuration = $components->getConfiguration($componentId, $configurationId);
         $configVersions = $components->listConfigurationVersions($query);
+        $rowInProd = $components->getConfigurationRow($componentId, $configurationId, $rowId);
 
         $latestVersion = $configVersions[0];
 
         $this->assertSame($configuration['currentVersion']['versionIdentifier'], $lastVIFromChangeLogOfUpdatedConfig);
         $this->assertSame($lastVIOfUpdatedConfigInDevBranch, $lastVIFromChangeLogOfUpdatedConfig);
         $this->assertSame($latestVersion['versionIdentifier'], $lastVIFromChangeLogOfUpdatedConfig);
-
-        // assert VI of created config
-        $components = new Components($this->getDefaultClient());
-        $query = new ListConfigurationVersionsOptions();
-        $query->setConfigurationId($devConfigurationId)->setComponentId($componentId);
-        $configuration = $components->getConfiguration($componentId, $devConfigurationId);
-        $configVersions = $components->listConfigurationVersions($query);
-
-        $latestVersion = $configVersions[0];
-
-        $this->assertSame($configuration['currentVersion']['versionIdentifier'], $lastVIFromChangeLogOfCreatedConfig);
-        $this->assertSame($lastVIOfCreatedConfigInDevBranch, $lastVIFromChangeLogOfCreatedConfig);
-        $this->assertSame($latestVersion['versionIdentifier'], $lastVIFromChangeLogOfCreatedConfig);
+        $this->assertSame($rowInProd['versionIdentifier'], $lastVIOfUpdatedRowInDevBranch);
     }
 
     public function testChangeLog(): void
@@ -1637,7 +1654,7 @@ class MergeRequestsTest extends StorageApiTestCase
     /**
      * @return array
      */
-    public function prepareTestConfiguration(bool $addRow = false): array
+    public function prepareTestConfiguration(): array
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -1667,12 +1684,6 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId));
         $this->assertCount(1, $versions);
-
-        if ($addRow) {
-            $components->addConfigurationRow((new ConfigurationRow($configuration))
-                ->setRowId('firstRow')
-                ->setConfiguration(['value' => 1]));
-        }
 
         return [$componentId, $configurationId, $components];
     }
