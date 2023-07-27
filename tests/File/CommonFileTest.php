@@ -6,6 +6,7 @@ use Exception;
 use Generator;
 use GuzzleHttp\Client;
 use Keboola\StorageApi\BranchAwareClient;
+use Keboola\StorageApi\Client as StorageApiClient;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
@@ -17,7 +18,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class CommonFileTest extends StorageApiTestCase
 {
-    /** @var BranchAwareClient|Client */
+    /** @var BranchAwareClient|StorageApiClient */
     private $_testClient;
 
     private ClientProvider $clientProvider;
@@ -410,7 +411,7 @@ class CommonFileTest extends StorageApiTestCase
     }
 
     /** @dataProvider invalidIdDataProvider */
-    public function testInvalidFileId(string $devBranchType, string $userRole, ?string $fileId): void
+    public function testInvalidFileId(string $devBranchType, string $userRole, $fileId): void
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('File id cannot be empty');
