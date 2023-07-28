@@ -5,10 +5,29 @@ namespace Keboola\Test\Backend\SOX;
 use Generator;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\DevBranches;
 use Keboola\Test\StorageApiTestCase;
+use Throwable;
 
 class TriggersTest extends StorageApiTestCase
 {
+    private DevBranches $branches;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        $developerClient = $this->getDeveloperStorageApiClient();
+        $this->branches = new DevBranches($developerClient);
+        foreach ($this->getBranchesForCurrentTestCase($this->branches) as $branch) {
+            try {
+                $this->branches->deleteBranch($branch['id']);
+            } catch (Throwable $e) {
+                // ignore if delete fails
+            }
+        }
+    }
+
     public function testCreateTriggerInSOX(): void
     {
         $description = $this->generateDescriptionForTestObject();
@@ -135,6 +154,81 @@ class TriggersTest extends StorageApiTestCase
             $this->fail('Should not be able to create trigger');
         } catch (\Exception $e) {
             $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
+        }
+    }
+
+    public function clientProvider(): Generator
+    {
+        yield 'nobody can create trigger in branch (privileged)' => [
+            $this->getDefaultBranchStorageApiClient(),
+        ];
+        yield 'nobody can create trigger in branch (productionManager)' => [
+            $this->getDefaultClient(),
+        ];
+        yield 'nobody can create trigger in branch (developer)' => [
+            $this->getDeveloperStorageApiClient(),
+        ];
+        yield 'nobody can create trigger in branch (reviewer)' => [
+            $this->getReviewerStorageApiClient(),
+        ];
+        yield 'nobody can create trigger in branch (readOnly)' => [
+            $this->getReadOnlyStorageApiClient(),
+        ];
+    }
+
+    /**
+     * @dataProvider clientProvider
+     */
+    public function testTriggerCannotBeCreatedInBranch(Client $client): void
+    {
+        ['id' => $branchId] = (new DevBranches($this->getDeveloperStorageApiClient()))->createBranch($this->generateDescriptionForTestObject());
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Not implemented');
+        $this->expectExceptionCode(501);
+        $client->getBranchAwareClient($branchId)->createTrigger([]);
+    }
+
+    public function testCreateTriggerInDefaultBranchWithTableInBranch(): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject());
+        $developerClient = $this->getDeveloperStorageApiClient();
+        $developerBranchClient = $developerClient->getBranchAwareClient($newBranch['id']);
+        $branchBucketId = $this->initEmptyBucket(
+            $this->getTestBucketName($description),
+            self::STAGE_IN,
+            $description,
+            $developerBranchClient
+        );
+        $branchTableId = $developerBranchClient->createTableAsync(
+            $branchBucketId,
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+        );
+
+        $token = $this->getDefaultClient()->verifyToken();
+        try {
+            $this->getDefaultClient()->createTrigger([
+                'component' => 'keboola.orchestrator',
+                'configurationId' => 123,
+                'coolDownPeriodMinutes' => 10,
+                'runWithTokenId' => $token['id'],
+                'tableIds' => [
+                    $branchTableId,
+                ],
+            ]);
+        } catch (ClientException $e) {
+            $this->assertSame($e->getCode(), 404);
+            $this->assertSame(
+                sprintf(
+                    'The table "languages" was not found in the bucket "%s" in the project "%s"',
+                    $branchBucketId,
+                    $token['owner']['id']
+                ),
+                $e->getMessage()
+            );
         }
     }
 }
