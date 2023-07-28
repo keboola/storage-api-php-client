@@ -1115,7 +1115,7 @@ class Client
 
     /**
      * @param $tableId
-     * @return mixed|string
+     * @return array
      */
     public function listTableSnapshots($tableId, $options = [])
     {
