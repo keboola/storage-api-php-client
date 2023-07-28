@@ -25,6 +25,7 @@ use Keboola\StorageApi\Tokens;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\Utils\EventTesterUtils;
+use Throwable;
 use function array_key_exists;
 
 abstract class StorageApiTestCase extends ClientTestCase
@@ -868,5 +869,17 @@ abstract class StorageApiTestCase extends ClientTestCase
             }
         }
         return $branches;
+    }
+
+    protected function cleanupTestBranches(Client $client): void
+    {
+        $branches = new DevBranches($client);
+        foreach ($this->getBranchesForCurrentTestCase($branches) as $branch) {
+            try {
+                $branches->deleteBranch($branch['id']);
+            } catch (Throwable $e) {
+                // ignore if delete fails
+            }
+        }
     }
 }
