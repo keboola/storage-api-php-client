@@ -28,9 +28,7 @@ class PullTableTest extends StorageApiTestCase
         parent::setUp();
         $this->developerClient = $this->getDeveloperStorageApiClient();
         $this->branches = new DevBranches($this->developerClient);
-        foreach ($this->getBranchesForCurrentTestCase($this->branches) as $branch) {
-            $this->branches->deleteBranch($branch['id']);
-        }
+        $this->cleanupTestBranches($this->developerClient);
     }
 
     public function testPullTableFromDefaultBranch(): void
