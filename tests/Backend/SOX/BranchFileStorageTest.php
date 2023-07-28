@@ -60,6 +60,7 @@ class BranchFileStorageTest extends StorageApiTestCase
                 'Bucket' => $file['s3Path']['bucket'],
                 'Key' => $file['s3Path']['key'],
             ]);
+            $this->fail('File should not exist');
         } catch (\Aws\S3\Exception\S3Exception $e) {
             $this->assertEquals(404, $e->getStatusCode());
         }
