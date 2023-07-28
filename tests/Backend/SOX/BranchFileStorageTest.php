@@ -30,12 +30,7 @@ class BranchFileStorageTest extends StorageApiTestCase
     public function testDeleteBranchDeleteFiles(): void
     {
         $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject());
-
-        $branchClient = $this->getBranchAwareClient($newBranch['id'], [
-            'token' => STORAGE_API_DEVELOPER_TOKEN,
-            'url' => STORAGE_API_URL,
-        ]);
-
+        $branchClient = $this->getDeveloperStorageApiClient()->getBranchAwareClient($newBranch['id']);
         $filePath = __DIR__ . '/../../_data/files.upload.txt';
 
         $fileId = $branchClient->uploadFile($filePath, (new FileUploadOptions())->setNotify(false)->setFederationToken(true)->setIsPublic(false));
