@@ -627,12 +627,16 @@ class MergeRequestsTest extends StorageApiTestCase
         $components->addConfigurationRow((new ConfigurationRow($configuration))
             ->setRowId('firstRow')
             ->setConfiguration(['value' => 1]));
+        // make change in dev branch to have more than one version, this will demonstrate that versionIdentifier in error message is from first version
+        $devBranchComponents->addConfigurationRow((new ConfigurationRow($configuration))
+            ->setRowId('firstBranchRow')
+            ->setConfiguration(['value' => 1]));
 
-        $actualIdentifierInMain = $components->getConfiguration($componentId, $configurationId);
-        $actualIdentifierInBranch = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $actualIdentifierInMain = $components->getConfiguration($componentId, $configurationId)['currentVersion']['versionIdentifier'];
+        $actualIdentifierInBranch = $devBranchComponents->getConfigurationVersion($componentId, $configurationId, 1)['versionIdentifier'];
         $this->assertNotSame(
-            $actualIdentifierInBranch['currentVersion']['versionIdentifier'],
-            $actualIdentifierInMain['currentVersion']['versionIdentifier']
+            $actualIdentifierInBranch,
+            $actualIdentifierInMain
         );
         try {
             $this->prodManagerClient->mergeMergeRequest($mrId);
@@ -640,8 +644,8 @@ class MergeRequestsTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $expectedError = sprintf(
                 'Configuration "main-1" for component "wr-db" in the dev branch is not based on the latest version from the default branch. Version identifier in the dev branch: "%s". Version identifier in the default branch: "%s".',
-                $actualIdentifierInBranch['currentVersion']['versionIdentifier'],
-                $actualIdentifierInMain['currentVersion']['versionIdentifier'],
+                $actualIdentifierInBranch,
+                $actualIdentifierInMain,
             );
             $this->assertSame(
                 sprintf(
@@ -661,8 +665,8 @@ class MergeRequestsTest extends StorageApiTestCase
                         'componentId' => 'wr-db',
                         'configurationId' => 'main-1',
                         'isDeleted' => false,
-                        'devBranchVersionIdentifier' => $actualIdentifierInBranch['currentVersion']['versionIdentifier'],
-                        'defaultBranchVersionIdentifier' => $actualIdentifierInMain['currentVersion']['versionIdentifier'],
+                        'devBranchVersionIdentifier' => $actualIdentifierInBranch,
+                        'defaultBranchVersionIdentifier' => $actualIdentifierInMain,
                     ],
                 ],
             ], $e->getContextParams()['params']);
@@ -672,11 +676,11 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $devBranchComponents->resetToDefault($componentId, $configurationId);
 
-        $actualIdentifierInMain = $components->getConfiguration($componentId, $configurationId);
-        $actualIdentifierInBranch = $devBranchComponents->getConfiguration($componentId, $configurationId);
+        $actualIdentifierInMain = $components->getConfiguration($componentId, $configurationId)['currentVersion']['versionIdentifier'];
+        $actualIdentifierInBranch = $devBranchComponents->getConfiguration($componentId, $configurationId)['currentVersion']['versionIdentifier'];
         $this->assertSame(
-            $actualIdentifierInBranch['currentVersion']['versionIdentifier'],
-            $actualIdentifierInMain['currentVersion']['versionIdentifier']
+            $actualIdentifierInBranch,
+            $actualIdentifierInMain
         );
         $this->initEvents($this->getDefaultBranchStorageApiClient());
         // todo now is works like this, but maybe it should go through approval process again
