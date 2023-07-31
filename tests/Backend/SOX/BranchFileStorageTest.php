@@ -18,13 +18,7 @@ class BranchFileStorageTest extends StorageApiTestCase
         parent::setUp();
         $developerClient = $this->getDeveloperStorageApiClient();
         $this->branches = new DevBranches($developerClient);
-        foreach ($this->getBranchesForCurrentTestCase($this->branches) as $branch) {
-            try {
-                $this->branches->deleteBranch($branch['id']);
-            } catch (Throwable $e) {
-                // ignore if delete fails
-            }
-        }
+        $this->cleanupTestBranches($developerClient);
     }
 
     public function testDeleteBranchDeleteFiles(): void

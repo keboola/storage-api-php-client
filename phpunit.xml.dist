@@ -303,6 +303,7 @@
 		<directory>tests/Backend/SOX</directory>
 		<exclude>tests/Backend/SOX/SOXCommonTest.php</exclude>
 		<exclude>tests/Backend/SOX/MergeRequestsTest.php</exclude>
+		<exclude>tests/Backend/SOX/SOXWorkspaceTestCase.php</exclude>
 		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
 		<file>tests/Common/MetadataTest.php</file>
 	</testsuite>
