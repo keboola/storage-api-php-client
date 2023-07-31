@@ -797,7 +797,11 @@ class MergeRequestsTest extends StorageApiTestCase
         $lastVersionIdentifierInDevBranch = $configInDev['currentVersion']['versionIdentifier'];
         $this->initEvents($this->getDefaultBranchStorageApiClient());
         // and merge it
-        $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
+        $mrId = $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
+
+        $mr = $this->developerClient->getMergeRequest($mrId);
+
+        $lastVIFromChangeLogOfUpdatedConfig = $mr['changeLog']['configurations'][0]['lastVersionIdentifier'];
 
         $configInDefault = $components->getConfiguration($componentId, $configurationId);
         $this->assertSame('update again', $configInDefault['configuration']['main']);
@@ -814,6 +818,7 @@ class MergeRequestsTest extends StorageApiTestCase
             $configInDefault['changeDescription']
         );
         $this->assertSame($lastVersionIdentifierInDevBranch, $configInDefault['currentVersion']['versionIdentifier']);
+        $this->assertSame($lastVersionIdentifierInDevBranch, $lastVIFromChangeLogOfUpdatedConfig);
         $versions = $components->listConfigurationVersions((new ListConfigurationVersionsOptions())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId));
@@ -1127,7 +1132,11 @@ class MergeRequestsTest extends StorageApiTestCase
         $lastIdentifierInConfig2 = $configInDevAfterAddingRow['currentVersion']['versionIdentifier'];
         $this->initEvents($this->getDefaultBranchStorageApiClient());
         // and merge it
-        $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
+        $mrId = $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
+
+        $mr = $this->developerClient->getMergeRequest($mrId);
+
+        $lastVIFromChangeLogOfCreatedConfig = $mr['changeLog']['configurations'][0]['lastVersionIdentifier'];
 
         $configs = $components->listComponentConfigurations(
             (new ListComponentConfigurationsOptions())->setComponentId($componentId)
@@ -1155,6 +1164,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame('dev config', $secondConfigInDefault['description']);
         $this->assertFalse($secondConfigInDefault['isDisabled']);
         $this->assertEquals($lastIdentifierInConfig2, $secondConfigInDefault['currentVersion']['versionIdentifier']);
+        $this->assertEquals($lastIdentifierInConfig2, $lastVIFromChangeLogOfCreatedConfig);
         $this->assertCount(1, $secondConfigInDefault['rows']);
         $this->assertEquals($newRowIdentifier, $secondConfigInDefault['rows'][0]['versionIdentifier']);
 
