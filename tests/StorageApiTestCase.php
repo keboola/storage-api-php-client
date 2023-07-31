@@ -10,6 +10,7 @@
 namespace Keboola\Test;
 
 use Exception;
+use Generator;
 use Google\Auth\FetchAuthTokenInterface;
 use Google\Cloud\Storage\StorageClient as GoogleStorageClient;
 use Keboola\Csv\CsvFile;
@@ -879,6 +880,23 @@ abstract class StorageApiTestCase extends ClientTestCase
                 $branches->deleteBranch($branch['id']);
             } catch (Throwable $e) {
                 // ignore if delete fails
+            }
+        }
+    }
+
+    /* combines two data providers so that it can be used as one
+     * combines the two data provider fields to preserve the keys
+     * that are used to print the progress when running unit tests,
+     * so that it is possible to determine exactly at which position the test crashed
+     * e.g. "defaultBranch + production-manager + isPublic: false"
+     */
+    protected function combineProviders(array $provider1, array $clientProvider): Generator
+    {
+        foreach ($provider1 as $desc1 => $provider) {
+            foreach ($clientProvider as $desc2 => $client) {
+                $combinedData = array_merge($client, $provider);
+                $description = $desc2 . ' + ' . $desc1;
+                yield $description => $combinedData;
             }
         }
     }

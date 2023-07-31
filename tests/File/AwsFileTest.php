@@ -3,15 +3,41 @@
 namespace Keboola\Test\File;
 
 use GuzzleHttp\Client;
+use Keboola\StorageApi\BranchAwareClient;
+use Keboola\StorageApi\Client as StorageApiClient;
 use Keboola\StorageApi\Options\FileUploadOptions;
+use Keboola\Test\ClientProvider\ClientProvider;
+use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\StorageApiTestCase;
 
 class AwsFileTest extends StorageApiTestCase
 {
+    /** @var BranchAwareClient|StorageApiClient */
+    private $_testClient;
+
+    private ClientProvider $clientProvider;
+
     public function setUp(): void
     {
         parent::setUp();
-        $token = $this->_client->verifyToken();
+
+        $this->clientProvider = new ClientProvider($this);
+        [$devBranchType, $userRole] = $this->getProvidedData();
+        [$this->_client, $this->_testClient] = (new TestSetupHelper())->setUpForProtectedDevBranch(
+            $this->clientProvider,
+            $devBranchType,
+            $userRole
+        );
+
+        if ($devBranchType === ClientProvider::DEV_BRANCH) {
+            // buckets must be created in branch that the tests run in
+            $this->initEmptyTestBucketsForParallelTests([self::STAGE_OUT, self::STAGE_IN], $this->_testClient);
+        } elseif ($devBranchType === ClientProvider::DEFAULT_BRANCH) {
+            $this->initEmptyTestBucketsForParallelTests();
+        } else {
+            throw new \Exception(sprintf('Unknown devBranchType "%s"', $devBranchType));
+        }
+        $token = $this->_testClient->verifyToken();
         $this->assertSame(
             'aws',
             $token['owner']['fileStorageProvider'],
@@ -22,13 +48,13 @@ class AwsFileTest extends StorageApiTestCase
     /**
      * @dataProvider uploadData
      */
-    public function testFileUpload($filePath, FileUploadOptions $options): void
+    public function testFileUpload(string $devBranchType, string $userRole, $filePath, FileUploadOptions $options): void
     {
-        $fileId = $this->_client->uploadFile($filePath, $options);
-        $file = $this->_client->getFile($fileId);
+        $fileId = $this->_testClient->uploadFile($filePath, $options);
+        $file = $this->_testClient->getFile($fileId);
 
         $this->assertEquals($options->getIsPublic(), $file['isPublic']);
-        $this->assertEquals($file['isEncrypted'], $options->getIsEncrypted());
+        $this->assertEquals($options->getIsEncrypted(), $file['isEncrypted']);
 
         $this->assertEquals(basename($filePath), $file['name']);
         $this->assertEquals(filesize($filePath), $file['sizeBytes']);
@@ -40,7 +66,7 @@ class AwsFileTest extends StorageApiTestCase
         sort($fileTags);
         $this->assertEquals($tags, $fileTags);
 
-        $info = $this->_client->verifyToken();
+        $info = $this->_testClient->verifyToken();
         $this->assertEquals($file['creatorToken']['id'], (int) $info['id']);
         $this->assertEquals($file['creatorToken']['description'], $info['description']);
 
@@ -60,34 +86,34 @@ class AwsFileTest extends StorageApiTestCase
     public function uploadData()
     {
         $path = __DIR__ . '/../_data/files.upload.txt';
-        return [
-            [
+        $uploadData = [
+            'isPublic: true' => [
                 $path,
                 (new FileUploadOptions())->setIsPublic(true),
             ],
-            [
+            'isPublic: false' => [
                 $path,
                 (new FileUploadOptions())
-                    ->setIsPublic(true),
+                    ->setIsPublic(false),
             ],
-            [
+            'isEncrypted: false' => [
                 $path,
                 (new FileUploadOptions())
                     ->setIsEncrypted(false),
             ],
-            [
+            'isEncrypted: true' => [
                 $path,
                 (new FileUploadOptions())
                     ->setIsEncrypted(true),
             ],
-            [
+            'notify: false, compress: false, isPublic:false' => [
                 $path,
                 (new FileUploadOptions())
                     ->setNotify(false)
                     ->setCompress(false)
                     ->setIsPublic(false),
             ],
-            [
+            'isPublic: false, isPermanent: true, tags: \'sapi-import\', \'martin\'' => [
                 $path,
                 (new FileUploadOptions())
                     ->setIsPublic(true)
@@ -95,13 +121,22 @@ class AwsFileTest extends StorageApiTestCase
                     ->setTags(['sapi-import', 'martin']),
             ],
         ];
+
+        $clientProvider = $this->provideComponentsClientTypeBasedOnSuite();
+
+        return $this->combineProviders($uploadData, $clientProvider);
+    }
+
+    public function provideComponentsClientTypeBasedOnSuite(): array
+    {
+        return (new TestSetupHelper())->provideComponentsClientTypeBasedOnSuite($this);
     }
 
     /**
      * @dataProvider encryptedData
      * @param $encrypted
      */
-    public function testFileUploadUsingFederationToken($encrypted): void
+    public function testFileUploadUsingFederationToken(string $devBranchType, string $userRole, $encrypted): void
     {
         $pathToFile = __DIR__ . '/../_data/files.upload.txt';
         $options = new FileUploadOptions();
@@ -110,14 +145,14 @@ class AwsFileTest extends StorageApiTestCase
             ->setFederationToken(true)
             ->setIsEncrypted($encrypted);
 
-        $result = $this->_client->prepareFileUpload($options);
+        $result = $this->_testClient->prepareFileUpload($options);
 
         $uploadParams = $result['uploadParams'];
         $this->assertArrayHasKey('credentials', $uploadParams);
 
-        $fileId = $this->_client->uploadFile($pathToFile, $options);
+        $fileId = $this->_testClient->uploadFile($pathToFile, $options);
 
-        $file = $this->_client->getFile($fileId);
+        $file = $this->_testClient->getFile($fileId);
 
         $this->assertEquals(file_get_contents($pathToFile), file_get_contents($file['url']));
 
@@ -146,12 +181,19 @@ class AwsFileTest extends StorageApiTestCase
 
     public function encryptedData()
     {
-        return [
-            [false],
-            [true],
+        $encryptedData = [
+            'encrypted: false' => [false],
+            'encrypted: true' => [true],
         ];
+
+        $clientProvider = $this->provideComponentsClientTypeBasedOnSuite();
+
+        return $this->combineProviders($encryptedData, $clientProvider);
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testRequireEncryptionForSliced(): void
     {
         // sliced file
@@ -160,7 +202,7 @@ class AwsFileTest extends StorageApiTestCase
             ->setFileName('entries_')
             ->setIsEncrypted(true)
             ->setIsSliced(true);
-        $slicedFile = $this->_client->prepareFileUpload($uploadOptions);
+        $slicedFile = $this->_testClient->prepareFileUpload($uploadOptions);
 
         $uploadParams = $slicedFile['uploadParams'];
 
@@ -188,12 +230,15 @@ class AwsFileTest extends StorageApiTestCase
         }
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testGetFileFederationToken(): void
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
-        $fileId = $this->_client->uploadFile($filePath, (new FileUploadOptions())->setNotify(false)->setFederationToken(true)->setIsPublic(false));
+        $fileId = $this->_testClient->uploadFile($filePath, (new FileUploadOptions())->setNotify(false)->setFederationToken(true)->setIsPublic(false));
 
-        $file = $this->_client->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
+        $file = $this->_testClient->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
 
         $this->assertArrayHasKey('credentials', $file);
         $this->assertArrayHasKey('s3Path', $file);
@@ -243,6 +288,9 @@ class AwsFileTest extends StorageApiTestCase
         }
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testDeleteNonUploadedSlicedFile(): void
     {
         $options = new FileUploadOptions();
