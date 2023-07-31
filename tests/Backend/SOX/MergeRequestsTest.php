@@ -367,6 +367,7 @@ class MergeRequestsTest extends StorageApiTestCase
 
         try {
             $reviewerClient->mergeRequestApprove($mrId);
+            $this->fail('Reviewer should not be able to approve MR twice');
         } catch (ClientException $e) {
             $this->assertSame('Operation canot be performed due: This reviewer has already approved this request.', $e->getMessage());
         }
