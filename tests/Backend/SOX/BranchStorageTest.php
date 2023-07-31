@@ -230,6 +230,13 @@ class BranchStorageTest extends StorageApiTestCase
         $newDevTableId = $branchClient->createTableFromSnapshot($devTable['bucket']['id'], $snapshotProd, 'new-table-prod');
         $this->assertBranchEvent($branchClient, 'storage.tableCreated', $newDevTableId, 'table');
         $this->assertTableRowsCount(4, $newDevTableId, $branchClient);
+
+        $snapshotsProd = $privilegedClient->listTableSnapshots($productionTableId);
+        // production snapshots remain
+        $this->assertGreaterThanOrEqual(1, $snapshotsProd);
+        $snapshotsDev = $branchClient->listTableSnapshots($devTableId);
+        // dev branch snapshots is new for every branch, so should be only one
+        $this->assertCount(1, $snapshotsDev);
     }
 
     public function testListingTablesBuckets(): void
