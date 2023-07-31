@@ -813,7 +813,8 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertTrue($configInDefault['isDisabled']);
         $this->assertStringContainsString(
             sprintf(
-                'Configuration merged from branch: "%s"',
+                'Configuration merged in merge request #%s from branch: "%s"',
+                $mrId,
                 $this->generateDescriptionForTestObject() . '_aaa'
             ),
             $configInDefault['changeDescription']
@@ -1023,7 +1024,8 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame(1, $secondConfigInDefault['version']);
         $this->assertStringContainsString(
             sprintf(
-                'Configuration merged from branch: "%s"',
+                'Configuration merged in merge request #%s from branch: "%s"',
+                $mrId,
                 $this->generateDescriptionForTestObject() . '_aaa'
             ),
             $secondConfigInDefault['changeDescription']
@@ -1103,7 +1105,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $lastVersionIdentifierInDevBranch = $updatedRow['versionIdentifier'];
 
         $this->initEvents($this->getDefaultBranchStorageApiClient());
-        $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
+        $mrId = $this->mergeDevBranchToProd($newBranch['id'], $defaultBranch['id']);
 
         $rowInDefault = $components->getConfigurationRow($componentId, $configurationId, 'new-row');
         $this->assertSame('second update name', $rowInDefault['name']);
@@ -1121,7 +1123,8 @@ class MergeRequestsTest extends StorageApiTestCase
         $configInDefault = $components->getConfiguration($componentId, $configurationId);
         $this->assertStringContainsString(
             sprintf(
-                'Configuration merged from branch: "%s"',
+                'Configuration merged in merge request #%s from branch: "%s"',
+                $mrId,
                 $this->generateDescriptionForTestObject() . '_aaa'
             ),
             $configInDefault['changeDescription']
