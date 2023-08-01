@@ -37,7 +37,21 @@ class Workspaces
 
         $result = $this->client->apiPostJson($url, $options, true, $requestOptions);
         assert(is_array($result));
-        return $result;
+
+        $response = $this->resetWorkspacePassword($result['id']);
+        if ($result['type'] === 'file') {
+            $secret = 'connectionString';
+        } elseif ($result['connection']['backend'] === 'bigquery') {
+            $secret = 'credentials';
+        } else {
+            $secret = 'password';
+        }
+
+        return array_merge_recursive($result, [
+            'connection' => [
+                $secret => $response[$secret],
+            ],
+        ]);
     }
 
     /**
