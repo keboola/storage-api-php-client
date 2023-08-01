@@ -6,6 +6,9 @@ namespace Keboola\Test\Backend\SOX;
 
 use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
+use Generator;
+use Keboola\StorageApi\Client;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
@@ -60,6 +63,50 @@ class BranchFileStorageTest extends StorageApiTestCase
             $this->fail('File should not exist');
         } catch (S3Exception $e) {
             $this->assertEquals(404, $e->getStatusCode());
+        }
+    }
+
+    /**
+     * @dataProvider crossClientProvider
+     * @param array<string, Client> $client1 - alternately client which is from default branch and dev branch
+     * @param array<string, Client> $client2 - alternately client which is from default branch and dev branch
+     */
+    public function testCrossCrudFile(array $client1, array $client2): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $branch = $this->branches->createBranch($description);
+        [$client1, $client2] = $this->resolveBranchClients($client1, $branch['id'], $client2);
+
+        $filePath = __DIR__ . '/../../_data/files.upload.txt';
+        $file1Id = $client1->uploadFile($filePath, new FileUploadOptions());
+        $this->assertNotEmpty($client1->getFile($file1Id, new GetFileOptions()));
+
+        try {
+            $client2->getFile($file1Id, new GetFileOptions());
+            $this->fail('File should not exist');
+        } catch (ClientException $e) {
+            $this->assertEquals(404, $e->getCode());
+        }
+
+        $file2Id = $client2->uploadFile($filePath, new FileUploadOptions());
+        $this->assertNotEmpty($client2->getFile($file2Id, new GetFileOptions()));
+
+        $client1->deleteFile($file1Id);
+        try {
+            $client1->getFile($file1Id, new GetFileOptions());
+            $this->fail('File should not exist');
+        } catch (ClientException $e) {
+            $this->assertEquals(404, $e->getCode());
+        }
+
+        $this->assertNotEmpty($client2->getFile($file2Id, new GetFileOptions()));
+
+        $client2->deleteFile($file2Id);
+        try {
+            $client2->getFile($file2Id, new GetFileOptions());
+            $this->fail('File should not exist');
+        } catch (ClientException $e) {
+            $this->assertEquals(404, $e->getCode());
         }
     }
 }
