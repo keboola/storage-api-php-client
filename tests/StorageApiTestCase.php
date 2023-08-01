@@ -900,4 +900,36 @@ abstract class StorageApiTestCase extends ClientTestCase
             }
         }
     }
+
+    // generates client combinations in default branch and dev branch.
+    // These are alternated in order to test both sides that if
+    // I create a bucket in one branch it does not exist in the other, etc.
+    public function crossClientProvider(): Generator
+    {
+        yield 'privilege, branch' => [
+            ['defaultBranch' => $this->getDefaultBranchStorageApiClient()],
+            ['devBranch' => $this->getDeveloperStorageApiClient()],
+        ];
+
+        yield 'branch, privilege' => [
+            ['devBranch' => $this->getDeveloperStorageApiClient()],
+            ['defaultBranch' => $this->getDefaultBranchStorageApiClient()],
+        ];
+    }
+
+    protected function resolveBranchClients(array $client1, int $branchId, array $client2): array
+    {
+        if (array_key_first($client1) === 'devBranch') {
+            $client1 = reset($client1)->getBranchAwareClient($branchId);
+        } else {
+            $client1 = reset($client1);
+        }
+
+        if (array_key_first($client2) === 'devBranch') {
+            $client2 = reset($client2)->getBranchAwareClient($branchId);
+        } else {
+            $client2 = reset($client2);
+        }
+        return [$client1, $client2];
+    }
 }
