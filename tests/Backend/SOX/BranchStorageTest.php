@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend\SOX;
 
+use Generator;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client;
@@ -270,6 +271,98 @@ class BranchStorageTest extends StorageApiTestCase
         $this->assertCount(1, $bucketsInProd);
         $this->assertCount(1, $branchClient->listBuckets());
         $this->assertBranchEvent($branchClient, 'storage.bucketsListed', null, null);
+    }
+
+    /**
+     * @dataProvider crossClientProvider
+     * @param Client $client1 - alternately client which is from default branch and dev branch
+     * @param Client $client2 - alternately client which is from default branch and dev branch
+     */
+    public function testCrossCrudBucket(Client $client1, Client $client2): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = 'in.c-' . $testBucketName;
+        // cleanup test bucket
+        try {
+            $this->getDefaultBranchStorageApiClient()->dropBucket($bucketId, ['async' => true]);
+        } catch (ClientException $e) {
+            if ($e->getCode() !== 404) {
+                throw $e;
+            }
+        }
+
+        // test bucket does not exist in any branch
+        try {
+            $client1->getBucket($bucketId);
+            $this->fail('Bucket should not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+        }
+
+        try {
+            $client2->getBucket($bucketId);
+            $this->fail('Bucket should not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+        }
+
+        // create bucket test bucket and test that it exists
+        $client1->createBucket($testBucketName, self::STAGE_IN);
+        $this->assertNotEmpty($client1->getBucket($bucketId));
+
+        // test is exist only in one branch
+        try {
+            $client2->getBucket($bucketId);
+            $this->fail('Bucket should not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+        }
+
+        // create bucket in second branch
+        $client2->createBucket($testBucketName, self::STAGE_IN);
+        $this->assertNotEmpty($client2->getBucket($bucketId));
+
+        // drop bucket in first branch and test that it does not exist
+        $client1->dropBucket($bucketId, ['async' => true]);
+        try {
+            $client1->getBucket($bucketId);
+            $this->fail('Bucket should not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+        }
+
+        // but exist in second branch
+        $this->assertNotEmpty($client2->getBucket($bucketId));
+
+        $client2->dropBucket($bucketId, ['async' => true]);
+        try {
+            $client2->getBucket($bucketId);
+            $this->fail('Bucket should not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+        }
+    }
+
+    // generates client combinations in default branch and dev branch.
+    // These are alternated in order to test both sides that if
+    // I create a bucket in one branch it does not exist in the other, etc.
+    public function crossClientProvider(): Generator
+    {
+        $developerClient = $this->getDeveloperStorageApiClient();
+        $this->cleanupTestBranches($developerClient);
+        $branches = new DevBranches($developerClient);
+
+        $branch = $branches->createBranch($this->generateDescriptionForTestObject());
+        yield 'privilege, branch' => [
+            $this->getDefaultBranchStorageApiClient(),
+            $this->getDeveloperStorageApiClient()->getBranchAwareClient($branch['id']),
+        ];
+
+        yield 'branch, privilege' => [
+            $this->getDeveloperStorageApiClient()->getBranchAwareClient($branch['id']),
+            $this->getDefaultBranchStorageApiClient(),
+        ];
     }
 
     /**
