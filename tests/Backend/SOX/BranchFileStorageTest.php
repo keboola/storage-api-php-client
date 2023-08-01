@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Keboola\Test\Backend\SOX;
 
+use Aws\S3\Exception\S3Exception;
+use Aws\S3\S3Client;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\FileUploadOptions;
+use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\Test\StorageApiTestCase;
 use Throwable;
 
@@ -28,10 +31,10 @@ class BranchFileStorageTest extends StorageApiTestCase
         $filePath = __DIR__ . '/../../_data/files.upload.txt';
 
         $fileId = $branchClient->uploadFile($filePath, (new FileUploadOptions())->setNotify(false)->setFederationToken(true)->setIsPublic(false));
-        $file = $branchClient->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
+        $file = $branchClient->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
         $this->assertEquals(file_get_contents($filePath), file_get_contents($file['url']));
 
-        $s3Client = new \Aws\S3\S3Client([
+        $s3Client = new S3Client([
             'version' => 'latest',
             'region' => $file['region'],
             'credentials' => [
@@ -55,7 +58,7 @@ class BranchFileStorageTest extends StorageApiTestCase
                 'Key' => $file['s3Path']['key'],
             ]);
             $this->fail('File should not exist');
-        } catch (\Aws\S3\Exception\S3Exception $e) {
+        } catch (S3Exception $e) {
             $this->assertEquals(404, $e->getStatusCode());
         }
     }
