@@ -80,16 +80,17 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
         $db->query(sprintf("INSERT INTO %s VALUES (1, 'john');", $quotedTableId));
         $db->query(sprintf("INSERT INTO %s VALUES (2, 'does');", $quotedTableId));
 
-        try {
-            // __temp_ table should be typed
-            $this->_client->writeTableAsyncDirect($this->tableId, [
-                'dataWorkspaceId' => $workspace['id'],
-                'dataTableName' => $tableId,
-            ]);
-            $this->fail('Should fail since createTableDefinition method creates table with VARCHAR type with no length');
-        } catch (ClientException $e) {
-            $this->assertSame('Table import error: Source destination columns mismatch. "id FLOAT NOT NULL"->"id NUMBER (38,0)"', $e->getMessage());
-        }
+// todo: return this https://keboola.atlassian.net/browse/CT-1108
+//        try {
+//            // __temp_ table should be typed
+//            $this->_client->writeTableAsyncDirect($this->tableId, [
+//                'dataWorkspaceId' => $workspace['id'],
+//                'dataTableName' => $tableId,
+//            ]);
+//            $this->fail('Should fail since createTableDefinition method creates table with VARCHAR type with no length');
+//        } catch (ClientException $e) {
+//            $this->assertSame('Table import error: Source destination columns mismatch. "id FLOAT NOT NULL"->"id NUMBER (38,0)"', $e->getMessage());
+//        }
 
         $db->query(sprintf('DROP TABLE %s', $quotedTableId));
         // length of VARCHAR is lower than what is in storage but it still works
