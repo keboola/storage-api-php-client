@@ -47,6 +47,8 @@ class Workspaces
             $secret = 'password';
         }
 
+        unset($result['connection'][$secret]);
+
         return array_merge_recursive($result, [
             'connection' => [
                 $secret => $response[$secret],
