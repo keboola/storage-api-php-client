@@ -2656,4 +2656,47 @@ select 2, ARRAY_CONSTRUCT(1, 2, 3, NULL), TO_VARIANT(\'3.14\'), OBJECT_CONSTRUCT
         ));
         return $workspace;
     }
+
+    public function testEmptyZeroLength(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $tableDefinition = [
+            'name' => 'my-new-table-for_data_preview',
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'columnWithZeroLength',
+                    'definition' => [
+                        'type' => 'TIMESTAMP_NTZ',
+                        'length' => 0,
+                        'nullable' => true,
+                    ],
+                ],
+            ],
+        ];
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        $m = new Metadata($this->_client);
+        $columnMetadata = $m->listColumnMetadata("{$tableId}.columnWithZeroLength");
+
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.type',
+            'value' => 'TIMESTAMP_NTZ',
+        ], $columnMetadata[0], ['id', 'timestamp', 'provider']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.nullable',
+            'value' => '1',
+        ], $columnMetadata[1], ['id', 'timestamp', 'provider']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.basetype',
+            'value' => 'TIMESTAMP',
+        ], $columnMetadata[2], ['id', 'timestamp', 'provider']);
+        $this->assertArrayEqualsExceptKeys([
+            'key' => 'KBC.datatype.length',
+            'value' => '0',
+        ], $columnMetadata[3], ['id', 'timestamp', 'provider']);
+    }
+
 }
