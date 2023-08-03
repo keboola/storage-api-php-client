@@ -2698,5 +2698,4 @@ select 2, ARRAY_CONSTRUCT(1, 2, 3, NULL), TO_VARIANT(\'3.14\'), OBJECT_CONSTRUCT
             'value' => '0',
         ], $columnMetadata[3], ['id', 'timestamp', 'provider']);
     }
-
 }
