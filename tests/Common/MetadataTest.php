@@ -570,7 +570,7 @@ class MetadataTest extends StorageApiTestCase
         $metadataArray = $readMetadataApi->listTableMetadata($tableId);
         $this->assertCount(1, $metadataArray);
 
-        $metadata = reset($metadataArray);
+        $metadata = $metadataArray[0];
         $this->assertEquals($testMetadataValue, $metadata['value']);
 
         // delete
@@ -605,7 +605,7 @@ class MetadataTest extends StorageApiTestCase
         $metadataArray = $readMetadataApi->listTableMetadata($tableId);
         $this->assertCount(1, $metadataArray);
 
-        $metadata = reset($metadataArray);
+        $metadata = $metadataArray[0];
         $this->assertEquals($testMetadataValue, $metadata['value']);
 
         // new metadata
@@ -815,7 +815,7 @@ class MetadataTest extends StorageApiTestCase
         $metadataArray = $readMetadataApi->listColumnMetadata($columnId);
         $this->assertCount(1, $metadataArray);
 
-        $metadata = reset($metadataArray);
+        $metadata = $metadataArray[0];
         $this->assertEquals($testMetadataValue, $metadata['value']);
 
         // delete
@@ -850,7 +850,7 @@ class MetadataTest extends StorageApiTestCase
         $metadataArray = $readMetadataApi->listColumnMetadata($columnId);
         $this->assertCount(1, $metadataArray);
 
-        $metadata = reset($metadataArray);
+        $metadata = $metadataArray[0];
         $this->assertEquals($testMetadataValue, $metadata['value']);
 
         // new metadata
@@ -1206,7 +1206,7 @@ class MetadataTest extends StorageApiTestCase
         $metadataArray = $readMetadataApi->listBucketMetadata($bucketId);
         $this->assertCount(1, $metadataArray);
 
-        $metadata = reset($metadataArray);
+        $metadata = $metadataArray[0];
         $this->assertEquals($testMetadataValue, $metadata['value']);
 
         // delete
@@ -1241,7 +1241,7 @@ class MetadataTest extends StorageApiTestCase
         $metadataArray = $readMetadataApi->listBucketMetadata($bucketId);
         $this->assertCount(1, $metadataArray);
 
-        $metadata = reset($metadataArray);
+        $metadata = $metadataArray[0];
         $this->assertEquals($testMetadataValue, $metadata['value']);
 
         // new metadata
