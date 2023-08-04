@@ -35,6 +35,8 @@ services:
     <<: *base
     volumes:
       - ./:/code
+      - tools-cache:/tmp/tools-cache
+
   dev-xdebug:
     <<: *dev
     build:
@@ -46,3 +48,6 @@ networks:
   default:
     external:
       name: connection_api-tests
+
+volumes:
+  tools-cache:
