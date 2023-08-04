@@ -5765,7 +5765,7 @@ At least one of the `metadata` or `columnsMetadata` object is required. Using co
         + (object)
             + key (string, required)
             + value (string, required)
-    + columnsMetadata (optional) - Object of columns with column names as key (`"id"`)
+    + columnsMetadata (optional) - Object of columnsMetadata. Grouped by column, but indexed by int (indexing by columnName is deprecated)
         + `<columnName/int>` (required, array) - Array of metadata objects
             + (object)
                 + columnName (string, optional)
@@ -5788,7 +5788,7 @@ At least one of the `metadata` or `columnsMetadata` object is required. Using co
                 }
               ],
               "columnsMetadata": {
-                "id": [
+                "id/<intIndex>": [
                   {
                     "key": "some-key",
                     "value": "Some value",
