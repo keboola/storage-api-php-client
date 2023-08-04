@@ -23,7 +23,8 @@ class Metadata
 
     /**
      * @param string $bucketId
-     * @return array list of metadata
+     * @return array<int, array{id: string, provider:string, key: string, value: string, timestamp: string}> list of metadata
+     * @phpstan-impure
      */
     public function listBucketMetadata($bucketId)
     {
@@ -34,7 +35,8 @@ class Metadata
 
     /**
      * @param string $tableId
-     * @return array list of metadata
+     * @return array<int, array{id: string, provider:string, key: string, value: string, timestamp: string}> list of metadata
+     * @phpstan-impure
      */
     public function listTableMetadata($tableId)
     {
@@ -45,7 +47,8 @@ class Metadata
 
     /**
      * @param string $columnId  -- ex: "in.c-bucket.table.column"
-     * @return array list of metadata
+     * @return array<int, array{id: string, provider:string, key: string, value: string, timestamp: string}> list of metadata
+     * @phpstan-impure
      */
     public function listColumnMetadata($columnId)
     {
@@ -58,6 +61,7 @@ class Metadata
      * @param string $bucketId
      * @param string|int $metadataId
      * @return void
+     * @phpstan-impure
      */
     public function deleteBucketMetadata($bucketId, $metadataId)
     {
