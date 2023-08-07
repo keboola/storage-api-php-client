@@ -425,7 +425,7 @@ class BranchStorageTest extends StorageApiTestCase
             'provider' => 'test',
         ], $actualBranchTableMetadata[0]);
         $this->assertCount(1, $actualBranchTableMetadata);
-        $actualBranchColumnMetadata = $branchMetadataApi->listColumnMetadata($productionTableId . '.name');
+        $actualBranchColumnMetadata = $branchMetadataApi->listColumnMetadata($devTableId . '.name');
         $this->assertMetadataEquals([
             'key' => 'branch',
             'value' => 'dev',
@@ -441,8 +441,8 @@ class BranchStorageTest extends StorageApiTestCase
         // pulling should overwrite metadata in branch
         $branchClient->pullTableToBranch($productionTableId);
         // branch tables does not have metadata
-        $this->assertSame([], $branchMetadataApi->listTableMetadata($productionTableId));
-        $this->assertSame([], $branchMetadataApi->listColumnMetadata($productionTableId . '.name'));
+        $this->assertSame([], $branchMetadataApi->listTableMetadata($devTableId));
+        $this->assertSame([], $branchMetadataApi->listColumnMetadata($devTableId . '.name'));
 
         // set metadata in production
         $bucketProdMetadata = [
@@ -491,7 +491,7 @@ class BranchStorageTest extends StorageApiTestCase
 
         // branch table does not have metadata
         $this->assertSame([], $branchMetadataApi->listTableMetadata($devTableId));
-        $this->assertSame([], $branchMetadataApi->listColumnMetadata($productionTableId . '.name'));
+        $this->assertSame([], $branchMetadataApi->listColumnMetadata($devTableId . '.name'));
 
         $actualProdTableMetadata = $productionMetadataApi->listTableMetadata($devTableId);
         $this->assertCount(1, $actualProdTableMetadata);
@@ -522,7 +522,7 @@ class BranchStorageTest extends StorageApiTestCase
             'provider' => 'test',
         ], $actualBranchTableMetadata[0]);
         $this->assertCount(1, $actualBranchTableMetadata);
-        $actualBranchColumnMetadata = $branchMetadataApi->listColumnMetadata($productionTableId . '.name');
+        $actualBranchColumnMetadata = $branchMetadataApi->listColumnMetadata($devTableId . '.name');
         $this->assertCount(2, $actualBranchColumnMetadata);
         $this->assertMetadataEquals([
             'key' => 'branch',
