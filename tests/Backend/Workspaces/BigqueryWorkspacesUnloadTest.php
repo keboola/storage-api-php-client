@@ -333,4 +333,13 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             );
         }
     }
+
+    public function testCreateWorkspaceDoesNotContainCredentials(): void
+    {
+        $url = 'workspaces?' . http_build_query(['async' => true]);
+
+        $result = $this->_client->apiPostJson($url);
+        // check that credentials are not present in the response for BQ project
+        $this->assertArrayNotHasKey('credentials', $result['connection']);
+    }
 }

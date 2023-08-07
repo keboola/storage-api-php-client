@@ -339,4 +339,13 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         }
         return $columnAmountType;
     }
+
+    public function testCreateWorkspaceDoesNotContainPassword(): void
+    {
+        $url = 'workspaces?' . http_build_query(['async' => true]);
+
+        $result = $this->_client->apiPostJson($url);
+        // check that password is not present in the response for standard SNFLK project
+        $this->assertArrayNotHasKey('password', $result['connection']);
+    }
 }
