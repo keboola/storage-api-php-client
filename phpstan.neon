@@ -1,5 +1,5 @@
 parameters:
-    tmpDir: cache/.phpstan
+    tmpDir: /tmp/tools-cache/.phpstan
     parallel:
         processTimeout: 300.0
     checkMissingIterableValueType: false

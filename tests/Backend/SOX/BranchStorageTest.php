@@ -7,6 +7,8 @@ use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
+use Keboola\StorageApi\Metadata;
+use Keboola\StorageApi\Options\Metadata\TableMetadataUpdateOptions;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\MetadataUtils;
@@ -352,5 +354,185 @@ class BranchStorageTest extends StorageApiTestCase
         };
 
         $this->assertEventWithRetries($client, $assertEventCallback, $eventsQuery);
+    }
+
+    public function testCrossBranchStorageMetadata(): void
+    {
+        [$privilegedClient, $productionTableId, $branchClient, $devTableId] = $this->initResources();
+
+        $prodTable = $privilegedClient->getTable($productionTableId);
+        $bucketStringId = $prodTable['bucket']['id'];
+
+        $branchMetadataApi = new Metadata($branchClient);
+        $productionMetadataApi = new Metadata($privilegedClient);
+
+        assert($productionTableId === $devTableId);
+
+        $bucketDevMetadata = [
+            [
+                'key' => 'branch',
+                'value' => 'dev',
+            ],
+        ];
+        $tableDevMetadata = [
+            [
+                'key' => 'branch',
+                'value' => 'dev',
+            ],
+        ];
+        $columnsDevMetadata = [
+            'name' => [
+                [
+                    'key' => 'branch',
+                    'value' => 'dev',
+                ],
+            ],
+        ];
+
+        // set metadata on branch bucket
+        $branchMetadataApi->postBucketMetadata($bucketStringId, 'test', $bucketDevMetadata);
+
+        // set metadata on branch table
+        $branchMetadataApi->postTableMetadataWithColumns(new TableMetadataUpdateOptions(
+            $devTableId,
+            'test',
+            $tableDevMetadata,
+            $columnsDevMetadata
+        ));
+        $branchMetadataApi->postColumnMetadata($devTableId . '.name', 'test', [
+            [
+                'key' => 'branch-from-column-call',
+                'value' => 'dev',
+            ],
+        ]);
+
+        // production resources does not have metadata
+        $this->assertSame([], $productionMetadataApi->listBucketMetadata($bucketStringId));
+        $this->assertSame([], $productionMetadataApi->listTableMetadata($productionTableId));
+        $this->assertSame([], $productionMetadataApi->listColumnMetadata($productionTableId . '.name'));
+
+        // branch resources have metadata
+        $actualBranchBucketMetadata = $branchMetadataApi->listBucketMetadata($bucketStringId);
+        $this->assertMetadataEquals([
+            'key' => 'branch',
+            'value' => 'dev',
+            'provider' => 'test',
+        ], $actualBranchBucketMetadata[0]);
+        $actualBranchTableMetadata = $branchMetadataApi->listTableMetadata($devTableId);
+        $this->assertMetadataEquals([
+            'key' => 'branch',
+            'value' => 'dev',
+            'provider' => 'test',
+        ], $actualBranchTableMetadata[0]);
+        $this->assertCount(1, $actualBranchTableMetadata);
+        $actualBranchColumnMetadata = $branchMetadataApi->listColumnMetadata($devTableId . '.name');
+        $this->assertMetadataEquals([
+            'key' => 'branch',
+            'value' => 'dev',
+            'provider' => 'test',
+        ], $actualBranchColumnMetadata[0]);
+        $this->assertMetadataEquals([
+            'key' => 'branch-from-column-call',
+            'value' => 'dev',
+            'provider' => 'test',
+        ], $actualBranchColumnMetadata[1]);
+        $this->assertCount(2, $actualBranchColumnMetadata);
+
+        // pulling should overwrite metadata in branch
+        $branchClient->pullTableToBranch($productionTableId);
+        // branch tables does not have metadata
+        $this->assertSame([], $branchMetadataApi->listTableMetadata($devTableId));
+        $this->assertSame([], $branchMetadataApi->listColumnMetadata($devTableId . '.name'));
+
+        // set metadata in production
+        $bucketProdMetadata = [
+            [
+                'key' => 'branch',
+                'value' => 'prod',
+            ],
+        ];
+        $tableProdMetadata = [
+            [
+                'key' => 'branch',
+                'value' => 'prod',
+            ],
+        ];
+        $columnsProdMetadata = [
+            'name' => [
+                [
+                    'key' => 'branch',
+                    'value' => 'prod',
+                ],
+            ],
+        ];
+
+        $productionMetadataApi->postBucketMetadata($bucketStringId, 'test', $bucketProdMetadata);
+        $productionMetadataApi->postTableMetadataWithColumns(new TableMetadataUpdateOptions(
+            $productionTableId,
+            'test',
+            $tableProdMetadata,
+            $columnsProdMetadata
+        ));
+        $productionMetadataApi->postColumnMetadata($productionTableId . '.name', 'test', [
+            [
+                'key' => 'branch-from-column-call',
+                'value' => 'prod',
+            ],
+        ]);
+
+        // branch bucket still has the old metadata
+        $actualBranchBucketMetadata = $branchMetadataApi->listBucketMetadata($bucketStringId);
+        $this->assertCount(1, $actualBranchBucketMetadata);
+        $this->assertMetadataEquals([
+            'key' => 'branch',
+            'value' => 'dev',
+            'provider' => 'test',
+        ], $actualBranchBucketMetadata[0]);
+
+        // branch table does not have metadata
+        $this->assertSame([], $branchMetadataApi->listTableMetadata($devTableId));
+        $this->assertSame([], $branchMetadataApi->listColumnMetadata($devTableId . '.name'));
+
+        $actualProdTableMetadata = $productionMetadataApi->listTableMetadata($devTableId);
+        $this->assertCount(1, $actualProdTableMetadata);
+        $this->assertMetadataEquals([
+            'key' => 'branch',
+            'value' => 'prod',
+            'provider' => 'test',
+        ], $actualProdTableMetadata[0]);
+        $actualProdColumnMetadata = $productionMetadataApi->listColumnMetadata($productionTableId . '.name');
+        $this->assertCount(2, $actualProdColumnMetadata);
+        $this->assertMetadataEquals([
+            'key' => 'branch',
+            'value' => 'prod',
+            'provider' => 'test',
+        ], $actualProdColumnMetadata[0]);
+        $this->assertMetadataEquals([
+            'key' => 'branch-from-column-call',
+            'value' => 'prod',
+            'provider' => 'test',
+        ], $actualProdColumnMetadata[1]);
+
+        // pull should copy metadata
+        $branchClient->pullTableToBranch($productionTableId);
+        $actualBranchTableMetadata = $branchMetadataApi->listTableMetadata($devTableId);
+        $this->assertMetadataEquals([
+            'key' => 'branch',
+            'value' => 'prod',
+            'provider' => 'test',
+        ], $actualBranchTableMetadata[0]);
+        $this->assertCount(1, $actualBranchTableMetadata);
+        $actualBranchColumnMetadata = $branchMetadataApi->listColumnMetadata($devTableId . '.name');
+        $this->assertCount(2, $actualBranchColumnMetadata);
+        $this->assertMetadataEquals([
+            'key' => 'branch',
+            'value' => 'prod',
+            'provider' => 'test',
+        ], $actualBranchColumnMetadata[0]);
+        $this->assertMetadataEquals([
+            'key' => 'branch-from-column-call',
+            'value' => 'prod',
+            'provider' => 'test',
+        ], $actualBranchColumnMetadata[1]);
     }
 }
