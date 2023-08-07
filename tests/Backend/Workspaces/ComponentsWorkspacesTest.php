@@ -135,4 +135,16 @@ class ComponentsWorkspacesTest extends WorkspacesTestCase
 
         $this->assertArrayHasKey('mytable', array_flip($tableNames));
     }
+
+    public function testCreateConfigurationWorkspaceDoesNotContainPassword(): void
+    {
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+
+        $url = "components/{$componentId}/configs/{$configurationId}/workspaces?" . http_build_query(['async' => true]);
+
+        $result = $this->_client->apiPostJson($url);
+        // check that password is not present in the response
+        $this->assertArrayNotHasKey('password', $result['connection']);
+    }
 }
