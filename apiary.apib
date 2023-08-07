@@ -5754,7 +5754,7 @@ Sets multiple metadata for table and columns with one call. If the given key and
 for the table, the data will be updated with the new value and timestamp. All metadata associated
 with the table and columns are returned to the response.
 
-At least one of the `metadata` or `columnsMetadata` object is required. Indexing columnsMetadata is deprecated and not recommended. Please add column name to metadata object.
+At least one of the `metadata` or `columnsMetadata` object is required. Using columnName as index for `columnsMetadata` is deprecated and not recommended, rather index it by int. Please add columnName to metadata object as described in example.
 
 + Parameters
     + table_id (string, required) - Id of the table
@@ -5765,8 +5765,8 @@ At least one of the `metadata` or `columnsMetadata` object is required. Indexing
         + (object)
             + key (string, required)
             + value (string, required)
-    + columnsMetadata (optional) - Object of columns with column names as key (`"id"`)
-        + `<columnName>` (required, array) - Array of metadata objects
+    + columnsMetadata (optional) - Object of columnsMetadata. Grouped by column, but indexed by int (indexing by columnName is deprecated)
+        + `<columnName/int>` (required, array) - Array of metadata objects
             + (object)
                 + columnName (string, optional)
                 + key (string, required)
@@ -5788,10 +5788,11 @@ At least one of the `metadata` or `columnsMetadata` object is required. Indexing
                 }
               ],
               "columnsMetadata": {
-                "id": [
+                "id/<intIndex>": [
                   {
                     "key": "some-key",
-                    "value": "Some value"
+                    "value": "Some value",
+                    "columnName": "id",
                   }
                 ]
               }
