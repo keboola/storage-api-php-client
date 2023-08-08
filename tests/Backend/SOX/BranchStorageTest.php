@@ -275,12 +275,15 @@ class BranchStorageTest extends StorageApiTestCase
 
     /**
      * @dataProvider crossClientProvider
-     * @param Client $client1 - alternately client which is from default branch and dev branch
-     * @param Client $client2 - alternately client which is from default branch and dev branch
+     * @param array<string, Client> $client1 - alternately client which is from default branch and dev branch
+     * @param array<string, Client> $client2 - alternately client which is from default branch and dev branch
      */
-    public function testCrossCrudBucket(Client $client1, Client $client2): void
+    public function testCrossCrudBucket(array $client1, array $client2): void
     {
         $description = $this->generateDescriptionForTestObject();
+        $branch = $this->branches->createBranch($description);
+        [$client1, $client2] = $this->resolveBranchClients($client1, $branch['id'], $client2);
+
         $testBucketName = $this->getTestBucketName($description);
         $bucketId = 'in.c-' . $testBucketName;
         // cleanup test bucket
@@ -349,19 +352,14 @@ class BranchStorageTest extends StorageApiTestCase
     // I create a bucket in one branch it does not exist in the other, etc.
     public function crossClientProvider(): Generator
     {
-        $developerClient = $this->getDeveloperStorageApiClient();
-        $this->cleanupTestBranches($developerClient);
-        $branches = new DevBranches($developerClient);
-
-        $branch = $branches->createBranch($this->generateDescriptionForTestObject());
         yield 'privilege, branch' => [
-            $this->getDefaultBranchStorageApiClient(),
-            $this->getDeveloperStorageApiClient()->getBranchAwareClient($branch['id']),
+            ['defaultBranch' => $this->getDefaultBranchStorageApiClient()],
+            ['devBranch' => $this->getDeveloperStorageApiClient()],
         ];
 
         yield 'branch, privilege' => [
-            $this->getDeveloperStorageApiClient()->getBranchAwareClient($branch['id']),
-            $this->getDefaultBranchStorageApiClient(),
+            ['devBranch' => $this->getDeveloperStorageApiClient()],
+            ['defaultBranch' => $this->getDefaultBranchStorageApiClient()],
         ];
     }
 
@@ -627,5 +625,21 @@ class BranchStorageTest extends StorageApiTestCase
             'value' => 'prod',
             'provider' => 'test',
         ], $actualBranchColumnMetadata[1]);
+    }
+
+    private function resolveBranchClients(array $client1, int $branchId, array $client2): array
+    {
+        if (array_key_first($client1) === 'devBranch') {
+            $client1 = reset($client1)->getBranchAwareClient($branchId);
+        } else {
+            $client1 = reset($client1);
+        }
+
+        if (array_key_first($client2) === 'devBranch') {
+            $client2 = reset($client2)->getBranchAwareClient($branchId);
+        } else {
+            $client2 = reset($client2);
+        }
+        return [$client1, $client2];
     }
 }
