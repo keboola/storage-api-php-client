@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\Test\Backend\SOX;
 
-use DateTime;
 use Generator;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
@@ -102,20 +101,35 @@ class SOXTokensTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider developerAndReviewerClientProvider
-     * @dataProvider prodManagerClientProvider
+     * @dataProvider provideTokenRefreshFailingParams
      * in sox project nobody can refresh token which is not self
      */
-    public function testRefreshToken(Client $client): void
+    public function testRefreshTokenFails(Client $client, callable $setupToken): void
     {
         $tokens = new Tokens($client);
-        $token = $tokens->createToken((new TokenCreateOptions()));
+        $tokenId = $setupToken($this->generateDescriptionForTestObject());
 
         sleep(1);
 
         $this->expectExceptionCode(403);
         $this->expectExceptionMessage('You don\'t have access to the resource.');
-        $tokens->refreshToken($token['id']);
+        $tokens->refreshToken($tokenId);
+    }
+
+    /**
+     * @dataProvider provideTokenRefreshPassingParams
+     * in sox project nobody can refresh token which is not self
+     */
+    public function testRefreshTokenSucceeds(Client $client, callable $setupToken): void
+    {
+        $tokens = new Tokens($client);
+            $tokenId = $setupToken($this->generateDescriptionForTestObject());
+
+        sleep(1);
+
+        $token = $tokens->refreshToken($tokenId);
+        $this->assertArrayHasKey('token', $token);
+        $this->assertMatchesRegularExpression('~^[0-9]+-[0-9]+-[0-9A-Za-z]+$~', $token['token']);
     }
 
     public function testTokenSelfRefresh(): void
@@ -332,5 +346,73 @@ class SOXTokensTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertEquals(403, $e->getCode());
         }
+    }
+
+    /**
+     * @return iterable<array{Client, callable(string): string}>
+     */
+    public function provideTokenRefreshFailingParams(): iterable
+    {
+        yield 'developer cannot refresh can create jobs token' => [
+            $this->getDeveloperStorageApiClient(),
+            function ($description) {
+                $prodManagerClient = $this->getDefaultClient();
+                $prodManagerTokens = new Tokens($prodManagerClient);
+                $token = $prodManagerTokens->createToken((new TokenCreateOptions())->setCanCreateJobs(true)->setDescription($description));
+                return $token['id'];
+            },
+        ];
+        yield 'reviewer cannot refresh can create jobs token' => [
+            $this->getDeveloperStorageApiClient(),
+            function ($description) {
+                $prodManagerClient = $this->getDefaultClient();
+                $prodManagerTokens = new Tokens($prodManagerClient);
+                $token = $prodManagerTokens->createToken((new TokenCreateOptions())->setCanCreateJobs(true)->setDescription($description));
+                return $token['id'];
+            },
+        ];
+        yield 'prodManager cannot refresh normal token' => [
+            $this->getDefaultClient(),
+            function ($description) {
+                $devClient = $this->getDeveloperStorageApiClient();
+                $devTokens = new Tokens($devClient);
+                $token = $devTokens->createToken((new TokenCreateOptions())->setDescription($description));
+                return $token['id'];
+            },
+        ];
+    }
+
+    /**
+     * @return iterable<array{Client, callable(string): string}>
+     */
+    public function provideTokenRefreshPassingParams(): iterable
+    {
+        yield 'developer can refresh normal token' => [
+            $this->getDeveloperStorageApiClient(),
+            function ($description) {
+                $prodManagerClient = $this->getDeveloperStorageApiClient();
+                $prodManagerTokens = new Tokens($prodManagerClient);
+                $token = $prodManagerTokens->createToken((new TokenCreateOptions())->setCanCreateJobs(false)->setDescription($description));
+                return $token['id'];
+            },
+        ];
+        yield 'reviewer can refresh normal token' => [
+            $this->getDeveloperStorageApiClient(),
+            function ($description) {
+                $prodManagerClient = $this->getDeveloperStorageApiClient();
+                $prodManagerTokens = new Tokens($prodManagerClient);
+                $token = $prodManagerTokens->createToken((new TokenCreateOptions())->setCanCreateJobs(false)->setDescription($description));
+                return $token['id'];
+            },
+        ];
+        yield 'prodManager can refresh can create jobs token' => [
+            $this->getDefaultClient(),
+            function ($description) {
+                $devClient = $this->getDefaultClient();
+                $devTokens = new Tokens($devClient);
+                $token = $devTokens->createToken((new TokenCreateOptions())->setCanCreateJobs(true)->setDescription($description));
+                return $token['id'];
+            },
+        ];
     }
 }
