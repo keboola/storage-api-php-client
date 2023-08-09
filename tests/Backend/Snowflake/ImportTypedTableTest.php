@@ -158,6 +158,45 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
         );
     }
 
+    /**
+     * @dataProvider importEmptyValuesProvider
+     */
+    public function testImportEmptyValuesOnNotNullCol(string $loadFile, array $expectedPreview): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $payload = [
+            'name' => 'with-empty',
+            'primaryKeysNames' => [],
+            'columns' => [
+                ['name' => 'col', 'definition' => ['type' => 'NUMBER']],
+                ['name' => 'str', 'definition' => ['type' => 'VARCHAR', 'nullable' => false]],
+            ],
+        ];
+        $tableId = $this->_client->createTableDefinition($bucketId, $payload);
+
+        $csvFile = new CsvFile($loadFile);
+        $this->_client->writeTableAsync(
+            $tableId,
+            $csvFile,
+            [
+                'incremental' => false,
+            ]
+        );
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertNotEmpty($table['dataSizeBytes']);
+        $this->assertEquals($csvFile->getHeader(), $table['columns']);
+
+        /** @var array $data */
+        $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
+
+        $this->assertSame(
+            $expectedPreview,
+            $data['rows']
+        );
+    }
+
     public function importEmptyValuesProvider(): Generator
     {
         yield 'empty values in quotes' => [
