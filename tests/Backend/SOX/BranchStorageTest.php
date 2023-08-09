@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend\SOX;
 
+use Generator;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client;
@@ -273,6 +274,96 @@ class BranchStorageTest extends StorageApiTestCase
     }
 
     /**
+     * @dataProvider crossClientProvider
+     * @param array<string, Client> $client1 - alternately client which is from default branch and dev branch
+     * @param array<string, Client> $client2 - alternately client which is from default branch and dev branch
+     */
+    public function testCrossCrudBucket(array $client1, array $client2): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $branch = $this->branches->createBranch($description);
+        [$client1, $client2] = $this->resolveBranchClients($client1, $branch['id'], $client2);
+
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = 'in.c-' . $testBucketName;
+        // cleanup test bucket
+        try {
+            $this->getDefaultBranchStorageApiClient()->dropBucket($bucketId, ['async' => true]);
+        } catch (ClientException $e) {
+            if ($e->getCode() !== 404) {
+                throw $e;
+            }
+        }
+
+        // test bucket does not exist in any branch
+        try {
+            $client1->getBucket($bucketId);
+            $this->fail('Bucket should not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+        }
+
+        try {
+            $client2->getBucket($bucketId);
+            $this->fail('Bucket should not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+        }
+
+        // create bucket test bucket and test that it exists
+        $client1->createBucket($testBucketName, self::STAGE_IN);
+        $this->assertNotEmpty($client1->getBucket($bucketId));
+
+        // test is exist only in one branch
+        try {
+            $client2->getBucket($bucketId);
+            $this->fail('Bucket should not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+        }
+
+        // create bucket in second branch
+        $client2->createBucket($testBucketName, self::STAGE_IN);
+        $this->assertNotEmpty($client2->getBucket($bucketId));
+
+        // drop bucket in first branch and test that it does not exist
+        $client1->dropBucket($bucketId, ['async' => true]);
+        try {
+            $client1->getBucket($bucketId);
+            $this->fail('Bucket should not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+        }
+
+        // but exist in second branch
+        $this->assertNotEmpty($client2->getBucket($bucketId));
+
+        $client2->dropBucket($bucketId, ['async' => true]);
+        try {
+            $client2->getBucket($bucketId);
+            $this->fail('Bucket should not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+        }
+    }
+
+    // generates client combinations in default branch and dev branch.
+    // These are alternated in order to test both sides that if
+    // I create a bucket in one branch it does not exist in the other, etc.
+    public function crossClientProvider(): Generator
+    {
+        yield 'privilege, branch' => [
+            ['defaultBranch' => $this->getDefaultBranchStorageApiClient()],
+            ['devBranch' => $this->getDeveloperStorageApiClient()],
+        ];
+
+        yield 'branch, privilege' => [
+            ['devBranch' => $this->getDeveloperStorageApiClient()],
+            ['defaultBranch' => $this->getDefaultBranchStorageApiClient()],
+        ];
+    }
+
+    /**
      * @return array{Client, string, BranchAwareClient, string}
      */
     private function initResources(): array
@@ -534,5 +625,21 @@ class BranchStorageTest extends StorageApiTestCase
             'value' => 'prod',
             'provider' => 'test',
         ], $actualBranchColumnMetadata[1]);
+    }
+
+    private function resolveBranchClients(array $client1, int $branchId, array $client2): array
+    {
+        if (array_key_first($client1) === 'devBranch') {
+            $client1 = reset($client1)->getBranchAwareClient($branchId);
+        } else {
+            $client1 = reset($client1);
+        }
+
+        if (array_key_first($client2) === 'devBranch') {
+            $client2 = reset($client2)->getBranchAwareClient($branchId);
+        } else {
+            $client2 = reset($client2);
+        }
+        return [$client1, $client2];
     }
 }
