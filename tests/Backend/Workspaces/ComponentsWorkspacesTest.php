@@ -140,6 +140,13 @@ class ComponentsWorkspacesTest extends WorkspacesTestCase
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
+        // create configuration
+        $components = new Components($this->_client);
+        $components->addConfiguration((new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configurationId)
+            ->setName('Main')
+            ->setDescription('some desc'));
 
         $url = "components/{$componentId}/configs/{$configurationId}/workspaces?" . http_build_query(['async' => true]);
 
