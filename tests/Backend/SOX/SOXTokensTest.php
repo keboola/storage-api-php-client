@@ -13,6 +13,24 @@ use Keboola\Test\StorageApiTestCase;
 
 class SOXTokensTest extends StorageApiTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        foreach ([$this->getDefaultClient(), $this->getDeveloperStorageApiClient()] as $client) {
+            $tokensApi = new Tokens($client);
+            $tokens = $tokensApi->listTokens();
+            foreach ($tokens as $token) {
+                if (strpos($token['description'], $this->generateDescriptionForTestObject()) === 0) {
+                    try {
+                        $tokensApi->dropToken($token['id']);
+                    } catch (ClientException $e) {
+                        // ignore - it may be not accessible to this client
+                    }
+                }
+            }
+        }
+    }
+
     private function getDefaultBranchTokenId(): int
     {
         [, $tokenId,] = explode('-', STORAGE_API_DEFAULT_BRANCH_TOKEN);
@@ -76,7 +94,7 @@ class SOXTokensTest extends StorageApiTestCase
             // if can manage tokens create new non admin token and test if it has hidden token
             $tokens->createToken(
                 (new TokenCreateOptions())
-                    ->setDescription('Some description')
+                    ->setDescription($this->generateDescriptionForTestObject()),
             );
         }
         $tokenList = $tokens->listTokens();
@@ -123,7 +141,7 @@ class SOXTokensTest extends StorageApiTestCase
     public function testRefreshTokenSucceeds(Client $client, callable $setupToken): void
     {
         $tokens = new Tokens($client);
-            $tokenId = $setupToken($this->generateDescriptionForTestObject());
+        $tokenId = $setupToken($this->generateDescriptionForTestObject());
 
         sleep(1);
 
@@ -186,7 +204,10 @@ class SOXTokensTest extends StorageApiTestCase
     public function testTokenSelfRefresh(): void
     {
         $tokens = new Tokens($this->getDefaultClient());
-        $token = $tokens->createToken((new TokenCreateOptions()));
+        $token = $tokens->createToken(
+            (new TokenCreateOptions())
+                ->setDescription($this->generateDescriptionForTestObject()),
+        );
 
         $client = $this->getClientForToken($token['token']);
         $refreshedToken = (new Tokens($client))->refreshToken($token['id']);
@@ -228,7 +249,10 @@ class SOXTokensTest extends StorageApiTestCase
             $this->expectExceptionMessage('You don\'t have access to the resource.');
             $this->expectExceptionCode(403);
         }
-        $newToken = $tokens->createToken(new TokenCreateOptions());
+        $newToken = $tokens->createToken(
+            (new TokenCreateOptions())
+                ->setDescription($this->generateDescriptionForTestObject()),
+        );
 
         $this->expectNotToPerformAssertions();
         $newTokenClient = $this->getClientForToken($newToken['token']);
@@ -241,8 +265,8 @@ class SOXTokensTest extends StorageApiTestCase
         $this->assertManageTokensPresent();
 
         $options = (new TokenCreateOptions())
-            ->setDescription('My test token')
-            ->setCanReadAllFileUploads(true)
+            ->setDescription($this->generateDescriptionForTestObject())
+        ->setCanReadAllFileUploads(true)
             ->setCanManageBuckets(true)
             ->setCanPurgeTrash(true)
             ->setExpiresIn(360)
@@ -294,7 +318,7 @@ class SOXTokensTest extends StorageApiTestCase
         $this->assertManageTokensPresent();
 
         $options = (new TokenCreateOptions())
-            ->setDescription('My test token')
+            ->setDescription($this->generateDescriptionForTestObject())
             ->setCanReadAllFileUploads(true)
             ->setCanManageBuckets(true)
             ->setCanPurgeTrash(true)
@@ -316,7 +340,7 @@ class SOXTokensTest extends StorageApiTestCase
         $this->assertTrue($token['canPurgeTrash']);
         $this->assertTrue($token['canManageProtectedDefaultBranch']);
 
-        $this->assertEquals('My test token', $token['description']);
+        $this->assertEquals($this->generateDescriptionForTestObject(), $token['description']);
 
         $this->assertArrayHasKey('bucketPermissions', $token);
     }
@@ -326,7 +350,7 @@ class SOXTokensTest extends StorageApiTestCase
         $this->assertManageTokensPresent();
 
         $options = (new TokenCreateOptions())
-            ->setDescription('My test token')
+            ->setDescription($this->generateDescriptionForTestObject())
             ->setCanReadAllFileUploads(true)
             ->setCanManageBuckets(true)
             ->setCanPurgeTrash(true)
@@ -359,7 +383,11 @@ class SOXTokensTest extends StorageApiTestCase
         // only productionManager can create token with canCreateJobs flag
         $prodManagerClient = $this->getDefaultClient();
         $prodManagerTokens = new Tokens($prodManagerClient);
-        $tokenWithCreateJobsFlag = $prodManagerTokens->createToken((new TokenCreateOptions())->setCanCreateJobs(true));
+        $tokenWithCreateJobsFlag = $prodManagerTokens->createToken(
+            (new TokenCreateOptions())
+                ->setCanCreateJobs(true)
+                ->setDescription($this->generateDescriptionForTestObject() . '-can create jobs'),
+        );
         $clientWithCreateJobsFlag = new Client([
             'token' => $tokenWithCreateJobsFlag['token'],
             'url' => STORAGE_API_URL,
@@ -367,7 +395,7 @@ class SOXTokensTest extends StorageApiTestCase
         $createJobsFlagTokens = new Tokens($clientWithCreateJobsFlag);
         $priviledgedToken = $createJobsFlagTokens->createTokenPrivilegedInProtectedDefaultBranch(
             (new TokenCreateOptions())
-                ->setDescription('My priviledged token')
+                ->setDescription($this->generateDescriptionForTestObject() . '-privileged')
                 ->setCanReadAllFileUploads(true)
                 ->setCanManageBuckets(true)
                 ->setCanPurgeTrash(true)
@@ -377,7 +405,7 @@ class SOXTokensTest extends StorageApiTestCase
 
         $this->assertTrue($priviledgedToken['canManageProtectedDefaultBranch']);
         $this->assertFalse($priviledgedToken['isMasterToken']);
-        $this->assertSame('My priviledged token', $priviledgedToken['description']);
+        $this->assertSame($this->generateDescriptionForTestObject() . '-privileged', $priviledgedToken['description']);
     }
 
     /**
@@ -387,12 +415,20 @@ class SOXTokensTest extends StorageApiTestCase
     {
         // only productionManager can create token with canCreateJobs flag
         $tokens = new Tokens($client);
-        $createdTokenWithoutCanCreateJobs = $tokens->createToken((new TokenCreateOptions())->setCanCreateJobs(false));
+        $createdTokenWithoutCanCreateJobs = $tokens->createToken(
+            (new TokenCreateOptions())
+                ->setCanCreateJobs(false)
+                ->setDescription($this->generateDescriptionForTestObject()),
+        );
         $this->assertFalse($createdTokenWithoutCanCreateJobs['canCreateJobs']);
         $this->assertFalse($createdTokenWithoutCanCreateJobs['canManageProtectedDefaultBranch']);
 
         try {
-            $tokens->createToken((new TokenCreateOptions())->setCanCreateJobs(true));
+            $tokens->createToken(
+                (new TokenCreateOptions())
+                    ->setCanCreateJobs(true)
+                    ->setDescription($this->generateDescriptionForTestObject()),
+            );
             $this->fail('Only productionManager can create token with canCreateJobs flag');
         } catch (ClientException $e) {
             $this->assertEquals(403, $e->getCode());
