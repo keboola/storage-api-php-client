@@ -39,19 +39,19 @@ class SOXTokensTest extends StorageApiTestCase
 
     public function tokensProvider(): Generator
     {
-        yield 'nobody can see token (privileged)' => [
+        yield 'privileged' => [
             $this->getDefaultBranchStorageApiClient(),
         ];
-        yield 'nobody can see token (productionManager)' => [
+        yield 'productionManager' => [
             $this->getDefaultClient(),
         ];
-        yield 'nobody can see token (developer)' => [
+        yield 'developer' => [
             $this->getDeveloperStorageApiClient(),
         ];
-        yield 'nobody can see token (reviewer)' => [
+        yield 'reviewer' => [
             $this->getReviewerStorageApiClient(),
         ];
-        yield 'nobody can see token (readOnly)' => [
+        yield 'readOnly' => [
             $this->getReadOnlyStorageApiClient(),
         ];
     }
