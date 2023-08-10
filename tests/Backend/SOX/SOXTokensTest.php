@@ -132,6 +132,57 @@ class SOXTokensTest extends StorageApiTestCase
         $this->assertMatchesRegularExpression('~^[0-9]+-[0-9]+-[0-9A-Za-z]+$~', $token['token']);
     }
 
+    public function testWhoCanRefreshTokenWithCanCreateJobs(): void
+    {
+        $prodManTokensApi = new Tokens($this->getDefaultClient());
+        $token = $prodManTokensApi->createToken(
+            (new TokenCreateOptions())
+                ->setCanCreateJobs(true)
+                ->setDescription($this->generateDescriptionForTestObject()),
+        );
+
+        $refreshedToken = $prodManTokensApi->refreshToken($token['id']);
+        $this->assertSame($token['id'], $refreshedToken['id']);
+        $this->assertNotSame($token['token'], $refreshedToken['token']);
+
+        $canCreateJobs = $this->getClientForToken($refreshedToken['token']);
+        $this->assertTrue($canCreateJobs->verifyToken()['canCreateJobs']);
+        $canCreateJobsTokensApi = new Tokens($canCreateJobs);
+        $refreshedTokenSecond = $canCreateJobsTokensApi->refreshToken($refreshedToken['id']);
+
+        $this->assertSame($refreshedToken['id'], $refreshedTokenSecond['id']);
+        $this->assertNotSame($refreshedToken['token'], $refreshedTokenSecond['token']);
+
+        foreach ([$this->getDeveloperStorageApiClient(), $this->getReviewerStorageApiClient()] as $nonPmClient) {
+            $nonPmTokensApi = new Tokens($nonPmClient);
+
+            try {
+                $nonPmTokensApi->refreshToken($refreshedTokenSecond['id']);
+                $this->fail('Developer should not be able to refresh token with canCreateJobs');
+            } catch (ClientException $e) {
+                $this->assertSame(403, $e->getCode());
+                $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
+            }
+
+            $noCanCreateJobsToken = $nonPmTokensApi->createToken(
+                (new TokenCreateOptions())
+                    ->setCanCreateJobs(false)
+                    ->setDescription($this->generateDescriptionForTestObject()),
+            );
+            $noCanCreateJobsTokenRefreshed = $nonPmTokensApi->refreshToken($noCanCreateJobsToken['id']);
+
+            $this->assertSame($noCanCreateJobsToken['id'], $noCanCreateJobsTokenRefreshed['id']);
+            $this->assertNotSame($noCanCreateJobsToken['token'], $noCanCreateJobsTokenRefreshed['token']);
+            try {
+                $prodManTokensApi->refreshToken($noCanCreateJobsToken['id']);
+                $this->fail('Prod manager should not be able to refresh token without canCreateJobs');
+            } catch (ClientException $e) {
+                $this->assertSame(403, $e->getCode());
+                $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
+            }
+        }
+    }
+
     public function testTokenSelfRefresh(): void
     {
         $tokens = new Tokens($this->getDefaultClient());
