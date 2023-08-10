@@ -329,47 +329,23 @@ class Components
         );
     }
 
-    /**
-     * @param int $id
-     * @return array
-     */
-    public function resetWorkspacePassword($id)
-    {
-        $result = $this->client->apiPostJson("workspaces/{$id}/password");
-        assert(is_array($result));
-        return $result;
-    }
-
     public function createConfigurationWorkspace($componentId, $configurationId, array $options = [], bool $async = false)
     {
         $url = $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/workspaces";
         if ($async) {
             $url .= '?' . http_build_query(['async' => true]);
         }
-        $result = $this->client->apiPostJson(
+        $workspaceResponse = $this->client->apiPostJson(
             $url,
             $options,
             true,
             [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true]
         );
-        assert(is_array($result));
+        assert(is_array($workspaceResponse));
 
-        $response = $this->resetWorkspacePassword($result['id']);
-        if ($result['type'] === 'file') {
-            $secret = 'connectionString';
-        } elseif ($result['connection']['backend'] === 'bigquery') {
-            $secret = 'credentials';
-        } else {
-            $secret = 'password';
-        }
-
-        unset($result['connection'][$secret]);
-
-        return array_merge_recursive($result, [
-            'connection' => [
-                $secret => $response[$secret],
-            ],
-        ]);
+        $ws = new Workspaces($this->client);
+        $resetPasswordResponse = $ws->resetWorkspacePassword($workspaceResponse['id']);
+        return Workspaces::addCredentialsToWorkspaceResponse($workspaceResponse, $resetPasswordResponse);
     }
 
     public function addConfigurationMetadata(ConfigurationMetadata $options)
