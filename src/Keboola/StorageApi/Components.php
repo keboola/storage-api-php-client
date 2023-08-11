@@ -335,12 +335,17 @@ class Components
         if ($async) {
             $url .= '?' . http_build_query(['async' => true]);
         }
-        return $this->client->apiPostJson(
+        $workspaceResponse = $this->client->apiPostJson(
             $url,
             $options,
             true,
             [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true]
         );
+        assert(is_array($workspaceResponse));
+
+        $ws = new Workspaces($this->client);
+        $resetPasswordResponse = $ws->resetWorkspacePassword($workspaceResponse['id']);
+        return Workspaces::addCredentialsToWorkspaceResponse($workspaceResponse, $resetPasswordResponse);
     }
 
     public function addConfigurationMetadata(ConfigurationMetadata $options)
