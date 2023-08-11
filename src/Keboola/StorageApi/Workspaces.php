@@ -35,25 +35,11 @@ class Workspaces
             $requestOptions = [];
         }
 
-        $result = $this->client->apiPostJson($url, $options, true, $requestOptions);
-        assert(is_array($result));
+        $workspaceResponse = $this->client->apiPostJson($url, $options, true, $requestOptions);
+        assert(is_array($workspaceResponse));
 
-        $response = $this->resetWorkspacePassword($result['id']);
-        if ($result['type'] === 'file') {
-            $secret = 'connectionString';
-        } elseif ($result['connection']['backend'] === 'bigquery') {
-            $secret = 'credentials';
-        } else {
-            $secret = 'password';
-        }
-
-        unset($result['connection'][$secret]);
-
-        return array_merge_recursive($result, [
-            'connection' => [
-                $secret => $response[$secret],
-            ],
-        ]);
+        $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
+        return Workspaces::addCredentialsToWorkspaceResponse($workspaceResponse, $resetPasswordResponse);
     }
 
     /**
@@ -144,5 +130,24 @@ class Workspaces
         /** @var array{id: int} $job */
         $job = $this->client->apiPostJson("workspaces/{$id}/load-clone", $options, false);
         return (int) $job['id'];
+    }
+
+    public static function addCredentialsToWorkspaceResponse(array $workspaceResponse, array $resetPasswordResponse): array
+    {
+        if ($workspaceResponse['type'] === 'file') {
+            $secret = 'connectionString';
+        } elseif ($workspaceResponse['connection']['backend'] === 'bigquery') {
+            $secret = 'credentials';
+        } else {
+            $secret = 'password';
+        }
+
+        unset($workspaceResponse['connection'][$secret]);
+
+        return array_merge_recursive($workspaceResponse, [
+            'connection' => [
+                $secret => $resetPasswordResponse[$secret],
+            ],
+        ]);
     }
 }
