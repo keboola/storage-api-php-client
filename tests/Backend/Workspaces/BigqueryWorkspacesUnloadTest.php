@@ -328,7 +328,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $this->fail('should fail');
         } catch (ClientException $e) {
             $this->assertEquals(
-                'Loading data into workspaces is only supported for snowflake, redshift, synapse, exasol, abs.',
+                'Backend "bigquery" does not support: "Other types of loading than view".',
                 $e->getMessage()
             );
         }
