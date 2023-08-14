@@ -11,13 +11,12 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Workspaces;
-use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnection;
-use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
+use Keboola\Test\Backend\Workspaces\Backend\BigqueryWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Throwable;
 
-class SOXWorkspaceSnowflakeTest extends SOXWorkspaceTestCase
+class SOXWorkspaceTest extends SOXWorkspaceTestCase
 {
     /** @var BranchAwareClient|Client */
     private $testClient;
@@ -41,7 +40,7 @@ class SOXWorkspaceSnowflakeTest extends SOXWorkspaceTestCase
         assert($workspaceSapiClient instanceof BranchAwareClient);
         $workspaces = new Workspaces($workspaceSapiClient);
         $workspace = $this->initTestWorkspace($this->testClient, null, [], true);
-        $backend = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace, true);
         $importFile = __DIR__ . '/../../_data/languages.csv';
         $tableId = $this->testClient->createTableAsync(
             $bucketId,
@@ -63,33 +62,50 @@ class SOXWorkspaceSnowflakeTest extends SOXWorkspaceTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         $tableRef = $backend->getTableReflection('languages');
-        $viewRef = $backend->getViewReflection('languages');
-        // View definition should be available
-        self::assertTrue($tableRef->isView());
-        self::assertStringStartsWith('CREATE VIEW', $viewRef->getViewDefinition());
-        self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
-        self::assertCount(5, $backend->fetchAll('languages'));
+        if (!$backend instanceof BigqueryWorkspaceBackend) { // todo: bq view reflection
+            $viewRef = $backend->getViewReflection('languages');
+            // View definition should be available
+            //@phpstan-ignore-next-line  should be part of interface
+            self::assertTrue($tableRef->isView());
+            //@phpstan-ignore-next-line  should be part of interface
+            self::assertStringStartsWith('CREATE VIEW', $viewRef->getViewDefinition());
+            self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
+            self::assertCount(5, $backend->fetchAll('languages'));
+        }
 
         // test if view select fail after column add
         $this->testClient->addTableColumn($tableId, 'newGuy');
         $tableRef = $backend->getTableReflection('languages');
         self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
-        try {
-            $backend->fetchAll('languages');
-            $this->fail('Must throw exception view columns mismatch');
-        } catch (Throwable $e) {
-            $this->assertStringContainsString('declared 3 column(s), but view query produces 4 column(s).', $e->getMessage());
+
+        if ($backend instanceof BigqueryWorkspaceBackend) {
+            // in BQ view is just point and it will work after source table change
+            $rows = $backend->fetchAll('languages');
+            $this->assertCount(5, $rows);
+        } else {
+            try {
+                $backend->fetchAll('languages');
+                $this->fail('Must throw exception view columns mismatch');
+            } catch (Throwable $e) {
+                $this->assertStringContainsString('declared 3 column(s), but view query produces 4 column(s).', $e->getMessage());
+            }
         }
 
         // test that doesn't work after column remove
         $this->testClient->deleteTableColumn($tableId, 'name');
         $tableRef = $backend->getTableReflection('languages');
         self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
-        try {
-            $backend->fetchAll('languages');
-            $this->fail('Must throw exception view columns mismatch');
-        } catch (Throwable $e) {
-            $this->assertStringContainsString('View columns mismatch with view definition for view \'languages\'', $e->getMessage());
+        if ($backend instanceof BigqueryWorkspaceBackend) {
+            // in BQ view is just point and it will work after source table change
+            $rows = $backend->fetchAll('languages');
+            $this->assertCount(5, $rows);
+        } else {
+            try {
+                $backend->fetchAll('languages');
+                $this->fail('Must throw exception view columns mismatch');
+            } catch (Throwable $e) {
+                $this->assertStringContainsString('View columns mismatch with view definition for view \'languages\'', $e->getMessage());
+            }
         }
 
         // overwrite view and test if it works
@@ -98,17 +114,20 @@ class SOXWorkspaceSnowflakeTest extends SOXWorkspaceTestCase
         self::assertEquals(['id', '_timestamp', 'newGuy'], $tableRef->getColumnsNames());
         self::assertCount(5, $backend->fetchAll('languages'));
 
-        // run load without preserve to drop the view
-        $workspaces->loadWorkspaceData($workspace['id'], [
-            'input' => [
-                [
-                    'source' => $tableId,
-                    'destination' => 'dummy',
-                    'sourceBranchId' => $workspaceSapiClient->getCurrentBranchId(),
+        if (!$backend instanceof BigqueryWorkspaceBackend) {
+            // todo: preserve not supported in driver
+            // run load without preserve to drop the view
+            $workspaces->loadWorkspaceData($workspace['id'], [
+                'input' => [
+                    [
+                        'source' => $tableId,
+                        'destination' => 'dummy',
+                        'sourceBranchId' => $workspaceSapiClient->getCurrentBranchId(),
+                    ],
                 ],
-            ],
-        ]);
-        $backend->dropTable('dummy');
+            ]);
+            $backend->dropTable('dummy');
+        }
 
         $this->testClient->dropTable($tableId);
         $tableId = $this->testClient->createTableAsync(
@@ -172,10 +191,14 @@ class SOXWorkspaceSnowflakeTest extends SOXWorkspaceTestCase
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             self::fail('Incremental load to view cannot work.');
         } catch (ClientException $e) {
-            // this is expected edge case, view has also _timestamp col
-            // which is ignored when validation incremental load
-            // https://keboola.atlassian.net/browse/SOX-76
-            self::assertStringStartsWith('Some columns are missing in source table', $e->getMessage());
+            if ($backend instanceof BigqueryWorkspaceBackend) {
+                self::assertSame('Backend "bigquery" does not support: "Other types of loading than view".', $e->getMessage());
+            } else {
+                // this is expected edge case, view has also _timestamp col
+                // which is ignored when validation incremental load
+                // https://keboola.atlassian.net/browse/SOX-76
+                self::assertStringStartsWith('Some columns are missing in source table', $e->getMessage());
+            }
         }
 
         // do incremental load from file to source table
@@ -200,18 +223,30 @@ class SOXWorkspaceSnowflakeTest extends SOXWorkspaceTestCase
                 ],
             ],
         ];
-        $workspaces->loadWorkspaceData($workspace2['id'], $options);
-        $this->testClient->writeTableAsyncDirect(
-            $tableId,
-            [
-                'dataWorkspaceId' => $workspace2['id'],
-                'dataObject' => 'languages',
-            ],
-        );
-        // test view is still working
-        $tableRef = $backend->getTableReflection('languages');
-        self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
-        self::assertCount(10, $backend->fetchAll('languages'));
+        try {
+            $workspaces->loadWorkspaceData($workspace2['id'], $options);
+            $this->testClient->writeTableAsyncDirect(
+                $tableId,
+                [
+                    'dataWorkspaceId' => $workspace2['id'],
+                    'dataObject' => 'languages',
+                ],
+            );
+
+            // test view is still working
+            $tableRef = $backend->getTableReflection('languages');
+            self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
+            self::assertCount(10, $backend->fetchAll('languages'));
+            if ($backend instanceof BigqueryWorkspaceBackend) {
+                $this->fail('BigQuery should throw exception');
+            }
+        } catch (ClientException $e) {
+            if ($backend instanceof BigqueryWorkspaceBackend) {
+                self::assertSame('Backend "bigquery" does not support: "Other types of loading than view".', $e->getMessage());
+            } else {
+                throw $e;
+            }
+        }
 
         // @phpstan-ignore-next-line
         if (self::TEST_FILE_WORKSPACE) {
@@ -262,7 +297,11 @@ class SOXWorkspaceSnowflakeTest extends SOXWorkspaceTestCase
             $backend->fetchAll('languages');
             $this->fail('View should not work after table drop');
         } catch (Throwable $e) {
-            $this->assertStringContainsString('does not exist or not authorized', $e->getMessage());
+            if ($backend instanceof BigqueryWorkspaceBackend) {
+                self::assertStringContainsString('Not found: Table', $e->getMessage());
+            } else {
+                $this->assertStringContainsString('does not exist or not authorized', $e->getMessage());
+            }
         }
     }
 
