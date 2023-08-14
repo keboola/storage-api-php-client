@@ -221,8 +221,8 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
         throw new \Exception('TODO Not implemented yet');
     }
 
-    public function getSchemaReflection(): SchemaReflectionInterface
+    public function getSchemaReflection(): BigquerySchemaReflection
     {
-        throw new \Exception('TODO Not implemented yet');
+        return new BigquerySchemaReflection($this->bqClient, $this->schema);
     }
 }
