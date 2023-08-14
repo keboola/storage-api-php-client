@@ -11,6 +11,7 @@ use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Schema\Teradata\TeradataSchemaReflection;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
+use Keboola\TableBackendUtils\View\ViewReflectionInterface;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 
 /**
@@ -184,28 +185,17 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
         return $ref->getColumnsDefinitions();
     }
 
-    /**
-     * @param string $tableName
-     * @return TeradataTableReflection
-     */
-    public function getTableReflection($tableName)
+    public function getTableReflection(string $tableName): TeradataTableReflection
     {
         return new TeradataTableReflection($this->getDb(), $this->schema, $tableName);
     }
 
-    /**
-     * @param string $tableName
-     * @return void
-     */
-    public function getViewReflection($tableName)
+    public function getViewReflection(string $viewName): ViewReflectionInterface
     {
         throw new Exception('TODO Not implemented yet');
     }
 
-    /**
-     * @return TeradataSchemaReflection
-     */
-    public function getSchemaReflection()
+    public function getSchemaReflection(): TeradataSchemaReflection
     {
         return new TeradataSchemaReflection($this->getDb(), $this->schema);
     }

@@ -3421,11 +3421,6 @@ parameters:
 			path: tests/Backend/Synapse/FulltextSearchTest.php
 
 		-
-			message: "#^Call to an undefined method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\WorkspaceBackend\\:\\:getTableReflection\\(\\)\\.$#"
-			count: 1
-			path: tests/Backend/Synapse/ImportTypedTableTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Synapse\\\\OrderByTest\\:\\:getExportedTable\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Synapse/OrderByTest.php

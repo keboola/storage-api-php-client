@@ -171,9 +171,9 @@ class SnowflakeWorkspaceBackendDBAL implements WorkspaceBackend
         return new SnowflakeTableReflection($this->db, $this->schema, $tableName);
     }
 
-    public function getViewReflection(string $tableName): SnowflakeViewReflection
+    public function getViewReflection(string $viewName): SnowflakeViewReflection
     {
-        return new SnowflakeViewReflection($this->db, $this->schema, $tableName);
+        return new SnowflakeViewReflection($this->db, $this->schema, $viewName);
     }
 
     public function getSchemaReflection(): SnowflakeSchemaReflection
