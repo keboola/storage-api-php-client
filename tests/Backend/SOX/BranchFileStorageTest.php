@@ -7,9 +7,11 @@ namespace Keboola\Test\Backend\SOX;
 use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 use Generator;
+use Google\Cloud\Core\Exception\NotFoundException;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
+use Keboola\StorageApi\Downloader\DownloaderFactory;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -37,32 +39,24 @@ class BranchFileStorageTest extends StorageApiTestCase
         $file = $branchClient->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
         $this->assertEquals(file_get_contents($filePath), file_get_contents($file['url']));
 
-        $s3Client = new S3Client([
-            'version' => 'latest',
-            'region' => $file['region'],
-            'credentials' => [
-                'key' => $file['credentials']['AccessKeyId'],
-                'secret' => $file['credentials']['SecretAccessKey'],
-                'token' => $file['credentials']['SessionToken'],
-            ],
-        ]);
+        // Temporary folder to save downloaded files
+        $workingDir = sys_get_temp_dir();
+        $tmpFilePath = $workingDir . '/' . uniqid('testDeleteBranchDeleteFiles-', true);
 
-        $object = $s3Client->getObject([
-            'Bucket' => $file['s3Path']['bucket'],
-            'Key' => $file['s3Path']['key'],
-        ]);
-        $this->assertEquals(file_get_contents($filePath), $object['Body']);
+        $downloader = DownloaderFactory::createDownloaderForFileResponse($file);
+        $downloader->downloadFileFromFileResponse($file, $tmpFilePath);
+
+        $this->assertEquals(file_get_contents($filePath), file_get_contents($tmpFilePath));
 
         $this->branches->deleteBranch($newBranch['id']);
 
         try {
-            $s3Client->getObject([
-                'Bucket' => $file['s3Path']['bucket'],
-                'Key' => $file['s3Path']['key'],
-            ]);
+            $downloader->downloadFileFromFileResponse($file, $tmpFilePath);
             $this->fail('File should not exist');
         } catch (S3Exception $e) {
             $this->assertEquals(404, $e->getStatusCode());
+        } catch (NotFoundException $e) {
+            $this->assertEquals(404, $e->getCode());
         }
     }
 
