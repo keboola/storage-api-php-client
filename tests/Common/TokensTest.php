@@ -560,6 +560,32 @@ class TokensTest extends StorageApiTestCase
         $this->assertEquals($limitedAccessToken, $this->tokens->getToken($limitedAccessToken['id']));
     }
 
+    public function testReadOnlyTokenCannotRefreshOtherTokens(): void
+    {
+        $readOnlyClient = $this->getReadOnlyStorageApiClient();
+        [$_1, $otherAdminTokenId, $_2] = explode('-', STORAGE_API_TOKEN);
+        $tokensReadOnlyApi = new Tokens($readOnlyClient);
+
+        try {
+            $tokensReadOnlyApi->refreshToken((int) $otherAdminTokenId);
+            $this->fail('Read only token should not be able to refresh other tokens');
+        } catch (ClientException $e) {
+            $this->assertEquals('You don\'t have access to the resource.', $e->getMessage());
+            $this->assertEquals(403, $e->getCode());
+        }
+
+        $tokensApi = new Tokens($this->_client);
+        $tokenWithWriteAccess = $tokensApi->createToken((new TokenCreateOptions())->setCanManageBuckets(true));
+
+        try {
+            $tokensReadOnlyApi->refreshToken($tokenWithWriteAccess['id']);
+            $this->fail('Read only token should not be able to refresh other tokens');
+        } catch (ClientException $e) {
+            $this->assertEquals('You don\'t have access to the resource.', $e->getMessage());
+            $this->assertEquals(403, $e->getCode());
+        }
+    }
+
     public function testTokenComponentAccess(): void
     {
         $this->clearComponents();

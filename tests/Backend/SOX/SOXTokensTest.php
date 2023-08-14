@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\Test\Backend\SOX;
 
-use DateTime;
 use Generator;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
@@ -14,6 +13,24 @@ use Keboola\Test\StorageApiTestCase;
 
 class SOXTokensTest extends StorageApiTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        foreach ([$this->getDefaultClient(), $this->getDeveloperStorageApiClient()] as $client) {
+            $tokensApi = new Tokens($client);
+            $tokens = $tokensApi->listTokens();
+            foreach ($tokens as $token) {
+                if (strpos($token['description'], $this->generateDescriptionForTestObject()) === 0) {
+                    try {
+                        $tokensApi->dropToken($token['id']);
+                    } catch (ClientException $e) {
+                        // ignore - it may be not accessible to this client
+                    }
+                }
+            }
+        }
+    }
+
     private function getDefaultBranchTokenId(): int
     {
         [, $tokenId,] = explode('-', STORAGE_API_DEFAULT_BRANCH_TOKEN);
@@ -77,7 +94,7 @@ class SOXTokensTest extends StorageApiTestCase
             // if can manage tokens create new non admin token and test if it has hidden token
             $tokens->createToken(
                 (new TokenCreateOptions())
-                    ->setDescription('Some description')
+                    ->setDescription($this->generateDescriptionForTestObject()),
             );
         }
         $tokenList = $tokens->listTokens();
@@ -102,26 +119,95 @@ class SOXTokensTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider developerAndReviewerClientProvider
-     * @dataProvider prodManagerClientProvider
+     * @dataProvider provideTokenRefreshFailingParams
      * in sox project nobody can refresh token which is not self
      */
-    public function testRefreshToken(Client $client): void
+    public function testRefreshTokenFails(Client $client, callable $setupToken): void
     {
         $tokens = new Tokens($client);
-        $token = $tokens->createToken((new TokenCreateOptions()));
+        $tokenId = $setupToken($this->generateDescriptionForTestObject());
 
         sleep(1);
 
         $this->expectExceptionCode(403);
         $this->expectExceptionMessage('You don\'t have access to the resource.');
-        $tokens->refreshToken($token['id']);
+        $tokens->refreshToken($tokenId);
+    }
+
+    /**
+     * @dataProvider provideTokenRefreshPassingParams
+     * in sox project nobody can refresh token which is not self
+     */
+    public function testRefreshTokenSucceeds(Client $client, callable $setupToken): void
+    {
+        $tokens = new Tokens($client);
+        $tokenId = $setupToken($this->generateDescriptionForTestObject());
+
+        sleep(1);
+
+        $token = $tokens->refreshToken($tokenId);
+        $this->assertArrayHasKey('token', $token);
+        $this->assertMatchesRegularExpression('~^[0-9]+-[0-9]+-[0-9A-Za-z]+$~', $token['token']);
+    }
+
+    public function testWhoCanRefreshTokenWithCanCreateJobs(): void
+    {
+        $prodManTokensApi = new Tokens($this->getDefaultClient());
+        $token = $prodManTokensApi->createToken(
+            (new TokenCreateOptions())
+                ->setCanCreateJobs(true)
+                ->setDescription($this->generateDescriptionForTestObject()),
+        );
+
+        $refreshedToken = $prodManTokensApi->refreshToken($token['id']);
+        $this->assertSame($token['id'], $refreshedToken['id']);
+        $this->assertNotSame($token['token'], $refreshedToken['token']);
+
+        $canCreateJobs = $this->getClientForToken($refreshedToken['token']);
+        $this->assertTrue($canCreateJobs->verifyToken()['canCreateJobs']);
+        $canCreateJobsTokensApi = new Tokens($canCreateJobs);
+        $refreshedTokenSecond = $canCreateJobsTokensApi->refreshToken($refreshedToken['id']);
+
+        $this->assertSame($refreshedToken['id'], $refreshedTokenSecond['id']);
+        $this->assertNotSame($refreshedToken['token'], $refreshedTokenSecond['token']);
+
+        foreach ([$this->getDeveloperStorageApiClient(), $this->getReviewerStorageApiClient()] as $nonPmClient) {
+            $nonPmTokensApi = new Tokens($nonPmClient);
+
+            try {
+                $nonPmTokensApi->refreshToken($refreshedTokenSecond['id']);
+                $this->fail('Developer should not be able to refresh token with canCreateJobs');
+            } catch (ClientException $e) {
+                $this->assertSame(403, $e->getCode());
+                $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
+            }
+
+            $noCanCreateJobsToken = $nonPmTokensApi->createToken(
+                (new TokenCreateOptions())
+                    ->setCanCreateJobs(false)
+                    ->setDescription($this->generateDescriptionForTestObject()),
+            );
+            $noCanCreateJobsTokenRefreshed = $nonPmTokensApi->refreshToken($noCanCreateJobsToken['id']);
+
+            $this->assertSame($noCanCreateJobsToken['id'], $noCanCreateJobsTokenRefreshed['id']);
+            $this->assertNotSame($noCanCreateJobsToken['token'], $noCanCreateJobsTokenRefreshed['token']);
+            try {
+                $prodManTokensApi->refreshToken($noCanCreateJobsToken['id']);
+                $this->fail('Prod manager should not be able to refresh token without canCreateJobs');
+            } catch (ClientException $e) {
+                $this->assertSame(403, $e->getCode());
+                $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
+            }
+        }
     }
 
     public function testTokenSelfRefresh(): void
     {
         $tokens = new Tokens($this->getDefaultClient());
-        $token = $tokens->createToken((new TokenCreateOptions()));
+        $token = $tokens->createToken(
+            (new TokenCreateOptions())
+                ->setDescription($this->generateDescriptionForTestObject()),
+        );
 
         $client = $this->getClientForToken($token['token']);
         $refreshedToken = (new Tokens($client))->refreshToken($token['id']);
@@ -163,7 +249,10 @@ class SOXTokensTest extends StorageApiTestCase
             $this->expectExceptionMessage('You don\'t have access to the resource.');
             $this->expectExceptionCode(403);
         }
-        $newToken = $tokens->createToken(new TokenCreateOptions());
+        $newToken = $tokens->createToken(
+            (new TokenCreateOptions())
+                ->setDescription($this->generateDescriptionForTestObject()),
+        );
 
         $this->expectNotToPerformAssertions();
         $newTokenClient = $this->getClientForToken($newToken['token']);
@@ -176,8 +265,8 @@ class SOXTokensTest extends StorageApiTestCase
         $this->assertManageTokensPresent();
 
         $options = (new TokenCreateOptions())
-            ->setDescription('My test token')
-            ->setCanReadAllFileUploads(true)
+            ->setDescription($this->generateDescriptionForTestObject())
+        ->setCanReadAllFileUploads(true)
             ->setCanManageBuckets(true)
             ->setCanPurgeTrash(true)
             ->setExpiresIn(360)
@@ -229,7 +318,7 @@ class SOXTokensTest extends StorageApiTestCase
         $this->assertManageTokensPresent();
 
         $options = (new TokenCreateOptions())
-            ->setDescription('My test token')
+            ->setDescription($this->generateDescriptionForTestObject())
             ->setCanReadAllFileUploads(true)
             ->setCanManageBuckets(true)
             ->setCanPurgeTrash(true)
@@ -251,7 +340,7 @@ class SOXTokensTest extends StorageApiTestCase
         $this->assertTrue($token['canPurgeTrash']);
         $this->assertTrue($token['canManageProtectedDefaultBranch']);
 
-        $this->assertEquals('My test token', $token['description']);
+        $this->assertEquals($this->generateDescriptionForTestObject(), $token['description']);
 
         $this->assertArrayHasKey('bucketPermissions', $token);
     }
@@ -261,7 +350,7 @@ class SOXTokensTest extends StorageApiTestCase
         $this->assertManageTokensPresent();
 
         $options = (new TokenCreateOptions())
-            ->setDescription('My test token')
+            ->setDescription($this->generateDescriptionForTestObject())
             ->setCanReadAllFileUploads(true)
             ->setCanManageBuckets(true)
             ->setCanPurgeTrash(true)
@@ -294,7 +383,11 @@ class SOXTokensTest extends StorageApiTestCase
         // only productionManager can create token with canCreateJobs flag
         $prodManagerClient = $this->getDefaultClient();
         $prodManagerTokens = new Tokens($prodManagerClient);
-        $tokenWithCreateJobsFlag = $prodManagerTokens->createToken((new TokenCreateOptions())->setCanCreateJobs(true));
+        $tokenWithCreateJobsFlag = $prodManagerTokens->createToken(
+            (new TokenCreateOptions())
+                ->setCanCreateJobs(true)
+                ->setDescription($this->generateDescriptionForTestObject() . '-can create jobs'),
+        );
         $clientWithCreateJobsFlag = new Client([
             'token' => $tokenWithCreateJobsFlag['token'],
             'url' => STORAGE_API_URL,
@@ -302,7 +395,7 @@ class SOXTokensTest extends StorageApiTestCase
         $createJobsFlagTokens = new Tokens($clientWithCreateJobsFlag);
         $priviledgedToken = $createJobsFlagTokens->createTokenPrivilegedInProtectedDefaultBranch(
             (new TokenCreateOptions())
-                ->setDescription('My priviledged token')
+                ->setDescription($this->generateDescriptionForTestObject() . '-privileged')
                 ->setCanReadAllFileUploads(true)
                 ->setCanManageBuckets(true)
                 ->setCanPurgeTrash(true)
@@ -312,7 +405,7 @@ class SOXTokensTest extends StorageApiTestCase
 
         $this->assertTrue($priviledgedToken['canManageProtectedDefaultBranch']);
         $this->assertFalse($priviledgedToken['isMasterToken']);
-        $this->assertSame('My priviledged token', $priviledgedToken['description']);
+        $this->assertSame($this->generateDescriptionForTestObject() . '-privileged', $priviledgedToken['description']);
     }
 
     /**
@@ -322,15 +415,91 @@ class SOXTokensTest extends StorageApiTestCase
     {
         // only productionManager can create token with canCreateJobs flag
         $tokens = new Tokens($client);
-        $createdTokenWithoutCanCreateJobs = $tokens->createToken((new TokenCreateOptions())->setCanCreateJobs(false));
+        $createdTokenWithoutCanCreateJobs = $tokens->createToken(
+            (new TokenCreateOptions())
+                ->setCanCreateJobs(false)
+                ->setDescription($this->generateDescriptionForTestObject()),
+        );
         $this->assertFalse($createdTokenWithoutCanCreateJobs['canCreateJobs']);
         $this->assertFalse($createdTokenWithoutCanCreateJobs['canManageProtectedDefaultBranch']);
 
         try {
-            $tokens->createToken((new TokenCreateOptions())->setCanCreateJobs(true));
+            $tokens->createToken(
+                (new TokenCreateOptions())
+                    ->setCanCreateJobs(true)
+                    ->setDescription($this->generateDescriptionForTestObject()),
+            );
             $this->fail('Only productionManager can create token with canCreateJobs flag');
         } catch (ClientException $e) {
             $this->assertEquals(403, $e->getCode());
         }
+    }
+
+    /**
+     * @return iterable<array{Client, callable(string): string}>
+     */
+    public function provideTokenRefreshFailingParams(): iterable
+    {
+        yield 'developer cannot refresh can create jobs token' => [
+            $this->getDeveloperStorageApiClient(),
+            function ($description) {
+                $prodManagerClient = $this->getDefaultClient();
+                $prodManagerTokens = new Tokens($prodManagerClient);
+                $token = $prodManagerTokens->createToken((new TokenCreateOptions())->setCanCreateJobs(true)->setDescription($description));
+                return $token['id'];
+            },
+        ];
+        yield 'reviewer cannot refresh can create jobs token' => [
+            $this->getDeveloperStorageApiClient(),
+            function ($description) {
+                $prodManagerClient = $this->getDefaultClient();
+                $prodManagerTokens = new Tokens($prodManagerClient);
+                $token = $prodManagerTokens->createToken((new TokenCreateOptions())->setCanCreateJobs(true)->setDescription($description));
+                return $token['id'];
+            },
+        ];
+        yield 'prodManager cannot refresh normal token' => [
+            $this->getDefaultClient(),
+            function ($description) {
+                $devClient = $this->getDeveloperStorageApiClient();
+                $devTokens = new Tokens($devClient);
+                $token = $devTokens->createToken((new TokenCreateOptions())->setDescription($description));
+                return $token['id'];
+            },
+        ];
+    }
+
+    /**
+     * @return iterable<array{Client, callable(string): string}>
+     */
+    public function provideTokenRefreshPassingParams(): iterable
+    {
+        yield 'developer can refresh normal token' => [
+            $this->getDeveloperStorageApiClient(),
+            function ($description) {
+                $prodManagerClient = $this->getDeveloperStorageApiClient();
+                $prodManagerTokens = new Tokens($prodManagerClient);
+                $token = $prodManagerTokens->createToken((new TokenCreateOptions())->setCanCreateJobs(false)->setDescription($description));
+                return $token['id'];
+            },
+        ];
+        yield 'reviewer can refresh normal token' => [
+            $this->getDeveloperStorageApiClient(),
+            function ($description) {
+                $prodManagerClient = $this->getDeveloperStorageApiClient();
+                $prodManagerTokens = new Tokens($prodManagerClient);
+                $token = $prodManagerTokens->createToken((new TokenCreateOptions())->setCanCreateJobs(false)->setDescription($description));
+                return $token['id'];
+            },
+        ];
+        yield 'prodManager can refresh can create jobs token' => [
+            $this->getDefaultClient(),
+            function ($description) {
+                $devClient = $this->getDefaultClient();
+                $devTokens = new Tokens($devClient);
+                $token = $devTokens->createToken((new TokenCreateOptions())->setCanCreateJobs(true)->setDescription($description));
+                return $token['id'];
+            },
+        ];
     }
 }
