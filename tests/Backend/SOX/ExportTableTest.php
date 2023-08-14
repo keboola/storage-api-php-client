@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Keboola\Test\Backend\SOX;
 
 use Keboola\Csv\CsvFile;
-use Keboola\Csv\InvalidArgumentException;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
@@ -29,10 +28,18 @@ class ExportTableTest extends StorageApiTestCase
         $this->downloadPath = $this->getExportFilePathForTest('languages.sliced.csv');
     }
 
+    private function getExportPath(): string
+    {
+        if ($this->developerClient->verifyToken()['owner']['defaultBackend'] === self::BACKEND_BIGQUERY) {
+            return __DIR__ . '/../../_data/bigquery/';
+        }
+        return __DIR__ . '/../../_data/';
+    }
+
     public function testTableAsyncExportInDevBranch(): void
     {
         [$importFile, $expectationsFileName] = $this->tableExportData();
-        $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
+        $expectationsFile = $this->getExportPath() . $expectationsFileName;
 
         $description = $this->generateDescriptionForTestObject();
 
@@ -59,7 +66,11 @@ class ExportTableTest extends StorageApiTestCase
 
         // compare data
         $this->assertTrue(file_exists($this->downloadPath));
-        $this->assertLinesEqualsSorted(file_get_contents($expectationsFile), file_get_contents($this->downloadPath), 'imported data comparison');
+        $this->assertLinesEqualsSorted(
+            file_get_contents($expectationsFile),
+            file_get_contents($this->downloadPath),
+            'imported data comparison'
+        );
 
         $projectManagerDevBranchClient = $this->getBranchAwareClient($newBranch['id'], [
             'token' => STORAGE_API_DEFAULT_BRANCH_TOKEN,
@@ -100,7 +111,7 @@ class ExportTableTest extends StorageApiTestCase
     public function testTableAsyncExportInDefaultBranch(): void
     {
         [$importFile, $expectationsFileName] = $this->tableExportData();
-        $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
+        $expectationsFile = $this->getExportPath() . $expectationsFileName;
 
         $description = $this->generateDescriptionForTestObject();
         $projectManagerDefaultBranchClient = $this->getDefaultBranchStorageApiClient();
@@ -163,7 +174,7 @@ class ExportTableTest extends StorageApiTestCase
     public function testExportTableExistInDefaultOnly(): void
     {
         [$importFile, $expectationsFileName] = $this->tableExportData();
-        $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
+        $expectationsFile = $this->getExportPath() . $expectationsFileName;
 
         $description = $this->generateDescriptionForTestObject();
         $projectManagerDefaultBranchClient = $this->getDefaultBranchStorageApiClient();
@@ -228,7 +239,7 @@ class ExportTableTest extends StorageApiTestCase
     public function testExportTableExistInDevBranchOnly(): void
     {
         [$importFile, $expectationsFileName] = $this->tableExportData();
-        $expectationsFile = __DIR__ . '/../../_data/' . $expectationsFileName;
+        $expectationsFile = $this->getExportPath() . $expectationsFileName;
 
         $description = $this->generateDescriptionForTestObject();
 
@@ -298,7 +309,7 @@ class ExportTableTest extends StorageApiTestCase
 
     private function tableExportData(): array
     {
-        $filesBasePath = __DIR__ . '/../../_data/';
+        $filesBasePath = $this->getExportPath();
         return [
             new CsvFile($filesBasePath . '1200.csv'),
             '1200.csv',
