@@ -2,7 +2,14 @@
 
 namespace Keboola\Test\Backend\Snowflake;
 
+use Keboola\Csv\CsvFile;
+use Keboola\Datatype\Definition\Snowflake;
+use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Workspaces;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
+use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 
@@ -169,4 +176,67 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
         ]);
         self::assertEquals($expected, $data['rows']);
     }
+
+    public function testImportObjectToWorkspace(): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $payload = [
+            'name' => 'with-empty',
+            'primaryKeysNames' => [],
+            'columns' => [
+                ['name' => 'id', 'definition' => ['type' => 'NUMBER']],
+                ['name' => 'col', 'definition' => ['type' => 'OBJECT']],
+            ],
+        ];
+        $tableId = $this->_client->createTableDefinition($bucketId, $payload);
+
+        $workspace = $this->initTestWorkspace(self::BACKEND_SNOWFLAKE);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test_object');
+
+        /** @var Connection $db */
+        $db = $backend->getDb();
+
+        $qb = new SnowflakeTableQueryBuilder();
+        $query = $qb->getCreateTableCommand(
+            $workspace['connection']['schema'],
+            'test_object',
+            new ColumnCollection([
+                new SnowflakeColumn('id', new Snowflake('INT')),
+                new SnowflakeColumn('col', new Snowflake('OBJECT')),
+            ])
+        );
+        $db->query($query);
+        $backend->executeQuery(sprintf(
+        /** @lang Snowflake */
+            '
+INSERT INTO "%s"."test_object" ("id", "col") select 2, OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT);',
+            $workspace['connection']['schema']
+        ));
+
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test_object',
+        ]);
+
+        $workspaces = new Workspaces($this->_client);
+        $workspaces->loadWorkspaceData(
+            $workspace['id'],
+            [
+                'input' => [
+                    [
+                        'source' => $tableId,
+                        'destination' => 'test_object_import',
+                    ],
+                ],
+            ]
+        );
+
+        $backend->fetchAll('SELECT * FROM "test_object_import"');
+
+    }
+
 }
+
