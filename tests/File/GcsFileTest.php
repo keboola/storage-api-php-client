@@ -3,17 +3,44 @@
 namespace Keboola\Test\File;
 
 use GuzzleHttp\Client;
+use Keboola\StorageApi\BranchAwareClient;
+use Keboola\StorageApi\Client as StorageApiClient;
 use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
+use Keboola\Test\ClientProvider\ClientProvider;
+use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\StorageApiTestCase;
 
 class GcsFileTest extends StorageApiTestCase
 {
+
+    /** @var BranchAwareClient|StorageApiClient */
+    private $_testClient;
+
+    private ClientProvider $clientProvider;
+
     public function setUp(): void
     {
         parent::setUp();
-        $token = $this->_client->verifyToken();
+
+        $this->clientProvider = new ClientProvider($this);
+        [$devBranchType, $userRole] = $this->getProvidedData();
+        [$this->_client, $this->_testClient] = (new TestSetupHelper())->setUpForProtectedDevBranch(
+            $this->clientProvider,
+            $devBranchType,
+            $userRole
+        );
+
+        if ($devBranchType === ClientProvider::DEV_BRANCH) {
+            // buckets must be created in branch that the tests run in
+            $this->initEmptyTestBucketsForParallelTests([self::STAGE_OUT, self::STAGE_IN], $this->_testClient);
+        } elseif ($devBranchType === ClientProvider::DEFAULT_BRANCH) {
+            $this->initEmptyTestBucketsForParallelTests();
+        } else {
+            throw new \Exception(sprintf('Unknown devBranchType "%s"', $devBranchType));
+        }
+        $token = $this->_testClient->verifyToken();
         $this->assertSame(
             'gcp',
             $token['owner']['fileStorageProvider'],
@@ -24,10 +51,10 @@ class GcsFileTest extends StorageApiTestCase
     /**
      * @dataProvider uploadData
      */
-    public function testFileUpload(string $filePath, FileUploadOptions $options): void
+    public function testFileUpload(string $devBranchType, string $userRole, string $filePath, FileUploadOptions $options): void
     {
-        $fileId = $this->_client->uploadFile($filePath, $options);
-        $file = $this->_client->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
+        $fileId = $this->_testClient->uploadFile($filePath, $options);
+        $file = $this->_testClient->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
 
         //gcs storage is always encrypted and private. Request params 'isEncrypted' and 'isPublic' is ignored
         $this->assertFalse($file['isPublic']);
@@ -46,7 +73,7 @@ class GcsFileTest extends StorageApiTestCase
         sort($fileTags);
         $this->assertEquals($tags, $fileTags);
 
-        $info = $this->_client->verifyToken();
+        $info = $this->_testClient->verifyToken();
         $this->assertEquals($file['creatorToken']['id'], (int) $info['id']);
         $this->assertEquals($file['creatorToken']['description'], $info['description']);
 
@@ -63,15 +90,15 @@ class GcsFileTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider isSliced
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
      */
-    public function testDeleteNonUploadedSlicedFile(bool $isSliced): void
+    public function testDeleteNonUploadedSlicedFile(): void
     {
         $options = new FileUploadOptions();
         $options
             ->setFileName('entries_')
             ->setFederationToken(true)
-            ->setIsSliced($isSliced)
+            ->setIsSliced(true)
             ->setIsEncrypted(true);
 
         $result = $this->_client->prepareFileUpload($options);
@@ -86,21 +113,13 @@ class GcsFileTest extends StorageApiTestCase
         $this->_client->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
     }
 
-    public function isSliced(): array
-    {
-        return [
-            [false],
-            [true],
-        ];
-    }
-
-    public function uploadData(): array
+    public function uploadData(): \Generator
     {
         $path = __DIR__ . '/../_data/files.upload.txt';
         $largeFilePath = sys_get_temp_dir() . '/large_abs_upload.txt';
         $this->generateFile($largeFilePath, 16);
 
-        return [
+        $uploadData = [
             [
                 $path,
                 (new FileUploadOptions())->setIsPublic(true),
@@ -142,6 +161,15 @@ class GcsFileTest extends StorageApiTestCase
                     ->setTags(['sapi-import', 'martin']),
             ],
         ];
+
+        $clientProvider = $this->provideComponentsClientTypeBasedOnSuite();
+
+        return $this->combineProviders($uploadData, $clientProvider);
+    }
+
+    public function provideComponentsClientTypeBasedOnSuite(): array
+    {
+        return (new TestSetupHelper())->provideComponentsClientTypeBasedOnSuite($this);
     }
 
     private function generateFile(string $filepath, int $fileSizeMegabytes): void
