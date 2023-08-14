@@ -3,6 +3,9 @@
 namespace Keboola\Test\Backend\Workspaces\Backend;
 
 use Keboola\Db\Import\Snowflake\Connection;
+use Keboola\TableBackendUtils\Schema\SchemaReflectionInterface;
+use Keboola\TableBackendUtils\Table\TableReflectionInterface;
+use Keboola\TableBackendUtils\View\ViewReflectionInterface;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 
 class SnowflakeWorkspaceBackend implements WorkspaceBackend
@@ -62,7 +65,6 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
 
     public function dropTableColumn($table, $column)
     {
-
         $this->db->query(sprintf(
             'ALTER TABLE %s DROP COLUMN %s;',
             $this->db->quoteIdentifier($table),
@@ -139,5 +141,20 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
             $this->db->quoteIdentifier($this->schema),
             $this->db->quoteIdentifier($table)
         ));
+    }
+
+    public function getTableReflection(string $tableName): TableReflectionInterface
+    {
+        throw new \Exception('TODO Not implemented yet');
+    }
+
+    public function getViewReflection(string $viewName): ViewReflectionInterface
+    {
+        throw new \Exception('TODO Not implemented yet');
+    }
+
+    public function getSchemaReflection(): SchemaReflectionInterface
+    {
+        throw new \Exception('TODO Not implemented yet');
     }
 }
