@@ -1200,7 +1200,7 @@ class MetadataTest extends StorageApiTestCase
             ]
         );
 
-        $readClient = $this->getReadClient($devBranchType, $bucketId);
+        $readClient = $this->getReadClient($devBranchType, $bucketId, $userRole);
 
         $readMetadataApi = new Metadata($readClient);
 
