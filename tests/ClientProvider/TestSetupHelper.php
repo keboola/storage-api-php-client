@@ -10,6 +10,10 @@ use Keboola\Test\StorageApiTestCase;
 
 class TestSetupHelper
 {
+    public const ROLE_DEVELOPER = 'developer';
+    public const ROLE_PROD_MANAGER = 'production-manager';
+
+    public const PROTECTED_DEFAULT_BRANCH_ROLES = [self::ROLE_PROD_MANAGER, self::ROLE_DEVELOPER];
     /**
      * @param string $branchPrefix
      */
@@ -83,11 +87,11 @@ class TestSetupHelper
         $defaultAndBranchProvider = [
             'defaultBranch + production-mananger' => [
                 ClientProvider::DEFAULT_BRANCH,
-                'production-manager',
+                self::ROLE_PROD_MANAGER,
             ],
             'devBranch + developer' => [
                 ClientProvider::DEV_BRANCH,
-                'developer',
+                self::ROLE_DEVELOPER,
             ],
         ];
         $onlyDefaultProvider = [
