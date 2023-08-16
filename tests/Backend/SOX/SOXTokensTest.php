@@ -39,19 +39,19 @@ class SOXTokensTest extends StorageApiTestCase
 
     public function tokensProvider(): Generator
     {
-        yield 'privileged' => [
+        yield 'nobody can see token (privileged)' => [
             $this->getDefaultBranchStorageApiClient(),
         ];
-        yield 'productionManager' => [
+        yield 'nobody can see token (productionManager)' => [
             $this->getDefaultClient(),
         ];
-        yield 'developer' => [
+        yield 'nobody can see token (developer)' => [
             $this->getDeveloperStorageApiClient(),
         ];
-        yield 'reviewer' => [
+        yield 'nobody can see token (reviewer)' => [
             $this->getReviewerStorageApiClient(),
         ];
-        yield 'readOnly' => [
+        yield 'nobody can see token (readOnly)' => [
             $this->getReadOnlyStorageApiClient(),
         ];
     }
@@ -92,13 +92,10 @@ class SOXTokensTest extends StorageApiTestCase
 
         if ($token['canManageTokens']) {
             // if can manage tokens create new non admin token and test if it has hidden token
-            $options = (new TokenCreateOptions())
-                ->setDescription($this->generateDescriptionForTestObject());
-            if (array_key_exists('admin', $token) && $token['admin']['role'] === 'productionManager') {
-                // production manager can only touch tokens with canCreateJobs
-                $options->setCanCreateJobs(true);
-            }
-            $tokens->createToken($options);
+            $tokens->createToken(
+                (new TokenCreateOptions())
+                    ->setDescription($this->generateDescriptionForTestObject()),
+            );
         }
         $tokenList = $tokens->listTokens();
         foreach ($tokenList as $token) {
@@ -208,10 +205,8 @@ class SOXTokensTest extends StorageApiTestCase
     {
         $tokens = new Tokens($this->getDefaultClient());
         $token = $tokens->createToken(
-            // user is PM and can't create any other tokens than canCreateJobs
             (new TokenCreateOptions())
-                ->setDescription($this->generateDescriptionForTestObject())
-                ->setCanCreateJobs(true),
+                ->setDescription($this->generateDescriptionForTestObject()),
         );
 
         $client = $this->getClientForToken($token['token']);
@@ -254,13 +249,9 @@ class SOXTokensTest extends StorageApiTestCase
             $this->expectExceptionMessage('You don\'t have access to the resource.');
             $this->expectExceptionCode(403);
         }
-        $options = (new TokenCreateOptions())
-            ->setDescription($this->generateDescriptionForTestObject());
-        if (array_key_exists('admin', $token) && $token['admin']['role'] === 'productionManager') {
-            $options->setCanCreateJobs(true);
-        }
         $newToken = $tokens->createToken(
-            $options,
+            (new TokenCreateOptions())
+                ->setDescription($this->generateDescriptionForTestObject()),
         );
 
         $this->expectNotToPerformAssertions();
@@ -510,27 +501,5 @@ class SOXTokensTest extends StorageApiTestCase
                 return $token['id'];
             },
         ];
-    }
-
-    /**
-     * @dataProvider tokensProvider
-     */
-    public function testWhoCannotCreateToken(Client $client): void
-    {
-        $token = $client->verifyToken();
-        $role = null;
-        if (array_key_exists('admin', $token)) {
-            $role = $token['admin']['role'];
-        }
-        $tokensApi = new Tokens($client);
-        $options = (new TokenCreateOptions())
-            ->setDescription($this->generateDescriptionForTestObject());
-        if ($role !== 'productionManager') {
-            $options->setCanCreateJobs(true);
-        }
-        $this->expectException(ClientException::class);
-        $this->expectExceptionCode(403);
-        $this->expectExceptionMessage('You don\'t have access to the resource.');
-        $tokensApi->createToken($options);
     }
 }
