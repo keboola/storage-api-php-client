@@ -2,6 +2,9 @@
 
 namespace Keboola\Test\Backend\Workspaces\Backend;
 
+use Keboola\TableBackendUtils\Schema\SchemaReflectionInterface;
+use Keboola\TableBackendUtils\Table\TableReflectionInterface;
+use Keboola\TableBackendUtils\View\ViewReflectionInterface;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use PDO;
 
@@ -215,5 +218,20 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
     public function dropViewIfExists(string $table): void
     {
         // TODO: Implement dropViewIfExists() method.
+    }
+
+    public function getTableReflection(string $tableName): TableReflectionInterface
+    {
+        throw new \Exception('TODO Not implemented yet');
+    }
+
+    public function getViewReflection(string $viewName): ViewReflectionInterface
+    {
+        throw new \Exception('TODO Not implemented yet');
+    }
+
+    public function getSchemaReflection(): SchemaReflectionInterface
+    {
+        throw new \Exception('TODO Not implemented yet');
     }
 }

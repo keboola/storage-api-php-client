@@ -3,7 +3,6 @@
 namespace Keboola\Test\Backend\Synapse;
 
 use Keboola\Csv\CsvFile;
-use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
@@ -212,10 +211,11 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             'id',
             'imported data comparison'
         );
-        $types = array_map(function ($columnDefinition) {
-            /** @var $columnDefinition SynapseColumn */
-            return $columnDefinition->getColumnDefinition()->getType();
-        }, iterator_to_array($ref->getColumnsDefinitions()));
+        $types = array_map(
+            // @phpstan-ignore-next-line
+            fn(SynapseColumn $c) => $c->getColumnDefinition()->getType(),
+            iterator_to_array($ref->getColumnsDefinitions())
+        );
         self::assertSame($expectedTableTypesInWorkspace, $types);
 
         // import empty csv (truncate table)

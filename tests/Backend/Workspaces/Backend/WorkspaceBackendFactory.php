@@ -16,12 +16,15 @@ class WorkspaceBackendFactory
     /**
      * @param array<mixed> $workspace
      */
-    public static function createWorkspaceBackend(array $workspace): WorkspaceBackend
+    public static function createWorkspaceBackend(array $workspace, bool $useDBAL = false): WorkspaceBackend
     {
         switch ($workspace['connection']['backend']) {
             case StorageApiTestCase::BACKEND_REDSHIFT:
                 return new RedshiftWorkspaceBackend($workspace);
             case StorageApiTestCase::BACKEND_SNOWFLAKE:
+                if ($useDBAL) {
+                    return new SnowflakeWorkspaceBackendDBAL($workspace);
+                }
                 return new SnowflakeWorkspaceBackend($workspace);
             case StorageApiTestCase::BACKEND_SYNAPSE:
                 return new SynapseWorkspaceBackend($workspace);

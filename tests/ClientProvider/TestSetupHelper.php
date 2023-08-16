@@ -97,18 +97,11 @@ class TestSetupHelper
             ],
         ];
 
-        if (in_array(SUITE_NAME, ['paratest-sox-snowflake', 'sync-sox-snowflake'])) {
+        $token = $clientProvider->getDefaultClient()->verifyToken();
+        assert(array_key_exists('owner', $token));
+        $usingProtectedDefaultBranch = in_array('protected-default-branch', $token['owner']['features'], true);
+        if ($usingProtectedDefaultBranch) {
             return $defaultAndBranchProvider;
-        }
-
-        // it's not set - so it's likely local run
-        if (SUITE_NAME === '' || SUITE_NAME === false) {
-            // select based on feature
-            $token = $clientProvider->getDefaultClient()->verifyToken();
-            assert(array_key_exists('owner', $token));
-            if (in_array('protected-default-branch', $token['owner']['features'], true)) {
-                return $defaultAndBranchProvider;
-            }
         }
 
         return $onlyDefaultProvider;

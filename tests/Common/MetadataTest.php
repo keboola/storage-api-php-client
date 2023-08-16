@@ -58,7 +58,7 @@ class MetadataTest extends StorageApiTestCase
         foreach ($metadatas as $md) {
             $metadataApi->deleteBucketMetadata($this->getTestBucketId(), $md['id']);
         }
-        $this->_testClient->createTableAsync($this->getTestBucketId(), 'table', new CsvFile(__DIR__ . '/../_data/users.csv'));
+        $this->_testClient->createTableAsync($this->getTestBucketId(), 'test_table', new CsvFile(__DIR__ . '/../_data/users.csv'));
     }
 
      /**
@@ -126,7 +126,7 @@ class MetadataTest extends StorageApiTestCase
         $outTestBucketId = $this->getTestBucketId(self::STAGE_OUT);
         $outBucketTableId = $this->_testClient->createTableAsync(
             $outTestBucketId,
-            'table',
+            'test_table',
             new CsvFile(__DIR__ . '/../_data/users.csv')
         );
 
@@ -160,7 +160,7 @@ class MetadataTest extends StorageApiTestCase
         );
         $this->assertSame($metadata[0]['value'], 'testValue');
 
-        $columnId = $this->getMetadataTestColumnId('table', 'id');
+        $columnId = $this->getMetadataTestColumnId('test_table', 'id');
         $metadataApi = new Metadata($this->_testClient);
 
         $testMetadata = [
@@ -212,7 +212,7 @@ class MetadataTest extends StorageApiTestCase
      */
     public function testTableMetadata(string $devBranchType, string $userRole): void
     {
-        $tableId = $this->getMetadataTestTableId('table');
+        $tableId = $this->getMetadataTestTableId('test_table');
         $metadataApi = new Metadata($this->_testClient);
 
         $md = [
@@ -285,7 +285,7 @@ class MetadataTest extends StorageApiTestCase
      */
     public function testTableMetadataWithColumns(string $devBranchType, string $userRole): void
     {
-        $tableId = $this->getMetadataTestTableId('table');
+        $tableId = $this->getMetadataTestTableId('test_table');
         $column1 = 'id';
         $column2 = 'name';
         $metadataApi = new Metadata($this->_testClient);
@@ -548,7 +548,7 @@ class MetadataTest extends StorageApiTestCase
         $testMetadataValue = 'testval';
 
         $bucketId = $this->getTestBucketId();
-        $tableId = $this->getMetadataTestTableId('table');
+        $tableId = $this->getMetadataTestTableId('test_table');
         $metadataApi = new Metadata($this->_testClient);
 
         $provider = self::TEST_PROVIDER;
@@ -636,8 +636,8 @@ class MetadataTest extends StorageApiTestCase
      */
     public function testTableDeleteWithMetadata(string $devBranchType, string $userRole): void
     {
-        $tableId = $this->getMetadataTestTableId('table');
-        $columnId = $this->getMetadataTestColumnId('table', 'sex');
+        $tableId = $this->getMetadataTestTableId('test_table');
+        $columnId = $this->getMetadataTestColumnId('test_table', 'sex');
         $metadataApi = new Metadata($this->_testClient);
 
         $md = [
@@ -681,7 +681,7 @@ class MetadataTest extends StorageApiTestCase
      */
     public function testColumnMetadata(string $devBranchType, string $userRole): void
     {
-        $columnId = $this->getMetadataTestColumnId('table', 'id');
+        $columnId = $this->getMetadataTestColumnId('test_table', 'id');
         $metadataApi = new Metadata($this->_testClient);
 
         $md = [
@@ -742,7 +742,7 @@ class MetadataTest extends StorageApiTestCase
         // create alias of alias
         $this->_testClient->createAliasTable(
             $this->getTestBucketId(),
-            $this->getMetadataTestTableId('table'),
+            $this->getMetadataTestTableId('test_table'),
             'tableAlias'
         );
         $this->_testClient->createAliasTable(
@@ -793,7 +793,7 @@ class MetadataTest extends StorageApiTestCase
         $testMetadataValue = 'testval';
 
         $bucketId = $this->getTestBucketId();
-        $columnId = $this->getMetadataTestColumnId('table', 'id');
+        $columnId = $this->getMetadataTestColumnId('test_table', 'id');
         $metadataApi = new Metadata($this->_testClient);
 
         $provider = self::TEST_PROVIDER;
@@ -881,8 +881,8 @@ class MetadataTest extends StorageApiTestCase
      */
     public function testTableColumnDeleteWithMetadata(string $devBranchType, string $userRole): void
     {
-        $tableId = $this->getMetadataTestTableId('table');
-        $columnId = $this->getMetadataTestColumnId('table', 'sex');
+        $tableId = $this->getMetadataTestTableId('test_table');
+        $columnId = $this->getMetadataTestColumnId('test_table', 'sex');
         $metadataApi = new Metadata($this->_testClient);
 
         $md = [
@@ -1168,7 +1168,7 @@ class MetadataTest extends StorageApiTestCase
             'value' => 'magic-frog',
         ];
 
-        $tableId = $this->getMetadataTestTableId('table');
+        $tableId = $this->getMetadataTestTableId('test_table');
         $createdMetadata = $medataApi->postTableMetadata($tableId, 'provider', [$md]);
 
         $this->expectException(ClientException::class);
@@ -1269,7 +1269,7 @@ class MetadataTest extends StorageApiTestCase
     public function apiEndpoints(): Generator
     {
         foreach ((new TestSetupHelper())->provideComponentsClientTypeBasedOnSuite($this) as $key => $providedValue) {
-            $tableId = '.table';
+            $tableId = '.test_table';
             $columnId = $tableId . '.id';
             yield $key . ' columnEndpoint' => [...$providedValue, self::ENDPOINT_TYPE_COLUMNS, $columnId];
             yield $key . ' tableEndpoint' => [...$providedValue, self::ENDPOINT_TYPE_TABLES, $tableId];

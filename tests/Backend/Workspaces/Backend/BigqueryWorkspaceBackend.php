@@ -8,9 +8,12 @@ use Keboola\Datatype\Definition\Bigquery;
 use Keboola\StorageApi\Exception;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Schema\Bigquery\BigquerySchemaReflection;
+use Keboola\TableBackendUtils\Schema\SchemaReflectionInterface;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
+use Keboola\TableBackendUtils\View\ViewReflectionInterface;
 use PDO;
 
 class BigqueryWorkspaceBackend implements WorkspaceBackend
@@ -146,11 +149,35 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
      * @param string $table
      * @param int $style
      * @param string $orderBy
-     * @return void
+     * @return array<mixed>
      */
     public function fetchAll($table, $style = PDO::FETCH_NUM, $orderBy = null)
     {
-        throw new Exception('TODO Not implemented yet');
+        $query = $this->bqClient->query(
+            sprintf(
+                'SELECT * FROM %s.%s%s;',
+                BigqueryQuote::quoteSingleIdentifier($this->schema),
+                BigqueryQuote::quoteSingleIdentifier($table),
+                $orderBy !== null ? " ORDER BY $orderBy" : null
+            )
+        );
+        $queryResults = $this->bqClient->runQuery($query);
+
+        $data = [];
+        switch ($style) {
+            case \PDO::FETCH_NUM:
+                foreach ($queryResults as $row) {
+                    // @phpstan-ignore-next-line
+                    $data[] = array_values($row);
+                }
+                break;
+            case \PDO::FETCH_ASSOC:
+                $data = $queryResults;
+                break;
+            default:
+                throw new \Exception("Unknown fetch style $style");
+        }
+        return (array) $data;
     }
 
     /**
@@ -182,5 +209,20 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
     public function dropViewIfExists(string $table): void
     {
         // TODO: Implement dropViewIfExists() method.
+    }
+
+    public function getTableReflection(string $tableName): BigqueryTableReflection
+    {
+        return new BigQueryTableReflection($this->bqClient, $this->schema, $tableName);
+    }
+
+    public function getViewReflection(string $tableName): ViewReflectionInterface
+    {
+        throw new \Exception('TODO Not implemented yet');
+    }
+
+    public function getSchemaReflection(): BigquerySchemaReflection
+    {
+        return new BigquerySchemaReflection($this->bqClient, $this->schema);
     }
 }

@@ -43,7 +43,7 @@ class BranchStorageTest extends StorageApiTestCase
         )) {
             $this->expectException(ClientException::class);
             $this->expectExceptionMessage(sprintf(
-                'Backend "%s" is not supported for development branch. Supported backends: "snowflake".',
+                'Backend "%s" is not supported for development branch. Supported backends: "snowflake,bigquery".',
                 $backend
             ));
         } else {

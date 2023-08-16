@@ -11,6 +11,10 @@ namespace Keboola\Test\Backend\Workspaces\Backend;
 use Doctrine\DBAL\Connection as DBALConnection;
 use Google\Cloud\BigQuery\BigQueryClient;
 use Keboola\Db\Import\Snowflake\Connection as SnowflakeConnection;
+use Keboola\TableBackendUtils\Schema\SchemaReflectionInterface;
+use Keboola\TableBackendUtils\Schema\Teradata\TeradataSchemaReflection;
+use Keboola\TableBackendUtils\Table\TableReflectionInterface;
+use Keboola\TableBackendUtils\View\ViewReflectionInterface;
 use PDO;
 
 interface WorkspaceBackend
@@ -49,4 +53,10 @@ interface WorkspaceBackend
     public function toIdentifier($item);
 
     public function describeTableColumns($tableName);
+
+    public function getTableReflection(string $tableName): TableReflectionInterface;
+
+    public function getViewReflection(string $viewName): ViewReflectionInterface;
+
+    public function getSchemaReflection(): SchemaReflectionInterface;
 }
