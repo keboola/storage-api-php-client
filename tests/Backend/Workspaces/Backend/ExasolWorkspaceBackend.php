@@ -136,28 +136,17 @@ class ExasolWorkspaceBackend implements WorkspaceBackend
         return $ref->getColumnsDefinitions();
     }
 
-    /**
-     * @param string $tableName
-     * @return ExasolTableReflection
-     */
-    public function getTableReflection($tableName)
+    public function getTableReflection(string $tableName): ExasolTableReflection
     {
         return new ExasolTableReflection($this->db, $this->schema, $tableName);
     }
 
-    /**
-     * @param string $tableName
-     * @return ExasolViewReflection
-     */
-    public function getViewReflection($tableName)
+    public function getViewReflection(string $viewName): ExasolViewReflection
     {
-        return new ExasolViewReflection($this->db, $this->schema, $tableName);
+        return new ExasolViewReflection($this->db, $this->schema, $viewName);
     }
 
-    /**
-     * @return ExasolSchemaReflection
-     */
-    public function getSchemaReflection()
+    public function getSchemaReflection(): ExasolSchemaReflection
     {
         return new ExasolSchemaReflection($this->db, $this->schema);
     }

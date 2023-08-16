@@ -131,28 +131,17 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
         return $ref->getColumnsDefinitions();
     }
 
-    /**
-     * @param string $tableName
-     * @return SynapseTableReflection
-     */
-    public function getTableReflection($tableName)
+    public function getTableReflection(string $tableName): SynapseTableReflection
     {
         return new SynapseTableReflection($this->db, $this->schema, $tableName);
     }
 
-    /**
-     * @param string $tableName
-     * @return SynapseViewReflection
-     */
-    public function getViewReflection($tableName)
+    public function getViewReflection(string $viewName): SynapseViewReflection
     {
-        return new SynapseViewReflection($this->db, $this->schema, $tableName);
+        return new SynapseViewReflection($this->db, $this->schema, $viewName);
     }
 
-    /**
-     * @return SynapseSchemaReflection
-     */
-    public function getSchemaReflection()
+    public function getSchemaReflection(): SynapseSchemaReflection
     {
         return new SynapseSchemaReflection($this->db, $this->schema);
     }
