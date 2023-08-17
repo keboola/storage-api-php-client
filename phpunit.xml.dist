@@ -327,9 +327,6 @@
 		<exclude>tests/Backend/SOX/SOXTokensTest.php</exclude>
 		<exclude>tests/Backend/SOX/TriggersTest.php</exclude>
 		<exclude>tests/Backend/SOX/SOXBranchesTest.php</exclude>
-		<!--		TODO: TESTS (need pull https://keboola.atlassian.net/browse/BIG-151) -->
-		<exclude>tests/Backend/SOX/PullTableTest.php</exclude>
-		<exclude>tests/Backend/SOX/BranchStorageTest.php</exclude>
 	</testsuite>
 	<testsuite name="sync-sox-bigquery">
 		<file>tests/Backend/SOX/SOXCommonTest.php</file>
