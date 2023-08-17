@@ -154,7 +154,7 @@ class GCSUploader
             if ($retries >= $this->transferOptions->getMaxRetriesPerChunk()) {
                 throw new ClientException('Exceeded maximum number of retries per chunk upload');
             }
-            $results = \GuzzleHttp\Promise\settle($promises)->wait();
+            $results = \GuzzleHttp\Promise\Utils::settle($promises)->wait();
             if (!is_array($results)) {
                 throw new ClientException('Wrong response.');
             }

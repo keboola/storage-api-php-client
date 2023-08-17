@@ -153,7 +153,7 @@ class S3Uploader
             if ($retries >= $this->transferOptions->getMaxRetriesPerChunk()) {
                 throw new ClientException('Exceeded maximum number of retries per chunk upload');
             }
-            $results = \GuzzleHttp\Promise\settle($promises)->wait();
+            $results = \GuzzleHttp\Promise\Utils::settle($promises)->wait();
             $rejected = PromiseResultHandler::getRejected($results);
             if (count($rejected) == 0) {
                 break;
