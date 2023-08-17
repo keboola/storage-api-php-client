@@ -12,6 +12,7 @@ class BranchStorageTest extends StorageApiTestCase
 
     public const SUPPORTED_BACKENDS = [
         self::BACKEND_SNOWFLAKE,
+        self::BACKEND_BIGQUERY,
     ];
 
     public function setUp(): void
