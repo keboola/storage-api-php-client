@@ -207,12 +207,18 @@ class PullTableTest extends StorageApiTestCase
         $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject());
 
         $privilegedClient = $this->getDefaultBranchStorageApiClient();
+        $backend = $privilegedClient->verifyToken()['owner']['defaultBackend'];
+
         $productionBucketId = $this->initEmptyBucket(
             $this->getTestBucketName($description),
             self::STAGE_IN,
             $description,
             $privilegedClient
         );
+        $stringType = 'VARCHAR';
+        if ($backend === self::BACKEND_BIGQUERY) {
+            $stringType = 'STRING';
+        }
         $productionTableId = $privilegedClient->createTableDefinition(
             $productionBucketId,
             [
@@ -229,7 +235,7 @@ class PullTableTest extends StorageApiTestCase
                     [
                         'name' => 'name',
                         'definition' => [
-                            'type' => 'VARCHAR',
+                            'type' => $stringType,
                         ],
                     ],
                 ],
@@ -241,68 +247,141 @@ class PullTableTest extends StorageApiTestCase
         ]);
         $newTableId = $branchClient->pullTableToBranch($productionTableId);
 
-        // clone table to WS so we can check the column type
         $wsApi = new Workspaces($branchClient);
         $ws = $wsApi->createWorkspace();
-        $wsApi->cloneIntoWorkspace($ws['id'], [
-            'input' => [
-                [
-                    'source' => $newTableId,
-                    'destination' => 'test',
-                    'dropTimestampColumn' => true,
+        if ($backend === self::BACKEND_SNOWFLAKE) {
+            // clone table to WS so we can check the column type
+            $wsApi->cloneIntoWorkspace($ws['id'], [
+                'input' => [
+                    [
+                        'source' => $newTableId,
+                        'destination' => 'test',
+                        'dropTimestampColumn' => true,
+                    ],
                 ],
-            ],
-        ]);
-        $backend = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($ws);
-        $ref = $backend->getTableReflection('test');
+            ]);
+        } else {
+            // view table to WS so we can check the column type
+            $wsApi->loadWorkspaceData($ws['id'], [
+                'input' => [
+                    [
+                        'source' => $newTableId,
+                        'destination' => 'test',
+                        'useView' => true,
+                    ],
+                ],
+            ]);
+        }
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($ws, true);
+        $ref = $db->getTableReflection('test');
         /** @var SnowflakeColumn[] $defs */
         $defs = iterator_to_array($ref->getColumnsDefinitions());
-        $this->assertSame('NUMBER', $defs[0]->getColumnDefinition()->getType());
-        $this->assertSame('38,0', $defs[0]->getColumnDefinition()->getLength());
+        switch ($backend) {
+            case self::BACKEND_SNOWFLAKE:
+                $this->assertSame('NUMBER', $defs[0]->getColumnDefinition()->getType());
+                $this->assertSame('38,0', $defs[0]->getColumnDefinition()->getLength());
+                break;
+            case self::BACKEND_BIGQUERY:
+                $this->assertSame('INT64', $defs[0]->getColumnDefinition()->getType());
+                $this->assertNull($defs[0]->getColumnDefinition()->getLength());
+                break;
+            default:
+                $this->fail(sprintf('Unknown backend "%s" please fill expected types', $backend));
+        }
 
         // check table created
         $newTable = $branchClient->getTable($newTableId);
-        $expectedColumnsDefinitions = [
-            [
-                'name' => 'id',
-                'definition' => [
-                    'type' => 'NUMBER',
-                    'nullable' => false,
-                    'length' => '38,0',
-                ],
-                'basetype' => 'NUMERIC',
-                'canBeFiltered' => true,
-            ],
-            [
-                'name' => 'name',
-                'definition' => [
-                    'type' => 'VARCHAR',
-                    'nullable' => true,
-                    'length' => '16777216',
-                ],
-                'basetype' => 'STRING',
-                'canBeFiltered' => true,
-            ],
-        ];
+        switch ($backend) {
+            case self::BACKEND_SNOWFLAKE:
+                $expectedColumnsDefinitions = [
+                    [
+                        'name' => 'id',
+                        'definition' => [
+                            'type' => 'NUMBER',
+                            'nullable' => false,
+                            'length' => '38,0',
+                        ],
+                        'basetype' => 'NUMERIC',
+                        'canBeFiltered' => true,
+                    ],
+                    [
+                        'name' => 'name',
+                        'definition' => [
+                            'type' => $stringType,
+                            'nullable' => true,
+                            'length' => '16777216',
+                        ],
+                        'basetype' => 'STRING',
+                        'canBeFiltered' => true,
+                    ],
+                ];
+                break;
+            case self::BACKEND_BIGQUERY:
+                $expectedColumnsDefinitions = [
+                    [
+                        'name' => 'id',
+                        'definition' => [
+                            'type' => 'INT64',
+                            'nullable' => false,
+                        ],
+                        'basetype' => 'INTEGER',
+                        'canBeFiltered' => true,
+                    ],
+                    [
+                        'name' => 'name',
+                        'definition' => [
+                            'type' => $stringType,
+                            'nullable' => true,
+                        ],
+                        'basetype' => 'STRING',
+                        'canBeFiltered' => true,
+                    ],
+                ];
+                break;
+            default:
+                $this->fail(sprintf('Unknown backend "%s" please fill expected definition', $backend));
+        }
+
         $this->assertSame([
             'primaryKeysNames' => [],
             'columns' => $expectedColumnsDefinitions,
         ], $newTable['definition']);
 
         // try add new column
-        $expectedColumnsDefinitionsExtraColumn = [
-            ...$expectedColumnsDefinitions,
-            [
-                'name' => 'newCol',
-                'definition' => [
-                    'type' => 'VARCHAR',
-                    'nullable' => true,
-                    'length' => '16777216',
-                ],
-                'basetype' => 'STRING',
-                'canBeFiltered' => true,
-            ],
-        ];
+        switch ($backend) {
+            case self::BACKEND_SNOWFLAKE:
+                $expectedColumnsDefinitionsExtraColumn = [
+                    ...$expectedColumnsDefinitions,
+                    [
+                        'name' => 'newCol',
+                        'definition' => [
+                            'type' => $stringType,
+                            'nullable' => true,
+                            'length' => '16777216',
+                        ],
+                        'basetype' => 'STRING',
+                        'canBeFiltered' => true,
+                    ],
+                ];
+                break;
+            case self::BACKEND_BIGQUERY:
+                $expectedColumnsDefinitionsExtraColumn = [
+                    ...$expectedColumnsDefinitions,
+                    [
+                        'name' => 'newCol',
+                        'definition' => [
+                            'type' => $stringType,
+                            'nullable' => true,
+                        ],
+                        'basetype' => 'STRING',
+                        'canBeFiltered' => true,
+                    ],
+                ];
+                break;
+            default:
+                $this->fail(sprintf('Unknown backend "%s" please fill expected definition', $backend));
+        }
 
         $privilegedClient->addTableColumn($productionTableId, 'newCol', null, 'STRING');
         $table = $branchClient->getTable($newTableId);
