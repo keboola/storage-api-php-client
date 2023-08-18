@@ -110,7 +110,12 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
      */
     public function dropTable($table)
     {
-        throw new Exception('TODO Not implemented yet');
+        $this->executeQuery(sprintf('DROP TABLE %s.%s', $this->schema, $table));
+    }
+
+    public function dropView(string $viewName): void
+    {
+        $this->executeQuery(sprintf('DROP VIEW %s.%s', $this->schema, $viewName));
     }
 
     /**
