@@ -114,19 +114,25 @@ class SOXWorkspaceTest extends SOXWorkspaceTestCase
         self::assertEquals(['id', '_timestamp', 'newGuy'], $tableRef->getColumnsNames());
         self::assertCount(5, $backend->fetchAll('languages'));
 
-        if (!$backend instanceof BigqueryWorkspaceBackend) {
-            // todo: preserve not supported in driver
-            // run load without preserve to drop the view
-            $workspaces->loadWorkspaceData($workspace['id'], [
-                'input' => [
-                    [
-                        'source' => $tableId,
-                        'destination' => 'dummy',
-                        'sourceBranchId' => $workspaceSapiClient->getCurrentBranchId(),
-                    ],
+        // run load without preserve to drop the view
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'sourceBranchId' => $workspaceSapiClient->getCurrentBranchId(),
                 ],
-            ]);
-            $backend->dropTable('dummy');
+            ],
+        ];
+        if ($backend instanceof BigqueryWorkspaceBackend) {
+            // BQ doesn't support normal load so use view load to test if it works
+            $options['input'][0]['useView'] = true;
+        }
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        if ($backend instanceof BigqueryWorkspaceBackend) {
+            $backend->dropView('languages');
+        } else {
+            $backend->dropTable('languages');
         }
 
         $this->testClient->dropTable($tableId);
