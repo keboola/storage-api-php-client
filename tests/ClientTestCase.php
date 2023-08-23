@@ -4,6 +4,7 @@ namespace Keboola\Test;
 
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client;
+use Keboola\Test\ClientProvider\TestSetupHelper;
 use PHPUnit\Framework\TestCase;
 
 class ClientTestCase extends TestCase
@@ -94,6 +95,18 @@ class ClientTestCase extends TestCase
     protected function getReviewerStorageApiClient(): Client
     {
         return $this->getClientForToken(STORAGE_API_REVIEWER_TOKEN);
+    }
+
+    protected function getClientBasedOnRole(string $role): Client
+    {
+        switch ($role) {
+            case TestSetupHelper::ROLE_DEVELOPER:
+                return $this->getDeveloperStorageApiClient();
+            case TestSetupHelper::ROLE_PROD_MANAGER:
+                return $this->getDefaultClient();
+            default:
+                throw new \Exception(sprintf('Unknown role "%s"', $role));
+        }
     }
 
     /**

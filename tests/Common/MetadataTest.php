@@ -11,6 +11,7 @@ use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\Metadata\TableMetadataUpdateOptions;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
+use Keboola\StorageApi\Tokens;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\StorageApiTestCase;
@@ -563,7 +564,7 @@ class MetadataTest extends StorageApiTestCase
             ]
         );
 
-        $readClient = $this->getReadClient($devBranchType, $bucketId);
+        $readClient = $this->getReadClient($devBranchType, $bucketId, $userRole);
 
         $readMetadataApi = new Metadata($readClient);
 
@@ -808,7 +809,7 @@ class MetadataTest extends StorageApiTestCase
             ]
         );
 
-        $readClient = $this->getReadClient($devBranchType, $bucketId);
+        $readClient = $this->getReadClient($devBranchType, $bucketId, $userRole);
 
         $readMetadataApi = new Metadata($readClient);
 
@@ -1199,7 +1200,7 @@ class MetadataTest extends StorageApiTestCase
             ]
         );
 
-        $readClient = $this->getReadClient($devBranchType, $bucketId);
+        $readClient = $this->getReadClient($devBranchType, $bucketId, $userRole);
 
         $readMetadataApi = new Metadata($readClient);
 
@@ -1309,14 +1310,13 @@ class MetadataTest extends StorageApiTestCase
         }
     }
 
-    private function prepareTokenWithReadPrivilegeForBucket($bucketId)
+    private function prepareTokenWithReadPrivilegeForBucket($bucketId, string $role)
     {
         $options = new TokenCreateOptions();
         $options
             ->setExpiresIn(60 * 5)
             ->setDescription(sprintf('Test read of "%s" bucket', $bucketId))
             ->addBucketPermission($bucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ);
-
         $token = $this->tokens->createToken($options);
         return $token['token'];
     }
@@ -1447,18 +1447,24 @@ class MetadataTest extends StorageApiTestCase
         return (new TestSetupHelper())->provideComponentsClientTypeBasedOnSuite($this);
     }
 
-    private function getReadClient(string $devBranchType, string $bucketId): Client
+    private function getReadClient(string $devBranchType, string $bucketId, string $role): Client
     {
+        if (in_array($role, TestSetupHelper::PROTECTED_DEFAULT_BRANCH_ROLES)) {
+            // production manager can only create tokens with canCreateJobs, it's not what we're testing here, so use
+            // developer to create the token
+            $this->tokens = new Tokens($this->getDeveloperStorageApiClient());
+        }
+
         if ($devBranchType === ClientProvider::DEV_BRANCH) {
             assert($this->_testClient instanceof BranchAwareClient);
             return $this->getBranchAwareClient($this->_testClient->getCurrentBranchId(), [
-                'token' => $this->prepareTokenWithReadPrivilegeForBucket($bucketId),
+                'token' => $this->prepareTokenWithReadPrivilegeForBucket($bucketId, $role),
                 'url' => STORAGE_API_URL,
                 'backoffMaxTries' => 1,
             ]);
         }
         return $this->getClient([
-            'token' => $this->prepareTokenWithReadPrivilegeForBucket($bucketId),
+            'token' => $this->prepareTokenWithReadPrivilegeForBucket($bucketId, $role),
             'url' => STORAGE_API_URL,
             'backoffMaxTries' => 1,
         ]);
