@@ -1317,9 +1317,6 @@ class MetadataTest extends StorageApiTestCase
             ->setExpiresIn(60 * 5)
             ->setDescription(sprintf('Test read of "%s" bucket', $bucketId))
             ->addBucketPermission($bucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ);
-        if ($role === TestSetupHelper::ROLE_PROD_MANAGER) {
-            $options->setCanCreateJobs(true);
-        }
         $token = $this->tokens->createToken($options);
         return $token['token'];
     }
@@ -1453,7 +1450,9 @@ class MetadataTest extends StorageApiTestCase
     private function getReadClient(string $devBranchType, string $bucketId, string $role): Client
     {
         if (in_array($role, TestSetupHelper::PROTECTED_DEFAULT_BRANCH_ROLES)) {
-            $this->tokens = new Tokens($this->getClientBasedOnRole($role));
+            // production manager can only create tokens with canCreateJobs, it's not what we're testing here, so use
+            // developer to create the token
+            $this->tokens = new Tokens($this->getDeveloperStorageApiClient());
         }
 
         if ($devBranchType === ClientProvider::DEV_BRANCH) {
