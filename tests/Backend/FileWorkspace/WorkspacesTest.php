@@ -186,4 +186,14 @@ class WorkspacesTest extends FileWorkspaceTestCase
             ],
         ];
     }
+
+
+    public function testCreateWorkspaceDoesNotContainConnectionString(): void
+    {
+        $url = 'workspaces?' . http_build_query(['async' => true]);
+
+        $result = $this->_client->apiPostJson($url);
+        // check that connectionString is not present in the response for File Workspace
+        $this->assertArrayNotHasKey('connectionString', $result['connection']);
+    }
 }
