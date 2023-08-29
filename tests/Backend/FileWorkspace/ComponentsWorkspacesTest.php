@@ -92,8 +92,10 @@ class ComponentsWorkspacesTest extends FileWorkspaceTestCase
         $this->assertCount(2, $componentWorkspacesIds);
         $this->assertEquals($workspacesIds, $componentWorkspacesIds);
 
+        /** @var array $connection */
+        $connection = $workspace['connection'];
         // create file
-        $backend = new Abs($workspace['connection']);
+        $backend = new Abs($connection);
         $fileName = $backend->uploadTestingFile();
         $files = $backend->listFiles(null);
         $this->assertCount(1, $files);

@@ -238,10 +238,10 @@ class MetadataTest extends StorageApiTestCase
         $this->assertMatchesRegularExpression(self::ISO8601_REGEXP, $metadatas[0]['timestamp']);
         $this->assertEquals(self::TEST_PROVIDER, $metadatas[0]['provider']);
 
-        $mdCopy = $metadatas[0];
-        $mdCopy['value'] = 'newValue';
+        $updateMetadataWith = $testMetadata[0];
+        $updateMetadataWith['value'] = 'newValue';
 
-        $newMetadata = $metadataApi->postTableMetadata($tableId, $provider, [$mdCopy]);
+        $newMetadata = $metadataApi->postTableMetadata($tableId, $provider, [$updateMetadataWith]);
 
         foreach ($newMetadata as $metadata) {
             if ($metadata['id'] == $metadatas[0]['id']) {
@@ -255,7 +255,7 @@ class MetadataTest extends StorageApiTestCase
             }
         }
 
-        $metadataApi->deleteTableMetadata($tableId, $mdCopy['id']);
+        $metadataApi->deleteTableMetadata($tableId, $metadatas[0]['id']);
 
         $mdList = $metadataApi->listTableMetadata($tableId);
 
