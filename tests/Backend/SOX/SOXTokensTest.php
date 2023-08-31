@@ -269,13 +269,85 @@ class SOXTokensTest extends StorageApiTestCase
         $tokens->dropToken($newToken['id']);
     }
 
+    /**
+     * @dataProvider tokensProvider
+     */
+    public function testDeleteTokenWithDifferentCanCreateJobs(Client $client): void
+    {
+        $token = $client->verifyToken();
+        $adminRole = null;
+        if (array_key_exists('admin', $token)) {
+            $adminRole = $token['admin']['role'];
+        }
+
+        if ($adminRole === 'productionManager' || $adminRole === null) {
+            $tokenCreatingClient = $this->getDeveloperStorageApiClient();
+        } else {
+            $tokenCreatingClient = $this->getDefaultClient();
+        }
+        $tokenCreationApi = new Tokens($tokenCreatingClient);
+
+        $options = (new TokenCreateOptions())
+            ->setDescription($this->generateDescriptionForTestObject());
+        if (!in_array($adminRole, [null, 'productionManager'], true)) {
+            $options->setCanCreateJobs(true);
+        }
+
+        $newToken = $tokenCreationApi->createToken(
+            $options,
+        );
+
+        $tokens = new Tokens($client);
+        $this->expectExceptionMessage('You don\'t have access to the resource');
+        $this->expectExceptionCode(403);
+        $this->expectException(ClientException::class);
+        $tokens->dropToken($newToken['id']);
+    }
+
+    /**
+     * @dataProvider tokensProvider
+     */
+    public function testDeleteTokenWithSameCanCreateJobs(Client $client): void
+    {
+        $token = $client->verifyToken();
+        $adminRole = null;
+        if (array_key_exists('admin', $token)) {
+            $adminRole = $token['admin']['role'];
+        }
+
+        if ($adminRole === 'productionManager' || $adminRole === null) {
+            $tokenCreatingClient = $this->getDefaultClient();
+        } else {
+            $tokenCreatingClient = $this->getDeveloperStorageApiClient();
+        }
+        $tokenCreationApi = new Tokens($tokenCreatingClient);
+
+        $options = (new TokenCreateOptions())
+            ->setDescription($this->generateDescriptionForTestObject());
+        if (in_array($adminRole, [null, 'productionManager'], true)) {
+            $options->setCanCreateJobs(true);
+        }
+
+        $newToken = $tokenCreationApi->createToken(
+            $options,
+        );
+
+        $tokens = new Tokens($client);
+        if ($adminRole === 'readOnly') {
+            $this->expectExceptionMessage('You don\'t have access to the resource');
+            $this->expectExceptionCode(403);
+        }
+        $tokens->dropToken($newToken['id']);
+        $this->expectNotToPerformAssertions();
+    }
+
     public function testPrivilegedInProtectedMainBranchFailsWithoutAnApplicationTokenWithScope(): void
     {
         $this->assertManageTokensPresent();
 
         $options = (new TokenCreateOptions())
             ->setDescription($this->generateDescriptionForTestObject())
-        ->setCanReadAllFileUploads(true)
+            ->setCanReadAllFileUploads(true)
             ->setCanManageBuckets(true)
             ->setCanPurgeTrash(true)
             ->setExpiresIn(360)
