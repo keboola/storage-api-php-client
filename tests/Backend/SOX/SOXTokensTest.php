@@ -7,9 +7,13 @@ namespace Keboola\Test\Backend\SOX;
 use Generator;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Tokens;
+use Keboola\StorageApi\Workspaces;
+use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
+use PHPUnit\Framework\TestCase;
 
 class SOXTokensTest extends StorageApiTestCase
 {
@@ -604,5 +608,46 @@ class SOXTokensTest extends StorageApiTestCase
         $this->expectExceptionCode(403);
         $this->expectExceptionMessage('You don\'t have access to the resource.');
         $tokensApi->createToken($options);
+    }
+
+    public function testCanCreateJobsCannotModifyBranch(): void
+    {
+        $branchName = $this->generateDescriptionForTestObject();
+        $devBranch = new DevBranches($this->getDeveloperStorageApiClient());
+        $this->deleteBranchesByPrefix($devBranch, $branchName);
+        $branch = $devBranch->createBranch($branchName);
+
+        $pmBranchedClient = $this->getBranchAwareClient($branch['id'], $this->getClientOptionsForToken(STORAGE_API_TOKEN));
+        $token = $pmBranchedClient->verifyToken();
+        $this->assertTrue($token['canCreateJobs']);
+
+        try {
+            $pmWorkspaces = new Workspaces($pmBranchedClient);
+            $pmWorkspaces->createWorkspace([], true);
+            $this->fail('Production manager admin token with canCreateJobs should not be able to create bucket in branch');
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
+        }
+
+        $tokensApi = new Tokens($this->getDefaultClient());
+        $newTokenWithCanCreateJobs = $tokensApi->createToken(
+            (new TokenCreateOptions())
+                ->setDescription($this->generateDescriptionForTestObject())
+                ->setCanCreateJobs(true)
+        );
+
+        $tokenClient = $this->getBranchAwareClient($branch['id'], $this->getClientOptionsForToken($newTokenWithCanCreateJobs['token']));
+        $token = $tokenClient->verifyToken();
+        $this->assertTrue($token['canCreateJobs']);
+
+        try {
+            $pmWorkspaces = new Workspaces($tokenClient);
+            $pmWorkspaces->createWorkspace([], true);
+            $this->fail('Token with canCreateJobs should not be able to create bucket in branch');
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
+        }
     }
 }
