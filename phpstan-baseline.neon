@@ -2256,11 +2256,6 @@ parameters:
 			path: tests/Backend/CommonPart1/CreateTableTest.php
 
 		-
-			message: "#^Unreachable statement \\- code above always terminates\\.$#"
-			count: 1
-			path: tests/Backend/CommonPart1/CreateTableTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\DataPreviewLimitsTest\\:\\:generateCsv\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/DataPreviewLimitsTest.php
