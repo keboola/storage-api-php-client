@@ -232,6 +232,8 @@ class BucketsTest extends StorageApiTestCase
         $buckets = $this->_testClient->listBuckets([
             'include' => 'metadata',
         ]);
+        $this->assertNotEmpty($buckets, 'There should be at least one bucket prepared for the testcase');
+
         $firstBucket = array_filter($buckets, function ($bucket) {
             return $bucket['id'] === $this->_bucketIds[self::STAGE_IN];
         });
