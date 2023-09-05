@@ -272,6 +272,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
                     ],
                 ]
             );
+            $this->fail('Should fail');
         } catch (ClientException $e) {
             $this->assertSame('workspace.tableCannotBeLoaded', $e->getStringCode());
             $this->assertSame(
@@ -292,6 +293,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
                     ],
                 ]
             );
+            $this->fail('Should fail');
         } catch (ClientException $e) {
             $this->assertSame('workspace.tableCannotBeLoaded', $e->getStringCode());
             $this->assertSame(
