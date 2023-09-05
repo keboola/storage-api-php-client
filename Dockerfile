@@ -131,6 +131,8 @@ RUN cd /tmp/teradata \
 RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
   && docker-php-ext-install pdo_odbc
 
+RUN docker-php-ext-install bcmath
+
 WORKDIR /code
 
 ## Composer - deps always cached unless changed

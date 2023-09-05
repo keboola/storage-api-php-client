@@ -27,6 +27,9 @@ define('SUITE_NAME', getenv('SUITE_NAME'));
 define('TRAVIS_BUILD_ID', getenv('TRAVIS_BUILD_ID'));
 define('REDSHIFT_NODE_COUNT', getenv('REDSHIFT_NODE_COUNT'));
 
+define('BQ_KEY_FILE_FOR_EXTERNAL_BUCKET', getenv('BQ_KEY_FILE_FOR_EXTERNAL_BUCKET'));
+define('BQ_DESTINATION_PROJECT_SERVICE_ACC_EMAIL', getenv('BQ_DESTINATION_PROJECT_SERVICE_ACC_EMAIL'));
+
 $revisionFilePath = realpath(__DIR__ . '/../REVISION');
 
 if (file_exists($revisionFilePath)) {
