@@ -287,9 +287,6 @@
 		<exclude>tests/Backend/CommonPart1/MigrateTableWithConfigurationTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
 
-		<!--		BQ does not support external buckets yet-->
-		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
-
 		<directory>tests/Backend/CommonPart2</directory>
 		<!--		requires add/delete column-->
 		<exclude>tests/Backend/CommonPart2/SimpleAliasTest.php</exclude>
@@ -299,6 +296,8 @@
 		<!--		Workspaces-->
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/BigqueryWorkspacesUnloadTest.php</file>
+		<!--	External bucket	-->
+		<file>tests/Backend/ExternalBuckets/BigqueryRegisterBucketTest.php</file>
 	</testsuite>
 	<testsuite name="paratest-sox-snowflake">
 		<directory>tests/Backend/SOX</directory>
