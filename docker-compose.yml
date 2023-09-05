@@ -31,6 +31,8 @@ services:
       - REDSHIFT_NODE_COUNT
       - SUITE_NAME
       - TRAVIS_BUILD_ID
+      - BQ_KEY_FILE_FOR_EXTERNAL_BUCKET
+      - BQ_DESTINATION_PROJECT_SERVICE_ACC_EMAIL
   dev: &dev
     <<: *base
     volumes:
