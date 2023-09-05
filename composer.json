@@ -28,6 +28,7 @@
 		"php": ">=7.4",
 		"ext-json": "*",
 		"aws/aws-sdk-php": "~3.2",
+		"google/cloud-bigquery-analyticshub": "^0.2.2",
 		"google/cloud-storage": "^1.27",
 		"guzzlehttp/guzzle": "~7.0",
 		"keboola/csv": "^1",
