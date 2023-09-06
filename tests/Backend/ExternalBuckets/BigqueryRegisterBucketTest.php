@@ -369,7 +369,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 
     private function prepareExternalBucketForRegistration(string $description): Listing
     {
-        $bucketDatabaseName = sha1($description). '_external_bucket';
+        $bucketSchemaName = sha1($description). '_external_bucket';
         $externalCredentials = $this->getCredentialsArray();
         $externalProjectStringId = $externalCredentials['project_id'];
 
@@ -391,12 +391,12 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $bqClient = $this->getBigQueryClient($externalCredentials);
 
         try {
-            $bqClient->dataset($bucketDatabaseName)->delete(['deleteContents' => true]);
+            $bqClient->dataset($bucketSchemaName)->delete(['deleteContents' => true]);
         } catch (\Exception $e) {
             // ignore if not exist
         }
 
-        $bqClient->createDataset($bucketDatabaseName);
+        $bqClient->createDataset($bucketSchemaName);
 
         // 1. Create exchanger in source project
         $dataExchange = new DataExchange();
@@ -412,7 +412,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             'dataset' => sprintf(
                 'projects/%s/datasets/%s',
                 $externalProjectStringId,
-                $bucketDatabaseName
+                $bucketSchemaName
             ),
         ]);
         $listing = new Listing();
