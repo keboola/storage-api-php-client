@@ -2092,6 +2092,14 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 'definition' => null,
                 'basetype' => 'STRING',
             ],
+            [
+                'name' => 'column_string_with_default',
+                'definition' => [
+                    'type' => 'STRING',
+                    'default' => 'default',
+                ],
+                'basetype' => null,
+            ],
         ];
 
         foreach ($newColumns as $newColumn) {
@@ -2107,6 +2115,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
             'column_timestamp',
             'column_varchar',
             'basetype',
+            'column_string_with_default',
         ];
         $this->assertEquals($expectedColumns, $this->_client->getTable($sourceTableId)['columns']);
         $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
@@ -2140,6 +2149,75 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 'provider' => 'storage',
             ], $columnMetadata[2], ['id', 'timestamp']);
         }
+    }
+
+    public function testAddColumnOnTypedTableFailsWithExpresssionDefaultValue(): void
+    {
+        $tableDefinition = [
+            'name' => 'my-new-table-add-column',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'column_decimal',
+                    'definition' => [
+                        'type' => 'DECIMAL',
+                        'length' => '4,3',
+                    ],
+                ],
+            ],
+        ];
+
+        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(self::STAGE_IN), $tableDefinition);
+
+        $newColumns = [
+            [
+                'name' => 'column_date',
+                'definition' => [
+                    'type' => 'DATE',
+                    'default' => '2021-01-01',
+                ],
+                'basetype' => null,
+            ],
+            [
+                'name' => 'column_timestamp',
+                'definition' => [
+                    'type' => 'TIMESTAMP',
+                    'default' => 'CURRENT_TIMESTAMP()',
+                ],
+                'basetype' => null,
+            ],
+            [
+                'name' => 'column_timestamp_2',
+                'definition' => [
+                    'type' => 'TIMESTAMP',
+                    'default' => 'CURRENT_TIMESTAMP',
+                ],
+                'basetype' => null,
+            ],
+        ];
+
+        foreach ($newColumns as $newColumn) {
+            try {
+                $this->_client->addTableColumn($sourceTableId, $newColumn['name'], $newColumn['definition'], $newColumn['basetype']);
+                $this->fail('Should have failed');
+            } catch (ClientException $e) {
+                $this->assertStringContainsString('Validation:', $e->getMessage());
+                $this->assertSame('storage.tables.invalidDefaultValueForType', $e->getStringCode());
+            }
+        }
+
+        $expectedColumns = [
+            'id',
+            'column_decimal',
+        ];
+        $this->assertEquals($expectedColumns, $this->_client->getTable($sourceTableId)['columns']);
     }
 
     public function testAddTypedColumnToNonTypedTableShouldFail(): void
