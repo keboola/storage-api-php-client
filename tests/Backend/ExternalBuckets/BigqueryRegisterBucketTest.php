@@ -75,10 +75,10 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $guide = $this->_client->registerBucketGuide(['external_bucket'], $externalBucketBackend);
         $this->assertArrayHasKey('markdown', $guide);
 
-        // prepare workspace
+        // prepare external bucket
         $createdListing = $this->prepareExternalBucketForRegistration($description);
 
-        // register workspace as external bucket
+        // register external bucket
         $runId = $this->setRunId();
         $idOfBucket = $this->_client->registerBucket(
             $testBucketName,
@@ -110,7 +110,9 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
         $externalCredentials['connection']['schema'] = sha1($description). '_external_bucket';
 
-        // add first table to workspace
+        // add first table to external bucket
+        // I created a user for the external bucket the same way as for WS.
+        // Workspace can't just be used because the user doesn't have the right to create the exchanger and the listing
         $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
         $db->createTable('TEST', [
             'AMOUNT' => 'INT',
@@ -177,7 +179,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         // expect two lines in preview because of the header
         $this->assertCount(2, \Keboola\StorageApi\Client::parseCsv($preview, false));
 
-        // add second table to workspace
+        // add second table to external bucket
         $db->createTable('TEST2', ['AMOUNT' => 'INT', 'DESCRIPTION' => 'STRING']);
 
         // refresh external bucket
@@ -206,7 +208,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(2, $tables);
 
-        // alter first table, drop second table, add third table to workspace
+        // alter first table, drop second table, add third table to external bucket
         $db->dropTable('TEST2');
         $db->executeQuery(sprintf(
         /** @lang BigQuery */
