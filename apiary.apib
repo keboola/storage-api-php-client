@@ -1109,7 +1109,7 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
 ### Register bucket [POST /v2/storage/buckets/register]
 **EXPERIMENTAL**
 
-Use this API call to create a new bucket from existing resource (schema or DB - depends on backend). Available for **Snowflake** and **Teradata** backends only
+Use this API call to create a new bucket from existing resource (schema or DB - depends on backend). Available for **Snowflake**, **Teradata** and **BigQuery** backends only
 
 + Attributes
     + name (required) - New bucket name; only alphanumeric characters and underscores are allowed.
@@ -1125,7 +1125,7 @@ Use this API call to create a new bucket from existing resource (schema or DB - 
             + teradata
             + bigquery
     + displayName (optional) - Bucket displayName, this name is displayed in UI and can be changed anytime; only alphanumeric characters,underscores and dashes are allowed.
-    + path (required, array) - Path to the schema. On SNFLK ['database-name','schema-name'], Teradata ['database-name'], BigQuery ['listing-id']
+    + path (required, array) - Path to the schema. On SNFLK ['database-name','schema-name'], Teradata ['database-name'], BigQuery ['url of listing detail']
 
 + Request (application/json)
     + Headers
@@ -1191,7 +1191,7 @@ Returns a guide on how exactly you should register the external bucket. The text
         + Members
             + snowflake
             + bigquery
-    + path (required, array[string]) - Path to the schema. For Snowflake backend it's in a format ['database-name','schema-name'], for BigQuery ['schema-name']
+    + path (required, array[string]) - Path to the schema. For Snowflake backend it's in a format ['database-name','schema-name'], for BigQuery ['bigquery-dataset-name']
 
 + Request (application/json)
     + Headers
