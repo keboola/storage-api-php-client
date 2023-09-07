@@ -39,14 +39,37 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $this->expectNotToPerformAssertions();
     }
 
-    public function testInvalidDBToRegister(): void
+    public function testInvalidListingToRegister(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
 
         try {
             $this->_client->registerBucket(
                 'test-bucket-registration',
-                ['non-existing-database', 'non-existing-schema'],
+                ['invalid-google-url'],
+                'in',
+                'will fail',
+                'bigquery',
+                'test-bucket-will-fail'
+            );
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertSame('storage.buckets.validation', $e->getStringCode());
+            $this->assertStringContainsString(
+                'Not valid listing url.',
+                $e->getMessage()
+            );
+        }
+    }
+
+    public function testNotExistListingToRegister(): void
+    {
+        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
+
+        try {
+            $this->_client->registerBucket(
+                'test-bucket-registration',
+                ['https://console.cloud.google.com/bigquery/analytics-hub/exchanges/projects/132/locations/us/dataExchanges/non_exist/listings/non_exist?project=project-123'],
                 'in',
                 'will fail',
                 'bigquery',
