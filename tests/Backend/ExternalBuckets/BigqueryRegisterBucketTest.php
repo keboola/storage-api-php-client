@@ -91,6 +91,8 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $externalBucketBackend = 'bigquery';
         $guide = $this->_client->registerBucketGuide(['external_bucket'], $externalBucketBackend);
         $this->assertArrayHasKey('markdown', $guide);
+        $this->assertStringContainsString('## Create a New Exchange', $guide['markdown']);
+        $this->assertStringContainsString('## Create a New Listing', $guide['markdown']);
 
         // prepare external bucket
         $createdListing = $this->prepareExternalBucketForRegistration($description);
