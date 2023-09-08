@@ -388,7 +388,10 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         }
     }
 
-    private function prepareExternalBucketForRegistration(string $description): Listing
+    /**
+     * @return string[]
+     */
+    private function prepareExternalBucketForRegistration(string $description): array
     {
         $bucketSchemaName = sha1($description). '_external_bucket';
         $externalCredentials = $this->getCredentialsArray();
@@ -453,7 +456,18 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $iamExchangerPolicy->setBindings($binding);
         $analyticHubClient->setIamPolicy($dataExchange->getName(), $iamExchangerPolicy);
 
-        return $createdListing;
+        $pattern = '/projects\/([\w-]+)\/locations\/([\w-]+)\/dataExchanges\/([\w-]+)\/listings\/([\w-]+)/';
+
+        if (preg_match($pattern, $createdListing->getName(), $matches)) {
+            return [
+                $matches[1],
+                $matches[2],
+                $matches[3],
+                $matches[4],
+            ];
+        } else {
+            throw new \Exception('Invalid listing name');
+        }
     }
 
     /**
