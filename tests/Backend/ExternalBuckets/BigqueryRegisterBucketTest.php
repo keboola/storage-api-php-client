@@ -40,7 +40,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         try {
             $this->_client->registerBucket(
                 'test-bucket-registration',
-                ['invalid-google-url'],
+                ['path'],
                 'in',
                 'will fail',
                 'bigquery',
@@ -50,7 +50,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         } catch (ClientException $e) {
             $this->assertSame('storage.buckets.validation', $e->getStringCode());
             $this->assertStringContainsString(
-                'Invalid listing URL',
+                'Invalid path for Bigquery backend. Path must have exactly four elements, project id, location, exchanger id, listing id',
                 $e->getMessage()
             );
         }
@@ -63,7 +63,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         try {
             $this->_client->registerBucket(
                 'test-bucket-registration',
-                ['https://console.cloud.google.com/bigquery/analytics-hub/exchanges/projects/132/locations/us/dataExchanges/non_exist/listings/non_exist?project=project-123'],
+                ['132', 'us', 'non_exist', 'non_exist'],
                 'in',
                 'will fail',
                 'bigquery',
@@ -95,13 +95,13 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $this->assertStringContainsString('## Create a New Listing', $guide['markdown']);
 
         // prepare external bucket
-        $createdListing = $this->prepareExternalBucketForRegistration($description);
+        $path = $this->prepareExternalBucketForRegistration($description);
 
         // register external bucket
         $runId = $this->setRunId();
         $idOfBucket = $this->_client->registerBucket(
             $testBucketName,
-            [$createdListing->getName()],
+            $path,
             'in',
             'Iam in external bucket',
             $externalBucketBackend,
