@@ -13,6 +13,7 @@ use Google\Cloud\Iam\V1\Binding;
 use GuzzleHttp\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
+use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\Test\Backend\Workspaces\Backend\BigQueryClientHandler;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Utils\EventsQueryBuilder;
@@ -22,21 +23,14 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
     public function setUp(): void
     {
         parent::setUp();
-    }
 
-    public function testRegisterBucket(): void
-    {
         $this->initEvents($this->_client);
         $token = $this->_client->verifyToken();
 
-        if (!in_array('input-mapping-read-only-storage', $token['owner']['features'])) {
-            $this->markTestSkipped(sprintf('Read only mapping is not enabled for project "%s"', $token['owner']['id']));
-        }
         if (!in_array('external-buckets', $token['owner']['features'])) {
             $this->markTestSkipped(sprintf('External buckets are not enabled for project "%s"', $token['owner']['id']));
         }
         $this->allowTestForBackendsOnly([self::BACKEND_BIGQUERY], 'Backend has to support external buckets');
-        $this->expectNotToPerformAssertions();
     }
 
     public function testInvalidListingToRegister(): void
@@ -143,8 +137,8 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         ]);
         $db->executeQuery(sprintf(
         /** @lang BigQuery */
-            'INSERT INTO `%s`.`TEST` (`AMOUNT`, `DESCRIPTION`) VALUES (1, \'test\');',
-            $externalCredentials['connection']['schema']
+            'INSERT INTO %s.`TEST` (`AMOUNT`, `DESCRIPTION`) VALUES (1, \'test\');',
+            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema'])
         ));
 
         // refresh external bucket
@@ -235,13 +229,13 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $db->dropTable('TEST2');
         $db->executeQuery(sprintf(
         /** @lang BigQuery */
-            'ALTER TABLE `%s`.`TEST` DROP COLUMN `AMOUNT`',
-            $externalCredentials['connection']['schema']
+            'ALTER TABLE %s.`TEST` DROP COLUMN `AMOUNT`',
+            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema'])
         ));
         $db->executeQuery(sprintf(
         /** @lang BigQuery */
-            'ALTER TABLE `%s`.`TEST` ADD COLUMN `XXX` FLOAT64',
-            $externalCredentials['connection']['schema']
+            'ALTER TABLE %s.`TEST` ADD COLUMN `XXX` FLOAT64',
+            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema'])
         ));
         $db->createTable('TEST3', ['AMOUNT' => 'INT', 'DESCRIPTION' => 'STRING']);
 
