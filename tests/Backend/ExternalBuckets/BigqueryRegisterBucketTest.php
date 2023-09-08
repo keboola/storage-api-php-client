@@ -50,7 +50,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         } catch (ClientException $e) {
             $this->assertSame('storage.buckets.validation', $e->getStringCode());
             $this->assertStringContainsString(
-                'Not valid listing url.',
+                'Invalid listing URL',
                 $e->getMessage()
             );
         }
