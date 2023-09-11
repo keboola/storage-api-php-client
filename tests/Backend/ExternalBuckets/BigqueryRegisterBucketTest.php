@@ -73,7 +73,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         } catch (ClientException $e) {
             $this->assertSame('storage.dbObjectNotFound', $e->getStringCode());
             $this->assertStringContainsString(
-                'Could not map bindings for google.cloud.bigquery.analyticshub.v1.AnalyticsHubService/SubscribeListing to any Uri template.',
+                'Failed to register external bucket "test-bucket-registration" permission denied for subscribe listing "projects/132/locations/us/dataExchanges/non_exist/listings/non_exist"',
                 $e->getMessage()
             );
         }
