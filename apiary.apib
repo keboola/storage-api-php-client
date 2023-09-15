@@ -1125,7 +1125,7 @@ Use this API call to create a new bucket from existing resource (schema or DB - 
             + teradata
             + bigquery
     + displayName (optional) - Bucket displayName, this name is displayed in UI and can be changed anytime; only alphanumeric characters,underscores and dashes are allowed.
-    + path (required, array) - Path to the schema. On SNFLK ['database-name','schema-name'], Teradata ['database-name'], BigQuery ['url of listing detail']
+    + path (required, array) - Path to the schema. On SNFLK ['database-name','schema-name'], Teradata ['database-name'], BigQuery ['projectId', 'location', 'exchangerName', 'listingName']
 
 + Request (application/json)
     + Headers
@@ -1191,7 +1191,7 @@ Returns a guide on how exactly you should register the external bucket. The text
         + Members
             + snowflake
             + bigquery
-    + path (required, array[string]) - Path to the schema. For Snowflake backend it's in a format ['database-name','schema-name'], for BigQuery ['bigquery-dataset-name']
+    + path (required, array[string]) - Path to the schema. For Snowflake backend it's in a format ['database-name','schema-name'], for BigQuery ['dataset-name']
 
 + Request (application/json)
     + Headers
