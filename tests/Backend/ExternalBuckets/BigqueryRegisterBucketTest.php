@@ -456,18 +456,13 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $iamExchangerPolicy->setBindings($binding);
         $analyticHubClient->setIamPolicy($dataExchange->getName(), $iamExchangerPolicy);
 
-        $pattern = '/projects\/([\w-]+)\/locations\/([\w-]+)\/dataExchanges\/([\w-]+)\/listings\/([\w-]+)/';
-
-        if (preg_match($pattern, $createdListing->getName(), $matches)) {
-            return [
-                $matches[1],
-                $matches[2],
-                $matches[3],
-                $matches[4],
-            ];
-        } else {
-            throw new \Exception('Invalid listing name');
-        }
+        $parsedName = AnalyticsHubServiceClient::parseName($createdListing->getName());
+        return [
+            $parsedName['project'],
+            $parsedName['location'],
+            $parsedName['data_exchange'],
+            $parsedName['listing'],
+        ];
     }
 
     /**
