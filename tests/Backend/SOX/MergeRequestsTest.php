@@ -20,7 +20,6 @@ use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\MetadataUtils;
-use Throwable;
 
 class MergeRequestsTest extends StorageApiTestCase
 {
@@ -1636,5 +1635,16 @@ class MergeRequestsTest extends StorageApiTestCase
             $this->assertSame(404, $e->getCode());
             $this->assertSame(sprintf('Branch id:"%s" was not found.', $id), $e->getMessage());
         }
+    }
+
+    public function testDeletedConfigurationDoesNotBlockBranchMerge(): void
+    {
+        $this->prepareTestConfiguration();
+        $componentsApi = new Components($this->getDefaultBranchStorageApiClient());
+        $componentsApi->deleteConfiguration('wr-db', 'main-1');
+        [$mr, $branchId] = $this->createBranchMergeRequestAndApproveIt();
+        $pmClient = $this->getDefaultClient();
+        $mergedMr = $pmClient->mergeMergeRequest($mr);
+        $this->assertSame('published', $mergedMr['state']);
     }
 }
