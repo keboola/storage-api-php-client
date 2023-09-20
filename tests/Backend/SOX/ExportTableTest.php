@@ -106,6 +106,20 @@ class ExportTableTest extends StorageApiTestCase
                 $e->getMessage()
             );
         }
+
+        // Test production manager cannot export dev table using default branch file storage (dev table -> default file)
+        $projectManagerDefaultBranchClient = $this->getDefaultBranchStorageApiClient();
+        try {
+            $projectManagerDefaultBranchClient->exportTableAsync($tableId, [
+                'sourceBranchId' => $newBranch['id'],
+            ]);
+            $this->fail('PM should not be able to export from table in devBranch into production file');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString(
+                'Cannot export table from development branch to production',
+                $e->getMessage()
+            );
+        }
     }
 
     public function testTableAsyncExportInDefaultBranch(): void
