@@ -127,7 +127,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 
         $externalCredentials['connection']['backend'] = 'bigquery';
         $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
-        $externalCredentials['connection']['schema'] = sha1($description). '_external_bucket';
+        $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
 
         // add first table to external bucket
         // I created a user for the external bucket the same way as for WS.
@@ -393,11 +393,15 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
      */
     private function prepareExternalBucketForRegistration(string $description): array
     {
-        $bucketSchemaName = sha1($description). '_external_bucket';
+        $bucketSchemaName = sha1($description) . '_external_bucket';
         $externalCredentials = $this->getCredentialsArray();
         $externalProjectStringId = $externalCredentials['project_id'];
 
-        $dataExchangeId = sha1($description) . str_replace('-', '_', $externalProjectStringId);
+        // get last 63 chars becauase the displayName has limit
+        $dataExchangeId = substr(
+            sha1($description) . str_replace('-', '_', $externalProjectStringId),
+            -63
+        );
         $location = 'US';
         $analyticHubClient = $this->getAnalyticsHubServiceClient($externalCredentials);
 
