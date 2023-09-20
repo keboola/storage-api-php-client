@@ -379,6 +379,89 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
                 $that->expectExceptionMessage('Numeric value \'\' is not recognized');
             },
         ];
+
+        yield 'value: empty, col: timestamp not null, expected: error' => [
+            'data' => [
+                ['col', 'str'],
+                ['1', null], // null will produce nothing in CSV
+                ['2', '2017-01-01 12:00:00'],
+            ],
+            'columns' => [
+                ['name' => 'col', 'definition' => ['type' => 'NUMBER']],
+                ['name' => 'str', 'definition' => ['type' => 'TIMESTAMP_NTZ', 'nullable' => false]],
+            ],
+            'expectation' => function (self $that): void {
+                $that->expectException(ClientException::class);
+                $that->expectExceptionMessage('NULL result in a non-nullable column');
+            },
+        ];
+        yield 'value: "", col: timestamp not null, expected: error' => [
+            'data' => [
+                ['col', 'str'],
+                ['1', '""'], // empty string will produce "" in CSV
+                ['2', '2017-01-01 12:00:00'],
+            ],
+            'columns' => [
+                ['name' => 'col', 'definition' => ['type' => 'NUMBER']],
+                ['name' => 'str', 'definition' => ['type' => 'TIMESTAMP_NTZ', 'nullable' => false]],
+            ],
+            'expectation' => function (self $that): void {
+                $that->expectException(ClientException::class);
+                $that->expectExceptionMessage('Timestamp \'\' is not recognized');
+            },
+        ];
+        yield 'value: empty, col: timestamp nullable, expected: null' => [
+            'data' => [
+                ['col', 'str'],
+                ['1', null], // null will produce nothing in CSV
+                ['2', '2017-01-01 12:00:00'],
+            ],
+            'columns' => [
+                ['name' => 'col', 'definition' => ['type' => 'NUMBER']],
+                ['name' => 'str', 'definition' => ['type' => 'TIMESTAMP_NTZ', 'nullable' => true]],
+            ],
+            'expectation' => [
+                [
+                    [
+                        'columnName' => 'col',
+                        'value' => '1',
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'str',
+                        'value' => null, // imports null
+                        'isTruncated' => false,
+                    ],
+                ],
+                [
+                    [
+                        'columnName' => 'col',
+                        'value' => '2',
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'str',
+                        'value' => '2017-01-01 12:00:00.000',
+                        'isTruncated' => false,
+                    ],
+                ],
+            ],
+        ];
+        yield 'value: "", col: timestamp nullable, expected: error' => [
+            'data' => [
+                ['col', 'str'],
+                ['1', '""'], // empty string will produce "" in CSV
+                ['2', '2017-01-01 12:00:00'],
+            ],
+            'columns' => [
+                ['name' => 'col', 'definition' => ['type' => 'NUMBER']],
+                ['name' => 'str', 'definition' => ['type' => 'TIMESTAMP_NTZ', 'nullable' => true]],
+            ],
+            'expectation' => function (self $that): void {
+                $that->expectException(ClientException::class);
+                $that->expectExceptionMessage('Timestamp \'\' is not recognized');
+            },
+        ];
     }
 
     public function testLoadTypedTablesConversionError(): void
