@@ -2,7 +2,6 @@
 
 namespace Keboola\Test\Backend\Snowflake;
 
-use Closure;
 use Generator;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
@@ -122,31 +121,22 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
 
     /**
      * @dataProvider importEmptyValuesProvider
-     * @param array<array<string|numeric|null>> $data
-     * @param array<array{name:string,definition:array{type:string,nullable:bool}}> $columns
-     * @param array<array<array{columnName:string,isTruncated:bool,value:string|null}>>|callable(self):void $expectation
      */
-    public function testImportEmptyValues(array $data, array $columns, $expectation): void
+    public function testImportEmptyValues(string $loadFile, array $expectedPreview): void
     {
         $bucketId = $this->getTestBucketId();
 
         $payload = [
             'name' => 'with-empty',
             'primaryKeysNames' => [],
-            'columns' => $columns,
+            'columns' => [
+                ['name' => 'col', 'definition' => ['type' => 'NUMBER']],
+                ['name' => 'str', 'definition' => ['type' => 'VARCHAR']],
+            ],
         ];
         $tableId = $this->_client->createTableDefinition($bucketId, $payload);
 
-        $csvFile = $this->createTempCsv(
-            CsvFile::DEFAULT_DELIMITER,
-            '' // prevent enclosing empty strings and nulls
-        );
-        foreach ($data as $row) {
-            $csvFile->writeRow($row);
-        }
-        if ($expectation instanceof Closure) {
-            $expectation($this);
-        }
+        $csvFile = new CsvFile($loadFile);
         $this->_client->writeTableAsync(
             $tableId,
             $csvFile,
@@ -163,181 +153,94 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
         $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
 
         $this->assertSame(
-            $expectation,
+            $expectedPreview,
             $data['rows']
         );
     }
 
     public function importEmptyValuesProvider(): Generator
     {
-        yield 'value: empty, col: string not null, expected error' => [
-            'data' => [
-                ['col', 'str'],
-                ['1', null], // null will produce nothing in CSV
-                ['2', 'str'],
-            ],
-            'columns' => [
-                ['name' => 'col', 'definition' => ['type' => 'NUMBER']],
-                ['name' => 'str', 'definition' => ['type' => 'VARCHAR', 'nullable' => false]],
-            ],
-            'expectation' => function (self $that): void {
-                $that->expectException(ClientException::class);
-                $that->expectExceptionMessage('NULL result in a non-nullable column');
-            },
-        ];
-        yield 'value: "", col: string not null, expected: empty string' => [
-            'data' => [
-                ['col', 'str'],
-                ['1', '""'], // empty string will produce nothing in CSV
-                ['2', 'str'],
-            ],
-            'columns' => [
-                ['name' => 'col', 'definition' => ['type' => 'NUMBER']],
-                ['name' => 'str', 'definition' => ['type' => 'VARCHAR', 'nullable' => false]],
-            ],
-            'expectation' => [
+        yield 'empty values in quotes' => [
+            __DIR__ . '/../../_data/empty-with-quotes-numeric.csv',
+            [
                 [
                     [
                         'columnName' => 'col',
-                        'value' => '1',
+                        'value' => '9',
                         'isTruncated' => false,
                     ],
                     [
                         'columnName' => 'str',
-                        'value' => '', // imports empty string
+                        'value' => '4',
                         'isTruncated' => false,
                     ],
                 ],
                 [
                     [
                         'columnName' => 'col',
-                        'value' => '2',
+                        'value' => '23',
                         'isTruncated' => false,
                     ],
                     [
                         'columnName' => 'str',
-                        'value' => 'str',
-                        'isTruncated' => false,
-                    ],
-                ],
-            ],
-        ];
-        yield 'value: empty, col: string nullable, expected: null' => [
-            'data' => [
-                ['col', 'str'],
-                ['1', null], // null will produce nothing in CSV
-                ['2', 'str'],
-            ],
-            'columns' => [
-                ['name' => 'col', 'definition' => ['type' => 'NUMBER']],
-                ['name' => 'str', 'definition' => ['type' => 'VARCHAR', 'nullable' => true]],
-            ],
-            'expectation' => [
-                [
-                    [
-                        'columnName' => 'col',
-                        'value' => '1',
-                        'isTruncated' => false,
-                    ],
-                    [
-                        'columnName' => 'str',
-                        'value' => null, // imports null
+                        'value' => '4',
                         'isTruncated' => false,
                     ],
                 ],
                 [
                     [
                         'columnName' => 'col',
-                        'value' => '2',
+                        'value' => null,
                         'isTruncated' => false,
                     ],
                     [
                         'columnName' => 'str',
-                        'value' => 'str',
-                        'isTruncated' => false,
-                    ],
-                ],
-            ],
-        ];
-        yield 'value: "", col: string nullable, expected: empty' => [
-            'data' => [
-                ['col', 'str'],
-                ['1', '""'], // empty string will produce nothing in CSV
-                ['2', 'str'],
-            ],
-            'columns' => [
-                ['name' => 'col', 'definition' => ['type' => 'NUMBER']],
-                ['name' => 'str', 'definition' => ['type' => 'VARCHAR', 'nullable' => true]],
-            ],
-            'expectation' => [
-                [
-                    [
-                        'columnName' => 'col',
-                        'value' => '1',
-                        'isTruncated' => false,
-                    ],
-                    [
-                        'columnName' => 'str',
-                        'value' => '', // imports empty string
+                        'value' => null,
                         'isTruncated' => false,
                     ],
                 ],
                 [
                     [
                         'columnName' => 'col',
-                        'value' => '2',
+                        'value' => '6',
                         'isTruncated' => false,
                     ],
                     [
                         'columnName' => 'str',
-                        'value' => 'str',
+                        'value' => '6',
                         'isTruncated' => false,
                     ],
                 ],
             ],
         ];
 
-        yield 'value: empty, col: numeric not null, expected: error' => [
-            'data' => [
-                ['col', 'str'],
-                ['1', null], // null will produce nothing in CSV
-                ['2', '2'],
-            ],
-            'columns' => [
-                ['name' => 'col', 'definition' => ['type' => 'NUMBER']],
-                ['name' => 'str', 'definition' => ['type' => 'NUMBER', 'nullable' => false]],
-            ],
-            'expectation' => function (self $that): void {
-                $that->expectException(ClientException::class);
-                $that->expectExceptionMessage('NULL result in a non-nullable column');
-            },
-        ];
-        yield 'value: "", col: numeric not null, expected: error' => [
-            'data' => [
-                ['col', 'str'],
-                ['1', '""'], // empty string will produce nothing in CSV
-                ['2', '2'],
-            ],
-            'columns' => [
-                ['name' => 'col', 'definition' => ['type' => 'NUMBER']],
-                ['name' => 'str', 'definition' => ['type' => 'NUMBER', 'nullable' => false]],
-            ],
-            'expectation' => function (self $that): void {
-                $that->expectException(ClientException::class);
-                $that->expectExceptionMessage('Numeric value \'\' is not recognized');
-            },
-        ];
-        yield 'value: empty, col: numeric nullable, expected: null' => [
-            'data' => [
-                ['col', 'str'],
-                ['1', null], // null will produce nothing in CSV
-                ['2', '2'],
-            ],
-            'columns' => [
-                ['name' => 'col', 'definition' => ['type' => 'NUMBER']],
-                ['name' => 'str', 'definition' => ['type' => 'NUMBER', 'nullable' => true]],
-            ],
-            'expectation' => [
+        yield 'empty values without quotes' => [
+            __DIR__ . '/../../_data/empty-without-quotes-numeric.csv',
+            [
+                [
+                    [
+                        'columnName' => 'col',
+                        'value' => '2',
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'str',
+                        'value' => '6',
+                        'isTruncated' => false,
+                    ],
+                ],
+                [
+                    [
+                        'columnName' => 'col',
+                        'value' => null,
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'str',
+                        'value' => null,
+                        'isTruncated' => false,
+                    ],
+                ],
                 [
                     [
                         'columnName' => 'col',
@@ -346,38 +249,11 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
                     ],
                     [
                         'columnName' => 'str',
-                        'value' => null, // imports null
-                        'isTruncated' => false,
-                    ],
-                ],
-                [
-                    [
-                        'columnName' => 'col',
-                        'value' => '2',
-                        'isTruncated' => false,
-                    ],
-                    [
-                        'columnName' => 'str',
-                        'value' => '2',
+                        'value' => '3',
                         'isTruncated' => false,
                     ],
                 ],
             ],
-        ];
-        yield 'value: "", col: numeric nullable, expected: error' => [
-            'data' => [
-                ['col', 'str'],
-                ['1', '""'], // empty string will produce nothing in CSV
-                ['2', '2'],
-            ],
-            'columns' => [
-                ['name' => 'col', 'definition' => ['type' => 'NUMBER']],
-                ['name' => 'str', 'definition' => ['type' => 'NUMBER', 'nullable' => true]],
-            ],
-            'expectation' => function (self $that): void {
-                $that->expectException(ClientException::class);
-                $that->expectExceptionMessage('Numeric value \'\' is not recognized');
-            },
         ];
     }
 
