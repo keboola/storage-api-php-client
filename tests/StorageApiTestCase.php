@@ -500,19 +500,11 @@ abstract class StorageApiTestCase extends ClientTestCase
         return $this->_client->createTableAsync($this->getTestBucketId(), $tableName, $csvFile);
     }
 
-    protected function createTempCsv(
-        string $delimiter = CsvFile::DEFAULT_DELIMITER,
-        string $enclosure = CsvFile::DEFAULT_ENCLOSURE,
-        string $escapedBy = CsvFile::DEFAULT_ESCAPED_BY
-    ): CsvFile {
+    protected function createTempCsv(): CsvFile
+    {
         $tempFile = tempnam(sys_get_temp_dir(), 'keboola');
         assert($tempFile !== false);
-        return new CsvFile(
-            $tempFile,
-            $delimiter,
-            $enclosure,
-            $escapedBy
-        );
+        return new CsvFile($tempFile);
     }
 
     /**
