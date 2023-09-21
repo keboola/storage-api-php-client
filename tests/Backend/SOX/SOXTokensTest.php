@@ -11,9 +11,8 @@ use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Tokens;
 use Keboola\StorageApi\Workspaces;
-use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
-use PHPUnit\Framework\TestCase;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class SOXTokensTest extends StorageApiTestCase
 {
@@ -400,6 +399,9 @@ class SOXTokensTest extends StorageApiTestCase
 
     public function testPrivilegedInProtectedMainBranchWorksWithApplicationTokenWithCorrectScope(): void
     {
+        $this->initEvents($this->getDefaultBranchStorageApiClient());
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
         $this->assertManageTokensPresent();
 
         $options = (new TokenCreateOptions())
@@ -410,10 +412,33 @@ class SOXTokensTest extends StorageApiTestCase
             ->setExpiresIn(360)
             ->addComponentAccess('wr-db');
 
+        [$manageTokenId, $_] = explode('-', MANAGE_API_TOKEN_WITH_CREATE_PROTECTED_DEFAULT_BRANCH_TOKEN);
+
+        // check that the application token id is logged in event
+        $qb = new EventsQueryBuilder();
+        $qb->setEvent('storage.tokenCreated');
+        $qb->setRunId($runId);
+        $query = $qb->generateQuery();
+
+        $apiCall = fn() => $this->_client->listEvents([
+            'sinceId' => $this->lastEventId,
+            'limit' => 1,
+            'q' => $query,
+        ]);
+        $assertContainsIdManageToken = function ($events) use ($manageTokenId) {
+            $this->assertCount(1, $events);
+            $this->assertEquals([
+                'idManageToken' => (int) $manageTokenId,
+                'canManageProtectedDefaultBranch' => true,
+            ], $events[0]['params']);
+        };
+
         $token = $this->tokens->createTokenPrivilegedInProtectedDefaultBranch(
             $options,
             MANAGE_API_TOKEN_WITH_CREATE_PROTECTED_DEFAULT_BRANCH_TOKEN,
         );
+
+        $this->retryWithCallback($apiCall, $assertContainsIdManageToken);
 
         $this->assertNotNull($token['expires']);
 
