@@ -9,6 +9,7 @@ parameters:
         - '#Constant SUITE_NAME not found.#'
         - '#Constant TRAVIS_BUILD_ID not found.#'
         - '#Constant REDSHIFT_NODE_COUNT not found.#'
+        - '#Constant BQ_[_A-Z0-9]+ not found.#'
     excludePaths:
         - vendor
         - cache
