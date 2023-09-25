@@ -2036,7 +2036,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
             $this->fail('Should throw ClientException');
         } catch (ClientException $e) {
             $this->assertSame('Non-nullable column "fail" cannot be added to non-empty table "my-new-table-non-typed" unless it has a non-null default value.', $e->getMessage());
-            $this->assertSame('storage.tables.update', $e->getStringCode());
+            $this->assertSame('storage.tables.validation.cannotAddColumn', $e->getStringCode());
         }
     }
 
