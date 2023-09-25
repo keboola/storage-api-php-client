@@ -2002,6 +2002,44 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
         }
     }
 
+    public function testAddNullableColumn(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $tableDefinition = [
+            'name' => 'my-new-table-non-typed',
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT',
+                        'nullable' => false,
+                    ],
+                ],
+            ],
+        ];
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        // add row
+        $csvFile = $this->createTempCsv();
+        $csvFile->writeRow(['id',]);
+        $csvFile->writeRow([1,]);
+        $this->_client->writeTableAsync($tableId, $csvFile);
+
+        try {
+            $this->_client->addTableColumn($tableId, 'fail', [
+                'type' => 'VARCHAR',
+                'nullable' => false,
+            ]);
+            $this->fail('Should throw ClientException');
+        } catch (ClientException $e) {
+            $this->assertSame('Non-nullable column "fail" cannot be added to non-empty table "my-new-table-non-typed" unless it has a non-null default value.', $e->getMessage());
+            $this->assertSame('storage.tables.update', $e->getStringCode());
+        }
+    }
+
     public function testTableWithDot(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
