@@ -47,9 +47,13 @@ class DeleteRowsTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('No filters have been specified, which will truncate the table, but the `allowTruncate` parameter was not set.');
-        $this->_client->deleteTableRows($tableId);
+        try {
+            $this->_client->deleteTableRows($tableId);
+            $this->fail('Exception should be thrown');
+        } catch (ClientException $e) {
+            $this->assertSame('No filters have been specified, which will truncate the table, but the `allowTruncate` parameter was not set.', $e->getMessage());
+            $this->assertSame('storage.tables.validation.unintendedTruncation', $e->getStringCode());
+        }
     }
 
     /**
