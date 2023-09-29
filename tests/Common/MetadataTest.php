@@ -66,7 +66,8 @@ class MetadataTest extends StorageApiTestCase
             return false;
         });
         $proxy = new RetryProxy($retryPolicy, new ExponentialBackOffPolicy());
-        $metadatas = $proxy->call(function() use ($metadataApi) {
+        /** @var array $metadatas */
+        $metadatas = $proxy->call(function () use ($metadataApi) {
             return $metadataApi->listBucketMetadata($this->getTestBucketId());
         });
 
