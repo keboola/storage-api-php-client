@@ -62,7 +62,7 @@ class SlicedImportsWithSlicedUploadsTest extends StorageApiTestCase
         $slicedFileId = $this->_client->uploadSlicedFile($slices, $uploadOptions);
 
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'entries', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
-        $this->_client->deleteTableRows($tableId);
+        $this->_client->deleteTableRows($tableId, ['allowTruncate' => true]);
         $this->_client->writeTableAsyncDirect($tableId, [
             'dataFileId' => $slicedFileId,
             'delimiter' => ',',

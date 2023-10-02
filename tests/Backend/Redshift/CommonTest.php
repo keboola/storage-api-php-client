@@ -54,7 +54,7 @@ class CommonTest extends StorageApiTestCase
         $this->assertEquals(98566144 * $this->getRedshiftNodeCount(), $inBucket['dataSizeBytes']);
 
         // Truncate the new table
-        $this->_client->deleteTableRows($tableId);
+        $this->_client->deleteTableRows($tableId, ['allowTruncate' => true]);
 
         // Get a fresh bucket response, it should have the new stats
         $inBucket = $this->_client->getBucket($inBucketId);
