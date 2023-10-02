@@ -1647,4 +1647,29 @@ class MergeRequestsTest extends StorageApiTestCase
         $mergedMr = $pmClient->mergeMergeRequest($mr);
         $this->assertSame('published', $mergedMr['state']);
     }
+
+    public function testCannotCreateMultipleFromSingleBranch(): void
+    {
+        $this->prepareTestConfiguration();
+        $defaultBranch = $this->branches->getDefaultBranch();
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
+        $mr1Id = $this->developerClient->createMergeRequest([
+            'branchFromId' => $newBranch['id'],
+            'branchIntoId' => $defaultBranch['id'],
+            'title' => 'Change everything',
+            'description' => 'Fix typo',
+        ]);
+        $this->expectExceptionMessage(sprintf(
+            'There is already a merge request (%s) created from branch "%s"',
+            $mr1Id,
+            $newBranch['id'],
+        ));
+        $this->expectException(ClientException::class);
+        $this->developerClient->createMergeRequest([
+            'branchFromId' => $newBranch['id'],
+            'branchIntoId' => $defaultBranch['id'],
+            'title' => 'Change everything',
+            'description' => 'Fix typo',
+        ]);
+    }
 }
