@@ -122,7 +122,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
             'entries',
             new CsvFile(__DIR__ . '/../../_data/languages.not-normalized-column-names.csv')
         );
-        $this->_client->deleteTableRows($tableId);
+        $this->_client->deleteTableRows($tableId, ['allowTruncate' => true]);
         $this->_client->writeTableAsyncDirect($tableId, [
             'dataFileId' => $fileId,
             'delimiter' => ',',
