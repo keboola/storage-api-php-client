@@ -48,11 +48,23 @@ class SOXWorkspaceTest extends SOXWorkspaceTestCase
             new CsvFile($importFile),
         );
 
+        $tableId2 = $this->testClient->createTableAsync(
+            $bucketId,
+            'languages_table2',
+            new CsvFile($importFile),
+        );
+
         $options = [
             'input' => [
                 [
                     'source' => $tableId,
                     'destination' => 'languages',
+                    'sourceBranchId' => $workspaceSapiClient->getCurrentBranchId(),
+                    'useView' => true,
+                ],
+                [
+                    'source' => $tableId2,
+                    'destination' => 'languages_table2',
                     'sourceBranchId' => $workspaceSapiClient->getCurrentBranchId(),
                     'useView' => true,
                 ],
@@ -81,7 +93,9 @@ class SOXWorkspaceTest extends SOXWorkspaceTestCase
         if ($backend instanceof BigqueryWorkspaceBackend) {
             // in BQ view is just point and it will work after source table change
             $rows = $backend->fetchAll('languages');
+            $rowsTable2 = $backend->fetchAll('languages_table2');
             $this->assertCount(5, $rows);
+            $this->assertCount(5, $rowsTable2);
         } else {
             try {
                 $backend->fetchAll('languages');
