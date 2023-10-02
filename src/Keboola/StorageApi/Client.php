@@ -1701,7 +1701,6 @@ class Client
             'changedUntil',
             'whereColumn',
             'whereOperator',
-            'allowTruncate',
         ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
