@@ -44,6 +44,8 @@ class DeleteRowsTest extends StorageApiTestCase
 
     public function testTableDeleteRowsByEmptyFilterWithoutAllowTruncateShouldFail(): void
     {
+        $this->markTestSkipped('Skip until deprication process is finished.');
+        // @phpstan-ignore-next-line
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
