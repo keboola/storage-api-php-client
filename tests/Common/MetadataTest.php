@@ -15,6 +15,9 @@ use Keboola\StorageApi\Tokens;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\StorageApiTestCase;
+use Retry\BackOff\ExponentialBackOffPolicy;
+use Retry\Policy\CallableRetryPolicy;
+use Retry\RetryProxy;
 
 class MetadataTest extends StorageApiTestCase
 {
@@ -55,7 +58,18 @@ class MetadataTest extends StorageApiTestCase
         }
 
         $metadataApi = new Metadata($this->_testClient);
-        $metadatas = $metadataApi->listBucketMetadata($this->getTestBucketId());
+
+        $retryPolicy = new CallableRetryPolicy(function (\Throwable $e) {
+            if ($e->getCode() === 403) {
+                return true;
+            }
+            return false;
+        });
+        $proxy = new RetryProxy($retryPolicy, new ExponentialBackOffPolicy());
+        $metadatas = $proxy->call(function() use ($metadataApi) {
+            return $metadataApi->listBucketMetadata($this->getTestBucketId());
+        });
+
         foreach ($metadatas as $md) {
             $metadataApi->deleteBucketMetadata($this->getTestBucketId(), $md['id']);
         }
