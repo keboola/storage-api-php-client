@@ -257,6 +257,85 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
         ];
     }
 
+    public function testImportExoticDatatypes(): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $payload = [
+            'name' => 'exotic',
+            'primaryKeysNames' => [],
+            'columns' => [
+                ['name' => 'VARIANT', 'definition' => ['type' => 'VARIANT']],
+                ['name' => 'BINARY', 'definition' => ['type' => 'BINARY']],
+                ['name' => 'VARBINARY', 'definition' => ['type' => 'VARBINARY']],
+                ['name' => 'OBJECT', 'definition' => ['type' => 'OBJECT']],
+                ['name' => 'ARRAY', 'definition' => ['type' => 'ARRAY']],
+                ['name' => 'GEOGRAPHY', 'definition' => ['type' => 'GEOGRAPHY']],
+                ['name' => 'GEOMETRY', 'definition' => ['type' => 'GEOMETRY']],
+            ],
+        ];
+        $tableId = $this->_client->createTableDefinition($bucketId, $payload);
+
+        $csvFile = new CsvFile(__DIR__ . '/../../_data/exotic-types-snowflake.csv');
+        $this->_client->writeTableAsync(
+            $tableId,
+            $csvFile,
+            [
+                'incremental' => false,
+            ]
+        );
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertNotEmpty($table['dataSizeBytes']);
+        $this->assertEquals($csvFile->getHeader(), $table['columns']);
+
+        /** @var array $data */
+        $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
+
+        $this->assertSame(
+            [
+                [
+                    [
+                        'columnName' => 'ARRAY',
+                        'value' => '["[1,2,3,undefined]"]',
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'VARIANT',
+                        'value' => '"3.14"',
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'OBJECT',
+                        'value' => '{"age":42,"name":"Jones"}',
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'BINARY',
+                        'value' => '123ABC',
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'VARBINARY',
+                        'value' => '123ABC',
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'GEOGRAPHY',
+                        'value' => 'POINT(-122.35 37.55)',
+                        'isTruncated' => false,
+                    ],
+                    [
+                        'columnName' => 'GEOMETRY',
+                        'value' => 'POLYGON((0 0,10 0,10 10,0 10,0 0))',
+                        'isTruncated' => false,
+                    ],
+                ],
+            ],
+            $data['rows']
+        );
+    }
+
     public function testLoadTypedTablesConversionError(): void
     {
         $fullLoadFile = __DIR__ . '/../../_data/users.csv';
