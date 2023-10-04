@@ -90,8 +90,8 @@ class BucketsTest extends StorageApiTestCase
      */
     public function testBucketDetail(string $devBranchType, string $userRole): void
     {
+        $bucketName = sha1($this->generateDescriptionForTestObject()).'-testBucketDetail';
         $displayName = 'Romanov-Bucket';
-        $bucketName = 'BucketsTest_testBucketDetail';
 
         if ($devBranchType === ClientProvider::DEFAULT_BRANCH) {
             $branch = (new DevBranches($this->_client))->getDefaultBranch();
