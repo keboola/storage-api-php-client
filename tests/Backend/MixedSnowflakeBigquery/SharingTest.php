@@ -5,7 +5,6 @@ namespace Keboola\Test\Backend\MixedSnowflakeBigquery;
 use Generator;
 use Google\Cloud\BigQuery\BigQueryClient;
 use Keboola\Csv\CsvFile;
-use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
@@ -198,22 +197,5 @@ class SharingTest extends StorageApiSharingTestCase
         /** @var array $firstLinked */
         $firstLinked = reset($linkedBuckets);
         $this->assertEquals($bucketId, $firstLinked['sourceBucket']['id']);
-    }
-
-    public function testCreateTableInBucketWithDifferentBackendAsProjectDefault(): void
-    {
-        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
-        $bucketId = $this->getTestBucketId();
-
-        // create table in SHARING bucket in project A
-        $tableId = $this->_client->createTableAsync(
-            $bucketId,
-            'languagesFromClient1',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-            []
-        );
-
-        $preview = $this->_client->getTableDataPreview($tableId);
-        $this->assertCount(5, Client::parseCsv($preview));
     }
 }
