@@ -42,10 +42,10 @@ class TestSetupHelper
         string $devBranchType,
         string $userRole
     ): array {
-        $hasProjectProtectedDefaultbranch = in_array($userRole, ['reviewer', 'developer', 'production-manager']);
+        $hasProjectProtectedDefaultBranch = in_array($userRole, ['reviewer', 'developer', 'production-manager']);
 
         $client = $clientProvider->getDefaultClient();
-        if ($hasProjectProtectedDefaultbranch) {
+        if ($hasProjectProtectedDefaultBranch) {
             // default branch is protected, we need privileged client for production cleanup
             $client = $clientProvider->getDefaultClient(['token' => STORAGE_API_DEFAULT_BRANCH_TOKEN]);
         }
