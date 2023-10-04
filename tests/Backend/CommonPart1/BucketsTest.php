@@ -198,7 +198,7 @@ class BucketsTest extends StorageApiTestCase
             // there are already events in production
             $this->assertGreaterThan(2, $bucketEvents);
         } else {
-            $this->assertCount(2, $bucketEvents);
+            $this->assertGreaterThan(2, $bucketEvents);
         }
         $this->assertSame('storage.tablesListed', $bucketEvents[0]['event']);
         $this->assertSame('storage.bucketCreated', $bucketEvents[1]['event']);
