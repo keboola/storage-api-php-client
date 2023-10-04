@@ -9,6 +9,7 @@
 
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
@@ -39,6 +40,22 @@ class DeleteRowsTest extends StorageApiTestCase
         array_shift($parsedData); // remove header
 
         $this->assertArrayEqualsSorted($expectedTableContent, $parsedData, 0);
+    }
+
+    public function testTableDeleteRowsByEmptyFilterWithoutAllowTruncateShouldFail(): void
+    {
+        $this->markTestSkipped('Skip until deprication process is finished.');
+        // @phpstan-ignore-next-line
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+
+        try {
+            $this->_client->deleteTableRows($tableId);
+            $this->fail('Exception should be thrown');
+        } catch (ClientException $e) {
+            $this->assertSame('No filters have been specified, which will truncate the table, but the `allowTruncate` parameter was not set.', $e->getMessage());
+            $this->assertSame('storage.tables.validation.unintendedTruncation', $e->getStringCode());
+        }
     }
 
     /**
@@ -82,7 +99,9 @@ class DeleteRowsTest extends StorageApiTestCase
 
         return [
             'no params' => [
-                [],
+                [
+                    'allowTruncate' => true,
+                ],
                 [],
             ],
             'since yesterday - timestamp' => [
