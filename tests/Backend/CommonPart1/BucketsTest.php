@@ -291,7 +291,7 @@ class BucketsTest extends StorageApiTestCase
         $tokenData = $this->_testClient->verifyToken();
 
         $bucketData = [
-            'name' => 'test',
+            'name' => sha1($this->generateDescriptionForTestObject()).'-test',
             'displayName' => 'test-display-name',
             'stage' => 'in',
             'description' => 'this is just a test',
@@ -432,7 +432,8 @@ class BucketsTest extends StorageApiTestCase
      */
     public function testBucketCreateWithoutDescription(string $devBranchType, string $userRole): void
     {
-        $this->dropBucketIfExists($this->_testClient, 'in.c-something', true);
+        $bucketName = sha1($this->generateDescriptionForTestObject()).'-something';
+        $this->dropBucketIfExists($this->_testClient, $bucketName, true);
         $bucketId = $this->_testClient->createBucket('something', self::STAGE_IN);
         $bucket = $this->_testClient->getBucket($bucketId);
         $this->assertEmpty($bucket['description']);
