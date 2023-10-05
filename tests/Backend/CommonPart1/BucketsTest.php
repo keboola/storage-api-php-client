@@ -290,9 +290,10 @@ class BucketsTest extends StorageApiTestCase
     {
         $tokenData = $this->_testClient->verifyToken();
 
+        $displayName = sha1($this->generateDescriptionForTestObject()) . '-test-display-name';
         $bucketData = [
             'name' => sha1($this->generateDescriptionForTestObject()).'-test',
-            'displayName' => 'test-display-name',
+            'displayName' => $displayName,
             'stage' => 'in',
             'description' => 'this is just a test',
         ];
@@ -386,7 +387,7 @@ class BucketsTest extends StorageApiTestCase
             );
             $this->fail('Display name already exist for project');
         } catch (ClientException $e) {
-            $this->assertEquals('The display name "test-display-name" already exists in project.', $e->getMessage());
+            $this->assertEquals(sprintf('The display name "%s" already exists in project.', $displayName), $e->getMessage());
             $this->assertEquals('storage.buckets.alreadyExists', $e->getStringCode());
         }
 
@@ -433,8 +434,9 @@ class BucketsTest extends StorageApiTestCase
     public function testBucketCreateWithoutDescription(string $devBranchType, string $userRole): void
     {
         $bucketName = sha1($this->generateDescriptionForTestObject()).'-something';
-        $this->dropBucketIfExists($this->_testClient, $bucketName, true);
-        $bucketId = $this->_testClient->createBucket('something', self::STAGE_IN);
+        $bucketId =  'in.c-' . $bucketName;
+        $this->dropBucketIfExists($this->_testClient, $bucketId, true);
+        $bucketId = $this->_testClient->createBucket($bucketName, self::STAGE_IN);
         $bucket = $this->_testClient->getBucket($bucketId);
         $this->assertEmpty($bucket['description']);
         $this->_testClient->dropBucket($bucket['id'], ['async' => true]);
