@@ -86,7 +86,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
     public function testCreateTableFromWorkspaceWithInvalidColumnNames(): void
     {
         // create workspace and source table in workspace
-        $workspace = $this->initTestWorkspace();
+        $workspace = $this->initTestWorkspace(null, [], true);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $backend->dropTableIfExists('test_Languages3');
