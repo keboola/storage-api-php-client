@@ -5,17 +5,17 @@ ARG AWS_SESSION_TOKEN
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/tdodbc1710-17.10.00.08-1.x86_64.deb /tmp/teradata/tdodbc.deb
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/utils/TeradataToolsAndUtilitiesBase__ubuntu_x8664.17.00.34.00.tar.gz  /tmp/teradata/tdutils.tar.gz
 
-ARG PHP_VERSION=7.4
+ARG PHP_VERSION=8.1.24
 # the default env bellow is used when build pipeline sends "PHP_VERSION=" - the above default value is ignored in that case
-FROM php:${PHP_VERSION:-7.4}-cli-buster as dev
+FROM php:${PHP_VERSION:-8.1}-cli-buster as dev
 MAINTAINER Martin Halamicek <martin@keboola.com>
 ENV DEBIAN_FRONTEND noninteractive
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
-ARG SNOWFLAKE_ODBC_VERSION=2.21.0
-ARG SNOWFLAKE_GPG_KEY=EC218558EABB25A1
+ARG SNOWFLAKE_ODBC_VERSION=2.25.12
+ARG SNOWFLAKE_GPG_KEY=630D9F3CAB551AF3
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_PROCESS_TIMEOUT 3600
-ARG SYNAPSE_ODBC_VERSION=5.9.0
+ARG SYNAPSE_ODBC_VERSION=5.10.1
 
 WORKDIR /code/
 
