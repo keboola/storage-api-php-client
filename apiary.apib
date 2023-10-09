@@ -2328,7 +2328,24 @@ If there is no column datatype specified (column.definition.type or column.baset
                 + CLUSTERED CLOUMNSTORE INDEX
                 + HEAP
         + indexColumnsNames[] (required) - has to be subset of column names
-
+    + timePartitioning - Bigquery only [(documentation)](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#timepartitioning)
+        + type (required, enum[string])
+            + Members
+                + DAY
+                + HOUR
+                + MONTH
+                + YEAR
+        + field (string) - has to be subset of column names
+        + expirationMs (number) - optional
+    + clustering - Bigquery only [(documentation)](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#clustering)
+        + fields[] (required) - has to be subset of column names
+    + requirePartitionFilter (boolean) - Bigquery only [(documentation)](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#resource:-table)
+    + rangePartitioning - Bigquery only [(documentation)](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#rangepartitioning)
+        + field (required,string) - has to be subset of column names
+        + range (required) - has to be subset of column names
+            + start (required, number)
+            + end (required, number)
+            + interval (required, number)
 + Request (application/json)
     + Headers
 
