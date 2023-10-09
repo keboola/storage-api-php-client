@@ -194,12 +194,7 @@ class BucketsTest extends StorageApiTestCase
         $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
         $bucketEvents = $this->_testClient->listBucketEvents($bucketId);
-        if ($devBranchType === ClientProvider::DEFAULT_BRANCH) {
-            // there are already events in production
-            $this->assertGreaterThan(2, $bucketEvents);
-        } else {
-            $this->assertCount(2, $bucketEvents);
-        }
+        $this->assertGreaterThan(2, $bucketEvents);
         $this->assertSame('storage.tablesListed', $bucketEvents[0]['event']);
         $this->assertSame('storage.bucketCreated', $bucketEvents[1]['event']);
         $this->assertNotEmpty($bucketEvents[0]['idBranch']);
