@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend\Bigquery;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 
 class TableDefinitionOperationsPartitioningTest extends ParallelWorkspacesTestCase
@@ -150,8 +151,29 @@ class TableDefinitionOperationsPartitioningTest extends ParallelWorkspacesTestCa
             ],
             'requirePartitionFilter' => true,
             'partitions' => [
-                // todo: expected one partition
+                // todo: expected one partition https://keboola.atlassian.net/browse/BIG-186
             ],
         ], $tableResponse['definition']);
+    }
+
+    public function testErrorWhenCreatingTableWithPartitioning(): void
+    {
+        try {
+            // creating table with clustering and no partitioning
+            $this->createTableDefinition([
+                'clustering' => [
+                    'fields' => ['id'],
+                ],
+                'requirePartitionFilter' => true,
+            ]);
+            $this->fail('Exception should be thrown');
+        } catch (ClientException $e) {
+            $this->assertInstanceOf(ClientException::class, $e);
+            $this->assertSame('storage.tables.validation', $e->getStringCode());
+            $this->assertMatchesRegularExpression(
+                '/Failed to create table "my_new_table" in dataset ".*"\. Exception: Either interval partition or range partition should be specified\..*/',
+                $e->getMessage()
+            );
+        }
     }
 }
