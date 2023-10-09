@@ -56,7 +56,7 @@ class TableDefinitionOperationsPartitioningTest extends ParallelWorkspacesTestCa
             'clustering' => [
                 'fields' => ['id'],
             ],
-            'requirePartitionFilter' => true,
+            'requirePartitionFilter' => false,
             'timePartitioning' => [
                 'type' => 'DAY',
                 'field' => 'time',
@@ -65,12 +65,12 @@ class TableDefinitionOperationsPartitioningTest extends ParallelWorkspacesTestCa
         ]);
 
         $tableResponse = $this->_client->getTable($tableId);
-        $this->assertSame([
+        $expectedTableDefinition = [
             'primaryKeysNames' => [
-                0 => 'id',
+                'id',
             ],
             'columns' => [
-                0 => [
+                [
                     'name' => 'id',
                     'definition' => [
                         'type' => 'INTEGER',
@@ -79,7 +79,7 @@ class TableDefinitionOperationsPartitioningTest extends ParallelWorkspacesTestCa
                     'basetype' => 'INTEGER',
                     'canBeFiltered' => true,
                 ],
-                1 => [
+                [
                     'name' => 'time',
                     'definition' => [
                         'type' => 'TIMESTAMP',
@@ -96,12 +96,13 @@ class TableDefinitionOperationsPartitioningTest extends ParallelWorkspacesTestCa
             ],
             'clustering' => [
                 'fields' => [
-                    0 => 'id',
+                    'id',
                 ],
             ],
-            'requirePartitionFilter' => true,
+            'requirePartitionFilter' => false,
             'partitions' => [],
-        ], $tableResponse['definition']);
+        ];
+        $this->assertSame($expectedTableDefinition, $tableResponse['definition']);
 
         $csvFile = $this->createTempCsv();
         $csvFile->writeRow([
@@ -115,45 +116,23 @@ class TableDefinitionOperationsPartitioningTest extends ParallelWorkspacesTestCa
         $this->_client->writeTableAsync($tableId, $csvFile);
 
         $tableResponse = $this->_client->getTable($tableId);
-        $this->assertSame([
-            'primaryKeysNames' => [
-                0 => 'id',
-            ],
-            'columns' => [
-                0 => [
-                    'name' => 'id',
-                    'definition' => [
-                        'type' => 'INTEGER',
-                        'nullable' => false,
+        $this->assertSame(
+            array_merge(
+                $expectedTableDefinition,
+                [
+                    'partitions' => [
+                        // todo: expected one partition https://keboola.atlassian.net/browse/BIG-186
+                        // same apply for partitions after snapshot restore
                     ],
-                    'basetype' => 'INTEGER',
-                    'canBeFiltered' => true,
-                ],
-                1 => [
-                    'name' => 'time',
-                    'definition' => [
-                        'type' => 'TIMESTAMP',
-                        'nullable' => false,
-                    ],
-                    'basetype' => 'TIMESTAMP',
-                    'canBeFiltered' => true,
-                ],
-            ],
-            'timePartitioning' => [
-                'type' => 'DAY',
-                'field' => 'time',
-                'expirationMs' => '1000',
-            ],
-            'clustering' => [
-                'fields' => [
-                    0 => 'id',
-                ],
-            ],
-            'requirePartitionFilter' => true,
-            'partitions' => [
-                // todo: expected one partition https://keboola.atlassian.net/browse/BIG-186
-            ],
-        ], $tableResponse['definition']);
+                ]
+            ),
+            $tableResponse['definition']
+        );
+
+        $snapshotId = $this->_client->createTableSnapshot($tableId);
+        $newTableId = $this->_client->createTableFromSnapshot($tableResponse['bucket']['id'], $snapshotId, 'restored');
+        $newTable = $this->_client->getTable($newTableId);
+        $this->assertSame($expectedTableDefinition, $newTable['definition']);
     }
 
     public function testErrorWhenCreatingTableWithPartitioning(): void
