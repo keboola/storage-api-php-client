@@ -90,8 +90,8 @@ class BucketsTest extends StorageApiTestCase
      */
     public function testBucketDetail(string $devBranchType, string $userRole): void
     {
+        $bucketName = sha1($this->generateDescriptionForTestObject()).'-testBucketDetail';
         $displayName = 'Romanov-Bucket';
-        $bucketName = 'BucketsTest_testBucketDetail';
 
         if ($devBranchType === ClientProvider::DEFAULT_BRANCH) {
             $branch = (new DevBranches($this->_client))->getDefaultBranch();
@@ -290,9 +290,10 @@ class BucketsTest extends StorageApiTestCase
     {
         $tokenData = $this->_testClient->verifyToken();
 
+        $displayName = sha1($this->generateDescriptionForTestObject()) . '-test-display-name';
         $bucketData = [
-            'name' => 'test',
-            'displayName' => 'test-display-name',
+            'name' => sha1($this->generateDescriptionForTestObject()).'-test',
+            'displayName' => $displayName,
             'stage' => 'in',
             'description' => 'this is just a test',
         ];
@@ -386,7 +387,7 @@ class BucketsTest extends StorageApiTestCase
             );
             $this->fail('Display name already exist for project');
         } catch (ClientException $e) {
-            $this->assertEquals('The display name "test-display-name" already exists in project.', $e->getMessage());
+            $this->assertEquals(sprintf('The display name "%s" already exists in project.', $displayName), $e->getMessage());
             $this->assertEquals('storage.buckets.alreadyExists', $e->getStringCode());
         }
 
@@ -432,8 +433,10 @@ class BucketsTest extends StorageApiTestCase
      */
     public function testBucketCreateWithoutDescription(string $devBranchType, string $userRole): void
     {
-        $this->dropBucketIfExists($this->_testClient, 'in.c-something', true);
-        $bucketId = $this->_testClient->createBucket('something', self::STAGE_IN);
+        $bucketName = sha1($this->generateDescriptionForTestObject()).'-something';
+        $bucketId =  'in.c-' . $bucketName;
+        $this->dropBucketIfExists($this->_testClient, $bucketId, true);
+        $bucketId = $this->_testClient->createBucket($bucketName, self::STAGE_IN);
         $bucket = $this->_testClient->getBucket($bucketId);
         $this->assertEmpty($bucket['description']);
         $this->_testClient->dropBucket($bucket['id'], ['async' => true]);
