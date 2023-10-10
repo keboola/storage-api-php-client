@@ -57,12 +57,7 @@ class TestSetupHelper
             // dev can create & delete branches in production
             $devBranches = new DevBranches($clientProvider->getDefaultClient(['token' => STORAGE_API_DEVELOPER_TOKEN]));
 
-            $branch = $this->getExistingBranches($devBranches, $branchName);
-
-            if ($branch === null) {
-                $branch = $devBranches->createBranch($branchName);
-            }
-
+            $branch = $this->getBranchOrCreate($devBranches, $branchName);
             // branched client for dev
             $testClient = $clientProvider->getBranchAwareClient($branch['id'], [
                 'token' => STORAGE_API_DEVELOPER_TOKEN,
@@ -115,19 +110,22 @@ class TestSetupHelper
         return $onlyDefaultProvider;
     }
 
-    private function getExistingBranches(DevBranches $devBranches, string $branchPrefix): ?array
+    private function getBranchOrCreate(DevBranches $devBranches, string $branchName): array
     {
         $branchesList = $devBranches->listBranches();
         $branchesCreatedByThisTestMethod = array_filter(
             $branchesList,
-            function ($branch) use ($branchPrefix) {
-                return strpos($branch['name'], $branchPrefix) === 0;
+            function ($branch) use ($branchName) {
+                return $branch['name'] === $branchName;
             },
         );
-        foreach ($branchesCreatedByThisTestMethod as $branch) {
-            return $branch;
+
+        $branch = reset($branchesCreatedByThisTestMethod) ?: null;
+
+        if ($branch === null) {
+            $branch = $devBranches->createBranch($branchName);
         }
 
-        return null;
+        return $branch;
     }
 }
