@@ -39,7 +39,7 @@ class TimeTravelTest extends StorageApiTestCase
                 [
                     'name' => 'id',
                     'definition' => [
-                        'type' => 'INT64',
+                        'type' => 'INTEGER',
                         'nullable' => false,
                     ],
                 ],
@@ -182,7 +182,7 @@ class TimeTravelTest extends StorageApiTestCase
 
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.type',
-            'value' => 'INT64',
+            'value' => 'INTEGER',
             'provider' => 'storage',
         ], $idColumnMetadata[0], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
