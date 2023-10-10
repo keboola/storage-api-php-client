@@ -58,7 +58,6 @@ class TableDefinitionOperationsPartitioningTest extends ParallelWorkspacesTestCa
             'clustering' => [
                 'fields' => ['id'],
             ],
-            'requirePartitionFilter' => false,
             'timePartitioning' => [
                 'type' => 'DAY',
                 'field' => 'time',
@@ -200,19 +199,18 @@ class TableDefinitionOperationsPartitioningTest extends ParallelWorkspacesTestCa
     public function testErrorWhenCreatingTableWithPartitioning(): void
     {
         try {
-            // creating table with clustering and no partitioning
+            // creating table with clustering with wrong field
             $this->createTableDefinition([
                 'clustering' => [
-                    'fields' => ['id'],
+                    'fields' => ['not exists'],
                 ],
-                'requirePartitionFilter' => true,
             ]);
             $this->fail('Exception should be thrown');
         } catch (ClientException $e) {
             $this->assertInstanceOf(ClientException::class, $e);
             $this->assertSame('storage.tables.validation', $e->getStringCode());
             $this->assertMatchesRegularExpression(
-                '/Failed to create table "my_new_table" in dataset ".*"\. Exception: Either interval partition or range partition should be specified\..*/',
+                '/Failed to create table "my_new_table" in dataset ".*"\. Exception: The field specified for clustering cannot be found in the schema\..*/',
                 $e->getMessage()
             );
         }
