@@ -3,6 +3,8 @@
 namespace Keboola\Test\Backend\Bigquery;
 
 use Keboola\StorageApi\ClientException;
+use Keboola\Test\Backend\Workspaces\Backend\BigqueryWorkspaceBackend;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 
 class TableDefinitionOperationsPartitioningTest extends ParallelWorkspacesTestCase
@@ -129,10 +131,70 @@ class TableDefinitionOperationsPartitioningTest extends ParallelWorkspacesTestCa
             $tableResponse['definition']
         );
 
+        // test snapshots
         $snapshotId = $this->_client->createTableSnapshot($tableId);
         $newTableId = $this->_client->createTableFromSnapshot($tableResponse['bucket']['id'], $snapshotId, 'restored');
         $newTable = $this->_client->getTable($newTableId);
         $this->assertSame($expectedTableDefinition, $newTable['definition']);
+
+        $workspace = $this->initTestWorkspace();
+        // test workspace load
+        // if we would implement copy load this needs to be also tested
+//        $workspaces = new Workspaces($this->_client);
+//        $workspaces->loadWorkspaceData($workspace['id'], [
+//            'input' => [
+//                [
+//                    'source' => $tableId,
+//                    'destination' => 'partitioned',
+//                ],
+//            ],
+//        ]);
+
+        // test unload table from WS
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        assert($backend instanceof BigqueryWorkspaceBackend);
+
+        $client = $backend->getDb();
+
+        $dataset = $client->dataset($workspace['connection']['schema']);
+        $tableInWorkspace = $dataset->table('partitioned');
+        if ($tableInWorkspace->exists()) {
+            $tableInWorkspace->delete();
+        }
+        $dataset->createTable('partitioned', [
+            'schema' => [
+                'fields' => [
+                    [
+                        'name' => 'id',
+                        'type' => 'INTEGER',
+                        'mode' => 'REQUIRED',
+                    ],
+                    [
+                        'name' => 'time',
+                        'type' => 'TIMESTAMP',
+                        'mode' => 'REQUIRED',
+                    ],
+                ],
+            ],
+            'timePartitioning' => [
+                'type' => 'DAY',
+                'field' => 'time',
+                'expirationMs' => 1000,
+            ],
+            'clustering' => [
+                'fields' => ['id'],
+            ],
+        ]);
+
+        // unload table back to storage
+        $unloadedTableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
+            'name' => 'partitionedUnload',
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'partitioned',
+        ]);
+        $unloadedTable = $this->_client->getTable($unloadedTableId);
+        // table created by unload from WS are created without type
+        $this->assertArrayNotHasKey('definition', $unloadedTable);
     }
 
     public function testErrorWhenCreatingTableWithPartitioning(): void
