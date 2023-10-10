@@ -7,7 +7,10 @@ namespace Keboola\Test\Backend\SOX;
 use Generator;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
+use Keboola\StorageApi\Options\Components\Configuration;
+use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Tokens;
 use Keboola\StorageApi\Workspaces;
@@ -488,8 +491,23 @@ class SOXTokensTest extends StorageApiTestCase
         }
     }
 
-    public function testTokenWithCanCreateJobsFlagCanCreatePriviledgedToken(): void
+    public function testTokenWithCanCreateJobsFlagCanReadConfigurationsAndCreatePriviledgedToken(): void
     {
+        $elevatedComponentsApi = new Components($this->getDefaultBranchStorageApiClient());
+
+        $configuration1 = (new Configuration())
+            ->setName('wr-db')
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main');
+        $elevatedComponentsApi->addConfiguration(
+            $configuration1,
+        );
+        $elevatedComponentsApi->addConfigurationRow(
+            (new ConfigurationRow($configuration1))
+                ->setName('row1')
+                ->setRowId('row1'),
+        );
+
         // only productionManager can create token with canCreateJobs flag
         $prodManagerClient = $this->getDefaultClient();
         $prodManagerTokens = new Tokens($prodManagerClient);
@@ -502,6 +520,9 @@ class SOXTokensTest extends StorageApiTestCase
             'token' => $tokenWithCreateJobsFlag['token'],
             'url' => STORAGE_API_URL,
         ]);
+        $createJobsConfigurationApi = new Components($clientWithCreateJobsFlag);
+        $createJobsConfigurationApi->getConfiguration('wr-db', 'main');
+        $createJobsConfigurationApi->getConfigurationRow('wr-db', 'main', 'row1');
         $createJobsFlagTokens = new Tokens($clientWithCreateJobsFlag);
         $priviledgedToken = $createJobsFlagTokens->createTokenPrivilegedInProtectedDefaultBranch(
             (new TokenCreateOptions())
@@ -510,7 +531,7 @@ class SOXTokensTest extends StorageApiTestCase
                 ->setCanManageBuckets(true)
                 ->setCanPurgeTrash(true)
                 ->addComponentAccess('wr-db'),
-            MANAGE_API_TOKEN_WITH_CREATE_PROTECTED_DEFAULT_BRANCH_TOKEN
+            MANAGE_API_TOKEN_WITH_CREATE_PROTECTED_DEFAULT_BRANCH_TOKEN,
         );
 
         $this->assertTrue($priviledgedToken['canManageProtectedDefaultBranch']);
