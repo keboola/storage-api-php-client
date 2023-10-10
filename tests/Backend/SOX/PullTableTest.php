@@ -228,7 +228,7 @@ class PullTableTest extends StorageApiTestCase
                     [
                         'name' => 'id',
                         'definition' => [
-                            'type' => 'INT',
+                            'type' => 'INTEGER',
                             'nullable' => false,
                         ],
                     ],
@@ -283,7 +283,7 @@ class PullTableTest extends StorageApiTestCase
                 $this->assertSame('38,0', $defs[0]->getColumnDefinition()->getLength());
                 break;
             case self::BACKEND_BIGQUERY:
-                $this->assertSame('INT64', $defs[0]->getColumnDefinition()->getType());
+                $this->assertSame('INTEGER', $defs[0]->getColumnDefinition()->getType());
                 $this->assertNull($defs[0]->getColumnDefinition()->getLength());
                 break;
             default:
@@ -322,7 +322,7 @@ class PullTableTest extends StorageApiTestCase
                     [
                         'name' => 'id',
                         'definition' => [
-                            'type' => 'INT64',
+                            'type' => 'INTEGER',
                             'nullable' => false,
                         ],
                         'basetype' => 'INTEGER',
