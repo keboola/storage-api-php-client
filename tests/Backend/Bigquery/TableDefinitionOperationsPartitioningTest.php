@@ -3,6 +3,7 @@
 namespace Keboola\Test\Backend\Bigquery;
 
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\BigqueryWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
@@ -139,15 +140,19 @@ class TableDefinitionOperationsPartitioningTest extends ParallelWorkspacesTestCa
         $workspace = $this->initTestWorkspace();
         // test workspace load
         // if we would implement copy load this needs to be also tested
-//        $workspaces = new Workspaces($this->_client);
-//        $workspaces->loadWorkspaceData($workspace['id'], [
-//            'input' => [
-//                [
-//                    'source' => $tableId,
-//                    'destination' => 'partitioned',
-//                ],
-//            ],
-//        ]);
+        $workspaces = new Workspaces($this->_client);
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], [
+                'input' => [
+                    [
+                        'source' => $tableId,
+                        'destination' => 'partitioned',
+                    ],
+                ],
+            ]);
+        } catch (ClientException $e) {
+            $this->assertSame('Backend "bigquery" does not support: "Other types of loading than view".', $e->getMessage());
+        }
 
         // test unload table from WS
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
