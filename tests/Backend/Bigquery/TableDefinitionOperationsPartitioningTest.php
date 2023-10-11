@@ -150,6 +150,7 @@ class TableDefinitionOperationsPartitioningTest extends ParallelWorkspacesTestCa
                     ],
                 ],
             ]);
+            $this->fail('Someone probably implemented copy in BQ, well fix this test mate.');
         } catch (ClientException $e) {
             $this->assertSame('Backend "bigquery" does not support: "Other types of loading than view".', $e->getMessage());
         }
