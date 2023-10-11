@@ -2328,7 +2328,23 @@ If there is no column datatype specified (column.definition.type or column.baset
                 + CLUSTERED CLOUMNSTORE INDEX
                 + HEAP
         + indexColumnsNames[] (required) - has to be subset of column names
-
+    + timePartitioning - Bigquery only [(documentation)](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#timepartitioning)
+        + type (required, enum[string])
+            + Members
+                + DAY
+                + HOUR
+                + MONTH
+                + YEAR
+        + field (string) - has to be subset of column names
+        + expirationMs (number) - optional
+    + clustering - Bigquery only [(documentation)](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#clustering)
+        + fields[] (required) - has to be subset of column names
+    + rangePartitioning - Bigquery only [(documentation)](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#rangepartitioning)
+        + field (required,string) - has to be subset of column names
+        + range (required) - has to be subset of column names
+            + start (required, number)
+            + end (required, number)
+            + interval (required, number)
 + Request (application/json)
     + Headers
 
@@ -3450,6 +3466,29 @@ Obtains information about a table.
                     "index": {
                         "type": "CLUSTERED INDEX",
                         "indexColumnsNames": ["visit_id"]
+                    },
+                    "timePartitioning": {
+                        "type": "DAY",
+                        "expirationMs": 7776000000,
+                        "field": "visit_id"
+                    },
+                    "rangePartitioning": {
+                        "field": "visit_id",
+                        "range": {
+                            "start": 0,
+                            "end": 1000000,
+                            "interval": 1000
+                        }
+                    },
+                    "clustering": {
+                        "fields" : ["visit_id"]
+                    },
+                    "requirePartitionFilter": false,
+                    "partitions": {
+                        "partitionId": "1234",
+                        "rowsNumber": "10",
+                        "lastModifiedTime": "2022-12-13 00:09:25.604000 UTC",
+                        "storageTier": "ACTIVE"
                     }
                 },
                 "sourceTable": {

@@ -228,7 +228,7 @@ class PullTableTest extends StorageApiTestCase
                     [
                         'name' => 'id',
                         'definition' => [
-                            'type' => 'INT',
+                            'type' => 'INTEGER',
                             'nullable' => false,
                         ],
                     ],
@@ -322,7 +322,7 @@ class PullTableTest extends StorageApiTestCase
                     [
                         'name' => 'id',
                         'definition' => [
-                            'type' => 'INT64',
+                            'type' => 'INTEGER',
                             'nullable' => false,
                         ],
                         'basetype' => 'INTEGER',
