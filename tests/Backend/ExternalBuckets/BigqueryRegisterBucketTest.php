@@ -177,7 +177,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $this->assertCount(2, $tableDetail['columns']);
 
         $this->assertColumnMetadata(
-            'INT64',
+            'INTEGER',
             '1',
             'INTEGER',
             null,

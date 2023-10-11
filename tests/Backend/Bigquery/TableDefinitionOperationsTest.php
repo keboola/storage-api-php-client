@@ -213,7 +213,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
                 [
                     'name' => 'id',
                     'definition' => [
-                        'type' => 'INT64',
+                        'type' => 'INTEGER',
                         'nullable' => false,
                     ],
                     'basetype' => 'INTEGER',
@@ -716,7 +716,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
                 [
                     'name' => 'id',
                     'definition' => [
-                        'type' => 'INT',
+                        'type' => 'INTEGER',
                         'nullable' => false,
                     ],
                 ],
@@ -835,7 +835,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
                 [
                     'name' => 'id',
                     'definition' => [
-                        'type' => 'INT',
+                        'type' => 'INTEGER',
                         'nullable' => false,
                     ],
                 ],
@@ -925,7 +925,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
         // check that the new metadata has expected values
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.type',
-            'value' => 'INT64',
+            'value' => 'INTEGER',
             'provider' => 'storage',
         ], $idColumnMetadata[0], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
