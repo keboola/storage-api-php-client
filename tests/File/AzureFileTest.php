@@ -4,9 +4,13 @@ namespace Keboola\Test\File;
 
 use Exception;
 use GuzzleHttp\Client;
+use Keboola\StorageApi\ABSUploader;
+use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\Test\StorageApiTestCase;
+use MicrosoftAzure\Storage\Blob\Models\CommitBlobBlocksOptions;
+use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
 
 class AzureFileTest extends StorageApiTestCase
 {
@@ -128,6 +132,51 @@ class AzureFileTest extends StorageApiTestCase
                     ->setFileName('slice.csv'),
             ],
         ];
+    }
+
+    public function testReUpload(): void
+    {
+        $filePath = __DIR__ . '/../_data/files.upload.txt';
+        $options = new FileUploadOptions();
+        $options
+            ->setFileName('upload.txt')
+            ->setFederationToken(true)
+            ->setIsEncrypted(false);
+
+        $prepareResult = $this->_client->prepareFileUpload($options);
+
+        $blobClient = BlobClientFactory::createClientFromConnectionString(
+            $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
+        );
+
+        $parallel = true;
+        $options = new CommitBlobBlocksOptions();
+        if (!$prepareResult['sizeBytes']) {
+            // cannot upload empty file in parallel, needs to be created directly
+            $options = new CreateBlockBlobOptions();
+            $parallel = false;
+        }
+        $options->setContentDisposition(
+            sprintf('attachment; filename=%s', $prepareResult['name'])
+        );
+
+        $uploader = new ABSUploader($blobClient);
+        $uploader->uploadFile(
+            $prepareResult['absUploadParams']['container'],
+            $prepareResult['absUploadParams']['blobName'],
+            $filePath,
+            $options,
+            $parallel
+        );
+
+        // re-upload should work
+        $uploader->uploadFile(
+            $prepareResult['absUploadParams']['container'],
+            $prepareResult['absUploadParams']['blobName'],
+            $filePath,
+            $options,
+            $parallel
+        );
     }
 
     /**

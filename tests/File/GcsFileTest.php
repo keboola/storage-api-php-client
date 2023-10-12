@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client as StorageApiClient;
 use Keboola\StorageApi\Exception;
+use Keboola\StorageApi\GCSUploader;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
@@ -87,6 +88,45 @@ class GcsFileTest extends StorageApiTestCase
         // check attachment, download
         $client = new Client();
         $client->get($file['url']);
+    }
+
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testReUpload(): void
+    {
+        $filePath = __DIR__ . '/../_data/files.upload.txt';
+        $options = new FileUploadOptions();
+        $options
+            ->setFileName('upload.txt')
+            ->setFederationToken(true)
+            ->setIsEncrypted(false);
+
+        $prepareResult = $this->_testClient->prepareFileUpload($options);
+
+        $gcsUploader = new GCSUploader([
+            'credentials' => [
+                'access_token' => $prepareResult['gcsUploadParams']['access_token'],
+                'expires_in' => $prepareResult['gcsUploadParams']['expires_in'],
+                'token_type' => $prepareResult['gcsUploadParams']['token_type'],
+            ],
+            'projectId' => $prepareResult['gcsUploadParams']['projectId'],
+        ]);
+
+        $gcsUploader->uploadFile(
+            $prepareResult['gcsUploadParams']['bucket'],
+            $prepareResult['gcsUploadParams']['key'],
+            $filePath,
+            false
+        );
+
+        // re-upload should work
+        $gcsUploader->uploadFile(
+            $prepareResult['gcsUploadParams']['bucket'],
+            $prepareResult['gcsUploadParams']['key'],
+            $filePath,
+            false
+        );
     }
 
     /**
