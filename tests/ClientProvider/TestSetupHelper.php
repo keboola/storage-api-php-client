@@ -120,9 +120,9 @@ class TestSetupHelper
             },
         );
 
-        $branch = reset($branchesCreatedByThisTestMethod) ?: null;
+        $branch = reset($branchesCreatedByThisTestMethod);
 
-        if ($branch === null) {
+        if ($branch === false) {
             $branch = $devBranches->createBranch($branchName);
         }
 
