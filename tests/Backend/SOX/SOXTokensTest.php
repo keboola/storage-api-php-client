@@ -495,6 +495,12 @@ class SOXTokensTest extends StorageApiTestCase
     {
         $elevatedComponentsApi = new Components($this->getDefaultBranchStorageApiClient());
 
+        try {
+            $elevatedComponentsApi->deleteConfiguration('wr-db', 'main');
+        } catch (ClientException $e) {
+            // ignore
+        }
+
         $configuration1 = (new Configuration())
             ->setName('wr-db')
             ->setComponentId('wr-db')
@@ -523,6 +529,25 @@ class SOXTokensTest extends StorageApiTestCase
         $createJobsConfigurationApi = new Components($clientWithCreateJobsFlag);
         $createJobsConfigurationApi->getConfiguration('wr-db', 'main');
         $createJobsConfigurationApi->getConfigurationRow('wr-db', 'main', 'row1');
+        try {
+            $createJobsConfigurationApi->deleteConfiguration('wr-db', 'main');
+            $this->fail('Token with canCreateJobs flag should not be able to delete configurations');
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
+        }
+        try {
+            $createJobsConfigurationApi->addConfiguration(
+                (new Configuration())
+                ->setName('will not be created')
+                ->setComponentId('wr-db')
+                ->setConfigurationId('not-created')
+            );
+            $this->fail('Token with canCreateJobs flag should not be able to create configurations');
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
+        }
         $createJobsFlagTokens = new Tokens($clientWithCreateJobsFlag);
         $priviledgedToken = $createJobsFlagTokens->createTokenPrivilegedInProtectedDefaultBranch(
             (new TokenCreateOptions())
