@@ -2,10 +2,12 @@
 
 namespace Keboola\Test\File;
 
+use Aws\S3\S3Client;
 use GuzzleHttp\Client;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client as StorageApiClient;
 use Keboola\StorageApi\Options\FileUploadOptions;
+use Keboola\StorageApi\S3Uploader;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\StorageApiTestCase;
@@ -286,6 +288,59 @@ class AwsFileTest extends StorageApiTestCase
         } catch (\Aws\S3\Exception\S3Exception $e) {
             $this->assertEquals(403, $e->getStatusCode());
         }
+    }
+
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testReUpload(): void
+    {
+        $filePath = __DIR__ . '/../_data/files.upload.txt';
+        $options = new FileUploadOptions();
+        $options
+            ->setFileName('upload.txt')
+            ->setFederationToken(true)
+            ->setIsEncrypted(false);
+
+        $prepareResult = $this->_testClient->prepareFileUpload($options);
+
+        $uploadParams = $prepareResult['uploadParams'];
+        $s3options = [
+            'version' => '2006-03-01',
+            'retries' => 40,
+            'region' => $prepareResult['region'],
+            'http' => [
+                'connect_timeout' => 10,
+                'timeout' => 500,
+            ],
+            'debug' => false,
+            'credentials' => [
+                'key' => $uploadParams['credentials']['AccessKeyId'],
+                'secret' => $uploadParams['credentials']['SecretAccessKey'],
+                'token' => $uploadParams['credentials']['SessionToken'],
+            ],
+        ];
+
+        $s3Client = new S3Client($s3options);
+        $s3Uploader = new S3Uploader($s3Client);
+        $s3Uploader->uploadFile(
+            $uploadParams['bucket'],
+            $uploadParams['key'],
+            $uploadParams['acl'],
+            $filePath,
+            $prepareResult['name'],
+            null
+        );
+
+        // re-upload should work
+        $s3Uploader->uploadFile(
+            $uploadParams['bucket'],
+            $uploadParams['key'],
+            $uploadParams['acl'],
+            $filePath,
+            $prepareResult['name'],
+            null
+        );
     }
 
     /**
