@@ -42,10 +42,10 @@ class TestSetupHelper
         string $devBranchType,
         string $userRole
     ): array {
-        $hasProjectProtectedDefaultbranch = in_array($userRole, ['reviewer', 'developer', 'production-manager']);
+        $hasProjectProtectedDefaultBranch = in_array($userRole, ['reviewer', 'developer', 'production-manager']);
 
         $client = $clientProvider->getDefaultClient();
-        if ($hasProjectProtectedDefaultbranch) {
+        if ($hasProjectProtectedDefaultBranch) {
             // default branch is protected, we need privileged client for production cleanup
             $client = $clientProvider->getDefaultClient(['token' => STORAGE_API_DEFAULT_BRANCH_TOKEN]);
         }
@@ -56,9 +56,8 @@ class TestSetupHelper
             $branchName = $clientProvider->getDevBranchName();
             // dev can create & delete branches in production
             $devBranches = new DevBranches($clientProvider->getDefaultClient(['token' => STORAGE_API_DEVELOPER_TOKEN]));
-            $this->deleteBranchesByPrefix($devBranches, $branchName);
-            $branch = $devBranches->createBranch($branchName);
 
+            $branch = $this->getBranchOrCreate($devBranches, $branchName);
             // branched client for dev
             $testClient = $clientProvider->getBranchAwareClient($branch['id'], [
                 'token' => STORAGE_API_DEVELOPER_TOKEN,
@@ -109,5 +108,24 @@ class TestSetupHelper
         }
 
         return $onlyDefaultProvider;
+    }
+
+    private function getBranchOrCreate(DevBranches $devBranches, string $branchName): array
+    {
+        $branchesList = $devBranches->listBranches();
+        $branchesCreatedByThisTestMethod = array_filter(
+            $branchesList,
+            function ($branch) use ($branchName) {
+                return $branch['name'] === $branchName;
+            },
+        );
+
+        $branch = reset($branchesCreatedByThisTestMethod);
+
+        if ($branch === false) {
+            $branch = $devBranches->createBranch($branchName);
+        }
+
+        return $branch;
     }
 }
