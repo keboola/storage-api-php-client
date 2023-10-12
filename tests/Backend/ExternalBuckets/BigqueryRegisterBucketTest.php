@@ -304,38 +304,37 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             $tableDetail['columnMetadata']['XXX']
         );
 
-//        todo view is not supported in driver
-//        $db->executeQuery(sprintf(
-//        /** @lang BigQuery */
-//            'CREATE VIEW `%s`.`MY_VIEW` AS SELECT * FROM `%s`.`TEST`',
-//            $externalCredentials['connection']['schema'],
-//            $externalCredentials['connection']['schema'],
-//        ));
-//
-//        $runId = $this->setRunId();
-//        $this->_client->refreshBucket($idOfBucket);
-//
-//        $assertCallback = function ($events) {
-//            $this->assertCount(1, $events);
-//        };
-//        $query = new EventsQueryBuilder();
-//        $query->setEvent('storage.tableCreated')
-//            ->setTokenId($this->tokenId)
-//            ->setRunId($runId);
-//        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
-//
-//        $assertCallback = function ($events) {
-//            $this->assertCount(1, $events);
-//        };
-//        $query = new EventsQueryBuilder();
-//        $query->setEvent('storage.bucketRefreshed')
-//            ->setTokenId($this->tokenId)
-//            ->setRunId($runId);
-//        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
-//
-//        // check external bucket
-//        $tables = $this->_client->listTables($idOfBucket);
-//        $this->assertCount(3, $tables);
+        $db->executeQuery(sprintf(
+        /** @lang BigQuery */
+            'CREATE VIEW `%s`.`MY_VIEW` AS SELECT * FROM `%s`.`TEST`',
+            $externalCredentials['connection']['schema'],
+            $externalCredentials['connection']['schema'],
+        ));
+
+        $runId = $this->setRunId();
+        $this->_client->refreshBucket($idOfBucket);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableCreated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketRefreshed')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        // check external bucket
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(3, $tables);
 
         $ws = new Workspaces($this->_client);
         $workspace = $ws->createWorkspace();
@@ -368,7 +367,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
                 [
                     'input' => [
                         [
-                            'source' => $tables[0]['id'],
+                            'source' => $tables[1]['id'],
                             'destination' => 'test',
                         ],
                     ],
