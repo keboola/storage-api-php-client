@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Test\Backend\ExternalBuckets;
 
+use Generator;
 use Google\Cloud\BigQuery\AnalyticsHub\V1\AnalyticsHubServiceClient;
 use Google\Cloud\BigQuery\AnalyticsHub\V1\DataExchange;
 use Google\Cloud\BigQuery\AnalyticsHub\V1\Listing;
@@ -430,6 +431,93 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 
         $preview = $this->_client->getTableDataPreview($tables[0]['id']);
         $this->assertCount(6, \Keboola\StorageApi\Client::parseCsv($preview, false));
+    }
+
+    /**
+     * @dataProvider createOtherObjectsProvider
+     */
+    public function testRegistrationOtherObjects(string $objectName, string $query): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $this->dropBucketIfExists($this->_client, $bucketId, true);
+        $this->initEvents($this->_client);
+
+        // prepare external bucket
+        $path = $this->prepareExternalBucketForRegistration($description);
+
+        // register external bucket
+        $idOfBucket = $this->_client->registerBucket(
+            $testBucketName,
+            $path,
+            'in',
+            'Iam in external bucket',
+            'bigquery',
+            'Iam-your-external-bucket-' . $objectName
+        );
+
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(0, $tables);
+        // check external bucket
+
+        $externalCredentials['connection']['backend'] = 'bigquery';
+        $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
+        $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
+        $db->createTable('TEST', [
+            'AMOUNT' => 'INT',
+            'DESCRIPTION' => 'STRING',
+        ]);
+        $db->executeQuery(sprintf(
+        /** @lang BigQuery */
+            'INSERT INTO %s.`TEST` (`AMOUNT`, `DESCRIPTION`) VALUES (1, \'test\');',
+            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema'])
+        ));
+
+        // refresh external bucket
+        $this->_client->refreshBucket($idOfBucket);
+
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(1, $tables);
+
+        // create object in external bucket, by query from provider
+        $db->executeQuery(
+            sprintf(
+                $query,
+                BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
+                BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema'])
+            )
+        );
+
+        // refresh external bucket
+        $this->_client->refreshBucket($idOfBucket);
+
+        $tables = $this->_client->listTables($idOfBucket);
+
+        $this->assertCount(2, $tables);
+
+        // test if exist object created by query from provider
+        $table = $this->_client->getTable($idOfBucket.'.'.$objectName);
+        $this->_client->exportTableAsync($table['id']);
+
+        $preview = $this->_client->getTableDataPreview($table['id']);
+        $this->assertCount(2, \Keboola\StorageApi\Client::parseCsv($preview, false));
+    }
+
+    public function createOtherObjectsProvider(): Generator
+    {
+        yield 'create materialized view' => [
+            'my_view',
+            'CREATE MATERIALIZED VIEW %s.`my_view` AS SELECT * FROM %s.`TEST`',
+        ];
+
+        yield 'create snapshot' => [
+            'snapshot',
+            'CREATE SNAPSHOT TABLE %s.`snapshot` CLONE %s.`TEST` OPTIONS ( expiration_timestamp = TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 1 HOUR));',
+        ];
     }
 
     /**
