@@ -20,6 +20,14 @@ use Keboola\Test\Backend\Workspaces\Backend\BigQueryClientHandler;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Utils\EventsQueryBuilder;
 
+// Tests for registering an external bucket that contains different types of tables.
+// Available table types https://cloud.google.com/bigquery/docs/information-schema-tables#schema:
+// - BASE TABLE: standard table
+// - CLONE: we don't test this, it's just an aperture
+// - SNAPSHOT
+// - VIEW
+// - MATERIALIZED VIEW
+// - EXTERNAL
 class BigqueryRegisterBucketTest extends BaseExternalBuckets
 {
     public function setUp(): void
