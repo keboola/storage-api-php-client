@@ -679,8 +679,11 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         ]);
 
         $filePath = __DIR__ . '/../../_data/languages.csv';
-        $retBucket = $gcsClient->bucket('my-external-table-bucket');
-        $retBucket->exists();
+        $gcsBucketName = 'my-external-table-bucket3';
+        $retBucket = $gcsClient->bucket($gcsBucketName);
+        if ($retBucket->exists() === false) {
+            $retBucket = $gcsClient->createBucket($gcsBucketName);
+        }
 
         $file = fopen($filePath, 'rb');
         if (!$file) {
@@ -704,7 +707,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $db->executeQuery(sprintf(
             "CREATE OR REPLACE EXTERNAL TABLE %s.externalTable OPTIONS (format = 'CSV',uris = [%s]);",
             BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
-            BigqueryQuote::quote('gs://my-external-table-bucket/languages.csv')
+            BigqueryQuote::quote($object->gcsUri())
         ));
     }
 }
