@@ -10,6 +10,7 @@ use Google\Cloud\BigQuery\AnalyticsHub\V1\Listing;
 use Google\Cloud\BigQuery\AnalyticsHub\V1\Listing\BigQueryDatasetSource;
 use Google\Cloud\BigQuery\BigQueryClient;
 use Google\Cloud\Iam\V1\Binding;
+use Google\Cloud\Storage\StorageClient;
 use GuzzleHttp\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
@@ -387,6 +388,50 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         }
     }
 
+    public function testRegistrationOfExternalTableFromCsv(): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $this->dropBucketIfExists($this->_client, $bucketId, true);
+        $this->initEvents($this->_client);
+
+        // prepare external bucket
+        $path = $this->prepareExternalBucketForRegistration($description);
+
+        // register external bucket
+        $idOfBucket = $this->_client->registerBucket(
+            $testBucketName,
+            $path,
+            'in',
+            'Iam in external table from csv',
+            'bigquery',
+            'Iam-your-external-bucket-for-external-table'
+        );
+
+        // check external bucket
+        $bucket = $this->_client->getBucket($idOfBucket);
+        $this->assertTrue($bucket['hasExternalSchema']);
+
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(0, $tables);
+
+        $this->createExternalTable($description);
+
+        // refresh external bucket
+        $this->_client->refreshBucket($idOfBucket);
+
+        // check external bucket
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(1, $tables);
+
+        $this->_client->exportTableAsync($tables[0]['id']);
+
+        $preview = $this->_client->getTableDataPreview($tables[0]['id']);
+        $this->assertCount(6, \Keboola\StorageApi\Client::parseCsv($preview, false));
+    }
+
     /**
      * @return string[]
      */
@@ -529,5 +574,41 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             'httpHandler' => $handler,
         ]);
         return $bqClient;
+    }
+
+    private function createExternalTable(string $description): void
+    {
+        $gcsClient = new StorageClient([
+            'keyFile' => $this->getCredentialsArray(),
+        ]);
+
+        $filePath = __DIR__ . '/../../_data/languages.csv';
+        $retBucket = $gcsClient->bucket('my-external-table-bucket');
+        $retBucket->exists();
+
+        $file = fopen($filePath, 'rb');
+        if (!$file) {
+            throw new ClientException("Cannot open file {$file}");
+        }
+        $object = $retBucket->upload(
+            $file,
+            [
+                'name' => 'languages.csv',
+            ]
+        );
+
+        // this must be done in a real situation by a user who registers an external bucket
+        $object->acl()->add('user-'.BQ_DESTINATION_PROJECT_SERVICE_ACC_EMAIL, 'READER');
+
+        $externalCredentials['connection']['backend'] = 'bigquery';
+        $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
+        $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
+        $db->executeQuery(sprintf(
+            "CREATE OR REPLACE EXTERNAL TABLE %s.externalTable OPTIONS (format = 'CSV',uris = [%s]);",
+            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
+            BigqueryQuote::quote('gs://my-external-table-bucket/languages.csv')
+        ));
     }
 }
