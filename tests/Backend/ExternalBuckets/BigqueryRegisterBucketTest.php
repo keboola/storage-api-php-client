@@ -19,6 +19,7 @@ use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\Test\Backend\Workspaces\Backend\BigQueryClientHandler;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Utils\EventsQueryBuilder;
+use LogicException;
 
 // Tests for registering an external bucket that contains different types of tables.
 // Available table types https://cloud.google.com/bigquery/docs/information-schema-tables#schema:
@@ -679,10 +680,11 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         ]);
 
         $filePath = __DIR__ . '/../../_data/languages.csv';
-        $gcsBucketName = 'my-external-table-bucket3';
-        $retBucket = $gcsClient->bucket($gcsBucketName);
+        $retBucket = $gcsClient->bucket(BQ_EXTERNAL_TABLE_GCS_BUCKET);
         if ($retBucket->exists() === false) {
-            $retBucket = $gcsClient->createBucket($gcsBucketName);
+            throw new LogicException(
+                'Bucket for external table does not exist, please check if you have set it up with terraform or if the ENV `BQ_EXTERNAL_TABLE_GCS_BUCKET` is filled in.'
+            );
         }
 
         $file = fopen($filePath, 'rb');
