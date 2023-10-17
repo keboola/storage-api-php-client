@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend\ExternalBuckets;
 
+use Keboola\StorageApi\Client;
 use Keboola\Test\StorageApiTestCase;
 
 abstract class BaseExternalBuckets extends StorageApiTestCase
