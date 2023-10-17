@@ -13,11 +13,14 @@ use Google\Cloud\BigQuery\BigQueryClient;
 use Google\Cloud\Iam\V1\Binding;
 use Google\Cloud\Storage\StorageClient;
 use GuzzleHttp\Client;
+use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\Test\Backend\Workspaces\Backend\BigQueryClientHandler;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Keboola\Test\ClientProvider\ClientProvider;
+use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\Utils\EventsQueryBuilder;
 use LogicException;
 
@@ -31,12 +34,36 @@ use LogicException;
 // - EXTERNAL
 class BigqueryRegisterBucketTest extends BaseExternalBuckets
 {
+    protected \Keboola\StorageApi\Client $_testClient;
+
     public function setUp(): void
     {
+        $providedData = $this->getProvidedData();
+        if ($providedData === []) {
+            parent::setUp();
+            $this->_testClient = $this->_client;
+            return;
+        }
+
+        $this->_client = $this->getDefaultBranchStorageApiClient();
         parent::setUp();
 
-        $this->initEvents($this->_client);
-        $token = $this->_client->verifyToken();
+        [$devBranchType, $userRole] = $providedData;
+        $this->initEmptyTestBucketsForParallelTests(
+            [self::STAGE_OUT, self::STAGE_IN],
+            $this->getDefaultBranchStorageApiClient()
+        );
+
+        $clientProvider = new ClientProvider($this);
+
+        [$this->_client, $this->_testClient] = (new TestSetupHelper())->setUpForProtectedDevBranch(
+            $clientProvider,
+            $devBranchType,
+            $userRole
+        );
+
+        $this->initEvents($this->_testClient);
+        $token = $this->_testClient->verifyToken();
 
         if (!in_array('external-buckets', $token['owner']['features'])) {
             $this->markTestSkipped(sprintf('External buckets are not enabled for project "%s"', $token['owner']['id']));
@@ -90,17 +117,63 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         }
     }
 
-    public function testRegisterWSAsExternalBucket(): void
+    public function provideComponentsClientTypeBasedOnSuite(): array
+    {
+        return (new TestSetupHelper())->provideComponentsClientTypeBasedOnSuite($this);
+    }
+
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testRegisterWSAsExternalBucket(string $devBranchType, string $userRole): void
     {
         $description = $this->generateDescriptionForTestObject();
         $testBucketName = $this->getTestBucketName($description);
         $bucketId = self::STAGE_IN . '.' . $testBucketName;
 
         $this->dropBucketIfExists($this->_client, $bucketId, true);
-        $this->initEvents($this->_client);
 
         $externalBucketBackend = 'bigquery';
-        $guide = $this->_client->registerBucketGuide(['external_bucket'], $externalBucketBackend);
+
+        $testClient = $this->_testClient;
+        if ($this->_testClient instanceof BranchAwareClient) {
+            // we don't want to test branched api calls as they do not exists
+            // we want to test that for other roles than PM is access denied
+            $testClient = $this->_testClient->getDefaultBranchClient();
+
+            try {
+                $testClient->registerBucketGuide(['external_bucket'], $externalBucketBackend);
+                $this->fail($userRole . ' should not have access to this.');
+            } catch (ClientException $e) {
+                $this->assertSame(403, $e->getCode());
+            }
+
+            try {
+                $testClient->registerBucket(
+                    $testBucketName,
+                    ['doesNotMatter'],
+                    'in',
+                    'Iam in external bucket',
+                    $externalBucketBackend,
+                    'Iam-your-external-bucket_' . $devBranchType . '_' . $userRole
+                );
+                $this->fail($userRole . ' should not have access to this.');
+            } catch (ClientException $e) {
+                $this->assertSame(403, $e->getCode());
+            }
+
+            try {
+                $testClient->refreshBucket('doesNotMatter');
+                $this->fail($userRole . ' should not have access to this.');
+            } catch (ClientException $e) {
+                $this->assertSame(403, $e->getCode());
+            }
+            // do not test any further while using dev branch and thus not PM user
+            return;
+        }
+        $this->initEvents($testClient);
+
+        $guide = $testClient->registerBucketGuide(['external_bucket'], $externalBucketBackend);
         $this->assertArrayHasKey('markdown', $guide);
         $this->assertStringContainsString('## Create a New Exchange', $guide['markdown']);
         $this->assertStringContainsString('## Create a New Listing', $guide['markdown']);
@@ -110,13 +183,14 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 
         // register external bucket
         $runId = $this->setRunId();
-        $idOfBucket = $this->_client->registerBucket(
+        $testClient->setRunId($runId);
+        $idOfBucket = $testClient->registerBucket(
             $testBucketName,
             $path,
             'in',
             'Iam in external bucket',
             $externalBucketBackend,
-            'Iam-your-external-bucket'
+            'Iam-your-external-bucket_' . $devBranchType . '_' . $userRole
         );
 
         $assertCallback = function ($events) {
@@ -126,13 +200,13 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.bucketCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($testClient, $assertCallback, $query);
 
         // check external bucket
-        $bucket = $this->_client->getBucket($idOfBucket);
+        $bucket = $testClient->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
 
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $testClient->listTables($idOfBucket);
         $this->assertCount(0, $tables);
         // check external bucket
 
@@ -156,7 +230,8 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 
         // refresh external bucket
         $runId = $this->setRunId();
-        $this->_client->refreshBucket($idOfBucket);
+        $testClient->setRunId($runId);
+        $testClient->refreshBucket($idOfBucket);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -165,7 +240,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.tableCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($testClient, $assertCallback, $query);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -174,12 +249,12 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.bucketRefreshed')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($testClient, $assertCallback, $query);
 
         // check external bucket
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $testClient->listTables($idOfBucket);
         $this->assertCount(1, $tables);
-        $tableDetail = $this->_client->getTable($tables[0]['id']);
+        $tableDetail = $testClient->getTable($tables[0]['id']);
 
         $this->assertSame('KBC.dataTypesEnabled', $tableDetail['metadata'][0]['key']);
         $this->assertSame('true', $tableDetail['metadata'][0]['value']);
@@ -203,9 +278,9 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         );
 
         // export table from external bucket
-        $this->_client->exportTableAsync($tables[0]['id']);
+        $testClient->exportTableAsync($tables[0]['id']);
 
-        $preview = $this->_client->getTableDataPreview($tables[0]['id']);
+        $preview = $testClient->getTableDataPreview($tables[0]['id']);
         // expect two lines in preview because of the header
         $this->assertCount(2, \Keboola\StorageApi\Client::parseCsv($preview, false));
 
@@ -214,7 +289,8 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 
         // refresh external bucket
         $runId = $this->setRunId();
-        $this->_client->refreshBucket($idOfBucket);
+        $testClient->setRunId($runId);
+        $testClient->refreshBucket($idOfBucket);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -223,7 +299,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.tableCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($testClient, $assertCallback, $query);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -232,10 +308,10 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.bucketRefreshed')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($testClient, $assertCallback, $query);
 
         // check external bucket
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $testClient->listTables($idOfBucket);
         $this->assertCount(2, $tables);
 
         // alter first table, drop second table, add third table to external bucket
@@ -254,7 +330,8 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 
         // refresh external bucket
         $runId = $this->setRunId();
-        $this->_client->refreshBucket($idOfBucket);
+        $testClient->setRunId($runId);
+        $testClient->refreshBucket($idOfBucket);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -263,7 +340,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.tableDeleted')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($testClient, $assertCallback, $query);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -272,7 +349,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.tableCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($testClient, $assertCallback, $query);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -281,7 +358,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.tableColumnsUpdated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($testClient, $assertCallback, $query);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -290,13 +367,13 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.bucketRefreshed')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($testClient, $assertCallback, $query);
 
         // check external bucket
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $testClient->listTables($idOfBucket);
         $this->assertCount(2, $tables);
 
-        $tableDetail = $this->_client->getTable($tables[0]['id']);
+        $tableDetail = $testClient->getTable($tables[0]['id']);
         $this->assertSame(['DESCRIPTION', 'XXX'], $tableDetail['columns']);
 
         $this->assertColumnMetadata(
@@ -323,7 +400,8 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         ));
 
         $runId = $this->setRunId();
-        $this->_client->refreshBucket($idOfBucket);
+        $testClient->setRunId($runId);
+        $testClient->refreshBucket($idOfBucket);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -332,7 +410,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.tableCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($testClient, $assertCallback, $query);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -341,13 +419,13 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.bucketRefreshed')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($testClient, $assertCallback, $query);
 
         // check external bucket
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $testClient->listTables($idOfBucket);
         $this->assertCount(3, $tables);
 
-        $ws = new Workspaces($this->_client);
+        $ws = new Workspaces($testClient);
         $workspace = $ws->createWorkspace();
 
         // try failing load
