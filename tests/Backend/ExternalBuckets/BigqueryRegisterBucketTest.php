@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Keboola\Test\Backend\ExternalBuckets;
 
+use Generator;
 use Google\Cloud\BigQuery\AnalyticsHub\V1\AnalyticsHubServiceClient;
 use Google\Cloud\BigQuery\AnalyticsHub\V1\DataExchange;
 use Google\Cloud\BigQuery\AnalyticsHub\V1\Listing;
 use Google\Cloud\BigQuery\AnalyticsHub\V1\Listing\BigQueryDatasetSource;
 use Google\Cloud\BigQuery\BigQueryClient;
 use Google\Cloud\Iam\V1\Binding;
+use Google\Cloud\Storage\StorageClient;
 use GuzzleHttp\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
@@ -17,7 +19,16 @@ use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\Test\Backend\Workspaces\Backend\BigQueryClientHandler;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Utils\EventsQueryBuilder;
+use LogicException;
 
+// Tests for registering an external bucket that contains different types of tables.
+// Available table types https://cloud.google.com/bigquery/docs/information-schema-tables#schema:
+// - BASE TABLE: standard table
+// - CLONE: we don't test this, it's just an aperture
+// - SNAPSHOT
+// - VIEW
+// - MATERIALIZED VIEW
+// - EXTERNAL
 class BigqueryRegisterBucketTest extends BaseExternalBuckets
 {
     public function setUp(): void
@@ -387,6 +398,137 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         }
     }
 
+    public function testRegistrationOfExternalTableFromCsv(): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $this->dropBucketIfExists($this->_client, $bucketId, true);
+        $this->initEvents($this->_client);
+
+        // prepare external bucket
+        $path = $this->prepareExternalBucketForRegistration($description);
+
+        // register external bucket
+        $idOfBucket = $this->_client->registerBucket(
+            $testBucketName,
+            $path,
+            'in',
+            'Iam in external table from csv',
+            'bigquery',
+            'Iam-your-external-bucket-for-external-table'
+        );
+
+        // check external bucket
+        $bucket = $this->_client->getBucket($idOfBucket);
+        $this->assertTrue($bucket['hasExternalSchema']);
+
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(0, $tables);
+
+        $this->createExternalTable($description);
+
+        // refresh external bucket
+        $this->_client->refreshBucket($idOfBucket);
+
+        // check external bucket
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(1, $tables);
+
+        $this->_client->exportTableAsync($tables[0]['id']);
+
+        $preview = $this->_client->getTableDataPreview($tables[0]['id']);
+        $this->assertCount(6, \Keboola\StorageApi\Client::parseCsv($preview, false));
+    }
+
+    /**
+     * @dataProvider createOtherObjectsProvider
+     */
+    public function testRegistrationOtherObjects(string $objectName, string $query): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $this->dropBucketIfExists($this->_client, $bucketId, true);
+        $this->initEvents($this->_client);
+
+        // prepare external bucket
+        $path = $this->prepareExternalBucketForRegistration($description);
+
+        // register external bucket
+        $idOfBucket = $this->_client->registerBucket(
+            $testBucketName,
+            $path,
+            'in',
+            'Iam in external bucket',
+            'bigquery',
+            'Iam-your-external-bucket-' . $objectName
+        );
+
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(0, $tables);
+        // check external bucket
+
+        $externalCredentials['connection']['backend'] = 'bigquery';
+        $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
+        $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
+        $db->createTable('TEST', [
+            'AMOUNT' => 'INT',
+            'DESCRIPTION' => 'STRING',
+        ]);
+        $db->executeQuery(sprintf(
+        /** @lang BigQuery */
+            'INSERT INTO %s.`TEST` (`AMOUNT`, `DESCRIPTION`) VALUES (1, \'test\');',
+            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema'])
+        ));
+
+        // refresh external bucket
+        $this->_client->refreshBucket($idOfBucket);
+
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(1, $tables);
+
+        // create object in external bucket, by query from provider
+        $db->executeQuery(
+            sprintf(
+                $query,
+                BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
+                BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema'])
+            )
+        );
+
+        // refresh external bucket
+        $this->_client->refreshBucket($idOfBucket);
+
+        $tables = $this->_client->listTables($idOfBucket);
+
+        $this->assertCount(2, $tables);
+
+        // test if exist object created by query from provider
+        $table = $this->_client->getTable($idOfBucket.'.'.$objectName);
+        $this->_client->exportTableAsync($table['id']);
+
+        $preview = $this->_client->getTableDataPreview($table['id']);
+        $this->assertCount(2, \Keboola\StorageApi\Client::parseCsv($preview, false));
+    }
+
+    public function createOtherObjectsProvider(): Generator
+    {
+        yield 'create materialized view' => [
+            'my_view',
+            'CREATE MATERIALIZED VIEW %s.`my_view` AS SELECT * FROM %s.`TEST`',
+        ];
+
+        yield 'create snapshot' => [
+            'snapshot',
+            'CREATE SNAPSHOT TABLE %s.`snapshot` CLONE %s.`TEST` OPTIONS ( expiration_timestamp = TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 1 HOUR));',
+        ];
+    }
+
     /**
      * @return string[]
      */
@@ -529,5 +671,45 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             'httpHandler' => $handler,
         ]);
         return $bqClient;
+    }
+
+    private function createExternalTable(string $description): void
+    {
+        $gcsClient = new StorageClient([
+            'keyFile' => $this->getCredentialsArray(),
+        ]);
+
+        $filePath = __DIR__ . '/../../_data/languages.csv';
+        $retBucket = $gcsClient->bucket(BQ_EXTERNAL_TABLE_GCS_BUCKET);
+        if ($retBucket->exists() === false) {
+            throw new LogicException(
+                'Bucket for external table does not exist, please check if you have set it up with terraform or if the ENV `BQ_EXTERNAL_TABLE_GCS_BUCKET` is filled in.'
+            );
+        }
+
+        $file = fopen($filePath, 'rb');
+        if (!$file) {
+            throw new ClientException("Cannot open file {$file}");
+        }
+        $object = $retBucket->upload(
+            $file,
+            [
+                'name' => 'languages.csv',
+            ]
+        );
+
+        // this must be done in a real situation by a user who registers an external bucket
+        $object->acl()->add('user-'.BQ_DESTINATION_PROJECT_SERVICE_ACC_EMAIL, 'READER');
+
+        $externalCredentials['connection']['backend'] = 'bigquery';
+        $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
+        $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
+        $db->executeQuery(sprintf(
+            "CREATE OR REPLACE EXTERNAL TABLE %s.externalTable OPTIONS (format = 'CSV',uris = [%s]);",
+            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
+            BigqueryQuote::quote($object->gcsUri())
+        ));
     }
 }
