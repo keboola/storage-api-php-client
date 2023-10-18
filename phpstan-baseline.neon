@@ -102,17 +102,17 @@ parameters:
 
 		-
 			message: "#^Cannot access offset 'code' on mixed\\.$#"
-			count: 2
+			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
 		-
 			message: "#^Cannot access offset 'error' on mixed\\.$#"
-			count: 2
+			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
 		-
 			message: "#^Cannot access offset 'reason' on mixed\\.$#"
-			count: 2
+			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
 		-
