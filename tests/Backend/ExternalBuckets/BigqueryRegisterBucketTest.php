@@ -38,29 +38,17 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 
     public function setUp(): void
     {
-        $providedData = $this->getProvidedData();
-        if ($providedData === []) {
-            parent::setUp();
-            $this->_testClient = $this->_client;
-            return;
-        }
-
-        $this->_client = $this->getDefaultBranchStorageApiClient();
         parent::setUp();
 
-        [$devBranchType, $userRole] = $providedData;
-        $this->initEmptyTestBucketsForParallelTests(
-            [self::STAGE_OUT, self::STAGE_IN],
-            $this->getDefaultBranchStorageApiClient()
-        );
-
+        [$devBranchType, $userRole] = $this->getProvidedData();
         $clientProvider = new ClientProvider($this);
-
         [$this->_client, $this->_testClient] = (new TestSetupHelper())->setUpForProtectedDevBranch(
             $clientProvider,
             $devBranchType,
             $userRole
         );
+
+        $this->initEmptyTestBucketsForParallelTests();
 
         $this->initEvents($this->_testClient);
         $token = $this->_testClient->verifyToken();
@@ -71,6 +59,10 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $this->allowTestForBackendsOnly([self::BACKEND_BIGQUERY], 'Backend has to support external buckets');
     }
 
+    /**
+     * @group noSOX
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testInvalidListingToRegister(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
@@ -94,6 +86,10 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         }
     }
 
+    /**
+     * @group noSOX
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testNotExistListingToRegister(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
