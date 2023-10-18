@@ -8,12 +8,6 @@ use Keboola\Test\StorageApiTestCase;
 abstract class BaseExternalBuckets extends StorageApiTestCase
 {
     protected string $thisBackend;
-    public function setUp(): void
-    {
-        parent::setUp();
-        $this->initEmptyTestBucketsForParallelTests();
-    }
-
 
     protected function assertColumnMetadata(
         string $expectedType,

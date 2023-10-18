@@ -24,6 +24,7 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
             $this->markTestSkipped(sprintf('External buckets are not enabled for project "%s"', $token['owner']['id']));
         }
         $this->allowTestForBackendsOnly([self::BACKEND_TERADATA], 'Backend has to support external buckets');
+        $this->initEmptyTestBucketsForParallelTests();
     }
 
     public function testInvalidDBToRegister(): void
