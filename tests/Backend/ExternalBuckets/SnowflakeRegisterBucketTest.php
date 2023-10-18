@@ -14,6 +14,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
     public function setUp(): void
     {
         parent::setUp();
+        $this->initEmptyTestBucketsForParallelTests();
     }
 
     public function testRegisterBucket(): void
