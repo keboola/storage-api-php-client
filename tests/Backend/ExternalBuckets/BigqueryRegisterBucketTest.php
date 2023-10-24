@@ -472,20 +472,28 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         }
     }
 
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testRegistrationOfExternalTableFromCsv(): void
     {
         $description = $this->generateDescriptionForTestObject();
         $testBucketName = $this->getTestBucketName($description);
         $bucketId = self::STAGE_IN . '.' . $testBucketName;
 
+        $testClient = $this->_testClient;
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->markTestSkipped('Other user than PM cannot register external buckets. This is tested in self::testRegisterWSAsExternalBucket.');
+        }
+
         $this->dropBucketIfExists($this->_client, $bucketId, true);
-        $this->initEvents($this->_client);
+        $this->initEvents($testClient);
 
         // prepare external bucket
         $path = $this->prepareExternalBucketForRegistration($description);
 
         // register external bucket
-        $idOfBucket = $this->_client->registerBucket(
+        $idOfBucket = $testClient->registerBucket(
             $testBucketName,
             $path,
             'in',
@@ -495,44 +503,53 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         );
 
         // check external bucket
-        $bucket = $this->_client->getBucket($idOfBucket);
+        $bucket = $testClient->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
 
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $testClient->listTables($idOfBucket);
         $this->assertCount(0, $tables);
 
         $this->createExternalTable($description);
 
         // refresh external bucket
-        $this->_client->refreshBucket($idOfBucket);
+        $testClient->refreshBucket($idOfBucket);
 
         // check external bucket
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $testClient->listTables($idOfBucket);
         $this->assertCount(1, $tables);
 
-        $this->_client->exportTableAsync($tables[0]['id']);
+        $testClient->exportTableAsync($tables[0]['id']);
 
-        $preview = $this->_client->getTableDataPreview($tables[0]['id']);
+        $preview = $testClient->getTableDataPreview($tables[0]['id']);
         $this->assertCount(6, \Keboola\StorageApi\Client::parseCsv($preview, false));
     }
 
     /**
      * @dataProvider createOtherObjectsProvider
      */
-    public function testRegistrationOtherObjects(string $objectName, string $query): void
-    {
+    public function testRegistrationOtherObjects(
+        string $devBranchType,
+        string $userRole,
+        string $objectName,
+        string $query
+    ): void {
         $description = $this->generateDescriptionForTestObject();
         $testBucketName = $this->getTestBucketName($description);
         $bucketId = self::STAGE_IN . '.' . $testBucketName;
 
+        $testClient = $this->_testClient;
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->markTestSkipped('Other user than PM cannot register external buckets. This is tested in self::testRegisterWSAsExternalBucket.');
+        }
+
         $this->dropBucketIfExists($this->_client, $bucketId, true);
-        $this->initEvents($this->_client);
+        $this->initEvents($testClient);
 
         // prepare external bucket
         $path = $this->prepareExternalBucketForRegistration($description);
 
         // register external bucket
-        $idOfBucket = $this->_client->registerBucket(
+        $idOfBucket = $testClient->registerBucket(
             $testBucketName,
             $path,
             'in',
@@ -541,7 +558,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             'Iam-your-external-bucket-' . $objectName
         );
 
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $testClient->listTables($idOfBucket);
         $this->assertCount(0, $tables);
         // check external bucket
 
@@ -561,9 +578,9 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         ));
 
         // refresh external bucket
-        $this->_client->refreshBucket($idOfBucket);
+        $testClient->refreshBucket($idOfBucket);
 
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $testClient->listTables($idOfBucket);
         $this->assertCount(1, $tables);
 
         // create object in external bucket, by query from provider
@@ -576,31 +593,35 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         );
 
         // refresh external bucket
-        $this->_client->refreshBucket($idOfBucket);
+        $testClient->refreshBucket($idOfBucket);
 
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $testClient->listTables($idOfBucket);
 
         $this->assertCount(2, $tables);
 
         // test if exist object created by query from provider
-        $table = $this->_client->getTable($idOfBucket.'.'.$objectName);
-        $this->_client->exportTableAsync($table['id']);
+        $table = $testClient->getTable($idOfBucket . '.' . $objectName);
+        $testClient->exportTableAsync($table['id']);
 
-        $preview = $this->_client->getTableDataPreview($table['id']);
+        $preview = $testClient->getTableDataPreview($table['id']);
         $this->assertCount(2, \Keboola\StorageApi\Client::parseCsv($preview, false));
     }
 
     public function createOtherObjectsProvider(): Generator
     {
-        yield 'create materialized view' => [
-            'my_view',
-            'CREATE MATERIALIZED VIEW %s.`my_view` AS SELECT * FROM %s.`TEST`',
-        ];
+        foreach ((new TestSetupHelper())->provideComponentsClientTypeBasedOnSuite($this) as $key => $providedValue) {
+            yield $key . ' create materialized view' => [
+                ...$providedValue,
+                'my_view',
+                'CREATE MATERIALIZED VIEW %s.`my_view` AS SELECT * FROM %s.`TEST`',
+            ];
 
-        yield 'create snapshot' => [
-            'snapshot',
-            'CREATE SNAPSHOT TABLE %s.`snapshot` CLONE %s.`TEST` OPTIONS ( expiration_timestamp = TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 1 HOUR));',
-        ];
+            yield $key . ' create snapshot' => [
+                ...$providedValue,
+                'snapshot',
+                'CREATE SNAPSHOT TABLE %s.`snapshot` CLONE %s.`TEST` OPTIONS ( expiration_timestamp = TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 1 HOUR));',
+            ];
+        }
     }
 
     /**
@@ -773,7 +794,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         );
 
         // this must be done in a real situation by a user who registers an external bucket
-        $object->acl()->add('user-'.BQ_DESTINATION_PROJECT_SERVICE_ACC_EMAIL, 'READER');
+        $object->acl()->add('user-' . BQ_DESTINATION_PROJECT_SERVICE_ACC_EMAIL, 'READER');
 
         $externalCredentials['connection']['backend'] = 'bigquery';
         $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
