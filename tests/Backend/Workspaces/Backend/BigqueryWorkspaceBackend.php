@@ -110,7 +110,11 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
      */
     public function dropTable($table)
     {
-        $this->executeQuery(sprintf('DROP TABLE %s.%s', $this->schema, $table));
+        $this->executeQuery(sprintf(
+            'DROP TABLE %s.%s',
+            BigqueryQuote::quoteSingleIdentifier($this->schema),
+            BigqueryQuote::quoteSingleIdentifier($table)
+        ));
     }
 
     public function dropView(string $viewName): void

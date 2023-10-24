@@ -326,6 +326,7 @@
 		<exclude>tests/Backend/SOX/SOXTokensTest.php</exclude>
 		<exclude>tests/Backend/SOX/TriggersTest.php</exclude>
 		<exclude>tests/Backend/SOX/SOXBranchesTest.php</exclude>
+		<exclude>tests/Backend/ExternalBuckets/BigqueryRegisterBucketTest.php</exclude>
 	</testsuite>
 	<testsuite name="sync-sox-bigquery">
 		<file>tests/Backend/SOX/SOXCommonTest.php</file>
