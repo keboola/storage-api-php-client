@@ -721,4 +721,48 @@ class SOXTokensTest extends StorageApiTestCase
             $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
         }
     }
+
+    public function testTokenWithCanCreateJobsCanListComponents()
+    {
+        $prodManagerClient = $this->getDefaultClient();
+        $prodManagerTokens = new Tokens($prodManagerClient);
+        $tokenWithCreateJobsFlag = $prodManagerTokens->createToken(
+            (new TokenCreateOptions())
+                ->setCanCreateJobs(true)
+                ->setDescription($this->generateDescriptionForTestObject() . '-can create jobs and list components'),
+        );
+        $clientWithCreateJobsFlag = new Client([
+            'token' => $tokenWithCreateJobsFlag['token'],
+            'url' => STORAGE_API_URL,
+        ]);
+        $createJobsConfigurationApi = new Components($clientWithCreateJobsFlag);
+        $components = $createJobsConfigurationApi->listComponents();
+        $this->assertGreaterThanOrEqual(1, count($components));
+    }
+
+    /**
+     * @dataProvider developerAndReviewerClientProvider
+     */
+    public function testDeveloperAndReviewerCannotListComponents(Client $client)
+    {
+        $tokens = new Tokens($client);
+        // create non-admin token
+        $newTOken = $tokens->createToken(
+            (new TokenCreateOptions())
+                ->setCanCreateJobs(false)
+                ->setDescription($this->generateDescriptionForTestObject()),
+        );
+        $clientWithNewToken = new Client([
+            'token' => $newTOken['token'],
+            'url' => STORAGE_API_URL,
+        ]);
+        $componentsApi = new Components($clientWithNewToken);
+        try {
+            $componentsApi->listComponents();
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
+        }
+    }
 }
