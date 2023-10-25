@@ -722,7 +722,7 @@ class SOXTokensTest extends StorageApiTestCase
         }
     }
 
-    public function testTokenWithCanCreateJobsCanListComponents()
+    public function testTokenWithCanCreateJobsCanListComponents(): void
     {
         $prodManagerClient = $this->getDefaultClient();
         $prodManagerTokens = new Tokens($prodManagerClient);
@@ -743,7 +743,7 @@ class SOXTokensTest extends StorageApiTestCase
     /**
      * @dataProvider developerAndReviewerClientProvider
      */
-    public function testDeveloperAndReviewerCannotListComponents(Client $client)
+    public function testDeveloperAndReviewerCannotListComponents(Client $client): void
     {
         $tokens = new Tokens($client);
         // create non-admin token
