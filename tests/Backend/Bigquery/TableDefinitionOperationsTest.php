@@ -244,7 +244,9 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
             'columns' => [
                 [
                     'name' => 'id',
-                    'basetype' => 'STRING',
+                    'definition' => [
+                        'type' => 'STRING',
+                    ],
                 ],
                 [
                     'name' => 'name',
