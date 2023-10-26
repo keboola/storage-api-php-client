@@ -168,7 +168,7 @@ class CreateTableTest extends StorageApiTestCase
                     'id' => [
                         'type' => 'INT',
                         'length' => null,
-                        'nullable' => true,
+                        'nullable' => false,
                     ],
                     'name' => [
                         'type' => 'NVARCHAR',
@@ -293,7 +293,7 @@ class CreateTableTest extends StorageApiTestCase
         ], $idColumnMetadata[0], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.nullable',
-            'value' => '1',
+            'value' => '',
             'provider' => 'storage',
         ], $idColumnMetadata[1], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
