@@ -1,10 +1,11 @@
-# Keboola Storage API PHP client
+# Keboola Storage API PHP Client
+
 [![Latest Stable Version](https://poser.pugx.org/keboola/storage-api-client/v/stable.svg)](https://packagist.org/packages/keboola/storage-api-client)
 [![License](https://poser.pugx.org/keboola/storage-api-client/license.svg)](https://packagist.org/packages/keboola/storage-api-client)
 [![Total Downloads](https://poser.pugx.org/keboola/storage-api-client/downloads.svg)](https://packagist.org/packages/keboola/storage-api-client)
-[![Build Status](https://travis-ci.com/keboola/storage-api-php-client.svg?branch=master)](https://travis-ci.com/keboola/storage-api-php-client)
+[![Build on tag](https://github.com/keboola/storage-api-php-client/actions/workflows/tag.yml/badge.svg)](https://github.com/keboola/storage-api-php-client/actions/workflows/tag.yml)
 
-Simple PHP wrapper library for [Keboola Storage REST API](http://docs.keboola.apiary.io/)
+Simple PHP wrapper library for [Keboola Storage API](http://docs.keboola.apiary.io/).
 
 ## Installation
 
@@ -22,8 +23,8 @@ mv ./composer.phar ~/bin/composer # or /usr/local/bin/composer
 ```json
 {
     "require": {
-        "php" : ">=5.6.0",
-        "keboola/storage-api-client": "^9.0"
+        "php" : ">=7.4",
+        "keboola/storage-api-client": "^14.0"
     }
 }
 ```
@@ -40,7 +41,7 @@ composer install
 require 'vendor/autoload.php';
 ```
 
-Read more in [Composer documentation](http://getcomposer.org/doc/01-basic-usage.md)
+Read more in [Composer documentation](http://getcomposer.org/doc/01-basic-usage.md).
 
 ## Usage examples
 
@@ -49,8 +50,8 @@ Table write:
 ```php
 require 'vendor/autoload.php';
 
-use Keboola\StorageApi\Client,
-	Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Client;
+use Keboola\Csv\CsvFile;
 
 $client = new Client([
   'token' => 'YOUR_TOKEN',
@@ -65,8 +66,8 @@ Table export to file:
 ```php
 require 'vendor/autoload.php';
 
-use Keboola\StorageApi\Client,
-  Keboola\StorageApi\TableExporter;
+use Keboola\StorageApi\Client;
+use Keboola\StorageApi\TableExporter;
 
 $client = new Client([
   'token' => 'YOUR_TOKEN',
@@ -85,10 +86,10 @@ $exporter->exportTable('in.c-main.my-table', './in.c-main.my-table.csv', []);
 *Note: For automated tests, the tests are run again three times by default if they fail. For local development this would be quite annoying,
 so you can disable this by creating new file `phpunit-retry.xml` from `phpunit-retry.xml.dist`*
 
-The main purpose of these test is "black box" test driven development of Keboola Connection. These test guards the API implementation.
+The main purpose of these tests is "black box" test driven development of Keboola Connection. These tests guards the API implementation.
 
 Tests should be executed against local dockerized version of [Keboola Connection](https://github.com/keboola/connection/) (private repo).
-These tests and local KBC are configured to share docker network where the Storage and Manage API endpoints are provided. 
+These tests and local KBC are configured to share docker network where the Storage API and Manage API endpoints are provided. 
 These APIs are available at `http://connection-apache/` endpoint from clients tests.
 
 
@@ -177,12 +178,6 @@ The whole test suite is quite big and it can take few hours. So it is a good ide
 
 _Note: see [this link](https://www.jetbrains.com/help/phpstorm/configuring-remote-interpreters.html) for more information and screenshots about the description above._
 
-## Versioning
-[semver.org](http://semver.org/) is followed.
-
-## Release History
-See the [CHANGELOG](CHANGELOG.md).
-
 ## License
 
-MIT licensed, see [LICENSE](./LICENSE) file.
+See [LICENSE](./LICENSE) file.
