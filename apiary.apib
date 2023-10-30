@@ -2286,7 +2286,7 @@ Lists tables in a given bucket.
 
 ### Create new table definition [POST]
 
-Creates a table with typed columns. *Synapse|Exasol|Snowflake|Teradata|Bigquery only.*
+Creates a table with typed columns. *Synapse|Exasol|Snowflake|Teradata|BigQuery only.*
 
 Request is handled asynchronously which means that the create request is created and added to a queue and the job resource URL for status polling is returned.
 
@@ -2301,7 +2301,7 @@ If there is no column datatype specified (column.definition.type or column.baset
     + columns[] (required) - definition of table columns
        + name (required, string) - column name
        + definition (object) - column settings
-            + type (string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP), [Synapse](https://bit.ly/3uZjN60), [Snowflake](https://docs.snowflake.com/en/sql-reference/intro-summary-data-types.html), [Teradata](https://docs.teradata.com/r/Teradata-VantageTM-Data-Types-and-Literals/July-2021/SQL-Data-Definition/Data-Definition-Phrases/Data-Type-Phrases), [Bigquery](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types)
+            + type (string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP), [Synapse](https://bit.ly/3uZjN60), [Snowflake](https://docs.snowflake.com/en/sql-reference/intro-summary-data-types.html), [Teradata](https://docs.teradata.com/r/Teradata-VantageTM-Data-Types-and-Literals/July-2021/SQL-Data-Definition/Data-Definition-Phrases/Data-Type-Phrases), [BigQuery](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types)
             + length (string) - optional, default: depends on type
             + nullable (boolean) - optional, default: true
             + default (string) - optional, default value for column
@@ -2328,7 +2328,7 @@ If there is no column datatype specified (column.definition.type or column.baset
                 + CLUSTERED CLOUMNSTORE INDEX
                 + HEAP
         + indexColumnsNames[] (required) - has to be subset of column names
-    + timePartitioning - Bigquery only [(documentation)](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#timepartitioning)
+    + timePartitioning - BigQuery only [(documentation)](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#timepartitioning)
         + type (required, enum[string])
             + Members
                 + DAY
@@ -2337,9 +2337,9 @@ If there is no column datatype specified (column.definition.type or column.baset
                 + YEAR
         + field (string) - has to be subset of column names
         + expirationMs (number) - optional
-    + clustering - Bigquery only [(documentation)](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#clustering)
+    + clustering - BigQuery only [(documentation)](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#clustering)
         + fields[] (required) - has to be subset of column names
-    + rangePartitioning - Bigquery only [(documentation)](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#rangepartitioning)
+    + rangePartitioning - BigQuery only [(documentation)](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#rangepartitioning)
         + field (required,string) - has to be subset of column names
         + range (required) - has to be subset of column names
             + start (required, number)
@@ -2798,7 +2798,7 @@ The create request is created and added to a queue, the job resource url for sta
 
 ### Create new table from time travel asynchronously [POST]
 
-Supported by Snowflake and Bigquery, Bigquery doesn't support primary keys so if you create a table using time travel for Bigquery backend the new table won't get primary keys.
+Supported by Snowflake and BigQuery, BigQuery doesn't support primary keys so if you create a table using time travel for BigQuery backend the new table won't get primary keys.
 
 The method of creating a table asynchronously should be used for larger imports (everything with 100 lines and more).
 The create request is created and added to a queue, the job resource url for status polling is returned.
@@ -3123,7 +3123,7 @@ To enable compression of API response traffic, please include the following HTTP
         + Default: rfc
     + whereFilters (optional, array[WhereFiltersObject])
     + orderBy (optional, array[OrderByObject]) - Not supported for Redshift
-    + fulltextSearch (optional, string) - Makes fulltext search over all data in table. It cannot be combined with `whereFilters`. On Teradata search only over char-base columns. Snowflake/Synapse/Teradata/Bigquery only
+    + fulltextSearch (optional, string) - Makes fulltext search over all data in table. It cannot be combined with `whereFilters`. On Teradata search only over char-base columns. Snowflake/Synapse/Teradata/BigQuery only
 
 + Request with default `rfc` format (`CSV` data)
 
@@ -3900,10 +3900,10 @@ Adds a new column to an existing table. This request is [asynchronous](#introduc
 + Attributes
     + name (required, string) - column name
     + definition (optional, object) - column settings, this object is applicable when table is typed. Otherwise it is ignored
-        + type (required, string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP) [Synapse](https://bit.ly/3uZjN60) [Snowflake](https://bit.ly/3A5CkT8), [Bigquery](https://bit.ly/3jcQ8VX), [Teradata](https://bit.ly/3jj3r7h)
+        + type (required, string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP) [Synapse](https://bit.ly/3uZjN60) [Snowflake](https://bit.ly/3A5CkT8), [BigQuery](https://bit.ly/3jcQ8VX), [Teradata](https://bit.ly/3jj3r7h)
         + length (string) - optional, default: depends on type
-        + nullable (boolean) - optional, default: true, Bigquery - false: BQ doesn't support adding a REQUIRED column to an existing table schema.
-        + default (string) - optional, default value for column, not supported by Bigquery
+        + nullable (boolean) - optional, default: true, BigQuery - false: BQ doesn't support adding a REQUIRED column to an existing table schema.
+        + default (string) - optional, default value for column, not supported by BigQuery
     + basetype (optional, enum[string]) - base datatype of this column, will be converted to backend specific types
         + Members
             + BOOLEAN
@@ -4100,13 +4100,13 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
                 + le - Less than or equals  - Not supported for Redshift
             + Default: eq
         + values[] (required, array) - array of variables to compare
-        + dataType (optional, enum[string]) - Not supported for Redshift - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type. Bigquery supports all listed types and converts them to Bigquery equivalent in the background
+        + dataType (optional, enum[string]) - Not supported for Redshift - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type. BigQuery supports all listed types and converts them to BigQuery equivalent in the background
             + Members
-                + INTEGER - for numbers without a decimal point (Snowflake, Teradata, Bigquery)
-                + DOUBLE - for number with a decimal point (Snowflake, Bigquery)
-                + BIGINT - for number without a decimal point (Synapse, Bigquery)
-                + REAL - for number with a decimal point (Synapse, Teradata, Bigquery)
-                + DECIMAL - for numbers (Exasol, Bigquery)
+                + INTEGER - for numbers without a decimal point (Snowflake, Teradata, BigQuery)
+                + DOUBLE - for number with a decimal point (Snowflake, BigQuery)
+                + BIGINT - for number without a decimal point (Synapse, BigQuery)
+                + REAL - for number with a decimal point (Synapse, Teradata, BigQuery)
+                + DECIMAL - for numbers (Exasol, BigQuery)
     + allowTruncate - (optional, boolean) is used to confirm that you really want to delete all rows in case you did not specify any filters.
         + default: false
 
@@ -4835,7 +4835,8 @@ Deletes a workspace in [Development Branch](#reference/development-branches). Th
 ## Load Data [/v2/storage/workspaces/{workspace_id}/load]
 
 ### Load Data [POST]
-Loads tables from Storage into a Workspace. Not supported for Teradata and Bigquery backends.
+
+Loads tables from Storage into a Workspace. Not supported for Teradata and BigQuery backends.
 
 + Parameters
     + workspace_id (required, number)
@@ -4965,7 +4966,7 @@ Loads tables from Storage into a Workspace. Not supported for Teradata and Bigqu
             }
 
 ### Load Data into Development Branch Workspace [POST /v2/storage/branch/{branch_id}/workspaces/{workspace_id}/load]
-Loads tables from Storage into a Workspace in [Development Branch](#reference/development-branches). Not supported for Teradata and Bigquery backends.
+Loads tables from Storage into a Workspace in [Development Branch](#reference/development-branches). Not supported for Teradata and BigQuery backends.
 
 + Parameters
     + branch_id (required) - Id of the development branch
@@ -5284,7 +5285,7 @@ Generates new password for the given workspace, for file workspace new token wit
             }
 
 + Response 201 (application/json)
-Only for Bigquery workspace
+Only for BigQuery workspace
    + Body
 
             {
@@ -5324,7 +5325,7 @@ Generates new password for the given workspace in [Development Branch](#referenc
             }
 
 + Response 201 (application/json)
-Only for Bigquery workspace
+Only for BigQuery workspace
    + Body
 
             {
@@ -5381,7 +5382,7 @@ Only for Bigquery workspace
     + user: xzy (string)
     + password: abc (string) - Password is not stored and is returned only after workspace creation
     + connectionString: `BlobEndpoint=https://<account>.blob.core.windows.net;SharedAccessSignature=sv=2017-11-09&sr=c&st=2020-11-03T10:31:36Z&se=2020-11-04T10:31:36Z&sp=rwl&sig=<SAS signature>` (string) only for file workspaces
-    + credentials(GCPCredentials) only for Bigquery workspace
+    + credentials(GCPCredentials) only for BigQuery workspace
     + container: file workspace containerName (string) - Only for file workspaces
 
 # Group Events
@@ -9322,11 +9323,11 @@ Requesting changes will remove all approvals and move the Merge request to `deve
     + Default: ASC
 + dataType (optional, enum[string]) - required when sorting by column contains numeric value
     + Members
-        + INTEGER - for numbers without a decimal point (Snowflake, Teradata, Bigquery)
-        + DOUBLE - for number with a decimal point (Snowflake, Bigquery)
-        + BIGINT - for number without a decimal point (Synapse, Bigquery)
-        + REAL - for number with a decimal point (Synapse, Teradata, Bigquery)
-        + DECIMAL - for numbers (Exasol, Bigquery)
+        + INTEGER - for numbers without a decimal point (Snowflake, Teradata, BigQuery)
+        + DOUBLE - for number with a decimal point (Snowflake, BigQuery)
+        + BIGINT - for number without a decimal point (Synapse, BigQuery)
+        + REAL - for number with a decimal point (Synapse, Teradata, BigQuery)
+        + DECIMAL - for numbers (Exasol, BigQuery)
 
 
 ### WhereFiltersObject (object)
@@ -9341,13 +9342,13 @@ Requesting changes will remove all approvals and move the Merge request to `deve
         + le - Less than or equals  - Snowflake only
     + Default: eq
 + values (required, array[string]) - array of variables to compare
-+ dataType (optional, enum[string]) - Not supported for Redshift - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type. Bigquery supports all listed types and converts them to Bigquery equivalent in the background
++ dataType (optional, enum[string]) - Not supported for Redshift - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type. BigQuery supports all listed types and converts them to BigQuery equivalent in the background
     + Members
-        + INTEGER - for numbers without a decimal point (Snowflake, Teradata, Bigquery)
-        + DOUBLE - for number with a decimal point (Snowflake, Bigquery)
-        + BIGINT - for number without a decimal point (Synapse, Bigquery)
-        + REAL - for number with a decimal point (Synapse, Teradata, Bigquery)
-        + DECIMAL - for numbers (Exasol, Bigquery)
+        + INTEGER - for numbers without a decimal point (Snowflake, Teradata, BigQuery)
+        + DOUBLE - for number with a decimal point (Snowflake, BigQuery)
+        + BIGINT - for number without a decimal point (Synapse, BigQuery)
+        + REAL - for number with a decimal point (Synapse, Teradata, BigQuery)
+        + DECIMAL - for numbers (Exasol, BigQuery)
 
 
 ### CreateTableDefinitionAsyncBase
