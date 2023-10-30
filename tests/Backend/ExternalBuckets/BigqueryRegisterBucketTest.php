@@ -525,6 +525,57 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
     }
 
     /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testSelectFromExternalTable(): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $testClient = $this->_testClient;
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->markTestSkipped('Other user than PM cannot register external buckets. This is tested in self::testRegisterWSAsExternalBucket.');
+        }
+
+        $this->dropBucketIfExists($this->_client, $bucketId, true);
+
+        // prepare external bucket
+        $path = $this->prepareExternalBucketForRegistration($description);
+
+        // register external bucket
+        $idOfBucket = $testClient->registerBucket(
+            $testBucketName,
+            $path,
+            'in',
+            'Iam in external table from csv',
+            'bigquery',
+            'Iam-your-external-bucket-for-external-table'
+        );
+
+        $this->createExternalTable($description);
+
+        // refresh external bucket
+        $testClient->refreshBucket($idOfBucket);
+
+        // try access in WS
+        $ws = new Workspaces($testClient);
+        $workspace = $ws->createWorkspace();
+
+        $externalCredentials['connection']['backend'] = 'bigquery';
+        $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
+        $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
+
+        $query2 = $db->getDb()->query(
+
+            \sprintf('SELECT * FROM %s.externalTable', $externalCredentials['connection']['schema'])
+        );
+        $data = \iterator_to_array($db->getDb()->runQuery($query2)->rows());
+    }
+
+    /**
      * @dataProvider createOtherObjectsProvider
      */
     public function testRegistrationOtherObjects(
