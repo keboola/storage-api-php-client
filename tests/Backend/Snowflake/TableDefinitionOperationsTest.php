@@ -839,7 +839,9 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
             'columns' => [
                 [
                     'name' => 'id',
-                    'basetype' => 'STRING',
+                    'definition' => [
+                        'type' => 'VARCHAR',
+                    ],
                 ],
                 [
                     'name' => 'name',
@@ -2409,6 +2411,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
             ]);
         }
     }
+
     /**
      * @dataProvider  filterProvider
      */
@@ -2515,7 +2518,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
     public function filterProvider(): Generator
     {
         foreach (['json', 'rfc'] as $format) {
-            yield 'overflow int '. $format => [
+            yield 'overflow int ' . $format => [
                 [
                     'format' => $format,
                     'whereFilters' => [
@@ -2529,7 +2532,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 'Numeric value \'999999999999999999999999999999999999999\' is not recognized',
             ];
 
-            yield 'wrong int '. $format => [
+            yield 'wrong int ' . $format => [
                 [
                     'format' => $format,
                     'whereFilters' => [
@@ -2543,7 +2546,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 'Numeric value \'aaa\' is not recognized',
             ];
 
-            yield 'wrong number '. $format => [
+            yield 'wrong number ' . $format => [
                 [
                     'format' => $format,
                     'whereFilters' => [
@@ -2557,7 +2560,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 'Numeric value \'aaa\' is not recognized',
             ];
 
-            yield 'wrong float '. $format => [
+            yield 'wrong float ' . $format => [
                 [
                     'format' => $format,
                     'whereFilters' => [
@@ -2571,7 +2574,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 'Numeric value \'aaa\' is not recognized',
             ];
 
-            yield 'wrong datetime '. $format => [
+            yield 'wrong datetime ' . $format => [
                 [
                     'format' => $format,
                     'whereFilters' => [
@@ -2585,7 +2588,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 'Timestamp \'2022-02-31\' is not recognized', // non-existing date
             ];
 
-            yield 'wrong boolean '. $format => [
+            yield 'wrong boolean ' . $format => [
                 [
                     'whereFilters' => [
                         [
@@ -2598,7 +2601,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 'Boolean value \'222\' is not recognized',
             ];
 
-            yield 'wrong date '. $format => [
+            yield 'wrong date ' . $format => [
                 [
                     'format' => $format,
                     'whereFilters' => [
@@ -2612,7 +2615,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 'Date \'12:00:00.000\' is not recognized',
             ];
 
-            yield 'wrong time '. $format => [
+            yield 'wrong time ' . $format => [
                 [
                     'whereFilters' => [
                         [
@@ -2625,7 +2628,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 'Time \'1989-08-31\' is not recognized',
             ];
 
-            yield 'wrong timestamp '. $format => [
+            yield 'wrong timestamp ' . $format => [
                 [
                     'format' => $format,
                     'whereFilters' => [
@@ -2766,7 +2769,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
         /** @lang Snowflake */
             '
 INSERT INTO "%s"."test_exotic_datatypes" ("id", "array", "variant", "object", "binary", "geography", "geometry") 
-select 2, ARRAY_CONSTRUCT(1, 2, 3, NULL), TO_VARIANT(\'3.14\'), OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT), TO_CHAR(\'123abc\'), \'POINT(-122.35 37.55)\', \'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))\'; 
+SELECT 2, ARRAY_CONSTRUCT(1, 2, 3, NULL), TO_VARIANT(\'3.14\'), OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT), TO_CHAR(\'123abc\'), \'POINT(-122.35 37.55)\', \'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))\'; 
 ;',
             $workspace['connection']['schema']
         ));

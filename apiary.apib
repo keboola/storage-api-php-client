@@ -2303,7 +2303,7 @@ If there is no column datatype specified (column.definition.type or column.baset
        + definition (object) - column settings
             + type (string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP), [Synapse](https://bit.ly/3uZjN60), [Snowflake](https://docs.snowflake.com/en/sql-reference/intro-summary-data-types.html), [Teradata](https://docs.teradata.com/r/Teradata-VantageTM-Data-Types-and-Literals/July-2021/SQL-Data-Definition/Data-Definition-Phrases/Data-Type-Phrases), [BigQuery](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types)
             + length (string) - optional, default: depends on type
-            + nullable (boolean) - optional, default: true
+            + nullable (boolean) - optional, default: true (when column is part of primary key and nullable is not set default will be set to false)
             + default (string) - optional, default value for column
        + basetype (enum[string]) - base datatype of this column, will be converted to backend specific types
             + Members
