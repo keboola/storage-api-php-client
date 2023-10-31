@@ -561,18 +561,12 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         // try access in WS
         $ws = new Workspaces($testClient);
         $workspace = $ws->createWorkspace();
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $externalCredentials['connection']['backend'] = 'bigquery';
-        $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
-        $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
-
-        $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
-
-        $query2 = $db->getDb()->query(
-
-            \sprintf('SELECT * FROM %s.externalTable', $externalCredentials['connection']['schema'])
+        $query = $db->getDb()->query(
+            sprintf('SELECT * FROM %s.externalTable', str_replace('-', '_', $testBucketName))
         );
-        $data = \iterator_to_array($db->getDb()->runQuery($query2)->rows());
+        $data = \iterator_to_array($db->getDb()->runQuery($query)->rows());
     }
 
     /**
