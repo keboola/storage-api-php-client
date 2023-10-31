@@ -79,6 +79,7 @@ class GCSUploader
     ): array {
         $failedUploads = [];
         foreach ($preparedSlices as $filePath => $blobName) {
+            // we have to download each blob as we can't list blobs
             $blob = $bucket->object($blobName);
             if (($blob->name() === $blobName) && (string) $blob->info()['size'] !== (string) filesize($filePath)) {
                 $this->logger->warning(sprintf(
@@ -141,6 +142,7 @@ class GCSUploader
             $this->upload($bucket, $key, $chunk);
         }
 
+        // Check and re-upload slices based on file size check
         $failedUploads = $this->getFailedUploads($preparedSlices, $this->gcsClient->bucket($bucket));
         $currentRetry = 1;
         while (count($failedUploads) !== 0) {
