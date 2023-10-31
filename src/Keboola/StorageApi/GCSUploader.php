@@ -16,6 +16,8 @@ use Psr\Log\NullLogger;
 
 class GCSUploader
 {
+    private const MAX_RETRIES_FOR_SLICE_UPLOAD = 5;
+
     private GoogleStorageClient $gcsClient;
 
     private FetchAuthTokenInterface $fetchAuthToken;
@@ -71,6 +73,28 @@ class GCSUploader
         }
     }
 
+    private function getFailedUploads(
+        array $preparedSlices,
+        Bucket $bucket
+    ): array {
+        $failedUploads = [];
+        foreach ($preparedSlices as $filePath => $blobName) {
+            $blob = $bucket->object($blobName);
+            if (($blob->name() === $blobName) && (string) $blob->info()['size'] !== (string) filesize($filePath)) {
+                $this->logger->warning(sprintf(
+                    'Size for file "%s":"%s" does not match blob "%s" size "%s".',
+                    $filePath,
+                    filesize($filePath),
+                    $blobName,
+                    $blob->info()['size']
+                ));
+                $failedUploads[$filePath] = $blobName;
+            }
+        }
+
+        return $failedUploads;
+    }
+
     public function uploadFile(string $bucket, string $filePath, string $fileName, bool $isPermanent): void
     {
         $retBucket = $this->gcsClient->bucket($bucket);
@@ -115,6 +139,29 @@ class GCSUploader
 
         foreach ($chunks as $chunk) {
             $this->upload($bucket, $key, $chunk);
+        }
+
+        $failedUploads = $this->getFailedUploads($preparedSlices, $this->gcsClient->bucket($bucket));
+        $currentRetry = 1;
+        while (count($failedUploads) !== 0) {
+            if ($currentRetry > self::MAX_RETRIES_FOR_SLICE_UPLOAD) {
+                throw new ClientException(sprintf(
+                    'Exceeded maximum number of retries for sliced file uploads. Failed slices: %s',
+                    implode(', ', array_keys($failedUploads))
+                ));
+            }
+            $this->logger->warning(sprintf(
+                'Retrying [%s/%s] failed uploads. Failed slices: %s',
+                $currentRetry,
+                self::MAX_RETRIES_FOR_SLICE_UPLOAD,
+                implode(', ', array_keys($failedUploads))
+            ));
+            $chunks = $chunker->makeChunks($failedUploads);
+            foreach ($chunks as $chunk) {
+                $this->upload($bucket, $key, $chunk);
+            }
+            $failedUploads = $this->getFailedUploads($preparedSlices, $this->gcsClient->bucket($bucket));
+            $currentRetry++;
         }
 
         $this->gcsClient->bucket($bucket)->upload((string) json_encode($manifest), [
