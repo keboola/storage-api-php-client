@@ -6,10 +6,18 @@ use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client;
 use Keboola\Test\ClientProvider\TestSetupHelper;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Logger\ConsoleLogger;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class ClientTestCase extends TestCase
 {
     use \PHPUnitRetry\RetryTrait;
+
+    public function getLogger(): ConsoleLogger
+    {
+        return new ConsoleLogger(new ConsoleOutput(OutputInterface::VERBOSITY_DEBUG));
+    }
 
     /**
      * @return Client
@@ -20,6 +28,7 @@ class ClientTestCase extends TestCase
             $options['token'],
             $options['url']
         );
+        $options['logger'] = $this->getLogger();
         return new Client($options);
     }
 
@@ -45,6 +54,7 @@ class ClientTestCase extends TestCase
 
     /**
      * in SOX-related tests, it is considered as production manager client
+     *
      * @return Client
      */
     public function getDefaultClient()
