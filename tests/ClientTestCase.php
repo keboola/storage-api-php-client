@@ -28,7 +28,9 @@ class ClientTestCase extends TestCase
             $options['token'],
             $options['url']
         );
-        $options['logger'] = $this->getLogger();
+        if (!array_key_exists('logger', $options)) {
+            $options['logger'] = $this->getLogger();
+        }
         return new Client($options);
     }
 
