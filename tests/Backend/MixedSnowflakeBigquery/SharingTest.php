@@ -23,7 +23,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @throws \Doctrine\DBAL\Exception
      * @throws \Keboola\StorageApi\Exception
      */
-    public function testAccessDataInLinkedBucketFromWSViaRO(string $shareMethod, ?bool $async): void
+    public function testAccessDataInLinkedBucketFromWSViaROAndViewIM(string $shareMethod, ?bool $async): void
     {
         //setup test tables
         $this->deleteAllWorkspaces();
@@ -61,7 +61,7 @@ class SharingTest extends StorageApiSharingTestCase
         $sharedBucket = reset($response);
 
         $linkedBucketName = 'linked-' . time();
-        $this->_client2->linkBucket(
+        $linkedBucketId = $this->_client2->linkBucket(
             $linkedBucketName,
             'out',
             $sharedBucket['project']['id'],
@@ -116,6 +116,25 @@ class SharingTest extends StorageApiSharingTestCase
         // and linked bucket
         $this->assertCount(2, $tableCreatedInWs->rows());
         $this->assertCount(5, $tableInLinkedDataset->rows());
+
+        // load to workspace
+        $tables = $this->_client2->listTables($linkedBucketId);
+        $this->assertCount(1, $tables);
+        $options = [
+            'input' => [
+                [
+                    'source' => $tables[0]['id'],
+                    'destination' => 'linked',
+                    'useView' => true,
+                ],
+            ],
+        ];
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $schemaRef = $wsBackend->getSchemaReflection();
+        $views = $schemaRef->getViewsNames();
+        $this->assertCount(1, $views);
+        $this->assertContains('linked', $views);
+        $this->assertCount(5, $wsBackend->fetchAll('linked'));
     }
 
     public function sharingMethodProvider(): Generator
