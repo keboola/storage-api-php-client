@@ -867,6 +867,8 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             'languages',
             new CsvFile($importFile)
         );
+
+        // test loading alias in IM not supported
         $aliasId = $this->_client->createAliasTable($bucketId, $tableId, 'languages-alias');
 
         $options = [
@@ -894,8 +896,8 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         // drop alias as source table is modified later
         $this->_client->dropTable($aliasId);
 
+        // test loading regular table as view
         $options['input'][0]['source'] = $tableId;
-
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         $tableRef = $backend->getTableReflection('languages');
