@@ -761,6 +761,34 @@ SQL,
                 BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema'])
             )
         );
+
+        $ws = (new Workspaces($testClient))->createWorkspace();
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($ws);
+        $db->executeQuery(sprintf(
+            <<<SQL
+CREATE TABLE `%s`.`requirePartitionFilter` (transaction_id INT64, transaction_date DATE)
+PARTITION BY
+  transaction_date
+OPTIONS (
+    require_partition_filter = TRUE
+);
+SQL,
+            $ws['connection']['schema']
+        ));
+
+        try {
+            $testClient->createTableAsyncDirect(
+                $this->getTestBucketId(self::STAGE_OUT),
+                [
+                    'name' => 'unloadRequirePartitionFilter',
+                    'dataWorkspaceId' => $ws['id'],
+                    'dataObject' => 'requirePartitionFilter',
+                    'columns' => ['transaction_id', 'transaction_date'],
+                ]
+            );
+        } catch (ClientException $e) {
+            $this->assertStringContainsString('Load error: Cannot query over table', $e->getMessage());
+        }
     }
 
     /**
