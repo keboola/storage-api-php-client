@@ -121,6 +121,46 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
     /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      */
+    public function testIfTryRegisterNonExistingListingItFailWithUserErr(string $devBranchType, string $userRole): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+
+        $path = $this->prepareExternalBucketForRegistration($description);
+
+        $path[3] = 'non-exist';
+        $externalBucketBackend = 'bigquery';
+
+        $testClient = $this->_testClient;
+        // register external bucket
+        $runId = $this->setRunId();
+        $testClient->setRunId($runId);
+        try {
+            $testClient->registerBucket(
+                $testBucketName,
+                $path,
+                'in',
+                'Iam in external bucket',
+                $externalBucketBackend,
+                'Iam-your-external-bucket_test_ex' . $devBranchType . '_' . $userRole
+            );
+        } catch (ClientException $e) {
+            $this->assertSame('storage.analyticHubObjectNotFound', $e->getStringCode());
+            $this->assertStringContainsString(
+                sprintf(
+                    'Failed to find listing: projects/%s/locations/%s/dataExchanges/%s/listings/non-exist',
+                    $path[0],
+                    $path[1],
+                    $path[2],
+                ),
+                $e->getMessage()
+            );
+        }
+    }
+
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testRegisterWSAsExternalBucket(string $devBranchType, string $userRole): void
     {
         $description = $this->generateDescriptionForTestObject();
