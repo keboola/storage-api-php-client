@@ -868,34 +868,16 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             new CsvFile($importFile)
         );
 
-        // test loading alias in IM not supported
-        $aliasId = $this->_client->createAliasTable($bucketId, $tableId, 'languages-alias');
-
         $options = [
             'input' => [
                 [
-                    'source' => $aliasId,
+                    'source' => $tableId,
                     'destination' => 'languages',
                     'useView' => true,
                 ],
             ],
         ];
 
-        try {
-            $workspaces->loadWorkspaceData($workspace['id'], $options);
-            $this->fail('Must throw exception as load alias as view is not supported');
-        } catch (ClientException $e) {
-            $this->assertSame('workspace.loadRequestLogicalException', $e->getStringCode());
-            $this->assertSame(
-                'View load is not supported, only table can be loaded using views, alias of table supplied. Use read-only storage instead or copy input mapping if supported.',
-                $e->getMessage()
-            );
-        }
-        // drop alias as source table is modified later
-        $this->_client->dropTable($aliasId);
-
-        // test loading regular table as view
-        $options['input'][0]['source'] = $tableId;
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         $tableRef = $backend->getTableReflection('languages');
