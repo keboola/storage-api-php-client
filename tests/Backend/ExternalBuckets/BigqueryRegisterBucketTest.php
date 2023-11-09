@@ -786,6 +786,7 @@ SQL,
                     'columns' => ['transaction_id', 'transaction_date'],
                 ]
             );
+            $this->fail('Should fail because of requirePartitionFilter');
         } catch (ClientException $e) {
             $this->assertStringContainsString('Load error: Cannot query over table', $e->getMessage());
         }
