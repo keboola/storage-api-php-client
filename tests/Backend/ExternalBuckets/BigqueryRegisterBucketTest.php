@@ -121,7 +121,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
     /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      */
-    public function testIfTryRegisterNonExistingListingItFailWithUserErr(string $devBranchType, string $userRole): void
+    public function testRegisterNonExistingListingFailsWithUserErr(string $devBranchType, string $userRole): void
     {
         $description = $this->generateDescriptionForTestObject();
         $testBucketName = $this->getTestBucketName($description);
