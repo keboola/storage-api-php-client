@@ -58,7 +58,7 @@ class GCSUploader
         $this->gcsClient = new GoogleStorageClient([
             'projectId' => $options['projectId'],
             'credentialsFetcher' => $this->fetchAuthToken,
-            'requestTimeout' => 120,
+            'requestTimeout' => 500,
         ]);
 
         if (!$transferOptions) {
