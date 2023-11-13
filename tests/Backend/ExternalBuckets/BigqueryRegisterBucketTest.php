@@ -665,6 +665,134 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
     }
 
     /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testRequirePartitionFilter(string $devBranchType, string $userRole): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $testClient = $this->_testClient;
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->markTestSkipped('Other user than PM cannot register external buckets. This is tested in self::testRegisterWSAsExternalBucket.');
+        }
+
+        $this->dropBucketIfExists($this->_client, $bucketId, true);
+        $this->initEvents($testClient);
+
+        // prepare external bucket
+        $path = $this->prepareExternalBucketForRegistration($description);
+
+        // register external bucket
+        $idOfBucket = $testClient->registerBucket(
+            $testBucketName,
+            $path,
+            'in',
+            'Iam in external bucket',
+            'bigquery',
+            'Iam-your-external-bucket-requirePartitionFilter'
+        );
+
+        $tables = $testClient->listTables($idOfBucket);
+        $this->assertCount(0, $tables);
+        // check external bucket
+
+        $externalCredentials['connection']['backend'] = 'bigquery';
+        $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
+        $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
+
+        // create object in external bucket, by query from provider
+        $db->executeQuery(
+            sprintf(
+                <<<SQL
+CREATE TABLE
+  %s.`requirePartitionFilter` (transaction_id INT64, transaction_date DATE)
+PARTITION BY
+  transaction_date
+OPTIONS (
+    require_partition_filter = TRUE
+);
+SQL,
+                BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema'])
+            )
+        );
+        // refresh external bucket
+        $testClient->refreshBucket($idOfBucket);
+        // test if exist object created by query from provider
+        $table = $testClient->getTable($idOfBucket . '.requirePartitionFilter');
+        try {
+            $testClient->exportTableAsync($table['id']);
+            $this->fail('Should fail because of requirePartitionFilter');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString('Cannot query over table', $e->getMessage());
+        }
+        try {
+            $testClient->getTableDataPreview($table['id']);
+            $this->fail('Should fail because of requirePartitionFilter');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString('Cannot query over table', $e->getMessage());
+        }
+        try {
+            $testClient->createTableSnapshot($table['id']);
+            $this->fail('Should fail because of requirePartitionFilter');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString('Cannot query over table', $e->getMessage());
+        }
+
+        // test that if filter is set exception is not thrown
+        $testClient->getTableDataPreview($table['id'], [
+            'whereFilters' => [
+                [
+                    'column' => 'transaction_date',
+                    'operator' => 'eq',
+                    'values' => ['2023-01-01'],
+                ],
+            ],
+        ]);
+
+        $db->executeQuery(
+            sprintf(
+                <<<SQL
+DROP TABLE %s.`requirePartitionFilter`;
+SQL,
+                BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema'])
+            )
+        );
+
+        $ws = (new Workspaces($testClient))->createWorkspace();
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($ws);
+        $db->executeQuery(sprintf(
+            <<<SQL
+CREATE TABLE `%s`.`requirePartitionFilter` (transaction_id INT64, transaction_date DATE)
+PARTITION BY
+  transaction_date
+OPTIONS (
+    require_partition_filter = TRUE
+);
+SQL,
+            $ws['connection']['schema']
+        ));
+
+        try {
+            $testClient->createTableAsyncDirect(
+                $this->getTestBucketId(self::STAGE_OUT),
+                [
+                    'name' => 'unloadRequirePartitionFilter',
+                    'dataWorkspaceId' => $ws['id'],
+                    'dataObject' => 'requirePartitionFilter',
+                    'columns' => ['transaction_id', 'transaction_date'],
+                ]
+            );
+            $this->fail('Should fail because of requirePartitionFilter');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString('Load error: Cannot query over table', $e->getMessage());
+        }
+    }
+
+    /**
      * @return string[]
      */
     private function prepareExternalBucketForRegistration(string $description): array
