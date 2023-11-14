@@ -1047,7 +1047,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
             $this->_client->writeTableAsync($tableId, $importFile);
             $this->fail('should fail because of null value in not nullable column');
         } catch (ClientException $e) {
-            $this->assertEquals('Required field quantity cannot be null', $e->getMessage());
+            $this->assertEquals('Load error: Required field quantity cannot be null', $e->getMessage());
         }
     }
 
@@ -1114,7 +1114,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
             ]);
             $this->fail('should fail because of null value in not nullable column');
         } catch (ClientException $e) {
-            $this->assertEquals('Required field notnullcolumn cannot be null', $e->getMessage());
+            $this->assertEquals('Load error: Required field notnullcolumn cannot be null', $e->getMessage());
         }
     }
 }
