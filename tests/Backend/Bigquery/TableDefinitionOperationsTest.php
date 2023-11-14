@@ -7,7 +7,6 @@ use Google\Cloud\BigQuery\BigQueryClient;
 use Keboola\Csv\CsvFile;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageDriver\Command\Table\ImportExportShared\DataType;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
@@ -989,5 +988,66 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
     public function wrongDatatypeFilterProvider(): Generator
     {
         return $this->getWrongDatatypeFilters(['json', 'rfc']);
+    }
+
+    public function testLoadingNullValuesToNotNullTypedColumns()
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $data = [
+            'name' => 'my_new_table_with_nulls',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'transid',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'item',
+                    'definition' => [
+                        'type' => 'STRING',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'price',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'quantity',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+            ],
+        ];
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $data);
+
+        $importFile = new CsvFile(__DIR__ . '/../../_data/transactions-nullify.csv');
+
+        try {
+            $this->_client->writeTableAsync($tableId, $importFile);
+            $this->fail('should fail because of null value in not nullable column');
+        } catch (ClientException $e) {
+            $this->assertEquals('Required field quantity cannot be null', $e->getMessage());
+        }
     }
 }
