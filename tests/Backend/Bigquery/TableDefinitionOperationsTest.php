@@ -990,9 +990,9 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
         return $this->getWrongDatatypeFilters(['json', 'rfc']);
     }
 
-    public function testLoadingNullValuesToNotNullTypedColumnsFromFile()
+    public function testLoadingNullValuesToNotNullTypedColumnsFromFile(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $data = [
             'name' => 'my_new_table_with_nulls',
@@ -1051,9 +1051,9 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
         }
     }
 
-    public function testLoadingNullValuesToNotNullTypedColumnsFromTable()
+    public function testLoadingNullValuesToNotNullTypedColumnsFromTable(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $data = [
             'name' => 'my_new_table_with_nulls',
