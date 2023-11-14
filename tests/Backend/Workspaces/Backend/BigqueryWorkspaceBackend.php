@@ -3,6 +3,7 @@
 namespace Keboola\Test\Backend\Workspaces\Backend;
 
 use Google\Cloud\BigQuery\BigQueryClient;
+use Google\Cloud\BigQuery\Dataset;
 use GuzzleHttp\Client;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\StorageApi\Exception;
@@ -10,7 +11,6 @@ use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Schema\Bigquery\BigquerySchemaReflection;
-use Keboola\TableBackendUtils\Schema\SchemaReflectionInterface;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\View\ViewReflectionInterface;
@@ -37,6 +37,11 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
         assert($bqClient instanceof BigQueryClient);
         $this->bqClient = $bqClient;
         $this->schema = $workspace['connection']['schema'];
+    }
+
+    public function getDataset(): Dataset
+    {
+        return $this->bqClient->dataset($this->schema);
     }
 
     /**
