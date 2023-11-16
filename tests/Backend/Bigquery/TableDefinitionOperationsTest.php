@@ -7,10 +7,10 @@ use Google\Cloud\BigQuery\BigQueryClient;
 use Keboola\Csv\CsvFile;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageDriver\Command\Table\ImportExportShared\DataType;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
+use Keboola\Test\Backend\Workspaces\Backend\BigqueryWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\StorageApi\Metadata;
@@ -56,7 +56,6 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 
         return $this->_client->createTableDefinition($bucketId, $data);
     }
-
 
     public function testDataPreviewExoticTypes(): void
     {
@@ -989,5 +988,133 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
     public function wrongDatatypeFilterProvider(): Generator
     {
         return $this->getWrongDatatypeFilters(['json', 'rfc']);
+    }
+
+    public function testLoadingNullValuesToNotNullTypedColumnsFromFile(): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $data = [
+            'name' => 'my_new_table_with_nulls',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'transid',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'item',
+                    'definition' => [
+                        'type' => 'STRING',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'price',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'quantity',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+            ],
+        ];
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $data);
+
+        $importFile = new CsvFile(__DIR__ . '/../../_data/transactions-nullify.csv');
+
+        try {
+            $this->_client->writeTableAsync($tableId, $importFile);
+            $this->fail('should fail because of null value in not nullable column');
+        } catch (ClientException $e) {
+            $this->assertEquals('Load error: Required field quantity cannot be null', $e->getMessage());
+        }
+    }
+
+    public function testLoadingNullValuesToNotNullTypedColumnsFromTable(): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $data = [
+            'name' => 'my_new_table_with_nulls',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'notnullcolumn',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+            ],
+        ];
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $data);
+
+        $workspace = $this->initTestWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        assert($backend instanceof BigqueryWorkspaceBackend);
+
+        $client = $backend->getDb();
+        $dataset = $workspace['connection']['schema'];
+
+        // create table with null values in WS
+        $client->runQuery(
+            $client->query(
+                sprintf(
+                    'CREATE OR REPLACE TABLE `%s`.`my_new_table_with_nulls` (id INT64, notnullcolumn INT64);',
+                    $dataset
+                )
+            )
+        );
+        $client->runQuery(
+            $client->query(
+                sprintf(
+                    'INSERT INTO `%s`.`my_new_table_with_nulls` VALUES (1, null);',
+                    $dataset
+                )
+            )
+        );
+
+        try {
+            $this->_client->writeTableAsyncDirect($tableId, [
+                'dataWorkspaceId' => $workspace['id'],
+                'dataTableName' => 'my_new_table_with_nulls',
+                'incremental' => false,
+            ]);
+            $this->fail('should fail because of null value in not nullable column');
+        } catch (ClientException $e) {
+            $this->assertEquals('Load error: Required field notnullcolumn cannot be null', $e->getMessage());
+        }
     }
 }
