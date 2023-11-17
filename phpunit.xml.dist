@@ -61,7 +61,6 @@
 		<directory>tests/Backend/CommonPart1</directory>
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
-		<exclude>tests/Backend/CommonPart2/TablesDefinitionCommonTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/CopyIntoWorkspaceTest.php</exclude>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
@@ -88,7 +87,6 @@
 		<directory>tests/Backend/CommonPart1</directory>
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
-		<exclude>tests/Backend/CommonPart2/TablesDefinitionCommonTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/CopyIntoWorkspaceTest.php</exclude>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
@@ -113,7 +111,6 @@
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/TimeTravelTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
-		<exclude>tests/Backend/CommonPart2/TablesDefinitionCommonTest.php</exclude>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
@@ -186,7 +183,6 @@
 <!--		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>-->
 		<directory>tests/Backend/Synapse</directory>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
-		<file>tests/Backend/CommonPart2/TablesDefinitionCommonTest.php</file>
 
 		<!--FILE WORKSPACE-->
 		<file>tests/Backend/FileWorkspace/WorkspacesLoadTest.php</file>
@@ -203,7 +199,6 @@
 		<exclude>tests/Backend/CommonPart1/BucketsTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/TimeTravelTest.php</exclude>
 		<directory>tests/Backend/CommonPart2</directory>
-		<exclude>tests/Backend/CommonPart2/TablesDefinitionCommonTest.php</exclude>
 		<!--	excluded test is included in tests/Backend/Synapse/SynapseImportExportCommonTest.php -->
 		<exclude>tests/Backend/CommonPart1/ImportExportCommonTest.php</exclude>
 		<!--WORKSPACE-->
