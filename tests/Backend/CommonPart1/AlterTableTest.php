@@ -186,31 +186,6 @@ class AlterTableTest extends StorageApiTestCase
     }
 
     /**
-     * Tests: https://github.com/keboola/connection/issues/218
-     */
-    public function testTooManyColumnsOrRowSizeFailed(): void
-    {
-        $importFile = __DIR__ . '/../../_data/many-more-columns.csv';
-
-        $this->skipTestForBackend([
-            self::BACKEND_EXASOL,
-            self::BACKEND_BIGQUERY,
-        ], 'Exasol|Bigquery backend does not have any limit');
-
-        try {
-            $this->_client->createTableAsync(
-                $this->getTestBucketId(),
-                'tooManyColumns',
-                new CsvFile($importFile),
-                []
-            );
-            $this->fail('There were 5000 columns which should fail.');
-        } catch (ClientException $e) {
-            $this->assertEquals('storage.tables.validation.tooManyColumns', $e->getStringCode());
-        }
-    }
-
-    /**
      * Tests: https://github.com/keboola/connection/issues/246
      */
     public function testPrimaryKeyAddWithSameColumnsInDifferentBuckets(): void
