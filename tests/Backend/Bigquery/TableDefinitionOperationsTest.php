@@ -1117,4 +1117,50 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
             $this->assertEquals('Load error: Required field notnullcolumn cannot be null', $e->getMessage());
         }
     }
+
+    public function testTypedTableDataPreviewWithFilters(): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $data = [
+            'name' => 'my_new_table_with_nulls',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'notnullcolumn',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+            ],
+        ];
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $data);
+        $data = $this->_client->getTableDataPreview($tableId, [
+            'format' => 'json',
+            'whereFilters' => [
+                [
+                    'column' => 'id',
+                    'operator' => 'eq',
+                    'values' => [42],
+                    'dataType' => 'INTEGER',
+                ],
+            ],
+        ]);
+        $this->assertSame([
+            'rows' => [],
+            'columns' => [
+                'id',
+                'notnullcolumn',
+            ],
+        ], $data);
+    }
 }
