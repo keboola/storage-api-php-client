@@ -317,8 +317,6 @@ class SharingTest extends StorageApiSharingTestCase
                 'View load is not supported, only table can be loaded using views, alias of table supplied. Use read-only storage instead or copy input mapping if supported.',
                 $e->getMessage()
             );
-        } catch (Throwable $e) {
-            $this->fail('Must throw ClientException as load alias as view is not supported. ' . $e->getMessage());
         }
     }
 
