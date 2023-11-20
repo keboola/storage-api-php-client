@@ -24,33 +24,30 @@ class ShareTest extends StorageApiTestCase
     public function testPMCanShareAndLinkInDefault()
     {
         $description = $this->generateDescriptionForTestObject();
-        $privilegedClient = $this->getDefaultBranchStorageApiClient();
-
         $name = $this->getTestBucketName($description);
-        $stage = self::STAGE_IN;
-        $productionBucketId = $this->initEmptyBucketInDefault($privilegedClient, $stage, $name, $description);
+        $bucketId = $this->initEmptyBucketInDefault(self::STAGE_IN, $name, $description);
 
-        $this->_client->shareOrganizationBucket($productionBucketId);
+        $this->_client->shareOrganizationBucket($bucketId);
 
-        self::assertTrue($this->_client->isSharedBucket($productionBucketId));
+        self::assertTrue($this->_client->isSharedBucket($bucketId));
         $response = $this->_client->listSharedBuckets();
         self::assertCount(1, $response);
         $sharedBucket = reset($response);
 
         $linkedBucketName = 'linked-' . time();
-        $client2 = $this->getClientForToken(
+        $clientInOtherProject = $this->getClientForToken(
             STORAGE_API_LINKING_TOKEN
         );
-        $linkedBucketId = $client2->linkBucket(
+        $linkedBucketId = $clientInOtherProject->linkBucket(
             $linkedBucketName,
             'out',
             $sharedBucket['project']['id'],
             $sharedBucket['id']
         );
 
-        $client2->dropBucket($linkedBucketId, ['async' => true]);
+        $clientInOtherProject->dropBucket($linkedBucketId, ['async' => true]);
 
-        $this->_client->unshareBucket($productionBucketId, ['async' => true]);
+        $this->_client->unshareBucket($bucketId, ['async' => true]);
     }
 
     public function tokensProvider(): \Generator
@@ -72,11 +69,9 @@ class ShareTest extends StorageApiTestCase
     public function testOtherCannotShareAndLinkInMain(Client $client)
     {
         $description = $this->generateDescriptionForTestObject();
-        $privilegedClient = $this->getDefaultBranchStorageApiClient();
 
         $name = $this->getTestBucketName($description);
-        $stage = self::STAGE_IN;
-        $productionBucketId = $this->initEmptyBucketInDefault($privilegedClient, $stage, $name, $description);
+        $productionBucketId = $this->initEmptyBucketInDefault(self::STAGE_IN, $name, $description);
         try {
             $client->shareOrganizationBucket($productionBucketId);
             $this->fail('Others should not be able to share bucket in branch');
@@ -94,7 +89,7 @@ class ShareTest extends StorageApiTestCase
         $linkedBucketName = 'linked-' . time();
 
         try {
-            $linkedBucketId = $client->linkBucket(
+            $client->linkBucket(
                 $linkedBucketName,
                 'out',
                 $sharedBucket['project']['id'],
@@ -118,50 +113,17 @@ class ShareTest extends StorageApiTestCase
     /**
      * @dataProvider tokensProvider
      */
-    // todo ma ist sharovanie a linkovanie v branchi
     public function testOtherCanShareAndLinkInBranch(Client $client)
     {
         $description = $this->generateDescriptionForTestObject();
         $branch = $this->branches->createBranch($description);
-        $client2 =$client->getBranchAwareClient($branch['id']);;
-
-        $privilegedClient = $this->getDefaultBranchStorageApiClient();
+        $branchClient =$client->getBranchAwareClient($branch['id']);;
 
         $name = $this->getTestBucketName($description);
-        $stage = self::STAGE_IN;
-        $productionBucketId = $this->initEmptyBucketInDefault($privilegedClient, $stage, $name, $description);
-
-        $client2->shareOrganizationBucket($productionBucketId);
-        $this->_client->shareOrganizationBucket($productionBucketId);
-        self::assertTrue($this->_client->isSharedBucket($productionBucketId));
-        $response = $this->_client->listSharedBuckets();
-//        self::assertCount(1, $response);
-        $sharedBucket = reset($response);
-
-        $linkedBucketName = 'linked-' . time();
-
-        $linkedBucketId = $client2->linkBucket(
-            $linkedBucketName,
-            'out',
-            $sharedBucket['project']['id'],
-            $sharedBucket['id']
-        );
-    }
-
-    public function testPMCannotShareAndLinkInBranch()
-    {
-        $description = $this->generateDescriptionForTestObject();
-        $privilegedClient = $this->getDefaultBranchStorageApiClient();
-
-        $name = $this->getTestBucketName($description);
-        $stage = self::STAGE_IN;
-        $productionBucketId = $this->initEmptyBucketInDefault($privilegedClient, $stage, $name, $description);
-
-        $branch = $this->branches->createBranch($description);
-        $client2 = $this->_client->getBranchAwareClient($branch['id']);;
+        $productionBucketId = $this->initEmptyBucketInDefault(self::STAGE_IN, $name, $description);
 
         try {
-            $client2->shareOrganizationBucket($productionBucketId);
+            $branchClient->shareOrganizationBucket($productionBucketId);
             $this->fail('Production manager should not be able to share bucket in branch');
         } catch (ClientException $e) {
             $this->assertSame(501, $e->getCode());
@@ -171,13 +133,13 @@ class ShareTest extends StorageApiTestCase
         $this->_client->shareOrganizationBucket($productionBucketId);
         self::assertTrue($this->_client->isSharedBucket($productionBucketId));
         $response = $this->_client->listSharedBuckets();
-//        self::assertCount(1, $response);
+        self::assertCount(1, $response);
         $sharedBucket = reset($response);
 
         $linkedBucketName = 'linked-' . time();
 
         try {
-            $linkedBucketId = $client2->linkBucket(
+            $branchClient->linkBucket(
                 $linkedBucketName,
                 'out',
                 $sharedBucket['project']['id'],
@@ -190,7 +152,7 @@ class ShareTest extends StorageApiTestCase
         }
 
         try {
-            $client2->unshareBucket($productionBucketId, ['async' => true]);
+            $branchClient->unshareBucket($productionBucketId, ['async' => true]);
             $this->fail('Production manager should not be able to unshare bucket in branch');
         } catch (ClientException $e) {
             $this->assertSame(501, $e->getCode());
@@ -198,26 +160,71 @@ class ShareTest extends StorageApiTestCase
         }
     }
 
-    public function initEmptyBucketInDefault(Client $client, string $stage, string $name, string $description)
+    public function testPMCannotShareAndLinkInBranch()
     {
+        $description = $this->generateDescriptionForTestObject();
+
+        $name = $this->getTestBucketName($description);
+        $productionBucketId = $this->initEmptyBucketInDefault(self::STAGE_IN, $name, $description);
+
+        $branch = $this->branches->createBranch($description);
+        $branchClient = $this->_client->getBranchAwareClient($branch['id']);;
+
+        try {
+            $branchClient->shareOrganizationBucket($productionBucketId);
+            $this->fail('Production manager should not be able to share bucket in branch');
+        } catch (ClientException $e) {
+            $this->assertSame(501, $e->getCode());
+            $this->assertSame('Not implemented', $e->getMessage());
+        }
+
+        $this->_client->shareOrganizationBucket($productionBucketId);
+        self::assertTrue($this->_client->isSharedBucket($productionBucketId));
+        $response = $this->_client->listSharedBuckets();
+        self::assertCount(1, $response);
+        $sharedBucket = reset($response);
+
+        $linkedBucketName = 'linked-' . time();
+
+        try {
+            $branchClient->linkBucket(
+                $linkedBucketName,
+                'out',
+                $sharedBucket['project']['id'],
+                $sharedBucket['id']
+            );
+            $this->fail('Production manager should not be able to link bucket in branch');
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
+        }
+
+        try {
+            $branchClient->unshareBucket($productionBucketId, ['async' => true]);
+            $this->fail('Production manager should not be able to unshare bucket in branch');
+        } catch (ClientException $e) {
+            $this->assertSame(501, $e->getCode());
+            $this->assertSame('Not implemented', $e->getMessage());
+        }
+    }
+
+    public function initEmptyBucketInDefault(string $stage, string $name, string $description)
+    {
+        $client = $this->getDefaultBranchStorageApiClient();
         // unlink buckets
-        foreach ($this->_client->listBuckets() as $bucket) {
+        foreach ($client->listBuckets() as $bucket) {
             if (!empty($bucket['sourceBucket'])) {
                 $this->_client->dropBucket($bucket['id'], ['async' => true]);
             }
         }
 
         // unshare buckets
-        foreach ($this->_client->listBuckets() as $bucket) {
-            if ($this->_client->isSharedBucket($bucket['id'])) {
+        foreach ($client->listBuckets() as $bucket) {
+            if ($client->isSharedBucket($bucket['id'])) {
                 $this->_client->unshareBucket($bucket['id']);
             }
         }
 
-        $productionBucket = $client->getBucket("$stage.c-$name");
-         if ($productionBucket) {
-            $client->dropBucket($productionBucket['id'], ['async' => true]);
-        }
-        return $client->createBucket($name, $stage, $description);
+        return $this->initEmptyBucket($name, $stage, $description, $client);
     }
 }
