@@ -4,6 +4,7 @@ namespace Keboola\Test\Backend\MixedSnowflakeBigquery;
 
 use Generator;
 use Google\Cloud\BigQuery\BigQueryClient;
+use Google\Cloud\BigQuery\Table;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
@@ -11,7 +12,9 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\Test\Backend\Mixed\StorageApiSharingTestCase;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
+use Keboola\Test\Backend\Workspaces\Backend\BigqueryWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Throwable;
 
 class SharingTest extends StorageApiSharingTestCase
 {
@@ -234,5 +237,95 @@ class SharingTest extends StorageApiSharingTestCase
 
         $preview = $this->_client->getTableDataPreview($tableId);
         $this->assertCount(5, Client::parseCsv($preview));
+    }
+
+    public function testLinkedTableLoadAsView(): void
+    {
+        $this->deleteAllWorkspaces();
+        $this->initTestBuckets(self::BACKEND_BIGQUERY);
+        $bucketId = $this->getTestBucketId();
+        $workspaces = new Workspaces($this->_client2);
+        $workspace = $workspaces->createWorkspace([], true);
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        assert($backend instanceof BigqueryWorkspaceBackend);
+
+        // prepare table and alias table
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $sourceTableId = $this->_client->createTableAsync(
+            $bucketId,
+            'languages',
+            new CsvFile($importFile)
+        );
+        $this->_client->createAliasTable($bucketId, $sourceTableId, 'languages-alias');
+
+        $targetProjectId = $this->_client2->verifyToken()['owner']['id'];
+        $this->_client->shareBucketToProjects($bucketId, [$targetProjectId], true);
+
+        self::assertTrue($this->_client->isSharedBucket($bucketId));
+        $response = $this->_client2->listSharedBuckets();
+        self::assertCount(1, $response);
+        $sharedBucket = reset($response);
+
+        // link bucket to another project
+        $linkedBucketName = 'linked-' . time();
+        $linkedBucketId = $this->_client2->linkBucket(
+            $linkedBucketName,
+            'out',
+            $sharedBucket['project']['id'],
+            $sharedBucket['id']
+        );
+
+        $storageTablesInDestProject = $this->_client2->listTables($linkedBucketId);
+        $this->assertCount(2, $storageTablesInDestProject);
+        $options = [
+            'input' => [
+                [
+                    'source' => $storageTablesInDestProject[0]['id'],
+                    'destination' => 'linked',
+                    'useView' => true,
+                ],
+            ],
+        ];
+        // test load table to workspace as view is working
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        $dataset = $backend->getDataset();
+        $tables = iterator_to_array($dataset->tables());
+
+        $this->assertCount(1, $tables);
+        $this->assertSame('VIEW', $tables[0]->info()['type']);
+        $this->assertCount(5, $backend->fetchAll('linked'));
+        $this->assertColumns($dataset->table('linked'), ['id', 'name', '_timestamp']);
+
+        // then load alias table in linked bucket as view should fail
+        $options = [
+            'input' => [
+                [
+                    'source' => $storageTablesInDestProject[1]['id'],
+                    'destination' => 'linked-alias',
+                    'useView' => true,
+                ],
+            ],
+        ];
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('Must throw exception as load alias as view is not supported');
+        } catch (ClientException $e) {
+            $this->assertSame('workspace.loadRequestLogicalException', $e->getStringCode());
+            $this->assertSame(
+                'View load is not supported, only table can be loaded using views, alias of table supplied. Use read-only storage instead or copy input mapping if supported.',
+                $e->getMessage()
+            );
+        }
+    }
+
+    private function assertColumns(Table $table, array $expectedColumns): void
+    {
+        $table->reload();
+        $this->assertSame(
+            $expectedColumns,
+            array_map(fn(array $i) => $i['name'], $table->info()['schema']['fields'])
+        );
     }
 }
