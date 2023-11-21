@@ -161,13 +161,12 @@ class ShareTest extends StorageApiTestCase
     /**
      * @dataProvider tokensProvider
      */
-    public function testOtherCanShareAndLinkInBranch(Client $client): void
+    public function testOtherCannotShareAndLinkInBranch(Client $client): void
     {
         $description = $this->generateDescriptionForTestObject();
         $name = $this->getTestBucketName($description);
         $productionBucketId = $this->initEmptyBucketInDefault(self::STAGE_IN, $name, $description);
 
-        // todo zvalidovat, ze sa po vytvoreni branche vytvori buctket, alebo je nejak dostupny v branchi
         $branch = $this->branches->createBranch($description);
         $branchClient = $client->getBranchAwareClient($branch['id']);
         try {
@@ -188,14 +187,13 @@ class ShareTest extends StorageApiTestCase
 
         // try share branch bucket
         $devBucketName = 'dev-bucket-' . sha1($this->generateDescriptionForTestObject());
-        $branchAwareClient = $client->getBranchAwareClient($branch['id']);
         // always use developer client to create bucket in branch to work around read-only role
         $devBucketId = $this->getDeveloperStorageApiClient()->getBranchAwareClient($branch['id'])->createBucket(
             $devBucketName,
             'in',
         );
         try {
-            $branchAwareClient->shareOrganizationBucket($devBucketId);
+            $branchClient->shareOrganizationBucket($devBucketId);
             $this->fail('Others should not be able to share bucket in branch');
         } catch (ClientException $e) {
             $this->assertSame(501, $e->getCode());
@@ -204,26 +202,13 @@ class ShareTest extends StorageApiTestCase
 
         // validate cannot link bucket from main in branch
         try {
-            $branchAwareClient->linkBucket(
+            $branchClient->linkBucket(
                 $linkedBucketName,
                 'out',
                 $sharedBucket['project']['id'],
                 $sharedBucket['id']
             );
             $this->fail('Others should not be able to link bucket in branch');
-        } catch (ClientException $e) {
-            $this->assertSame(403, $e->getCode());
-            $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
-        }
-
-        try {
-            $branchClient->linkBucket(
-                $linkedBucketName,
-                'out',
-                $sharedBucket['project']['id'],
-                $sharedBucket['id'],
-            );
-            $this->fail('Production manager should not be able to link bucket in branch');
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
