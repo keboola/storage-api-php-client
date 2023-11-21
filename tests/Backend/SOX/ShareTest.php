@@ -33,7 +33,6 @@ class ShareTest extends StorageApiTestCase
                 $this->_client->unshareBucket($bucket['id']);
             }
         }
-
     }
 
     public function testPMCanShareAndLinkInDefault(): void
@@ -213,7 +212,7 @@ class ShareTest extends StorageApiTestCase
 
         // todo zvalidovat, ze sa po vytvoreni branche vytvori buctket, alebo je nejak dostupny v branchi
         $branch = $this->branches->createBranch($description);
-        $branchClient = $this->_client->getBranchAwareClient($branch['id']);;
+        $branchClient = $this->_client->getBranchAwareClient($branch['id']);
 
         try {
             $branchClient->shareOrganizationBucket($productionBucketId);
