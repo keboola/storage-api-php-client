@@ -136,7 +136,7 @@ class ShareTest extends StorageApiTestCase
 
         // todo zvalidovat, ze sa po vytvoreni branche vytvori buctket, alebo je nejak dostupny v branchi
         $branch = $this->branches->createBranch($description);
-        $branchClient = $client->getBranchAwareClient($branch['id']);;
+        $branchClient = $client->getBranchAwareClient($branch['id']);
         try {
             $branchClient->shareOrganizationBucket($productionBucketId);
             $this->fail('Production manager should not be able to share bucket in branch');
@@ -153,14 +153,40 @@ class ShareTest extends StorageApiTestCase
 
         $linkedBucketName = 'linked-' . time();
 
-        // todo try link branch bucket
+        // try share branch bucket
+        $devBucketName = 'dev-bucket-' . sha1($this->generateDescriptionForTestObject());
+        $branchAwareClient = $client->getBranchAwareClient($branch['id']);
+        // always use developer client to create bucket in branch to work around read-only role
+        $devBucketId = $this->getDeveloperStorageApiClient()->getBranchAwareClient($branch['id'])->createBucket(
+            $devBucketName,
+            'in',
+        );
+        try {
+            $branchAwareClient->shareOrganizationBucket($devBucketId);
+        } catch (ClientException $e) {
+            $this->assertSame(501, $e->getCode());
+            $this->assertSame('Not implemented', $e->getMessage());
+        }
+
         // validate cannot link bucket from main in branch
+        try {
+            $branchAwareClient->linkBucket(
+                $linkedBucketName,
+                'out',
+                $sharedBucket['project']['id'],
+                $sharedBucket['id']
+            );
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
+        }
+
         try {
             $branchClient->linkBucket(
                 $linkedBucketName,
                 'out',
                 $sharedBucket['project']['id'],
-                $sharedBucket['id']
+                $sharedBucket['id'],
             );
             $this->fail('Production manager should not be able to link bucket in branch');
         } catch (ClientException $e) {
@@ -206,6 +232,19 @@ class ShareTest extends StorageApiTestCase
         $linkedBucketName = 'linked-' . time();
 
         // todo try link branch bucket
+        $devBucketName = 'dev-bucket-' . sha1($this->generateDescriptionForTestObject());
+        $pmBranchAwareClient = $this->_client->getBranchAwareClient($branch['id']);
+        // always use developer client to create bucket in branch to work around PM role limitations in dev branch
+        $devBucketId = $this->getDeveloperStorageApiClient()->getBranchAwareClient($branch['id'])->createBucket(
+            $devBucketName,
+            'in',
+        );
+        try {
+            $pmBranchAwareClient->shareOrganizationBucket($devBucketId);
+        } catch (ClientException $e) {
+            $this->assertSame(501, $e->getCode());
+            $this->assertSame('Not implemented', $e->getMessage());
+        }
         // validate cannot link bucket from main in branch
         try {
             $branchClient->linkBucket(
