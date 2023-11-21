@@ -64,6 +64,26 @@ class ShareTest extends StorageApiTestCase
         $linkedBucket = $clientInOtherProject->getBucket($linkedBucketId);
         $this->assertSame($linkedBucketId, $linkedBucket['id']);
 
+        $linkedBucketProjectId = $clientInOtherProject->verifyToken()['owner']['id'];
+        $this->_client->forceUnlinkBucket($sharedBucket['id'], $linkedBucketProjectId);
+
+        try {
+            $clientInOtherProject->getBucket($linkedBucketId);
+            $this->fail('Bucket should not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame(sprintf('Bucket %s not found', $linkedBucketId), $e->getMessage());
+        }
+
+        $linkedBucketId = $clientInOtherProject->linkBucket(
+            $linkedBucketName,
+            'out',
+            $sharedBucket['project']['id'],
+            $sharedBucket['id']
+        );
+        $linkedBucket = $clientInOtherProject->getBucket($linkedBucketId);
+        $this->assertSame($linkedBucketId, $linkedBucket['id']);
+
         // test PM can unlink bucket
         $clientInOtherProject->dropBucket($linkedBucketId, ['async' => true]);
 
