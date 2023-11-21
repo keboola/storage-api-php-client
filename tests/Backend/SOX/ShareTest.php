@@ -132,6 +132,23 @@ class ShareTest extends StorageApiTestCase
             $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
         }
 
+        $linkedBucketId = $this->_client->linkBucket(
+            $linkedBucketName,
+            'out',
+            $sharedBucket['project']['id'],
+            $sharedBucket['id']
+        );
+
+        try {
+            $client->dropBucket($linkedBucketId, ['async' => true]);
+            $this->fail('Others should not be able to unlink bucket in branch');
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
+        }
+
+        $this->_client->dropBucket($linkedBucketId, ['async' => true]);
+
         try {
             $client->unshareBucket($productionBucketId, ['async' => true]);
             $this->fail('Others should not be able to unshare bucket in branch');
