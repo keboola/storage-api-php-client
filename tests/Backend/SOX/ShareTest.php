@@ -231,7 +231,6 @@ class ShareTest extends StorageApiTestCase
         $name = $this->getTestBucketName($description);
         $productionBucketId = $this->initEmptyBucketInDefault(self::STAGE_IN, $name, $description);
 
-        // todo zvalidovat, ze sa po vytvoreni branche vytvori buctket, alebo je nejak dostupny v branchi
         $branch = $this->branches->createBranch($description);
         $branchClient = $this->_client->getBranchAwareClient($branch['id']);
 
@@ -251,7 +250,6 @@ class ShareTest extends StorageApiTestCase
 
         $linkedBucketName = 'linked-' . time();
 
-        // todo try link branch bucket
         $devBucketName = 'dev-bucket-' . sha1($this->generateDescriptionForTestObject());
         $pmBranchAwareClient = $this->_client->getBranchAwareClient($branch['id']);
         // always use developer client to create bucket in branch to work around PM role limitations in dev branch
