@@ -7,13 +7,13 @@ use Google\Cloud\BigQuery\BigQueryClient;
 use Keboola\Csv\CsvFile;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Metadata;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\Test\Backend\Workspaces\Backend\BigqueryWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
-use Keboola\StorageApi\Metadata;
 
 class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 {
@@ -1115,6 +1115,134 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
             $this->fail('should fail because of null value in not nullable column');
         } catch (ClientException $e) {
             $this->assertEquals('Load error: Required field notnullcolumn cannot be null', $e->getMessage());
+        }
+    }
+
+    public function testTypedTableDataPreviewWithFilters(): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $data = [
+            'name' => 'my_new_table_with_nulls',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'jsoncol',
+                    'definition' => [
+                        'type' => 'JSON',
+                        'nullable' => false,
+                    ],
+                ],
+            ],
+        ];
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $data);
+        /** @var mixed $data */
+        $data = $this->_client->getTableDataPreview($tableId, [
+            'format' => 'json',
+            'whereFilters' => [
+                [
+                    'column' => 'id',
+                    'operator' => 'eq',
+                    'values' => [42],
+                    'dataType' => 'INTEGER',
+                ],
+            ],
+        ]);
+        $this->assertSame([
+            'rows' => [],
+            'columns' => [
+                'id',
+                'jsoncol',
+            ],
+        ], $data);
+        try {
+            $data = $this->_client->getTableDataPreview($tableId, [
+                'format' => 'json',
+                'whereFilters' => [
+                    [
+                        'column' => 'jsoncol',
+                        'operator' => 'eq',
+                        'values' => [42],
+                        'dataType' => 'INTEGER',
+                    ],
+                ],
+            ]);
+            $this->fail('should fail because of type mismatch');
+        } catch (ClientException $e) {
+            $this->assertEquals('Invalid cast from JSON to INT64 at [1:459]', $e->getMessage());
+            $this->assertEquals(400, $e->getCode());
+        }
+    }
+
+    public function testWillConvertFilterStringValuesToCorrectType(): void
+    {
+        $valuesToValidate = [
+//'ARRAY' => '',
+'BIGNUMERIC' => '123.456',
+'BOOL' => 'false',
+'BYTES' => '',
+'DATE' => '2021-01-01',
+'DATETIME' => '2021-01-01 01:02:03',
+'FLOAT64' => '123.456',
+//'GEOGRAPHY' => '',
+'INT64' => '123',
+'INTERVAL' => '1-0 0 0:0:0',
+'JSON' => '{"a":"b"}',
+'NUMERIC' => '123.345',
+'STRING' => 'test',
+//'STRUCT' => '',
+'TIME' => '10:30:11',
+'TIMESTAMP' => '0001-01-01 00:00:00',
+
+            ];
+
+        $columnTypes = array_keys($valuesToValidate);
+
+        $columns = [
+            [
+                'name' => 'id',
+                'definition' => [
+                    'type' => 'INT64',
+                    'nullable' => false,
+                ],
+            ],
+        ];
+        foreach ($columnTypes as $columnType) {
+            $columns[] = [
+                'name' => 'col_' . $columnType,
+                'definition' => [
+                    'type' => strtoupper($columnType),
+                    'nullable' => false,
+                ],
+            ];
+        }
+        $data = [
+            'name' => 'my_new_table_with_nulls',
+            'primaryKeysNames' => ['id'],
+            'columns' => $columns,
+        ];
+        $bucketId = $this->getTestBucketId();
+        $tableId = $this->_client->createTableDefinition($bucketId, $data);
+
+        foreach ($valuesToValidate as $type => $value) {
+            $where = [
+                [
+                    'column' => 'column_' . $type,
+                    'operator' => 'eq',
+                    'values' => [$value],
+                    'dataType' => strtoupper($type),
+                ],
+            ];
+
+            $result = $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
         }
     }
 }
