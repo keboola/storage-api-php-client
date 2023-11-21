@@ -1144,6 +1144,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
         ];
 
         $tableId = $this->_client->createTableDefinition($bucketId, $data);
+        /** @var mixed $data */
         $data = $this->_client->getTableDataPreview($tableId, [
             'format' => 'json',
             'whereFilters' => [
