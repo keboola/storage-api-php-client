@@ -162,6 +162,7 @@ class ShareTest extends StorageApiTestCase
         );
         try {
             $branchAwareClient->shareOrganizationBucket($devBucketId);
+            $this->fail('Others should not be able to share bucket in branch');
         } catch (ClientException $e) {
             $this->assertSame(501, $e->getCode());
             $this->assertSame('Not implemented', $e->getMessage());
@@ -175,6 +176,7 @@ class ShareTest extends StorageApiTestCase
                 $sharedBucket['project']['id'],
                 $sharedBucket['id']
             );
+            $this->fail('Others should not be able to link bucket in branch');
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
@@ -240,6 +242,7 @@ class ShareTest extends StorageApiTestCase
         );
         try {
             $pmBranchAwareClient->shareOrganizationBucket($devBucketId);
+            $this->fail('Production manager should not be able to share bucket in branch');
         } catch (ClientException $e) {
             $this->assertSame(501, $e->getCode());
             $this->assertSame('Not implemented', $e->getMessage());
