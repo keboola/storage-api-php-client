@@ -1134,9 +1134,9 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
                     ],
                 ],
                 [
-                    'name' => 'notnullcolumn',
+                    'name' => 'jsoncol',
                     'definition' => [
-                        'type' => 'INT64',
+                        'type' => 'JSON',
                         'nullable' => false,
                     ],
                 ],
@@ -1159,8 +1159,25 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
             'rows' => [],
             'columns' => [
                 'id',
-                'notnullcolumn',
+                'jsoncol',
             ],
         ], $data);
+        try {
+            $data = $this->_client->getTableDataPreview($tableId, [
+                'format' => 'json',
+                'whereFilters' => [
+                    [
+                        'column' => 'jsoncol',
+                        'operator' => 'eq',
+                        'values' => [42],
+                        'dataType' => 'INTEGER',
+                    ],
+                ],
+            ]);
+            $this->fail('should fail because of type mismatch');
+        } catch (ClientException $e) {
+            $this->assertEquals('Invalid cast from JSON to INT64 at [1:459]', $e->getMessage());
+            $this->assertEquals(400, $e->getCode());
+        }
     }
 }
