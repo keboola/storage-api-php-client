@@ -41,6 +41,7 @@ class ShareTest extends StorageApiTestCase
         $name = $this->getTestBucketName($description);
         $bucketId = $this->initEmptyBucketInDefault(self::STAGE_IN, $name, $description);
 
+        // test PM can share bucket
         $this->_client->shareOrganizationBucket($bucketId);
 
         self::assertTrue($this->_client->isSharedBucket($bucketId));
@@ -52,6 +53,7 @@ class ShareTest extends StorageApiTestCase
         $clientInOtherProject = $this->getClientForToken(
             STORAGE_API_LINKING_TOKEN
         );
+        // test PM can link bucket
         $linkedBucketId = $clientInOtherProject->linkBucket(
             $linkedBucketName,
             'out',
@@ -59,9 +61,24 @@ class ShareTest extends StorageApiTestCase
             $sharedBucket['id']
         );
 
+        $linkedBucket = $clientInOtherProject->getBucket($linkedBucketId);
+        $this->assertSame($linkedBucketId, $linkedBucket['id']);
+
+        // test PM can unlink bucket
         $clientInOtherProject->dropBucket($linkedBucketId, ['async' => true]);
 
+        try {
+            $clientInOtherProject->getBucket($linkedBucketId);
+            $this->fail('Bucket should not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame(sprintf('Bucket %s not found', $linkedBucketId), $e->getMessage());
+        }
+
+        // test PM can unshare bucket
         $this->_client->unshareBucket($bucketId, ['async' => true]);
+        $response = $this->_client->listSharedBuckets();
+        self::assertCount(0, $response);
     }
 
     public function tokensProvider(): \Generator
