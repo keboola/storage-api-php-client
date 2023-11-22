@@ -158,6 +158,27 @@ class ShareTest extends StorageApiTestCase
             $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
         }
 
+        $clientInOtherProject = $this->getClientForToken(
+            STORAGE_API_LINKING_TOKEN
+        );
+        $otherProjectLinkedBucketId = $clientInOtherProject->linkBucket(
+            $linkedBucketName,
+            'out',
+            $sharedBucket['project']['id'],
+            $sharedBucket['id']
+        );
+        $otherProjectId = $clientInOtherProject->verifyToken()['owner']['id'];
+        try {
+            $otherRoleClient->forceUnlinkBucket(
+                $linkedBucketName,
+                $otherProjectId,
+            );
+            $this->fail('Others should not be able to force unlink bucket in other project');
+        } catch (ClientException $e) {
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
+        }
+
         $linkedBucketId = $this->_client->linkBucket(
             $linkedBucketName,
             'out',
