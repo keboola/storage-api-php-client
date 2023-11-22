@@ -20,17 +20,23 @@ class ShareTest extends StorageApiTestCase
         $this->branches = new DevBranches($developerClient);
         $this->cleanupTestBranches($developerClient);
 
-        // unlink buckets
-        foreach ($this->_client->listBuckets() as $bucket) {
-            if (!empty($bucket['sourceBucket'])) {
-                $this->_client->dropBucket($bucket['id'], ['async' => true]);
+        $clientInOtherProject = $this->getClientForToken(
+            STORAGE_API_LINKING_TOKEN
+        );
+        foreach ([$clientInOtherProject, $this->_client] as $client) {
+            // unlink buckets
+            foreach ($client->listBuckets() as $bucket) {
+                if (!empty($bucket['sourceBucket'])) {
+                    $client->dropBucket($bucket['id'], ['async' => true]);
+                }
             }
         }
-
-        // unshare buckets
-        foreach ($this->_client->listBuckets() as $bucket) {
-            if ($this->_client->isSharedBucket($bucket['id'])) {
-                $this->_client->unshareBucket($bucket['id']);
+        foreach ([$clientInOtherProject, $this->_client] as $client) {
+            // unshare buckets
+            foreach ($client->listBuckets() as $bucket) {
+                if ($client->isSharedBucket($bucket['id'])) {
+                    $client->unshareBucket($bucket['id']);
+                }
             }
         }
     }
