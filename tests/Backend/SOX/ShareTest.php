@@ -278,6 +278,17 @@ class ShareTest extends StorageApiTestCase
                 $linkedBucketId,
                 $otherProjectId,
             );
+            $this->fail('Others should not be able to force unlink bucket in branch')
+        } catch (ClientException $e) {
+            $this->assertSame(501, $e->getCode());
+            $this->assertSame('Not implemented', $e->getMessage());
+        }
+        try {
+            $this->_client->forceUnlinkBucket(
+                $linkedBucketId,
+                $otherProjectId,
+            );
+            $this->fail('PM should not be able to force unlink bucket in branch');
         } catch (ClientException $e) {
             $this->assertSame(501, $e->getCode());
             $this->assertSame('Not implemented', $e->getMessage());
