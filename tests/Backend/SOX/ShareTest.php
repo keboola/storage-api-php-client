@@ -275,17 +275,18 @@ class ShareTest extends StorageApiTestCase
         $otherProjectId = $otherProjectClient->verifyToken()['owner']['id'];
         try {
             $otherRoleBranchClient->forceUnlinkBucket(
-                $linkedBucketId,
+                $sharedBucket['id'],
                 $otherProjectId,
             );
-            $this->fail('Others should not be able to force unlink bucket in branch')
+            $this->fail('Others should not be able to force unlink bucket in branch');
         } catch (ClientException $e) {
             $this->assertSame(501, $e->getCode());
             $this->assertSame('Not implemented', $e->getMessage());
         }
+        $branchedPmClient = $this->_client->getBranchAwareClient($branch['id']);
         try {
-            $this->_client->forceUnlinkBucket(
-                $linkedBucketId,
+            $branchedPmClient->forceUnlinkBucket(
+                $sharedBucket['id'],
                 $otherProjectId,
             );
             $this->fail('PM should not be able to force unlink bucket in branch');
