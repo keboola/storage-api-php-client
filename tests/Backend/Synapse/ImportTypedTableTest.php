@@ -323,7 +323,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             );
             $this->fail('Should throw ClientException');
         } catch (ClientException $e) {
-            self::assertSame('[SQL Server]Bulk load data conversion error (type mismatch or invalid character for the specified codepage) for row starting at byte offset 25, column 4 (sex) in /users.csv.gz.', $e->getMessage());
+            self::assertSame('[SQL Server]Bulk load data conversion error (type mismatch or invalid character for the specified codepage) for row starting at byte offset 25, column 4 (sex). Underlying data description: /users.csv.gz.', $e->getMessage());
         }
 
         try {
@@ -337,7 +337,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             );
             $this->fail('Should throw ClientException');
         } catch (ClientException $e) {
-            self::assertSame('[SQL Server]Bulk load data conversion error (type mismatch or invalid character for the specified codepage) for row starting at byte offset 25, column 4 (sex) in /users.csv.gz.', $e->getMessage());
+            self::assertSame('[SQL Server]Bulk load data conversion error (type mismatch or invalid character for the specified codepage) for row starting at byte offset 25, column 4 (sex). Underlying data description: /users.csv.gz.', $e->getMessage());
         }
     }
 }
