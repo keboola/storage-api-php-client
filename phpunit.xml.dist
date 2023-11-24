@@ -298,7 +298,6 @@
 		<directory>tests/Backend/SOX</directory>
 		<exclude>tests/Backend/SOX/SOXCommonTest.php</exclude>
 		<exclude>tests/Backend/SOX/MergeRequestsTest.php</exclude>
-		<exclude>tests/Backend/SOX/SOXWorkspaceTestCase.php</exclude>
 		<exclude>tests/Backend/SOX/ShareTest.php</exclude>
 		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
 		<file>tests/Common/MetadataTest.php</file>
@@ -307,7 +306,6 @@
 	<testsuite name="sync-sox-snowflake">
 		<file>tests/Backend/SOX/SOXCommonTest.php</file>
 		<file>tests/Backend/SOX/MergeRequestsTest.php</file>
-		<file>tests/Backend/SOX/SOXWorkspaceTestCase.php</file>
 		<file>tests/File/CommonFileTest.php</file>
 		<file>tests/Backend/SOX/ShareTest.php</file>
 	</testsuite>
@@ -315,7 +313,6 @@
 		<directory>tests/Backend/SOX</directory>
 		<exclude>tests/Backend/SOX/SOXCommonTest.php</exclude>
 		<exclude>tests/Backend/SOX/MergeRequestsTest.php</exclude>
-		<exclude>tests/Backend/SOX/SOXWorkspaceTestCase.php</exclude>
 		<exclude>tests/Backend/SOX/ShareTest.php</exclude>
 		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
 		<file>tests/Common/MetadataTest.php</file>
@@ -328,7 +325,6 @@
 	</testsuite>
 	<testsuite name="sync-sox-bigquery">
 		<file>tests/Backend/SOX/SOXCommonTest.php</file>
-		<file>tests/Backend/SOX/SOXWorkspaceTestCase.php</file>
 		<file>tests/File/CommonFileTest.php</file>
 		<file>tests/Backend/SOX/ShareTest.php</file>
 		<!--		TESTS that don't need to run in BQ -->
