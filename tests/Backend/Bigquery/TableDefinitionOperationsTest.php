@@ -1117,4 +1117,85 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
             $this->assertEquals('Load error: Required field notnullcolumn cannot be null', $e->getMessage());
         }
     }
+
+    /** @dataProvider provideColumnDefinition */
+    public function testInvalidStructLength(array $columnDefinition, callable $assertion): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $data = [
+            'name' => 'testInvalidStructLength',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+                $columnDefinition,
+            ],
+        ];
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        try {
+            $tableId = $this->_client->createTableDefinition($bucketId, $data);
+            $this->fail('Should have thrown');
+        } catch (ClientException $e) {
+            $assertion($e);
+        }
+    }
+
+    public function provideColumnDefinition(): Generator
+    {
+        yield 'struct with length' => [
+            [
+                'name' => 'notnullcolumn',
+                'definition' => [
+                    'type' => 'STRUCT<INT64>',
+                    'nullable' => false,
+                ],
+            ],
+            function (\Throwable $e) {
+                $this->assertSame('Invalid request:
+ - columns[1][definition][type]: "Type STRUCT<INT64> not recognized. Possible values are [ARRAY|BOOL|BYTES|DATE|DATETIME|TIME|TIMESTAMP|GEOGRAPHY|INTERVAL|JSON|INT64|NUMERIC|BIGNUMERIC|FLOAT64|STRING|STRUCT|INT|SMALLINT|INTEGER|BIGINT|TINYINT|BYTEINT|DECIMAL|BIGDECIMAL]"', $e->getMessage());
+                $this->assertInstanceOf(ClientException::class, $e);
+            }
+        ];
+        yield 'struct with length in column attribute' => [
+            [
+                'name' => 'notnullcolumn',
+                'definition' => [
+                    'type' => 'STRUCT',
+                    'length' => 'INT64',
+                    'nullable' => false,
+                ],
+            ],
+            function (\Throwable $e) {
+                $this->assertSame('Failed to create table "testInvalidStructLength" in dataset "in_c_API_tests_6ef8c557e0e79be6fe287da45424d149f9882da2". Exception: Field notnullcolumn is type RECORD but has no schema. Requested table: {
+    "schema": {
+        "fields": [
+            {
+  ', $e->getMessage());
+                $this->assertInstanceOf(ClientException::class, $e);
+            },
+        ];
+        yield 'struct with invalid lenght' => [
+            [
+                'name' => 'notnullcolumn',
+                'definition' => [
+                    'type' => 'STRUCT',
+                    'length' => 'test allyourbasebelongstous',
+                    'nullable' => false,
+                ],
+            ],
+            function (\Throwable $e) {
+                $this->assertMatchesRegularExpression('/Failed to create table "testInvalidStructLength" in dataset ".*". Exception: Invalid value for type: ALLYOURBASEBELONGSTOUS is not a valid value. Requested table:/', $e->getMessage());
+                $this->assertInstanceOf(ClientException::class, $e);
+            },
+        ];
+    }
 }
