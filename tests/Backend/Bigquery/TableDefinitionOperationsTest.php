@@ -1117,4 +1117,42 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
             $this->assertEquals('Load error: Required field notnullcolumn cannot be null', $e->getMessage());
         }
     }
+
+    public function testInvalidStructAndArrayFormat(): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $data = [
+            'name' => 'testInvalidStructAndArrayFormat',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'struct_without_contents',
+                    'definition' => [
+                        'type' => 'STRUCT',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'array_without_contents',
+                    'definition' => [
+                        'type' => 'ARRAY',
+                        'nullable' => false,
+                    ],
+                ],
+            ],
+        ];
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $data);
+    }
 }
