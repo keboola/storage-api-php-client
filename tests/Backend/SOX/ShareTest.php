@@ -223,8 +223,8 @@ class ShareTest extends StorageApiTestCase
             $otherRoleBranchClient->shareOrganizationBucket($productionBucketId);
             $this->fail('Others should not be able to share bucket in branch');
         } catch (ClientException $e) {
-            $this->assertSame(404, $e->getCode());
-            $this->assertSame(sprintf('Bucket %s not found', $productionBucketId), $e->getMessage());
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
         }
 
         $pmBranchClient->shareOrganizationBucket($productionBucketId);
@@ -283,8 +283,8 @@ class ShareTest extends StorageApiTestCase
             );
             $this->fail('Others should not be able to force unlink bucket in branch');
         } catch (ClientException $e) {
-            $this->assertSame(404, $e->getCode());
-            $this->assertSame(sprintf('Bucket %s not found', $sharedBucket['id']), $e->getMessage());
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
         }
         $branchedPmClient = $pmBranchClient->getBranchAwareClient($branch['id']);
         try {
@@ -304,8 +304,8 @@ class ShareTest extends StorageApiTestCase
             $otherRoleBranchClient->unshareBucket($productionBucketId, ['async' => true]);
             $this->fail('Others should not be able to unshare bucket in branch');
         } catch (ClientException $e) {
-            $this->assertSame(404, $e->getCode());
-            $this->assertSame(sprintf('Bucket %s not found', $productionBucketId), $e->getMessage());
+            $this->assertSame(403, $e->getCode());
+            $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
         }
     }
 
