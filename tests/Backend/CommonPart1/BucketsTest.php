@@ -109,6 +109,27 @@ class BucketsTest extends StorageApiTestCase
         $this->assertEquals($tokenData['owner']['defaultBackend'], $bucket['backend']);
         $this->assertNotEquals($displayName, $bucket['displayName']);
 
+        $this->assertArrayHasKey('metadata', $bucket);
+        $this->assertSame([], $bucket['metadata']);
+        // put metadata and test presence
+        $metadataApi = new Metadata($this->_testClient);
+        $metadataApi->postBucketMetadata($bucket['id'], 'storage-php-client-test', [
+            [
+                'key' => 'test-key',
+                'value' => 'test-value',
+            ],
+        ]);
+        $bucket = $this->_testClient->getBucket($bucketId);
+        $this->assertCount(1, $bucket['metadata']);
+        unset($bucket['metadata'][0]['id'], $bucket['metadata'][0]['timestamp']);
+        $this->assertSame([
+            [
+                'key' => 'test-key',
+                'value' => 'test-value',
+                'provider' => 'storage-php-client-test',
+            ],
+        ], $bucket['metadata']);
+
         $asyncBucketDisplayName = $displayName . '-async';
         $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $asyncBucketDisplayName, true);
         $this->_testClient->updateBucket($bucketUpdateOptions);
