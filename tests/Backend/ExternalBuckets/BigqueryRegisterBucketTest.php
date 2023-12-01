@@ -552,16 +552,18 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $this->createExternalTable($description);
 
         // refresh external bucket
-        $testClient->refreshBucket($idOfBucket);
+        /** @var array{warnings:array<array{message:string}>} $refreshJobResult */
+        $refreshJobResult = $testClient->refreshBucket($idOfBucket);
 
         // check external bucket
         $tables = $testClient->listTables($idOfBucket);
+        // contains only normal table not external table
         $this->assertCount(1, $tables);
-
-        $testClient->exportTableAsync($tables[0]['id']);
-
-        $preview = $testClient->getTableDataPreview($tables[0]['id']);
-        $this->assertCount(6, \Keboola\StorageApi\Client::parseCsv($preview, false));
+        $this->assertCount(1, $refreshJobResult['warnings']);
+        $this->assertStringContainsString(
+            'External tables are not supported.',
+            $refreshJobResult['warnings'][0]['message']
+        );
     }
 
     /**
@@ -973,6 +975,11 @@ SQL,
             "CREATE OR REPLACE EXTERNAL TABLE %s.externalTable OPTIONS (format = 'CSV',uris = [%s]);",
             BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
             BigqueryQuote::quote($object->gcsUri())
+        ));
+        // create normal table so bucket is not empty
+        $db->executeQuery(sprintf(
+            'CREATE OR REPLACE TABLE %s.normalTable (id INT64);',
+            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
         ));
     }
 }
