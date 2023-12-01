@@ -564,11 +564,6 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             'External tables are not supported.',
             $refreshJobResult['warnings'][0]['message']
         );
-// External tables are not supported
-//        $testClient->exportTableAsync($tables[0]['id']);
-//
-//        $preview = $testClient->getTableDataPreview($tables[0]['id']);
-//        $this->assertCount(6, \Keboola\StorageApi\Client::parseCsv($preview, false));
     }
 
     /**
