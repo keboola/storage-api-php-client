@@ -15,9 +15,11 @@ use Keboola\StorageApi\Tokens;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\MetadataUtils;
 
 class MetadataTest extends StorageApiTestCase
 {
+    use MetadataUtils;
     const TEST_PROVIDER = 'test';
 
     const TEST_METADATA_KEY_1 = 'test_metadata_key1';
@@ -109,13 +111,12 @@ class MetadataTest extends StorageApiTestCase
         $metadataApi->deleteBucketMetadata($bucketId, $mdCopy['id']);
 
         $mdList = $metadataApi->listBucketMetadata($bucketId);
-
         $this->assertEquals(1, count($mdList));
+        $this->assertMetadataEquals($metadatas[1], $mdList[0]);
 
-        $this->assertEquals($metadatas[1]['key'], $mdList[0]['key']);
-        $this->assertEquals($metadatas[1]['value'], $mdList[0]['value']);
-        $this->assertEquals($metadatas[1]['provider'], $mdList[0]['provider']);
-        $this->assertEquals($metadatas[1]['timestamp'], $mdList[0]['timestamp']);
+        $bucketDetail = $this->_testClient->getBucket($bucketId);
+        $this->assertCount(1, $bucketDetail['metadata']);
+        $this->assertMetadataEquals($metadatas[1], $bucketDetail['metadata'][0]);
     }
 
     /**
