@@ -14,10 +14,12 @@ use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\EventTesterUtils;
+use Keboola\Test\Utils\MetadataUtils;
 
 class BucketsTest extends StorageApiTestCase
 {
     use EventTesterUtils;
+    use MetadataUtils;
 
     /** @var BranchAwareClient|Client */
     private $_testClient;
@@ -121,14 +123,14 @@ class BucketsTest extends StorageApiTestCase
         ]);
         $bucket = $this->_testClient->getBucket($bucketId);
         $this->assertCount(1, $bucket['metadata']);
-        unset($bucket['metadata'][0]['id'], $bucket['metadata'][0]['timestamp']);
-        $this->assertSame([
+        $this->assertMetadataEquals(
             [
                 'key' => 'test-key',
                 'value' => 'test-value',
                 'provider' => 'storage-php-client-test',
             ],
-        ], $bucket['metadata']);
+            $bucket['metadata'][0]
+        );
 
         $asyncBucketDisplayName = $displayName . '-async';
         $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $asyncBucketDisplayName, true);
@@ -184,7 +186,7 @@ class BucketsTest extends StorageApiTestCase
      */
     public function testBucketEvents(string $devBranchType, string $userRole): void
     {
-        $bucketName = sha1($this->generateDescriptionForTestObject()).'-test-events';
+        $bucketName = sha1($this->generateDescriptionForTestObject()) . '-test-events';
         $bucketStringId = 'in.c-' . $bucketName;
         $this->dropBucketIfExists($this->_testClient, $bucketStringId, true);
         $bucketId = $this->_testClient->createBucket($bucketName, self::STAGE_IN);
