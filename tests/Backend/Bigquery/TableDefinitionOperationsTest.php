@@ -25,7 +25,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->tableId = $this->createTableDefinition();
+        //$this->tableId = $this->createTableDefinition();
     }
 
     private function createTableDefinition(): string
@@ -1213,4 +1213,196 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
         $this->expectException(ClientException::class);
         $this->_client->writeTableAsyncDirect($tableId, $options);
     }
+
+    /**
+     * @dataProvider provideDataForIllogicalFilter
+     * @param $filter
+     */
+    public function testIllogicalComparisonInFilter($filter): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $columns = [
+            [
+                'name' => 'id',
+                'definition' => [
+                    'type' => 'INT64',
+                    'nullable' => false,
+                ],
+            ],
+        ];
+        $types = $this->providePlainBqTypes();
+
+        foreach ($types as $type) {
+            $columns[] = [
+                'name' => $type,
+                'definition' => [
+                    'type' => $type,
+                    'nullable' => true,
+                ],
+            ];
+        }
+
+        $data = [
+            'name' => 'my_new_table_with_nulls',
+            'primaryKeysNames' => ['id'],
+            'columns' => $columns,
+        ];
+
+        $tableId = $bucketId . '.' . 'my_new_table_with_nulls';
+        if (!$this->_client->tableExists($tableId)) {
+            $tableId = $this->_client->createTableDefinition($bucketId, $data);
+        }
+
+        $this->expectExceptionMessage('xxxxxxxx');
+        $data = $this->_client->getTableDataPreview($tableId, [
+            'format' => 'json',
+            'whereFilters' => $filter,
+        ]);
+    }
+
+    public function provideDataForIllogicalFilter(): Generator
+    {
+        /* yield 'null' => [
+             [
+                 [
+                     'column' => 'id',
+                     'operator' => 'eq',
+                     'values' => [42],
+                     'dataType' => 'INTEGER',
+                 ],
+             ],
+         ];
+         yield 'bool greater than' => [
+             [
+                 [
+                     'column' => 'id',
+                     'operator' => 'eq',
+                     'values' => [42],
+                     'dataType' => 'INTEGER',
+                 ],
+             ],
+         ];*/
+
+        $values = [
+            42,
+            42.4,
+//            '42',
+            '"xxx"',
+//            true,
+//            null,
+//            'true',
+        ];
+        $operators = [
+            'lt',
+            'gt',
+            'eq',
+            'ne',
+        ];
+        foreach ($this->provideFilterTypes() as $filterType => $valueToTest) {
+            foreach ($operators as $operator) {
+                //       foreach ($values as $value) {
+
+                foreach ($this->providePlainBqTypes() as $bigqueryType) {
+                    $filter = [];
+                    $filter[] = [
+                        'column' => $bigqueryType,
+                        'operator' => $operator,
+                        'values' => [$valueToTest],
+                        'dataType' => $filterType,
+                    ];
+                    yield $filterType . ' ' . $operator . ' ' . $valueToTest => [
+                        $filter,
+                    ];
+                }
+
+                //     }
+            }
+        }
+    }
+
+    private function providePlainBqTypes(): array
+    {
+        return [
+//            'ARRAY',
+            'BIGNUMERIC',
+            'BOOL',
+//            'BYTES',
+            'DATE',
+            'DATETIME',
+            'FLOAT64',
+//            'GEOGRAPHY',
+            'INT64',
+            'INTERVAL',
+            'JSON',
+            'NUMERIC',
+            'STRING',
+//            'STRUCT',
+            'TIME',
+            'TIMESTAMP',
+        ];
+    }
+
+    private function provideFilterTypes(): array
+    {
+        return [
+            'STRING' => 'abc', // it's equivalent to 'STRING',
+            'INTEGER' => 42,
+            'DOUBLE' => 42.1,
+            'BIGINT' => 4242424242,
+            'REAL' => 42.1,
+            'DECIMAL' => 42.3,
+        ];
+    }
+
+    public function testIllogicalComparisonInFilterWithBool(): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $columns = [
+            [
+                'name' => 'id',
+                'definition' => [
+                    'type' => 'INT64',
+                    'nullable' => false,
+                ],
+            ],
+        ];
+        $types = ['BOOL'];
+
+        foreach ($types as $type) {
+            $columns[] = [
+                'name' => $type,
+                'definition' => [
+                    'type' => $type,
+                    'nullable' => true,
+                ],
+            ];
+        }
+
+        $data = [
+            'name' => 'test_table',
+            'primaryKeysNames' => ['id'],
+            'columns' => $columns,
+        ];
+
+        $tableId = $bucketId . '.' . 'test_table';
+        if (!$this->_client->tableExists($tableId)) {
+            $tableId = $this->_client->createTableDefinition($bucketId, $data);
+        }
+
+        $this->expectExceptionMessage('xxxxxxxx');
+        $data = $this->_client->getTableDataPreview($tableId, [
+            'format' => 'json',
+            'whereFilters' => [
+                [
+                    'column' => 'BOOLEAN',
+                    'operator' => 'lt',
+                    'values' => [false],
+                  //  'dataType' => 'BOOLEAN',
+                ]
+            ],
+        ]);
+    }
+
 }
