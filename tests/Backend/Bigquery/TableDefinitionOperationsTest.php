@@ -7,13 +7,14 @@ use Google\Cloud\BigQuery\BigQueryClient;
 use Keboola\Csv\CsvFile;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Metadata;
+use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\Test\Backend\Workspaces\Backend\BigqueryWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
-use Keboola\StorageApi\Metadata;
 
 class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 {
@@ -1116,5 +1117,67 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
         } catch (ClientException $e) {
             $this->assertEquals('Load error: Required field notnullcolumn cannot be null', $e->getMessage());
         }
+    }
+
+    public function testInsertInvalidTypestampIsUserError(): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $data = [
+            'name' => 'test-table',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'timestamp',
+                    'definition' => [
+                        'type' => 'TIMESTAMP',
+                        'nullable' => false,
+                    ],
+                ],
+            ],
+        ];
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $data);
+
+        $data = [
+            ['id', 'timestamp'],
+            [1, '00:00:00',],
+        ];
+
+        $csvFile = $this->createTempCsv();
+        foreach ($data as $row) {
+            $csvFile->writeRow($row);
+        }
+        $options = [
+            'delimiter' => $csvFile->getDelimiter(),
+            'enclosure' => $csvFile->getEnclosure(),
+            'escapedBy' => $csvFile->getEscapedBy(),
+        ];
+
+        // upload file
+        $fileId = $this->_client->uploadFile(
+            $csvFile->getPathname(),
+            (new FileUploadOptions())
+                ->setNotify(false)
+                ->setIsPublic(false)
+                ->setCompress(true)
+                ->setTags(['file-import'])
+        );
+        $options['dataFileId'] = $fileId;
+        $this->expectExceptionMessage(
+            'Load error: '
+            .'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. '
+            .'Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; '
+            .'line_number: 2 byte_offset_to_start_of_line: 17 col'
+        );
+        $this->expectException(ClientException::class);
+        $this->_client->writeTableAsyncDirect($tableId, $options);
     }
 }
