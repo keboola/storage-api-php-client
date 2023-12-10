@@ -15,6 +15,8 @@ use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\Test\Backend\Workspaces\Backend\BigqueryWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
+use PHPUnit\Framework\AssertionFailedError;
+use Throwable;
 
 class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 {
@@ -1101,7 +1103,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
         $client->runQuery(
             $client->query(
                 sprintf(
-                    'INSERT INTO `%s`.`my_new_table_with_nulls` VALUES (1, null);',
+                    'INSERT INTO `%s`.`my_new_table_with_nulls` VALUES (1, NULL);',
                     $dataset
                 )
             )
@@ -1180,4 +1182,568 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
         $this->expectException(ClientException::class);
         $this->_client->writeTableAsyncDirect($tableId, $options);
     }
+
+    public function testCreateTableDefaults(): void
+    {
+        $bucketId = $this->getTestBucketId();
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $types = [
+            'ARRAY' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working float' => [
+                    'value' => '1.23',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'BOOL' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working float' => [
+                    'value' => '1.23',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'BYTES' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working float' => [
+                    'value' => '1.23',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'DATE' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'DATETIME' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'TIME' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'TIMESTAMP' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'GEOGRAPHY' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'INTERVAL' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'JSON' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'INT64' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'INT' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'SMALLINT' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'INTEGER' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'BIGINT' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'TINYINT' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'BYTEINT' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'NUMERIC' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'DECIMAL' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'BIGNUMERIC' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'BIGDECIMAL' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'FLOAT64' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'STRING' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'STRUCT' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+        ];
+
+        foreach ($types as $type => $cases) {
+            $columnName = 'c_' . str_replace(' ', '', strtolower($type));
+            foreach ($cases as $caseName => $options) {
+                $tableName = 'test_' . $columnName . '_' . str_replace(' ', '_', $caseName);
+                $tableDefinition = [
+                    'name' => $tableName,
+                    'primaryKeysNames' => [],
+                    'columns' => [
+                        [
+                            'name' => $columnName,
+                            'definition' => [
+                                'type' => $type,
+                                'default' => $options['value'],
+                            ],
+                        ],
+                    ],
+                ];
+                $expectFail = array_key_exists('message', $options['expectFail']);
+                $expectedMessage = '';
+                if ($expectFail) {
+                    // @phpstan-ignore-next-line
+                    $expectedMessage = $options['expectFail']['message'];
+                }
+                try {
+                    $this->_client->createTableDefinition($bucketId, $tableDefinition);
+                    if ($expectFail) {
+                        $this->fail(sprintf(
+                            'Testing datatype "%s" with case "%s" not failed. Expected exception was: "%s"',
+                            $type,
+                            $caseName,
+                            $expectedMessage
+                        ));
+                    }
+                } catch (Throwable $e) {
+                    if ($e instanceof AssertionFailedError) {
+                        throw $e;
+                    }
+                    if (!$expectFail) {
+                        $this->fail(sprintf(
+                            'Testing datatype "%s" with case "%s" was not expected to fail. Error is: "%s"',
+                            $type,
+                            $caseName,
+                            $e->getMessage()
+                        ));
+                    }
+                    $this->assertInstanceOf(ClientException::class, $e);
+                    $this->assertStringStartsWith(
+                        $expectedMessage,
+                        $e->getMessage(),
+                        sprintf(
+                            'Testing datatype "%s" with case "%s" was not expected exception message: "%s"',
+                            $type,
+                            $caseName,
+                            $e->getMessage()
+                        )
+                    );
+                }
+            }
+        }
+    }
 }
+
+
