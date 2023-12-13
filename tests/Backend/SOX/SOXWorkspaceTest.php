@@ -260,6 +260,7 @@ class SOXWorkspaceTest extends SOXWorkspaceTestCase
             if ($backend instanceof BigqueryWorkspaceBackend) {
                 $this->fail('BigQuery should throw exception');
             }
+            // intentionally don't fail
         } catch (ClientException $e) {
             if ($backend instanceof BigqueryWorkspaceBackend) {
                 self::assertSame('Backend "bigquery" does not support: "Other types of loading than view".', $e->getMessage());

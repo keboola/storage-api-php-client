@@ -272,6 +272,7 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         $this->assertTrue($tableRef->isView());
         try {
             $backend->fetchAll('testRO');
+            $this->fail('Should have thrown');
         } catch (Throwable $e) {
             $this->assertStringContainsString('does not exist or not authorized', $e->getMessage());
         }

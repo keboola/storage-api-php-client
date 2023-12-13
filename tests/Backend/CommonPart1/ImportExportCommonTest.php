@@ -274,6 +274,7 @@ class ImportExportCommonTest extends StorageApiTestCase
     {
         try {
             $this->_client->writeTableAsync($this->getTestBucketId() . '.languages', new CsvFile('invalid.csv'));
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             $this->assertEquals('fileNotReadable', $e->getStringCode());
         }
@@ -288,6 +289,7 @@ class ImportExportCommonTest extends StorageApiTestCase
                 'dataString' => 'id,name',
                 'delimiter' => '/t',
             ]);
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             $this->assertEquals('invalidCsv', $e->getStringCode());
         }
@@ -299,6 +301,7 @@ class ImportExportCommonTest extends StorageApiTestCase
                 'dataFileId' => $fileId,
                 'delimiter' => '/t',
             ]);
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             $this->assertEquals('invalidCsv', $e->getStringCode());
         }
@@ -311,6 +314,7 @@ class ImportExportCommonTest extends StorageApiTestCase
                 'dataString' => 'id,name',
                 'delimiter' => '/t',
             ]);
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             $this->assertEquals('invalidCsv', $e->getStringCode());
         }
@@ -322,6 +326,7 @@ class ImportExportCommonTest extends StorageApiTestCase
                 'delimiter' => '/t',
                 'incremental' => true,
             ]);
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             $this->assertEquals('invalidCsv', $e->getStringCode());
         }

@@ -289,6 +289,7 @@ class BranchStorageTest extends StorageApiTestCase
         // cleanup test bucket
         try {
             $this->getDefaultBranchStorageApiClient()->dropBucket($bucketId, ['async' => true]);
+            // intentionally don't fail
         } catch (ClientException $e) {
             if ($e->getCode() !== 404) {
                 throw $e;

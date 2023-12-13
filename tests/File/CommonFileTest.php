@@ -311,6 +311,7 @@ class CommonFileTest extends StorageApiTestCase
     {
         try {
             $this->_testClient->uploadFile('invalid.csv', new FileUploadOptions());
+            $this->fail('Should have thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('fileNotReadable', $e->getStringCode());
         }
