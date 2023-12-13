@@ -308,6 +308,7 @@ class MergeRequestsTest extends StorageApiTestCase
                     'url' => STORAGE_API_URL,
                 ]),
             ))->addConfiguration($configuration);
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             // error messages should be improved in the future SOX-155
             $this->assertSame(

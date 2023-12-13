@@ -236,6 +236,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
 
         try {
             $workspaces->loadWorkspaceData($workspace['id'], ['input' => [$mapping]]);
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
@@ -972,6 +973,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                     ],
                 ],
             );
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }
@@ -989,6 +991,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                     ],
                 ],
             );
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }

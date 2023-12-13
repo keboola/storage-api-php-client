@@ -298,6 +298,7 @@ class SharingTest extends StorageApiSharingTestCase
             $this->_client2->getBucket($unloadBucketId);
             // if bucket exists drop it
             $this->_client2->dropBucket($unloadBucketId, ['force' => true]);
+            // intentionally don't fail
         } catch (ClientException $e) {
             $this->assertEquals("Bucket {$unloadBucketId} not found", $e->getMessage());
         } finally {

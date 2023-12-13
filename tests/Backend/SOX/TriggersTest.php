@@ -213,6 +213,7 @@ class TriggersTest extends StorageApiTestCase
                     $branchTableId,
                 ],
             ]);
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             $this->assertSame($e->getCode(), 404);
             $this->assertSame(
