@@ -1530,6 +1530,7 @@ class ComponentsTest extends StorageApiTestCase
         $configurationRow->setConfiguration(['first' => 'dd']);
         try {
             $components->updateConfigurationRow($configurationRow);
+            $this->fail('Should have thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals(400, $e->getCode(), 'User error should be thrown');
         }
@@ -1551,6 +1552,7 @@ class ComponentsTest extends StorageApiTestCase
 
         try {
             $components->updateConfiguration($config);
+            $this->fail('Should have thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals(400, $e->getCode(), 'User error should be thrown');
         }

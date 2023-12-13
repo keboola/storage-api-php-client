@@ -31,6 +31,7 @@ class BranchStorageTest extends StorageApiTestCase
         try {
             $this->_client->getBucket($bucketId);
             $this->_client->dropBucket($bucketId, ['force' => true]);
+            // intentionally don't fail
         } catch (ClientException $e) {
             // ignore if bucket not exists
         }

@@ -86,6 +86,7 @@ class SearchTablesTest extends StorageApiTestCase
     {
         try {
             $this->_client->searchTables(new SearchTablesOptions);
+            $this->fail('Should have thrown');
         } catch (ClientException $clientException) {
             $this->assertStringStartsWith('Invalid request', $clientException->getMessage());
             $this->assertSame([

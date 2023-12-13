@@ -144,6 +144,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
                 $externalBucketBackend,
                 'Iam-your-external-bucket_test_ex' . $devBranchType . '_' . $userRole,
             );
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             $this->assertSame('storage.analyticHubObjectNotFound', $e->getStringCode());
             $this->assertStringContainsString(

@@ -497,6 +497,7 @@ class SOXTokensTest extends StorageApiTestCase
 
         try {
             $elevatedComponentsApi->deleteConfiguration('wr-db', 'main');
+            // intentionally don't fail
         } catch (ClientException $e) {
             // ignore
         }

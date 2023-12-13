@@ -40,6 +40,7 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
                 $this->thisBackend,
                 'test-bucket-will-fail',
             );
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             $this->assertSame('storage.dbObjectNotFound', $e->getStringCode());
             $this->assertStringContainsString(
