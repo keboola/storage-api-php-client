@@ -2236,6 +2236,11 @@ parameters:
 			path: src/Keboola/StorageApi/TableExporter.php
 
 		-
+			message: "#^You should always add `\\$this\\-\\>fail\\(\\)` as a last statement in try/catch block\\.$#"
+			count: 1
+			path: tests/Backend/CommonPart1/BranchStorageTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart1\\\\CreateTableTest\\:\\:createTableFromSlicedFileData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/CommonPart1/CreateTableTest.php
@@ -3246,6 +3251,11 @@ parameters:
 			path: tests/Backend/MixedSnowflakeSynapse/SharingTest.php
 
 		-
+			message: "#^You should always add `\\$this\\-\\>fail\\(\\)` as a last statement in try/catch block\\.$#"
+			count: 1
+			path: tests/Backend/MixedSnowflakeSynapse/SharingTest.php
+
+		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Redshift\\\\CreateTableTest\\:\\:syncAsyncData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Redshift/CreateTableTest.php
@@ -3259,6 +3269,21 @@ parameters:
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Redshift\\\\WhereFilterTest\\:\\:conditionProvider\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Redshift/WhereFilterTest.php
+
+		-
+			message: "#^You should always add `\\$this\\-\\>fail\\(\\)` as a last statement in try/catch block\\.$#"
+			count: 1
+			path: tests/Backend/SOX/BranchStorageTest.php
+
+		-
+			message: "#^You should always add `\\$this\\-\\>fail\\(\\)` as a last statement in try/catch block\\.$#"
+			count: 1
+			path: tests/Backend/SOX/SOXTokensTest.php
+
+		-
+			message: "#^You should always add `\\$this\\-\\>fail\\(\\)` as a last statement in try/catch block\\.$#"
+			count: 1
+			path: tests/Backend/SOX/SOXWorkspaceTest.php
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\CloneIntoWorkspaceTest\\:\\:aliasSettingsProvider\\(\\) has no return type specified\\.$#"
