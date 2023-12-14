@@ -5,7 +5,7 @@ namespace Keboola\Test\Common;
 
 use Keboola\Test\StorageApiTestCase;
 
-use \Keboola\StorageApi\Options\FileUploadOptions;
+use Keboola\StorageApi\Options\FileUploadOptions;
 
 class FilesLegacyFormUploadsTest extends StorageApiTestCase
 {

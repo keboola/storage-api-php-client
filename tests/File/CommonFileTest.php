@@ -12,8 +12,8 @@ use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\StorageApiTestCase;
-use \Keboola\StorageApi\Options\FileUploadOptions;
-use \Keboola\StorageApi\Options\ListFilesOptions;
+use Keboola\StorageApi\Options\FileUploadOptions;
+use Keboola\StorageApi\Options\ListFilesOptions;
 use Symfony\Component\Filesystem\Filesystem;
 
 class CommonFileTest extends StorageApiTestCase
