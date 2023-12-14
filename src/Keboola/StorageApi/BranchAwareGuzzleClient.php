@@ -2,7 +2,7 @@
 
 namespace Keboola\StorageApi;
 
-use \GuzzleHttp\Client;
+use GuzzleHttp\Client;
 use GuzzleHttp\ClientTrait;
 use GuzzleHttp\Promise\PromiseInterface;
 use Psr\Http\Message\ResponseInterface;

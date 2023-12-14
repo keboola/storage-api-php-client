@@ -4,7 +4,7 @@ namespace Keboola\Test\Common;
 use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\Test\StorageApiTestCase;
-use \Keboola\StorageApi\Options\FileUploadOptions;
+use Keboola\StorageApi\Options\FileUploadOptions;
 
 class SlicedFilesUploadTest extends StorageApiTestCase
 {

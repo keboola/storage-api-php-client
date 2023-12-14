@@ -28,7 +28,6 @@
         <exclude name="SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedEqualOperator" />
         <exclude name="SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedNotEqualOperator" />
         <exclude name="SlevomatCodingStandard.ControlStructures.DisallowYodaComparison.DisallowedYodaComparison" />
-        <exclude name="SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash.UseStartsWithBackslash" />
         <exclude name="SlevomatCodingStandard.Exceptions.ReferenceThrowableOnly.ReferencedGeneralException" />
         <exclude name="PSR2.Classes.PropertyDeclaration.Underscore" /> <!-- Too much hassle and changes -->
         <exclude name="PSR2.Methods.MethodDeclaration.Underscore" /> <!-- Too much hassle and changes -->
