@@ -29,7 +29,7 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
             [
                 'backend' => $backend,
             ],
-            true
+            true,
         );
         $this->assertEquals($backend, $workspace['connection']['backend']);
 
@@ -56,7 +56,7 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
         $sourceTableId = $this->_client->createTableAsync(
             $bucketId,
             'transactions',
-            new CsvFile(__DIR__ . '/../../../_data/transactions.csv')
+            new CsvFile(__DIR__ . '/../../../_data/transactions.csv'),
         );
 
         $workspaces = new Workspaces($this->_client);
@@ -65,7 +65,7 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
             [
                 'backend' => $workspaceBackend,
             ],
-            true
+            true,
         );
 
         $options = [
@@ -103,7 +103,7 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
         $sourceTableId = $this->_client->createTableAsync(
             $bucketId,
             'transactions',
-            new CsvFile(__DIR__ . '/../../../_data/transactions-nullify.csv')
+            new CsvFile(__DIR__ . '/../../../_data/transactions-nullify.csv'),
         );
 
         $workspaces = new Workspaces($this->_client);
@@ -112,7 +112,7 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
             [
                 'backend' => $workspaceBackend,
             ],
-            true
+            true,
         );
 
         $dataType = $workspaceBackend === self::BACKEND_SNOWFLAKE ? 'NUMBER' : 'INTEGER';

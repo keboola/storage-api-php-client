@@ -42,12 +42,12 @@ class PullTableTest extends StorageApiTestCase
             $this->getTestBucketName($description),
             self::STAGE_IN,
             $description,
-            $privilegedClient
+            $privilegedClient,
         );
         $productionTableId = $privilegedClient->createTableAsync(
             $productionBucketId,
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
         $productionTable = $privilegedClient->getTable($productionTableId);
         $metadata = new Metadata($privilegedClient);
@@ -68,8 +68,8 @@ class PullTableTest extends StorageApiTestCase
                             'value' => 'testvalCol',
                         ],
                     ],
-                ]
-            )
+                ],
+            ),
         );
 
         $branchClient = $this->getBranchAwareClient($newBranch['id'], [
@@ -143,8 +143,8 @@ class PullTableTest extends StorageApiTestCase
                             'value' => 'testvalCol2',
                         ],
                     ],
-                ]
-            )
+                ],
+            ),
         );
 
         $this->initEvents($branchClient);
@@ -213,7 +213,7 @@ class PullTableTest extends StorageApiTestCase
             $this->getTestBucketName($description),
             self::STAGE_IN,
             $description,
-            $privilegedClient
+            $privilegedClient,
         );
         $stringType = 'VARCHAR';
         if ($backend === self::BACKEND_BIGQUERY) {
@@ -239,7 +239,7 @@ class PullTableTest extends StorageApiTestCase
                         ],
                     ],
                 ],
-            ]
+            ],
         );
         $branchClient = $this->getBranchAwareClient($newBranch['id'], [
             'token' => STORAGE_API_DEVELOPER_TOKEN,

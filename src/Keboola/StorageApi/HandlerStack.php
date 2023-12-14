@@ -29,12 +29,12 @@ final class HandlerStack
         $handlerStack->remove('http_errors');
         $handlerStack->unshift(
             Middleware::httpErrors(new BodySummarizer(self::MAX_HTTP_ERROR_MESSAGE_LENGTH)),
-            'http_errors'
+            'http_errors',
         );
 
         $handlerStack->push(Middleware::retry(
             self::createDefaultDecider(isset($options['backoffMaxTries']) ? $options['backoffMaxTries'] : 0),
-            self::createExponentialDelay()
+            self::createExponentialDelay(),
         ));
         return $handlerStack;
     }

@@ -29,7 +29,7 @@ class OptimizeTest extends StorageApiTestCase
             new CsvFile($importFile),
             [
                 'primaryKey' => 'id',
-            ]
+            ],
         );
 
         $this->_client->apiPostJson("tables/{$tableId}/optimize");

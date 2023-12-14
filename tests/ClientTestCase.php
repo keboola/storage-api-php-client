@@ -26,7 +26,7 @@ class ClientTestCase extends TestCase
     {
         $options['userAgent'] = $this->buildUserAgentString(
             $options['token'],
-            $options['url']
+            $options['url'],
         );
         if (!array_key_exists('logger', $options)) {
             $options['logger'] = $this->getLogger();
@@ -41,7 +41,7 @@ class ClientTestCase extends TestCase
     {
         $options['userAgent'] = $this->buildUserAgentString(
             $options['token'],
-            $options['url']
+            $options['url'],
         );
         return new BranchAwareClient($branchId, $options);
     }
@@ -83,7 +83,7 @@ class ClientTestCase extends TestCase
                 'X-StorageApi-Token' => $client->getTokenString(),
                 'User-agent' => $this->buildUserAgentString(
                     $client->getTokenString(),
-                    $client->getApiUrl()
+                    $client->getApiUrl(),
                 ),
             ],
         ]);
@@ -163,7 +163,7 @@ class ClientTestCase extends TestCase
             $tokenAgentString = sprintf(
                 'Project: %s, Token: %s, ',
                 $tokenParts[0],
-                $tokenParts[1]
+                $tokenParts[1],
             );
         }
         return sprintf(
@@ -172,7 +172,7 @@ class ClientTestCase extends TestCase
             $testSuiteName,
             $url,
             $tokenAgentString,
-            $this->getTestName()
+            $this->getTestName(),
         );
     }
 

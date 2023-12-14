@@ -39,7 +39,7 @@ class PromiseHelper
         throw new ClientException(
             $message,
             $exceptions[0]->getCode(),
-            $exceptions[0]
+            $exceptions[0],
         );
     }
 }

@@ -34,7 +34,7 @@ class BucketsTest extends StorageApiTestCase
         [$this->_client, $this->_testClient] = (new TestSetupHelper())->setUpForProtectedDevBranch(
             $this->clientProvider,
             $devBranchType,
-            $userRole
+            $userRole,
         );
 
         if ($devBranchType === ClientProvider::DEV_BRANCH) {
@@ -129,7 +129,7 @@ class BucketsTest extends StorageApiTestCase
                 'value' => 'test-value',
                 'provider' => 'storage-php-client-test',
             ],
-            $bucket['metadata'][0]
+            $bucket['metadata'][0],
         );
 
         $asyncBucketDisplayName = $displayName . '-async';

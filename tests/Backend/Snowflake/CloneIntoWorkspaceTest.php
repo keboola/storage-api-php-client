@@ -31,7 +31,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $sourceTableId = $this->createTableFromFile(
             $this->_client,
             $bucketId,
-            self::IMPORT_FILE_PATH
+            self::IMPORT_FILE_PATH,
         );
 
         $sourceTableId = $this->createTableAliasChain($sourceTableId, $aliasNestingLevel, 'languages');
@@ -105,8 +105,8 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
                     'name' => $column['name'],
                     'type' => $column['type'],
                 ],
-                $workspaceTableColumns
-            )
+                $workspaceTableColumns,
+            ),
         );
 
         $workspaceTableData = $backend->fetchAll('languagesDetails');
@@ -125,7 +125,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
                     'dataObject' => 'languagesDetails',
                     'columns' => ['id', 'name'],
                     'incremental' => true,
-                ]
+                ],
             );
         }
 
@@ -156,8 +156,8 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
                     'name' => $column['name'],
                     'type' => $column['type'],
                 ],
-                $workspaceTableColumns
-            )
+                $workspaceTableColumns,
+            ),
         );
     }
 
@@ -182,13 +182,13 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $table1Id = $this->_client->createTableAsync(
             $bucketId,
             'languages',
-            new CsvFile(self::IMPORT_FILE_PATH)
+            new CsvFile(self::IMPORT_FILE_PATH),
         );
 
         $table2Id = $this->_client->createTableAsync(
             $bucketId,
             'rates',
-            new CsvFile(__DIR__ . '/../../_data/rates.csv')
+            new CsvFile(__DIR__ . '/../../_data/rates.csv'),
         );
 
         $workspacesClient = new Workspaces($this->_client);
@@ -235,14 +235,14 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $sourceTableId = $this->createTableFromFile(
             $this->_client,
             $sourceBucketId,
-            self::IMPORT_FILE_PATH
+            self::IMPORT_FILE_PATH,
         );
 
         $aliasTableId = $this->_client->createAliasTable(
             $sourceBucketId,
             $sourceTableId,
             'aliased',
-            $aliasSettings
+            $aliasSettings,
         );
 
         $workspacesClient = new Workspaces($this->_client);
@@ -265,7 +265,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $sourceTableId = $this->createTableFromFile(
             $this->_client,
             $sourceBucketId,
-            self::IMPORT_FILE_PATH
+            self::IMPORT_FILE_PATH,
         );
 
         $workspacesClient = new Workspaces($this->_client);
@@ -302,7 +302,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $sourceTableId = $this->createTableFromFile(
             $this->_client,
             $sourceBucketId,
-            self::IMPORT_FILE_PATH
+            self::IMPORT_FILE_PATH,
         );
 
         $workspacesClient = new Workspaces($this->_client);
@@ -336,7 +336,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
                 'languages-2',
                 'languagesDetails',
             ],
-            $backendTables
+            $backendTables,
         );
     }
 
@@ -346,13 +346,13 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $workspace = $workspaces->createWorkspace([], true);
 
         $client2 = $this->getClientForToken(
-            STORAGE_API_LINKING_TOKEN
+            STORAGE_API_LINKING_TOKEN,
         );
 
         $tableId = $this->createTableFromFile(
             $this->_client,
             $this->getTestBucketId(self::STAGE_IN),
-            self::IMPORT_FILE_PATH
+            self::IMPORT_FILE_PATH,
         );
 
         $this->dropBucketIfExists($this->_client, 'out.c-linked-bucket', true);
@@ -365,7 +365,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             $bucket,
             __DIR__ . '/../../_data/languages.more-rows.csv',
             'id',
-            'languagesDetails2'
+            'languagesDetails2',
         );
 
         $client2->shareBucket($bucket);
@@ -375,7 +375,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             'linked-bucket',
             'out',
             $sourceProjectId,
-            $bucket
+            $bucket,
         );
 
         // first load
@@ -388,7 +388,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
                         'destination' => 'Langs',
                     ],
                 ],
-            ]
+            ],
         );
 
         $backend = new SnowflakeWorkspaceBackend($workspace);
@@ -407,7 +407,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
                         ],
                     ],
                     'preserve' => true,
-                ]
+                ],
             );
             $this->fail('table should not be created');
         } catch (ClientException $e) {
@@ -462,7 +462,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
             $this->assertEquals(
                 'Argument "input" is expected to be type "array", value "this is not array" given.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }
@@ -494,7 +494,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         $table1Id = $this->_client->createTableAsync(
             $bucketId,
             'languages',
-            new CsvFile(self::IMPORT_FILE_PATH)
+            new CsvFile(self::IMPORT_FILE_PATH),
         );
 
         $workspacesClient = new Workspaces($this->_client);
@@ -537,7 +537,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             $bucketId,
             $tableName,
             new CsvFile($importFilePath),
-            ['primaryKey' => $primaryKey]
+            ['primaryKey' => $primaryKey],
         );
     }
 
@@ -548,7 +548,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             $sourceTableId  = $this->_client->createAliasTable(
                 $this->getTestBucketId(self::STAGE_OUT),
                 $sourceTableId,
-                sprintf('%s-%s', $aliasNamePrefix, $i)
+                sprintf('%s-%s', $aliasNamePrefix, $i),
             );
             $i++;
         }

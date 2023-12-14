@@ -85,7 +85,7 @@ trait TableWithConfigurationUtils
             $json,
             true,
             512,
-            JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT
+            JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT,
         );
 
         $queriesOverride = [];
@@ -116,7 +116,7 @@ trait TableWithConfigurationUtils
         $configurationOptions = (new TableWithConfigurationOptions($tableName, $this->configId));
         $tableId = $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
-            $configurationOptions
+            $configurationOptions,
         );
         $this->initEvents($this->_client);
         return $tableId;
@@ -150,7 +150,7 @@ trait TableWithConfigurationUtils
         if ($token['owner']['defaultBackend'] !== self::BACKEND_SYNAPSE) {
             self::markTestSkipped(sprintf(
                 'Backend "%s" is not supported tables with configuration',
-                $token['owner']['defaultBackend']
+                $token['owner']['defaultBackend'],
             ));
         }
     }

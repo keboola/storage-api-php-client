@@ -26,7 +26,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languagesDetails',
             new CsvFile($importFile),
-            ['primaryKey' => 'Id']
+            ['primaryKey' => 'Id'],
         );
 
         // first load
@@ -54,7 +54,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         ];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            $options
+            $options,
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(2, $backend->countRows('languagesDetails'));
@@ -99,7 +99,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         ];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            $options
+            $options,
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(5, $backend->countRows('languagesDetails'));
@@ -143,7 +143,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages_dotted',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         $options = [
@@ -169,7 +169,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
 
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            $options
+            $options,
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
@@ -198,7 +198,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         // first load
@@ -224,7 +224,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         ];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            $options
+            $options,
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(5, $backend->countRows('languages'));
@@ -260,7 +260,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         ];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            $options
+            $options,
         );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
@@ -282,7 +282,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         // first load
@@ -308,7 +308,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         ];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            $options
+            $options,
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         $this->assertEquals(5, $backend->countRows('languages'));
@@ -334,7 +334,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         ];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            $options
+            $options,
         );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
@@ -359,7 +359,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             $table,
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         // first load
@@ -374,7 +374,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         ];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            $options
+            $options,
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
@@ -391,7 +391,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         ];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            $options
+            $options,
         );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
@@ -416,7 +416,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         $options = ['input' => [
@@ -428,7 +428,7 @@ class WorkspacesRenameLoadTest extends ParallelWorkspacesTestCase
         ]];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            $options
+            $options,
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 

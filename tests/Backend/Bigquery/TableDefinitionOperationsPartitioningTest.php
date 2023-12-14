@@ -49,7 +49,7 @@ class TableDefinitionOperationsPartitioningTest extends ParallelWorkspacesTestCa
 
         return $this->_client->createTableDefinition(
             $bucketId,
-            array_merge($data, $extend)
+            array_merge($data, $extend),
         );
     }
 
@@ -126,9 +126,9 @@ class TableDefinitionOperationsPartitioningTest extends ParallelWorkspacesTestCa
                         // todo: expected one partition https://keboola.atlassian.net/browse/BIG-186
                         // same apply for partitions after snapshot restore
                     ],
-                ]
+                ],
             ),
-            $tableResponse['definition']
+            $tableResponse['definition'],
         );
 
         // test snapshots
@@ -217,7 +217,7 @@ class TableDefinitionOperationsPartitioningTest extends ParallelWorkspacesTestCa
             $this->assertSame('storage.tables.validation', $e->getStringCode());
             $this->assertMatchesRegularExpression(
                 '/Failed to create table "my_new_table" in dataset ".*"\. Exception: The field specified for clustering cannot be found in the schema\..*/',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }

@@ -31,7 +31,7 @@ class CommonFileTest extends StorageApiTestCase
         [$this->_client, $this->_testClient] = (new TestSetupHelper())->setUpForProtectedDevBranch(
             $this->clientProvider,
             $devBranchType,
-            $userRole
+            $userRole,
         );
 
         if ($devBranchType === ClientProvider::DEV_BRANCH) {
@@ -350,7 +350,7 @@ class CommonFileTest extends StorageApiTestCase
 
         $this->assertSame(
             file_get_contents($sourceFilePath),
-            file_get_contents($tmpDestination)
+            file_get_contents($tmpDestination),
         );
     }
 
@@ -447,7 +447,7 @@ class CommonFileTest extends StorageApiTestCase
         $this->expectExceptionMessage(sprintf(
             'Cannot download file "testing_file_name" (ID %s) from Storage, '
             . 'please verify the contents of the file and that the file has not expired.',
-            $file['id']
+            $file['id'],
         ));
 
         if (!$isSliced) {

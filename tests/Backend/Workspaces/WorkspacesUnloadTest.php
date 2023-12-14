@@ -150,9 +150,9 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $this->assertEquals(
                 sprintf(
                     'Table "thisTableDoesNotExist" not found in schema "%s"',
-                    $workspace['connection']['schema']
+                    $workspace['connection']['schema'],
                 ),
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -168,9 +168,9 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $this->assertEquals(
                 sprintf(
                     'Table "thisTableDoesNotExist" not found in schema "%s"',
-                    $workspace['connection']['schema']
+                    $workspace['connection']['schema'],
                 ),
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }

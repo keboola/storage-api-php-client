@@ -24,7 +24,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $bucketId,
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         // test loading alias in IM not supported
@@ -47,7 +47,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             $this->assertSame('workspace.loadRequestLogicalException', $e->getStringCode());
             $this->assertSame(
                 'View load is not supported, only table can be loaded using views, alias of table supplied. Use read-only storage instead or copy input mapping if supported.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
         // drop alias as source table is modified later
@@ -82,7 +82,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $bucketId,
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
@@ -138,7 +138,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         } catch (ClientException $e) {
             self::assertSame(
                 'Incremental load for table "languages" can\'t be used when using view.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -146,7 +146,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->_client->writeTableAsync(
             $tableId,
             new CsvFile($importFile),
-            ['incremental' => true]
+            ['incremental' => true],
         );
         // test view is still working
         self::assertCount(10, $backend->fetchAll('languages'));
@@ -171,7 +171,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         $table->reload();
         $this->assertSame(
             $expectedColumns,
-            array_map(fn(array $i) => $i['name'], $table->info()['schema']['fields'])
+            array_map(fn(array $i) => $i['name'], $table->info()['schema']['fields']),
         );
     }
 }

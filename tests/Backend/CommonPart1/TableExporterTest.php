@@ -45,7 +45,7 @@ class TableExporterTest extends StorageApiTestCase
             $this->markTestSkipped(sprintf(
                 'Backend "%s" is not supported in this test case (%s are allowed)',
                 $defaultBackend,
-                implode(', ', $supportedBackends)
+                implode(', ', $supportedBackends),
             ));
         }
 

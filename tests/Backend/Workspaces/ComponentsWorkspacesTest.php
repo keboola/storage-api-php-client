@@ -62,7 +62,7 @@ class ComponentsWorkspacesTest extends WorkspacesTestCase
         if ($async === false) {
             $this->allowTestForBackendsOnly(
                 [self::BACKEND_SNOWFLAKE],
-                'Test sync actions only on Snowflake'
+                'Test sync actions only on Snowflake',
             );
         }
         $componentId = 'wr-db';
@@ -118,7 +118,7 @@ class ComponentsWorkspacesTest extends WorkspacesTestCase
         }, $components->listConfigurationWorkspaces(
             (new ListConfigurationWorkspacesOptions())
             ->setComponentId($componentId)
-            ->setConfigurationId($configurationId)
+            ->setConfigurationId($configurationId),
         ));
 
         $this->assertCount(2, $componentWorkspacesIds);

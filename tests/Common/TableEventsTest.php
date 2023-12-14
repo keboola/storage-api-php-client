@@ -22,7 +22,7 @@ class TableEventsTest extends StorageApiTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
         // wait for events to be created
         $this->createAndWaitForEvent((new Event())
@@ -32,7 +32,7 @@ class TableEventsTest extends StorageApiTestCase
             $tableId,
             [
                 'sinceId' => $this->lastEventId,
-            ]
+            ],
         );
         $this->assertCount(3, $events);
     }

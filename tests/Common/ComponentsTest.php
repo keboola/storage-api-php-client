@@ -108,7 +108,7 @@ class ComponentsTest extends StorageApiTestCase
                     'key' => 'include',
                     'message' => 'Invalid include parameters: "invalid". Only following are allowed: configuration, rows, state.',
                 ],
-                $error
+                $error,
             );
         }
 
@@ -127,7 +127,7 @@ class ComponentsTest extends StorageApiTestCase
             (new ConfigurationRow($configuration))
                 ->setRowId('firstRow')
                 ->setState(['rowStateValue' => 'some-value'])
-                ->setConfiguration(['value' => 2])
+                ->setConfiguration(['value' => 2]),
         );
 
         // list components without include
@@ -230,11 +230,11 @@ class ComponentsTest extends StorageApiTestCase
             ->setDescription('some desc for renew'));
 
         $this->assertCount(0, $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true)
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId)->setIsDeleted(true),
         ));
 
         $componentList = $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId),
         );
         $this->assertCount(1, $componentList);
 
@@ -382,7 +382,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $this->assertCount(1, $components->listConfigurationRows(
             (new ListConfigurationRowsOptions())->setComponentId($componentId)
-                ->setConfigurationId($config->getConfigurationId())
+                ->setConfigurationId($config->getConfigurationId()),
         ));
 
         $componentList = $components->listComponentConfigurations($listConfigOptions);
@@ -442,7 +442,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertCount(0, $components->listComponentConfigurations($listConfigOptionsDeleted));
         $this->assertCount(0, $components->listConfigurationRows(
             (new ListConfigurationRowsOptions())->setComponentId($componentId)
-                ->setConfigurationId($configurationRestored->getConfigurationId())
+                ->setConfigurationId($configurationRestored->getConfigurationId()),
         ));
 
         $configuration = $components->getConfiguration($componentId, 'main-1');
@@ -1285,7 +1285,7 @@ class ComponentsTest extends StorageApiTestCase
         $componentsApi->updateConfiguration($configuration);
         $configuration2 = $componentsApi->getConfiguration(
             $configuration->getComponentId(),
-            $configuration->getConfigurationId()
+            $configuration->getConfigurationId(),
         );
 
         $configuration = (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
@@ -1314,15 +1314,15 @@ class ComponentsTest extends StorageApiTestCase
 
         $this->assertSame(
             $configuration2['currentVersion']['changeDescription'],
-            $latestConfigurationVersion['changeDescription']
+            $latestConfigurationVersion['changeDescription'],
         );
         $this->assertSame(
             $configuration2['currentVersion']['creatorToken'],
-            $latestConfigurationVersion['creatorToken']
+            $latestConfigurationVersion['creatorToken'],
         );
         $this->assertSame(
             $configuration2['currentVersion']['created'],
-            $latestConfigurationVersion['created']
+            $latestConfigurationVersion['created'],
         );
 
         $configuration = (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
@@ -1443,7 +1443,7 @@ class ComponentsTest extends StorageApiTestCase
                 'created',
                 'changeDescription',
                 'versionIdentifier',
-            ]
+            ],
         );
         $this->assertArrayEqualsExceptKeys($configurationV2, $rollbackedConfiguration, [
             'version',
@@ -1458,7 +1458,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(3, $rollbackedRow['version']);
         $this->assertEquals(
             'Rollback to version 1 (via configuration rollback to version 2)',
-            $rollbackedRow['changeDescription']
+            $rollbackedRow['changeDescription'],
         );
         $this->assertArrayEqualsExceptKeys($configurationRow1, $rollbackedRow, [
             'version',
@@ -1497,7 +1497,7 @@ class ComponentsTest extends StorageApiTestCase
                 'created',
                 'changeDescription',
                 'versionIdentifier',
-            ]
+            ],
         );
         $this->assertArrayEqualsExceptKeys($configurationV5, $rollbackedConfiguration, [
             'version',
@@ -2312,7 +2312,7 @@ class ComponentsTest extends StorageApiTestCase
             (new ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
-                ->setRowId($configurationRow->getRowId())
+                ->setRowId($configurationRow->getRowId()),
         );
         $this->assertCount(1, $rows);
         $this->assertSame(1, $rows[0]['version']);
@@ -2465,14 +2465,14 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals($configurationChangeDescription, $row['changeDescription']);
         $this->assertEquals(
             $configurationChangeDescription,
-            $configurationAssociatedWithUpdatedRow['changeDescription']
+            $configurationAssociatedWithUpdatedRow['changeDescription'],
         );
 
         $version = $components->getConfigurationRowVersion(
             $configurationRow->getComponentConfiguration()->getComponentId(),
             $configurationRow->getComponentConfiguration()->getConfigurationId(),
             $configurationRow->getRowId(),
-            2
+            2,
         );
 
         $this->assertArrayHasKey('changeDescription', $version);
@@ -2484,13 +2484,13 @@ class ComponentsTest extends StorageApiTestCase
         $components->updateConfigurationRow(
             $configurationRow
                 ->setName('Renamed Main 1')
-                ->setChangeDescription(null)
+                ->setChangeDescription(null),
         );
 
         $updatedRow = $components->getConfigurationRow(
             'wr-db',
             'main-1',
-            'main-1-1'
+            'main-1-1',
         );
         $configurationAssociatedWithUpdatedRow = $newComponents->getConfiguration('wr-db', 'main-1');
 
@@ -2541,8 +2541,8 @@ class ComponentsTest extends StorageApiTestCase
             $components->getConfigurationRow(
                 $rowState->getComponentConfiguration()->getComponentId(),
                 $rowState->getComponentConfiguration()->getConfigurationId(),
-                $rowState->getRowId()
-            )
+                $rowState->getRowId(),
+            ),
         );
 
         $branchPrefix = '';
@@ -2599,8 +2599,8 @@ class ComponentsTest extends StorageApiTestCase
             $components->getConfigurationRow(
                 $rowState->getComponentConfiguration()->getComponentId(),
                 $rowState->getComponentConfiguration()->getConfigurationId(),
-                $rowState->getRowId()
-            )
+                $rowState->getRowId(),
+            ),
         );
     }
 
@@ -2676,7 +2676,7 @@ class ComponentsTest extends StorageApiTestCase
         $components->deleteConfigurationRow(
             $configurationRow->getComponentConfiguration()->getComponentId(),
             $configurationRow->getComponentConfiguration()->getConfigurationId(),
-            $configurationRow->getRowId()
+            $configurationRow->getRowId(),
         );
 
         $components = new \Keboola\StorageApi\Components($this->client);
@@ -2749,7 +2749,7 @@ class ComponentsTest extends StorageApiTestCase
         $rows = $componentsApi->listConfigurationRows(
             (new ListConfigurationRowsOptions())
                 ->setComponentId('wr-db')
-                ->setConfigurationId('main-1')
+                ->setConfigurationId('main-1'),
         );
 
         $this->assertCount(1, $rows);
@@ -2763,7 +2763,7 @@ class ComponentsTest extends StorageApiTestCase
             (new ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
-                ->setRowId($configurationRow->getRowId())
+                ->setRowId($configurationRow->getRowId()),
         );
 
         $this->assertCount(2, $versions);
@@ -2783,7 +2783,7 @@ class ComponentsTest extends StorageApiTestCase
                 ->setRowId($configurationRow->getRowId())
                 // intentionally added "state" that is not supported
                 // it should be silently dropped
-                ->setInclude(['configuration', 'state'])
+                ->setInclude(['configuration', 'state']),
         );
 
         $this->assertCount(2, $versionsWithConfiguration);
@@ -2801,7 +2801,7 @@ class ComponentsTest extends StorageApiTestCase
                 'wr-db',
                 'main-1',
                 $configurationRow->getRowId(),
-                $version['version']
+                $version['version'],
             );
 
             $this->assertEquals($rowVersion, $version);
@@ -2814,7 +2814,7 @@ class ComponentsTest extends StorageApiTestCase
                 ->setRowId($configurationRow->getRowId())
                 ->setInclude(['configuration'])
                 ->setLimit(1)
-                ->setOffset(1)
+                ->setOffset(1),
         );
 
         $this->assertCount(1, $versionsWithLimitAndOffset);
@@ -2823,7 +2823,7 @@ class ComponentsTest extends StorageApiTestCase
             'wr-db',
             'main-1',
             $configurationRow->getRowId(),
-            1
+            1,
         );
         $this->assertEquals($rowVersion, $versionsWithLimitAndOffset[0]);
     }
@@ -2876,14 +2876,14 @@ class ComponentsTest extends StorageApiTestCase
             'wr-db',
             'main-1',
             $configurationRowV1->getRowId(),
-            2
+            2,
         );
 
         $this->assertEquals(4, $configurationRowV4['version'], 'Rollback creates new version of the configuration');
         $this->assertEquals(
             'Rollback to version 2',
             $configurationRowV4['changeDescription'],
-            'Rollback creates automatic description'
+            'Rollback creates automatic description',
         );
         $this->assertArrayEqualsExceptKeys($configurationRowV2, $configurationRowV4, [
             'version',
@@ -2894,13 +2894,13 @@ class ComponentsTest extends StorageApiTestCase
         $configurationRowV4 = $componentsApi->getConfigurationRow(
             'wr-db',
             'main-1',
-            $configurationRowV1->getRowId()
+            $configurationRowV1->getRowId(),
         );
         $this->assertEquals(4, $configurationRowV4['version'], 'Rollback creates new version of the configuration');
         $this->assertEquals(
             'Rollback to version 2',
             $configurationRowV4['changeDescription'],
-            'Rollback creates automatic description'
+            'Rollback creates automatic description',
         );
         $this->assertArrayEqualsExceptKeys($configurationRowV2, $configurationRowV4, [
             'version',
@@ -2912,7 +2912,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(
             'Row main-1-1 version 2 rollback',
             $configuration['changeDescription'],
-            'Rollback creates automatic description'
+            'Rollback creates automatic description',
         );
 
         // rollback to version 3
@@ -2921,7 +2921,7 @@ class ComponentsTest extends StorageApiTestCase
             'main-1',
             $configurationRowV1->getRowId(),
             3,
-            'Custom rollback message'
+            'Custom rollback message',
         );
 
         $this->assertEquals(5, $configurationRowV5['version'], 'Rollback creates new version of the row');
@@ -2933,14 +2933,14 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals(
             'Custom rollback message',
             $configuration['changeDescription'],
-            'Rollback creates automatic description'
+            'Rollback creates automatic description',
         );
 
         $versions = $componentsApi->listConfigurationRowVersions(
             (new ListConfigurationRowVersionsOptions())
                 ->setComponentId('wr-db')
                 ->setConfigurationId('main-1')
-                ->setRowId($configurationRowV1->getRowId())
+                ->setRowId($configurationRowV1->getRowId()),
         );
 
         $this->assertCount(5, $versions);
@@ -2984,7 +2984,7 @@ class ComponentsTest extends StorageApiTestCase
             $configuration->getComponentId(),
             $configuration->getConfigurationId(),
             'main-1-1',
-            1
+            1,
         );
 
         $this->assertArrayHasKey('id', $row);
@@ -3009,7 +3009,7 @@ class ComponentsTest extends StorageApiTestCase
             $configuration->getConfigurationId(),
             'main-1-1',
             1,
-            $configuration2->getConfigurationId()
+            $configuration2->getConfigurationId(),
         );
 
         $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
@@ -3073,7 +3073,7 @@ class ComponentsTest extends StorageApiTestCase
             $configuration->getComponentId(),
             $configuration->getConfigurationId(),
             101,
-            1
+            1,
         );
 
         $this->assertArrayHasKey('id', $row);
@@ -3098,7 +3098,7 @@ class ComponentsTest extends StorageApiTestCase
             $configuration->getConfigurationId(),
             101,
             1,
-            $configuration2->getConfigurationId() // use numeric id
+            $configuration2->getConfigurationId(), // use numeric id
         );
 
         $rows = $components->listConfigurationRows((new ListConfigurationRowsOptions())
@@ -3134,7 +3134,7 @@ class ComponentsTest extends StorageApiTestCase
         $components = new \Keboola\StorageApi\Components($this->client);
 
         $configs = $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId('transformation')
+            (new ListComponentConfigurationsOptions())->setComponentId('transformation'),
         );
         $this->assertEmpty($configs);
 
@@ -3148,7 +3148,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setName('Main 2'));
 
         $configs = $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId('transformation')
+            (new ListComponentConfigurationsOptions())->setComponentId('transformation'),
         );
         $this->assertCount(2, $configs);
     }
@@ -3161,7 +3161,7 @@ class ComponentsTest extends StorageApiTestCase
         $components = new \Keboola\StorageApi\Components($this->client);
 
         $configs = $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId('transformation')
+            (new ListComponentConfigurationsOptions())->setComponentId('transformation'),
         );
         $this->assertEmpty($configs);
 
@@ -3179,7 +3179,7 @@ class ComponentsTest extends StorageApiTestCase
             ->setRowId('row1')
             ->setConfiguration($configData2));
         $configs = $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId('transformation')
+            (new ListComponentConfigurationsOptions())->setComponentId('transformation'),
         );
         $this->assertCount(1, $configs);
         $this->assertEquals($configData1, $configs[0]['configuration']);
@@ -3424,7 +3424,7 @@ class ComponentsTest extends StorageApiTestCase
             'wr-db',
             $config->getConfigurationId(),
             2,
-            'test'
+            'test',
         );
         $response = $componentsApi->getConfiguration('wr-db', $copiedConfig['id']);
         $this->assertSame('test', $response['name']);
@@ -3436,7 +3436,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('', $response['rows'][0]['description']);
         $this->assertEquals(
             'Copied from configuration "name" (main-1) version 2',
-            $response['rows'][0]['changeDescription']
+            $response['rows'][0]['changeDescription'],
         );
         $this->assertEquals(false, $response['rows'][0]['isDisabled']);
 
@@ -3447,7 +3447,7 @@ class ComponentsTest extends StorageApiTestCase
             4,
             'test',
             'some description',
-            'some change description'
+            'some change description',
         );
         $response = $componentsApi->getConfiguration('wr-db', $copiedConfig['id']);
         $this->assertSame('test', $response['name']);
@@ -3460,7 +3460,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('first description', $response['rows'][0]['description']);
         $this->assertEquals(
             'Copied from configuration "name" (main-1) version 4',
-            $response['rows'][0]['changeDescription']
+            $response['rows'][0]['changeDescription'],
         );
         $this->assertEquals(true, $response['rows'][0]['isDisabled']);
 
@@ -3468,7 +3468,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertEquals('second description', $response['rows'][1]['description']);
         $this->assertEquals(
             'Copied from configuration "name" (main-1) version 4',
-            $response['rows'][1]['changeDescription']
+            $response['rows'][1]['changeDescription'],
         );
     }
 

@@ -84,7 +84,7 @@ class ConfigurationRowTest extends StorageApiTestCase
             'wr-db',
             $config2->getConfigurationId(),
             2,
-            'copy-main'
+            'copy-main',
         );
         $response = $components->getConfiguration('wr-db', $copiedConfig['id']);
 
@@ -115,7 +115,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         $row = $components->getConfigurationRow(
             'wr-db',
             'main-1',
-            'main-1-2'
+            'main-1-2',
         );
 
         $this->assertEquals('main-1-2', $row['id']);
@@ -161,7 +161,7 @@ class ConfigurationRowTest extends StorageApiTestCase
         $components->getConfigurationRow(
             'wr-db',
             'main-1',
-            'invalidRowID'
+            'invalidRowID',
         );
     }
 

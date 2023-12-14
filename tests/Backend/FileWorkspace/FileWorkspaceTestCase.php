@@ -38,7 +38,7 @@ class FileWorkspaceTestCase extends WorkspacesTestCase
             [
                 'backend' => $backendType,
             ],
-            true
+            true,
         );
     }
 }

@@ -58,7 +58,7 @@ class TableWithConfigurationLoadTest extends StorageApiTestCase
                 ->setNotify(false)
                 ->setIsPublic(false)
                 ->setCompress(true)
-                ->setTags(['table-import'])
+                ->setTags(['table-import']),
         );
 
         $this->_client->writeTableAsyncDirect($tableId, [
@@ -198,7 +198,7 @@ JSON;
             $jsonTest,
             true,
             512,
-            JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT
+            JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT,
         )['output'];
 
         /**
@@ -327,7 +327,7 @@ JSON;
             $jsonWithOnError,
             true,
             512,
-            JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT
+            JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT,
         )['output'];
 
         $configuration->setConfiguration([
@@ -439,7 +439,7 @@ JSON;
             __DIR__ . '/../../_data/languages.increment.csv',
             [
                 'incremental' => true,
-            ]
+            ],
         );
 
         $table = $this->_client->getTable($tableId);

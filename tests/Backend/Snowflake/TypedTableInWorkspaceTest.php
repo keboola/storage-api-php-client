@@ -64,7 +64,7 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
         $quotedTableId = sprintf(
             '"%s"."%s"',
             $connection['schema'],
-            $tableId
+            $tableId,
         );
 
         $sql = sprintf(

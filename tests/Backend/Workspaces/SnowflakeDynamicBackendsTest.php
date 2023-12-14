@@ -72,7 +72,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
                 'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
                 'backendSize' => $backendSize,
             ],
-            true
+            true,
         );
 
         $this->assertSame('snowflake', $workspace['connection']['backend']);
@@ -87,21 +87,21 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         $this->_client->createTableAsync(
             $bucketId,
             'languages',
-            new CsvFile(self::SOURCE_DATA_FILE_PATH)
+            new CsvFile(self::SOURCE_DATA_FILE_PATH),
         );
 
         $this->_client->shareBucket(
             $bucketId,
             [
                 'sharing' => 'organization-project',
-            ]
+            ],
         );
 
         $workspace = $this->workspaces2->createWorkspace(
             [
                 'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
             ],
-            true
+            true,
         );
 
         $this->assertNotNull($workspace['backendSize']);
@@ -110,7 +110,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             $this->client2->listSharedBuckets(),
             function ($sharedBucket) use ($bucketId) {
                 return $bucketId === $sharedBucket['id'];
-            }
+            },
         );
 
         $this->assertCount(1, $sharedBuckets);
@@ -120,7 +120,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             $this->getTestBucketName($this->generateDescriptionForTestObject()) . '-linked',
             self::STAGE_IN,
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
         );
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -135,7 +135,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
                         'destination' => self::WORKSPACE_TABLE_NAME,
                     ],
                 ],
-            ]
+            ],
         );
 
         $this->assertDataInWorkspace($backend);
@@ -150,20 +150,20 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             $bucketName,
             self::STAGE_IN,
             $description,
-            $this->client2
+            $this->client2,
         );
 
         $this->client2->createTableAsync(
             $bucketId,
             'languages',
-            new CsvFile(self::SOURCE_DATA_FILE_PATH)
+            new CsvFile(self::SOURCE_DATA_FILE_PATH),
         );
 
         $this->client2->shareBucket(
             $bucketId,
             [
                 'sharing' => 'organization-project',
-            ]
+            ],
         );
 
         $workspace = $this->workspaces->createWorkspace(
@@ -171,7 +171,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
                 'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
                 'backendSize' => 'testsize',
             ],
-            true
+            true,
         );
 
         $this->assertSame('testsize', $workspace['backendSize']);
@@ -180,7 +180,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             $this->_client->listSharedBuckets(),
             function ($sharedBucket) use ($bucketId) {
                 return $bucketId === $sharedBucket['id'];
-            }
+            },
         );
         $this->assertCount(1, $sharedBuckets);
         $sharedBucket = reset($sharedBuckets);
@@ -189,7 +189,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             $bucketName . '-linked',
             self::STAGE_IN,
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
         );
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -204,7 +204,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
                         'destination' => self::WORKSPACE_TABLE_NAME,
                     ],
                 ],
-            ]
+            ],
         );
 
         $this->assertDataInWorkspace($backend);
@@ -221,7 +221,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             $this->assertSame(400, $e->getCode());
             $this->assertMatchesRegularExpression(
                 '/^Invalid backend size: "ultralarge". Allowed values: [a-z\,\ ]+\.$/',
-                $e->getMessage()
+                $e->getMessage(),
             );
             $this->assertSame('workspace.backendNotSupported', $e->getStringCode());
         }
@@ -258,7 +258,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile(self::SOURCE_DATA_FILE_PATH)
+            new CsvFile(self::SOURCE_DATA_FILE_PATH),
         );
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -273,7 +273,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
                         'destination' => self::WORKSPACE_TABLE_NAME,
                     ],
                 ],
-            ]
+            ],
         );
 
         $this->assertDataInWorkspace($backend);
@@ -343,10 +343,10 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         $this->assertArrayHasKey('name', $data[0]);
         $this->assertArrayEqualsSorted(
             Client::parseCsv(
-                file_get_contents(self::SOURCE_DATA_FILE_PATH)
+                file_get_contents(self::SOURCE_DATA_FILE_PATH),
             ),
             $data,
-            'id'
+            'id',
         );
     }
 }

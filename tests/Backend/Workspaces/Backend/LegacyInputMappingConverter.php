@@ -68,7 +68,7 @@ final class LegacyInputMappingConverter
                     function ($column) use ($convert, $backendType) {
                         return $convert($column, $backendType);
                     },
-                    $input['datatypes']
+                    $input['datatypes'],
                 );
             } else {
                 $input['datatypes'] = $convert($input['datatypes'], $backendType);

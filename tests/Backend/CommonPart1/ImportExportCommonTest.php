@@ -242,7 +242,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage(
             'Some columns are missing in the csv file. Missing columns: id,name. '
-            . 'Expected columns: id,name. Please check if the expected delimiter "," is used in the csv file.'
+            . 'Expected columns: id,name. Please check if the expected delimiter "," is used in the csv file.',
         );
 
         $this->_client->writeTableAsync($tableId, new CsvFile(__DIR__ . '/../../_data/languages.camel-case-columns.csv'), ['incremental' => true]);
@@ -480,7 +480,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
         try {
             $this->_client->writeTableAsync($tableId, new CsvFile(__DIR__ . '/../../_data/empty.csv'));
@@ -497,7 +497,7 @@ class ImportExportCommonTest extends StorageApiTestCase
                 $tableId,
                 [
                     'dataFileId' => $fileId,
-                ]
+                ],
             );
             $this->fail('Table should not be imported');
         } catch (ClientException $e) {

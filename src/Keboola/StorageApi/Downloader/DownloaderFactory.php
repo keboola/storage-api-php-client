@@ -37,19 +37,19 @@ class DownloaderFactory
                 return new S3Downloader($s3Client);
             case Client::FILE_PROVIDER_AZURE:
                 $blobClient = BlobClientFactory::createClientFromConnectionString(
-                    $getFileResponse['absCredentials']['SASConnectionString']
+                    $getFileResponse['absCredentials']['SASConnectionString'],
                 );
                 return new AbsDownloader($blobClient);
             case Client::FILE_PROVIDER_GCP:
                 $gcsClient = GcsClientFactory::createClientFromCredentialsArray(
-                    $getFileResponse
+                    $getFileResponse,
                 );
                 return new GcsDownloader($gcsClient);
         }
 
         throw new Exception(sprintf(
             'There is no downloader implemented for "%s" provider.',
-            $getFileResponse['provider']
+            $getFileResponse['provider'],
         ));
     }
 }

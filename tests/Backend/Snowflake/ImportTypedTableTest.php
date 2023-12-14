@@ -43,7 +43,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             $csvFile,
             [
                 'incremental' => false,
-            ]
+            ],
         );
         $workspaces->cloneIntoWorkspace($workspace['id'], [
             'input' => [
@@ -79,7 +79,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             $csvFile,
             [
                 'incremental' => true,
-            ]
+            ],
         );
         // without preserve workspace is cleaned
         $workspaces->cloneIntoWorkspace($workspace['id'], [
@@ -142,7 +142,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             $csvFile,
             [
                 'incremental' => false,
-            ]
+            ],
         );
         $table = $this->_client->getTable($tableId);
 
@@ -154,7 +154,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
     }
 
@@ -282,7 +282,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             $csvFile,
             [
                 'incremental' => false,
-            ]
+            ],
         );
         $table = $this->_client->getTable($tableId);
 
@@ -332,7 +332,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
                     ],
                 ],
             ],
-            $data['rows']
+            $data['rows'],
         );
     }
 
@@ -367,7 +367,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
                 new CsvFile($fullLoadFile),
                 [
                     'incremental' => false,
-                ]
+                ],
             );
             $this->fail('Should throw ClientException');
         } catch (ClientException $e) {
@@ -381,7 +381,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
                 new CsvFile($fullLoadFile),
                 [
                     'incremental' => true,
-                ]
+                ],
             );
             $this->fail('Should throw ClientException');
         } catch (ClientException $e) {
@@ -420,7 +420,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
                 new CsvFile($fullLoadFile),
                 [
                     'incremental' => false,
-                ]
+                ],
             );
             $this->fail('Should throw ClientException');
         } catch (ClientException $e) {
@@ -434,7 +434,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
                 new CsvFile($fullLoadFile),
                 [
                     'incremental' => true,
-                ]
+                ],
             );
             $this->fail('Should throw ClientException');
         } catch (ClientException $e) {

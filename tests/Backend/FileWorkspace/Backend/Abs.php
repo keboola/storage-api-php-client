@@ -81,7 +81,7 @@ class Abs
             $prefix,
             $isCompressed,
             $columns,
-            $isSliced
+            $isSliced,
         );
         $file = new CsvFile($destination);
 
@@ -145,7 +145,7 @@ class Abs
         if ($isSliced) {
             $blob = $client->getBlob(
                 $this->container,
-                $prefix . 'manifest'
+                $prefix . 'manifest',
             );
             $blob = json_decode(stream_get_contents($blob->getContentStream()), true);
             foreach ($blob['entries'] as $entry) {
@@ -155,7 +155,7 @@ class Abs
 
                 $result = $client->getBlob(
                     $container,
-                    $file
+                    $file,
                 );
                 file_put_contents($filePath, $result->getContentStream());
                 $files[] = $filePath;
@@ -168,7 +168,7 @@ class Abs
                 $filePath = $tmpFilePath . '_' . md5(str_replace('/', '_', $blob->getName()));
                 $blobResult = $client->getBlob(
                     $this->container,
-                    $blob->getName()
+                    $blob->getName(),
                 );
                 file_put_contents($filePath, $blobResult->getContentStream());
                 $files[] = $filePath;

@@ -76,7 +76,7 @@ class TriggersTest extends StorageApiTestCase
             [
                 ['tableId' => 'in.c-API-tests.watched-1'],
             ],
-            $trigger['tables']
+            $trigger['tables'],
         );
         $token = $this->_client->verifyToken();
         $this->assertEquals(
@@ -84,7 +84,7 @@ class TriggersTest extends StorageApiTestCase
                 'id' => $token['id'],
                 'description' => $token['description'],
             ],
-            $trigger['creatorToken']
+            $trigger['creatorToken'],
         );
     }
 
@@ -113,7 +113,7 @@ class TriggersTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertEquals(
                 "The 'runByToken' cannot be admin's token when your main token is not admin's",
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }
@@ -153,7 +153,7 @@ class TriggersTest extends StorageApiTestCase
             [
                 ['tableId' => 'in.c-API-tests.watched-1'],
             ],
-            $trigger['tables']
+            $trigger['tables'],
         );
         $token = $clientWithoutAdminToken->verifyToken();
         $this->assertEquals(
@@ -161,7 +161,7 @@ class TriggersTest extends StorageApiTestCase
                 'id' => $token['id'],
                 'description' => $token['description'],
             ],
-            $trigger['creatorToken']
+            $trigger['creatorToken'],
         );
     }
 
@@ -480,7 +480,7 @@ class TriggersTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertEquals(
                 "The 'runByToken' cannot be admin's token when your main token is not admin's",
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -869,7 +869,7 @@ class TriggersTest extends StorageApiTestCase
             [
                 'component' => $componentName,
                 'configurationId' => $trigger1ConfigurationId,
-            ]
+            ],
         );
 
         $this->assertCount(1, $triggers);
@@ -921,7 +921,7 @@ class TriggersTest extends StorageApiTestCase
             $this->assertEquals('storage.tokens.cannotDeleteDueToOrchestration', $e->getStringCode());
             $this->assertEquals(
                 'Cannot delete token, because it\'s used for event trigger inside component "orchestrator" with configuration id "123"',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
         $this->_client->deleteTrigger($trigger['id']);
@@ -934,7 +934,7 @@ class TriggersTest extends StorageApiTestCase
     public function testTokenWithExpiration(): void
     {
         $token = $this->tokens->createToken(
-            (new TokenCreateOptions())->setExpiresIn(5)
+            (new TokenCreateOptions())->setExpiresIn(5),
         );
 
         $this->expectExceptionCode(400);
@@ -960,7 +960,7 @@ class TriggersTest extends StorageApiTestCase
         $table1 = $this->createTableWithRandomData('watched-1');
         $newToken = $this->tokens->createToken(
             (new TokenCreateOptions())
-                ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ)
+                ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ),
         );
 
         $options = [

@@ -23,14 +23,14 @@ class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
         }
 
         $this->linkingClient = $this->getClientForToken(
-            STORAGE_API_LINKING_TOKEN
+            STORAGE_API_LINKING_TOKEN,
         );
 
         $tokenLinking = $this->linkingClient->verifyToken();
         if (!in_array('input-mapping-read-only-storage', $tokenLinking['owner']['features'])) {
             $this->markTestSkipped(sprintf(
                 'Read only mapping is not enabled for project "%s"',
-                $tokenLinking['owner']['id']
+                $tokenLinking['owner']['id'],
             ));
         }
     }
@@ -57,7 +57,7 @@ class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
         $this->_client->createTableAsync(
             $testBucketId,
             'animals',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -77,7 +77,7 @@ class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
                     'odbc_prepare(): SQL error: SQL compilation error:
 Object does not exist, or operation cannot be performed., SQL state 02000 in SQLPrepare',
                     $e->getMessage(),
-                    'Workspace should not have access to storage'
+                    'Workspace should not have access to storage',
                 );
             }
         }
@@ -111,14 +111,14 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         $sharedTableId = $this->linkingClient->createTableAsync(
             $sharedBucket,
             'whales',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         // prepare table in the bucket
         $this->_client->createTableAsync(
             $testBucketId,
             'animals',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         // prepare workspace
@@ -132,7 +132,7 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         $this->_client->createTableAsync(
             $testBucketId,
             'trains',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $backend = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
@@ -152,21 +152,21 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         $db->executeStatement(sprintf(
             'CREATE OR REPLACE TABLE "tableFromAnimals" AS SELECT * FROM %s.%s."animals"',
             $quotedProjectDatabase,
-            $quotedTestBucketId
+            $quotedTestBucketId,
         ));
         $this->assertCount(5, $backend->fetchAll('tableFromAnimals'));
 
         $db->executeStatement(sprintf(
             'CREATE OR REPLACE TABLE "tableFromTrains" AS SELECT * FROM %s.%s."trains"',
             $quotedProjectDatabase,
-            $quotedTestBucketId
+            $quotedTestBucketId,
         ));
         $this->assertCount(5, $backend->fetchAll('tableFromTrains'));
 
         $db->executeStatement(sprintf(
             'CREATE OR REPLACE TABLE "tableFromWhales" AS SELECT * FROM %s.%s."whales"',
             $quotedSharingProjectDatabase,
-            $quotedSharedBucketId
+            $quotedSharedBucketId,
         ));
         $this->assertCount(5, $backend->fetchAll('tableFromWhales'));
 
@@ -214,7 +214,7 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         $sharedTableId = $this->linkingClient->createTableAsync(
             $sharedBucket,
             'whales',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         // prepare workspace
@@ -237,7 +237,7 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
                         'useView' => true,
                     ],
                 ],
-            ]
+            ],
         );
 
         $db = $backend->getDb();
@@ -290,8 +290,8 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
                 sprintf(
                     'SELECT * FROM %s.%s."whales"',
                     $quotedSharingProjectDatabase,
-                    $quotedSharedBucketId
-                )
+                    $quotedSharedBucketId,
+                ),
             );
             $this->fail('should fail');
         } catch (\Exception $e) {
@@ -311,8 +311,8 @@ Schema '%s.%s' does not exist or not authorized.", $sharingProjectDatabase, $quo
         $this->assertCount(
             5,
             $db->fetchAllAssociative(
-                sprintf('SELECT * FROM %s.%s."whales"', $quotedSharingProjectDatabase, $quotedSharedBucketId)
-            )
+                sprintf('SELECT * FROM %s.%s."whales"', $quotedSharingProjectDatabase, $quotedSharedBucketId),
+            ),
         );
     }
 

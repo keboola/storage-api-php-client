@@ -37,7 +37,7 @@ trait TestExportDataProvidersTrait
                 '12:00:00.000',
                 '2023-04-18 12:34:56',
                 0,
-            ]
+            ],
         );
 
         return $csvFile;

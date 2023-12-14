@@ -129,7 +129,7 @@ class MetadataTest extends StorageApiTestCase
         $outBucketTableId = $this->_testClient->createTableAsync(
             $outTestBucketId,
             'test_table',
-            new CsvFile(__DIR__ . '/../_data/users.csv')
+            new CsvFile(__DIR__ . '/../_data/users.csv'),
         );
 
         $outBucketColumnId = $outBucketTableId . '.id';
@@ -144,21 +144,21 @@ class MetadataTest extends StorageApiTestCase
         $metadata = $metadataApi->postBucketMetadata(
             $outTestBucketId,
             'user',
-            $testMetadata
+            $testMetadata,
         );
         $this->assertSame($metadata[0]['value'], 'testValue');
 
         $metadata = $metadataApi->postTableMetadata(
             $outBucketTableId,
             'user',
-            $testMetadata
+            $testMetadata,
         );
         $this->assertSame($metadata[0]['value'], 'testValue');
 
         $metadata = $metadataApi->postColumnMetadata(
             $outBucketColumnId,
             'user',
-            $testMetadata
+            $testMetadata,
         );
         $this->assertSame($metadata[0]['value'], 'testValue');
 
@@ -174,7 +174,7 @@ class MetadataTest extends StorageApiTestCase
         $metadata = $metadataApi->postColumnMetadata(
             $columnId,
             'user',
-            $testMetadata
+            $testMetadata,
         );
 
         $this->assertSame($metadata[0]['value'], 'true');
@@ -188,14 +188,14 @@ class MetadataTest extends StorageApiTestCase
         $metadata = $metadataApi->postColumnMetadata(
             $columnId,
             'transformation',
-            $testMetadata
+            $testMetadata,
         );
         $this->assertSame($metadata[0]['value'], 'true');
         // repeat previous request
         $metadata = $metadataApi->postColumnMetadata(
             $columnId,
             'transformation',
-            $testMetadata
+            $testMetadata,
         );
         // metadata from first request should not change
         $this->assertSame($metadata[0]['value'], 'true');
@@ -249,7 +249,7 @@ class MetadataTest extends StorageApiTestCase
                 $this->assertEquals('newValue', $metadata['value']);
                 $this->assertGreaterThanOrEqual(
                     strtotime($metadatas[0]['timestamp']),
-                    strtotime($metadata['timestamp'])
+                    strtotime($metadata['timestamp']),
                 );
             } else {
                 $this->assertEquals('testval', $metadata['value']);
@@ -562,7 +562,7 @@ class MetadataTest extends StorageApiTestCase
                     'key' => self::TEST_METADATA_KEY_1,
                     'value' => $testMetadataValue,
                 ],
-            ]
+            ],
         );
 
         $readClient = $this->getReadClient($devBranchType, $bucketId, $userRole);
@@ -596,7 +596,7 @@ class MetadataTest extends StorageApiTestCase
                         'key' => self::TEST_METADATA_KEY_1,
                         'value' => 'changed',
                     ],
-                ]
+                ],
             );
 
             $this->fail('Token with read permissions should not update metadata');
@@ -620,7 +620,7 @@ class MetadataTest extends StorageApiTestCase
                         'key' => self::TEST_METADATA_KEY_2,
                         'value' => $testMetadataValue,
                     ],
-                ]
+                ],
             );
 
             $this->fail('Token with read permissions should not create metadata');
@@ -719,7 +719,7 @@ class MetadataTest extends StorageApiTestCase
                 $this->assertEquals('newValue', $metadata['value']);
                 $this->assertGreaterThanOrEqual(
                     strtotime($metadatas[0]['timestamp']),
-                    strtotime($metadata['timestamp'])
+                    strtotime($metadata['timestamp']),
                 );
             } else {
                 $this->assertEquals('testval', $metadata['value']);
@@ -745,12 +745,12 @@ class MetadataTest extends StorageApiTestCase
         $this->_testClient->createAliasTable(
             $this->getTestBucketId(),
             $this->getMetadataTestTableId('test_table'),
-            'tableAlias'
+            'tableAlias',
         );
         $this->_testClient->createAliasTable(
             $this->getTestBucketId(),
             $this->getMetadataTestTableId('tableAlias'),
-            'tableAliasAlias'
+            'tableAliasAlias',
         );
 
         // test list tables call
@@ -766,14 +766,14 @@ class MetadataTest extends StorageApiTestCase
         $this->assertNotEmpty($tables[0]['sourceTable']['columnMetadata']['id']);
         $this->assertEquals(
             $mdList,
-            $tables[0]['sourceTable']['columnMetadata']['id']
+            $tables[0]['sourceTable']['columnMetadata']['id'],
         );
 
         $alias = $this->_testClient->getTable($aliasAliasTableId);
         $this->assertNotEmpty($alias['sourceTable']['columnMetadata']);
         $this->assertEquals(
             $mdList,
-            $alias['sourceTable']['columnMetadata']['id']
+            $alias['sourceTable']['columnMetadata']['id'],
         );
 
         $tables = $this->_testClient->listTables($this->getTestBucketId(), ['include' => 'columnMetadata']);
@@ -782,7 +782,7 @@ class MetadataTest extends StorageApiTestCase
         }));
         $this->assertEquals(
             $mdList,
-            $tables[0]['sourceTable']['columnMetadata']['id']
+            $tables[0]['sourceTable']['columnMetadata']['id'],
         );
     }
 
@@ -807,7 +807,7 @@ class MetadataTest extends StorageApiTestCase
                     'key' => self::TEST_METADATA_KEY_1,
                     'value' => $testMetadataValue,
                 ],
-            ]
+            ],
         );
 
         $readClient = $this->getReadClient($devBranchType, $bucketId, $userRole);
@@ -841,7 +841,7 @@ class MetadataTest extends StorageApiTestCase
                         'key' => self::TEST_METADATA_KEY_1,
                         'value' => 'changed',
                     ],
-                ]
+                ],
             );
 
             $this->fail('Token with read permissions should not update metadata');
@@ -865,7 +865,7 @@ class MetadataTest extends StorageApiTestCase
                         'key' => self::TEST_METADATA_KEY_2,
                         'value' => $testMetadataValue,
                     ],
-                ]
+                ],
             );
 
             $this->fail('Token with read permissions should not create metadata');
@@ -978,7 +978,7 @@ class MetadataTest extends StorageApiTestCase
             $this->assertEquals('storage.metadata.invalidStructure', $e->getStringCode());
             $this->assertEquals(
                 "Invalid structure. Metadata must be provided as an array of objects with 'key' and 'value' members",
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -1101,7 +1101,7 @@ class MetadataTest extends StorageApiTestCase
             $this->assertEquals('APPLICATION_ERROR', $e->getStringCode());
             $this->assertEquals(
                 'Argument "subResource" is expected to be type "int", value "notNumber" given.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }
@@ -1198,7 +1198,7 @@ class MetadataTest extends StorageApiTestCase
                     'key' => self::TEST_METADATA_KEY_1,
                     'value' => $testMetadataValue,
                 ],
-            ]
+            ],
         );
 
         $readClient = $this->getReadClient($devBranchType, $bucketId, $userRole);
@@ -1232,7 +1232,7 @@ class MetadataTest extends StorageApiTestCase
                         'key' => self::TEST_METADATA_KEY_1,
                         'value' => 'changed',
                     ],
-                ]
+                ],
             );
 
             $this->fail('Token with read permissions should not update metadata');
@@ -1256,7 +1256,7 @@ class MetadataTest extends StorageApiTestCase
                         'key' => self::TEST_METADATA_KEY_2,
                         'value' => $testMetadataValue,
                     ],
-                ]
+                ],
             );
 
             $this->fail('Token with read permissions should not create metadata');
@@ -1355,7 +1355,7 @@ class MetadataTest extends StorageApiTestCase
         $normalTableId = $this->_testClient->createTableAsync(
             $this->getTestBucketId(),
             $normalTableName,
-            new CsvFile(__DIR__ . '/../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../_data/languages.csv'),
         );
 
         $typedTableName = 'test_restrictions';
@@ -1417,7 +1417,7 @@ class MetadataTest extends StorageApiTestCase
             $metadataApi->postColumnMetadata(
                 $columnId,
                 'storage',
-                $md
+                $md,
             );
             $this->fail('Metadata with "storage" provider cannot be created by user.');
         } catch (ClientException $e) {

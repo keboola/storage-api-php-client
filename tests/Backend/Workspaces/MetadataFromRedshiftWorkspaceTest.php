@@ -158,7 +158,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'languages3',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // create workspace and source table in workspace
@@ -185,7 +185,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertLinesEqualsSorted(
             implode("\n", $expected) . "\n",
             $this->_client->getTableDataPreview($table_id, ['format' => 'rfc']),
-            'imported data comparsion'
+            'imported data comparsion',
         );
 
         // check that the new table has the correct metadata
@@ -214,7 +214,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertLinesEqualsSorted(
             implode("\n", $expected) . "\n",
             $this->_client->getTableDataPreview($table['id'], ['format' => 'rfc']),
-            'new  column added'
+            'new  column added',
         );
         $table = $this->_client->getTable($table['id']);
         $this->assertEquals([], $table['metadata']);
@@ -226,7 +226,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'metadata_columns',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         // create workspace and source table in workspace
@@ -251,7 +251,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         } catch (ClientException $e) {
             $this->assertSame(
                 'SQLSTATE[42846]: Cannot coerce: 7 ERROR:  cannot cast type geometry to character varying',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -291,7 +291,7 @@ class MetadataFromRedshiftWorkspaceTest extends ParallelWorkspacesTestCase
         } catch (ClientException $e) {
             $this->assertSame(
                 'SQLSTATE[42846]: Cannot coerce: 7 ERROR:  cannot cast type geometry to character varying',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }

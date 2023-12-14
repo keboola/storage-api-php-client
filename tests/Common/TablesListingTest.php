@@ -29,7 +29,7 @@ class TablesListingTest extends StorageApiTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
-            new CsvFile(__DIR__ . '/../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../_data/languages.csv'),
         );
         $this->assertTrue($this->_client->tableExists($tableId));
     }
@@ -101,7 +101,7 @@ class TablesListingTest extends StorageApiTestCase
             ],[
                 'key' => 'testkey2',
                 'value' => 'testValue2',
-            ]]
+            ]],
         );
 
         $tables = $this->_client->listTables($this->getTestBucketId(), [
@@ -177,7 +177,7 @@ class TablesListingTest extends StorageApiTestCase
             ],[
                 'key' => 'testkey2',
                 'value' => 'testValue2',
-            ]]
+            ]],
         );
         $tables = $this->_client->listTables($this->getTestBucketId(), [
             'include' => 'metadata,columnMetadata',
@@ -218,7 +218,7 @@ class TablesListingTest extends StorageApiTestCase
             ],[
                 'key' => 'testkey2',
                 'value' => 'testValue2',
-            ]]
+            ]],
         );
 
         $tables = $this->_client->listTables($this->getTestBucketId(), [
@@ -256,7 +256,7 @@ class TablesListingTest extends StorageApiTestCase
             ],[
                 'key' => 'testkey2',
                 'value' => 'testValue2',
-            ]]
+            ]],
         );
 
         $tables = $this->_client->listTables($this->getTestBucketId(), [

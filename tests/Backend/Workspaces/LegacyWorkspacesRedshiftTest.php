@@ -24,7 +24,7 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages-rs',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], [
@@ -85,7 +85,7 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
             [
                 'primaryKey' => implode(',', $primaries),
-            ]
+            ],
         );
 
         $mapping = [
@@ -145,7 +145,7 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // first load
@@ -236,7 +236,7 @@ class LegacyWorkspacesRedshiftTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // first load

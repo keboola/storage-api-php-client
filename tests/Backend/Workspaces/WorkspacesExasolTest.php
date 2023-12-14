@@ -34,13 +34,13 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'rates',
-            new CsvFile(__DIR__ . '/../../_data/rates.csv')
+            new CsvFile(__DIR__ . '/../../_data/rates.csv'),
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], [
@@ -116,7 +116,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
             [
                 'primaryKey' => implode(',', $primaries),
-            ]
+            ],
         );
 
         $mapping = [
@@ -185,7 +185,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
@@ -193,7 +193,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languagesDetails',
             new CsvFile($importFile),
-            ['primaryKey' => 'Id']
+            ['primaryKey' => 'Id'],
         );
 
         // first load
@@ -266,7 +266,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
@@ -274,7 +274,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languagesDetails',
             new CsvFile($importFile),
-            ['primaryKey' => 'Id']
+            ['primaryKey' => 'Id'],
         );
 
         // first load
@@ -338,7 +338,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // first load
@@ -434,7 +434,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // first load
@@ -524,7 +524,7 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             $table,
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         // first load
@@ -574,13 +574,13 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'rates',
-            new CsvFile(__DIR__ . '/../../_data/rates.csv')
+            new CsvFile(__DIR__ . '/../../_data/rates.csv'),
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], [
@@ -624,13 +624,13 @@ class WorkspacesExasolTest extends ParallelWorkspacesTestCase
         $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
-            new CsvFile(__DIR__ . '/../../_data/users.csv')
+            new CsvFile(__DIR__ . '/../../_data/users.csv'),
         );
 
         sleep(35);

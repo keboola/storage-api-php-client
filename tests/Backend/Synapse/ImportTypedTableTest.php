@@ -58,7 +58,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
                 new CsvFile(__DIR__ . '/../../_data/tw_accounts.more-cols.csv'),
                 [
                     'incremental' => true,
-                ]
+                ],
             );
             $this->fail('Fullload into table having datatypes defined should fail.');
         } catch (ClientException $e) {
@@ -74,7 +74,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             new CsvFile($fullLoadInputFile),
             [
                 'incremental' => false,
-            ]
+            ],
         );
 
         //$this->assertLinesEqualsSorted(file_get_contents($fullLoadExpectationFile), $this->_client->getTableDataPreview($tableId, [
@@ -89,7 +89,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             new CsvFile($incLoadInputFile),
             [
                 'incremental' => true,
-            ]
+            ],
         );
 
         //$this->assertLinesEqualsSorted(file_get_contents($incLoadExpectationFile), $this->_client->getTableDataPreview($tableId, [
@@ -142,7 +142,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             new CsvFile($inputFile),
             [
                 'incremental' => false,
-            ]
+            ],
         );
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -209,12 +209,12 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             $this->parseCsv($fullLoadExpectationFile, true),
             $backend->fetchAll('tw_loaded', \PDO::FETCH_ASSOC),
             'id',
-            'imported data comparison'
+            'imported data comparison',
         );
         $types = array_map(
             // @phpstan-ignore-next-line
             fn(SynapseColumn $c) => $c->getColumnDefinition()->getType(),
-            iterator_to_array($ref->getColumnsDefinitions())
+            iterator_to_array($ref->getColumnsDefinitions()),
         );
         self::assertSame($expectedTableTypesInWorkspace, $types);
 
@@ -225,7 +225,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             new CsvFile($inputFile),
             [
                 'incremental' => false,
-            ]
+            ],
         );
         // write data from WS back to storage
         $this->_client->writeTableAsyncDirect($tableId, [
@@ -251,7 +251,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             new CsvFile($inputFile),
             [
                 'incremental' => false,
-            ]
+            ],
         );
         // load table to WS incrementally
         $options['input'][0]['incremental'] = true;
@@ -262,7 +262,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             $this->parseCsv($incLoadExpectationFile, true),
             $backend->fetchAll('tw_loaded', \PDO::FETCH_ASSOC),
             'id',
-            'imported data comparison'
+            'imported data comparison',
         );
 
         // write data back to storage incrementally
@@ -319,7 +319,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
                 new CsvFile($fullLoadFile),
                 [
                     'incremental' => false,
-                ]
+                ],
             );
             $this->fail('Should throw ClientException');
         } catch (ClientException $e) {
@@ -333,7 +333,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
                 new CsvFile($fullLoadFile),
                 [
                     'incremental' => true,
-                ]
+                ],
             );
             $this->fail('Should throw ClientException');
         } catch (ClientException $e) {

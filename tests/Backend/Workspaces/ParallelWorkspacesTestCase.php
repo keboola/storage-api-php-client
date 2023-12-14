@@ -85,7 +85,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
             $tokens->listTokens(),
             function (array $token) use ($description) {
                 return $token['description'] === $description;
-            }
+            },
         );
 
         foreach ($oldTestTokens as $oldTestToken) {
@@ -112,7 +112,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
             function ($job) use ($workspaceId) {
                 $workspaceIdParam = isset($job['operationParams']['workspaceId']) ? (int) $job['operationParams']['workspaceId'] : 0;
                 return (int) $workspaceIdParam === $workspaceId;
-            }
+            },
         );
     }
 
@@ -125,7 +125,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
             $workspaces->listWorkspaces(),
             function (array $workspace) use ($description) {
                 return $workspace['creatorToken']['description'] === $description;
-            }
+            },
         );
     }
 }
