@@ -42,7 +42,7 @@
 		"ext-pdo": "*",
 		"ext-pdo_pgsql": "*",
 		"brianium/paratest": "2.*|6.*",
-		"keboola/coding-standard": "^14.0",
+		"keboola/coding-standard": "^15.0",
 		"keboola/php-csv-db-import": "^6",
 		"keboola/phpunit-retry-annotations": "^0.4",
 		"keboola/retry": "^0.5.0",
