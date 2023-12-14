@@ -20,7 +20,7 @@ class WorkspaceLoadTest extends WorkspacesLoadTest
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages_dotted',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         $options = [
@@ -40,7 +40,7 @@ class WorkspaceLoadTest extends WorkspacesLoadTest
 
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            $options
+            $options,
         );
 
         try {
@@ -49,7 +49,7 @@ class WorkspaceLoadTest extends WorkspacesLoadTest
         } catch (ClientException $e) {
             self::assertEquals(
                 'Invalid table name: Only alphanumeric characters dash and underscores are allowed.',
-                $e->getMessage()
+                $e->getMessage(),
             );
             self::assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }

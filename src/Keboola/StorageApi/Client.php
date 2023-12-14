@@ -193,7 +193,7 @@ class Client
         $handlerStack->push(Middleware::log(
             $this->logger,
             new MessageFormatter('{hostname} {req_header_User-Agent} - [{ts}] "{method} {resource} {protocol}/{version}" {code} {res_header_Content-Length}'),
-            LogLevel::DEBUG
+            LogLevel::DEBUG,
         ));
         $this->client = new \GuzzleHttp\Client([
             'base_uri' => $this->apiUrl,
@@ -266,7 +266,7 @@ class Client
     {
         return $this->apiPostJson(
             'webalize/display-name',
-            ['displayName' => $displayName]
+            ['displayName' => $displayName],
         );
     }
 
@@ -866,7 +866,7 @@ class Client
                 ->setNotify(false)
                 ->setIsPublic(false)
                 ->setCompress(true)
-                ->setTags(['file-import'])
+                ->setTags(['file-import']),
         );
         $options['dataFileId'] = $fileId;
 
@@ -952,7 +952,7 @@ class Client
             [
                 'title' => $title,
                 'description' => $description,
-            ]
+            ],
         );
         return $mrDetail;
     }
@@ -1254,7 +1254,7 @@ class Client
                 ->setNotify(false)
                 ->setIsPublic(false)
                 ->setCompress(true)
-                ->setTags(['table-import'])
+                ->setTags(['table-import']),
         );
         $optionsExtended['dataFileId'] = $fileId;
 
@@ -1305,7 +1305,7 @@ class Client
         $job = $this->apiPostJson(
             "tables/{$tableId}/export-async",
             $this->prepareExportOptions($options),
-            false
+            false,
         );
         return $job['id'];
     }
@@ -1452,7 +1452,7 @@ class Client
     public function searchComponents(SearchComponentConfigurationsOptions $options)
     {
         return $this->apiGet(
-            'search/component-configurations?' . http_build_query($options->toParamsArray())
+            'search/component-configurations?' . http_build_query($options->toParamsArray()),
         );
     }
 
@@ -1781,7 +1781,7 @@ class Client
                     'The command "%s" failed.' . "\nExit Code: %s(%s)",
                     $process->getCommandLine(),
                     $process->getExitCode(),
-                    $process->getExitCodeText()
+                    $process->getExitCodeText(),
                 );
                 throw new ClientException('Failed to gzip file. ' . $error);
             }
@@ -1799,7 +1799,7 @@ class Client
             case self::FILE_PROVIDER_AZURE:
                 $this->uploadFileToAbs(
                     $prepareResult,
-                    $filePath
+                    $filePath,
                 );
                 break;
             case self::FILE_PROVIDER_AWS:
@@ -1807,7 +1807,7 @@ class Client
                     $prepareResult,
                     $filePath,
                     $newOptions,
-                    $transferOptions
+                    $transferOptions,
                 );
                 break;
             case self::FILE_PROVIDER_GCP:
@@ -1846,7 +1846,7 @@ class Client
             $prepareResult['gcsUploadParams']['bucket'],
             $prepareResult['gcsUploadParams']['key'],
             $filePath,
-            $isPermanent
+            $isPermanent,
         );
     }
 
@@ -1859,7 +1859,7 @@ class Client
         $filePath
     ) {
         $blobClient = BlobClientFactory::createClientFromConnectionString(
-            $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
+            $prepareResult['absUploadParams']['absCredentials']['SASConnectionString'],
         );
 
         $parallel = true;
@@ -1870,7 +1870,7 @@ class Client
             $parallel = false;
         }
         $options->setContentDisposition(
-            sprintf('attachment; filename=%s', $prepareResult['name'])
+            sprintf('attachment; filename=%s', $prepareResult['name']),
         );
 
         $uploader = new ABSUploader($blobClient);
@@ -1879,7 +1879,7 @@ class Client
             $prepareResult['absUploadParams']['blobName'],
             $filePath,
             $options,
-            $parallel
+            $parallel,
         );
     }
 
@@ -1937,7 +1937,7 @@ class Client
             $uploadParams['acl'],
             $filePath,
             $prepareResult['name'],
-            $newOptions->getIsEncrypted() ? $uploadParams['x-amz-server-side-encryption'] : null
+            $newOptions->getIsEncrypted() ? $uploadParams['x-amz-server-side-encryption'] : null,
         );
     }
 
@@ -1983,7 +1983,7 @@ class Client
                             'The command "%s" failed.' . "\nExit Code: %s(%s)",
                             $process->getCommandLine(),
                             $process->getExitCode(),
-                            $process->getExitCodeText()
+                            $process->getExitCodeText(),
                         );
                         throw new ClientException('Failed to gzip file. ' . $error);
                     }
@@ -2036,14 +2036,14 @@ class Client
         array $slices
     ) {
         $blobClient = BlobClientFactory::createClientFromConnectionString(
-            $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
+            $prepareResult['absUploadParams']['absCredentials']['SASConnectionString'],
         );
 
         $uploader = new ABSUploader($blobClient);
         $uploader->uploadSlicedFile(
             $prepareResult['absUploadParams']['container'],
             $prepareResult['absUploadParams']['blobName'],
-            $slices
+            $slices,
         );
 
         $manifest = [
@@ -2057,7 +2057,7 @@ class Client
                     $prepareResult['absUploadParams']['accountName'],
                     $prepareResult['absUploadParams']['container'],
                     $prepareResult['absUploadParams']['blobName'],
-                    basename($filePath)
+                    basename($filePath),
                 ),
             ];
         }
@@ -2110,7 +2110,7 @@ class Client
             $uploadParams['key'],
             $uploadParams['acl'],
             $slices,
-            $newOptions->getIsEncrypted() ? $uploadParams['x-amz-server-side-encryption'] : null
+            $newOptions->getIsEncrypted() ? $uploadParams['x-amz-server-side-encryption'] : null,
         );
         // Upload manifest
         $manifest = [
@@ -2149,13 +2149,13 @@ class Client
                 'projectId' => $uploadParams['projectId'],
             ],
             $this->logger,
-            $transferOptions
+            $transferOptions,
         );
 
         $gcsUploader->uploadSlicedFile(
             $uploadParams['bucket'],
             $uploadParams['key'],
-            $slices
+            $slices,
         );
     }
 
@@ -2182,7 +2182,7 @@ class Client
     private function downloadAbsFile(array $fileInfo, $destination)
     {
         $blobClient = BlobClientFactory::createClientFromConnectionString(
-            $fileInfo['absCredentials']['SASConnectionString']
+            $fileInfo['absCredentials']['SASConnectionString'],
         );
 
         try {
@@ -2195,7 +2195,7 @@ class Client
             throw new ClientException(
                 sprintf(self::ERROR_CANNOT_DOWNLOAD_FILE, $fileInfo['name'], $fileInfo['id']),
                 404,
-                $e
+                $e,
             );
         }
 
@@ -2234,7 +2234,7 @@ class Client
             throw new ClientException(
                 sprintf(self::ERROR_CANNOT_DOWNLOAD_FILE, $fileInfo['name'], $fileInfo['id']),
                 404,
-                $e
+                $e,
             );
         }
     }
@@ -2287,7 +2287,7 @@ class Client
     private function downloadAbsSlicedFile(array $fileInfo, $destinationFolder)
     {
         $blobClient = BlobClientFactory::createClientFromConnectionString(
-            $fileInfo['absCredentials']['SASConnectionString']
+            $fileInfo['absCredentials']['SASConnectionString'],
         );
         if (!file_exists($destinationFolder)) {
             $fs = new Filesystem();
@@ -2308,7 +2308,7 @@ class Client
             foreach ($manifest['entries'] as $entry) {
                 $blobPath = explode(sprintf(
                     'blob.core.windows.net/%s/',
-                    $fileInfo['absPath']['container']
+                    $fileInfo['absPath']['container'],
                 ), $entry['url'])[1];
                 $getResult = $blobClient->getBlob($fileInfo['absPath']['container'], $blobPath);
                 $slices[] = $destinationFile = $destinationFolder . basename($entry['url']);
@@ -2322,7 +2322,7 @@ class Client
             throw new ClientException(
                 sprintf(self::ERROR_CANNOT_DOWNLOAD_FILE, $fileInfo['name'], $fileInfo['id']),
                 404,
-                $e
+                $e,
             );
         }
 
@@ -2381,7 +2381,7 @@ class Client
             throw new ClientException(
                 sprintf(self::ERROR_CANNOT_DOWNLOAD_FILE, $fileInfo['name'], $fileInfo['id']),
                 404,
-                $e
+                $e,
             );
         }
 
@@ -2427,7 +2427,7 @@ class Client
 
                 $sprintf = sprintf(
                     '/%s/',
-                    $fileInfo['gcsPath']['bucket']
+                    $fileInfo['gcsPath']['bucket'],
                 );
                 $blobPath = explode($sprintf, $entry['url']);
                 $retBucket->object($blobPath[1])->downloadToFile($destinationFile);
@@ -2855,7 +2855,7 @@ class Client
                 $response ? $response->getStatusCode() : $e->getCode(),
                 $e,
                 isset($body['code']) ? $body['code'] : '',
-                $body
+                $body,
             );
         }
 
@@ -2912,7 +2912,7 @@ class Client
                 $job['error']['code'],
                 array_merge($job['error'], [
                     'job' => $job,
-                ])
+                ]),
             );
         }
     }

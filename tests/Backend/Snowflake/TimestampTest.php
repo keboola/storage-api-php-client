@@ -30,7 +30,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'languages-3',
             $importFile,
-            []
+            [],
         );
 
         $this->_client->writeTableAsync($tableId, $importFile);
@@ -39,7 +39,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
             $tableId,
             $workspace,
             'timestampCSVImportAsyncFull',
-            $count
+            $count,
         );
 
         // incremental
@@ -51,7 +51,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
             $tableId,
             $workspace,
             'timestampCSVImportAsyncInc',
-            $count + $count
+            $count + $count,
         );
     }
 
@@ -70,7 +70,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'languages-2',
             $importFile,
-            []
+            [],
         );
 
         $this->_client->writeTableAsync($tableId, $importFile);
@@ -79,7 +79,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
             $tableId,
             $workspace,
             'timestampCSVImportSyncFull',
-            $count
+            $count,
         );
 
         // incremental
@@ -91,7 +91,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
             $tableId,
             $workspace,
             'timestampCSVImportSyncInc',
-            $count + $count
+            $count + $count,
         );
     }
 
@@ -114,13 +114,13 @@ class TimestampTest extends ParallelWorkspacesTestCase
 
         $fileId = $this->_client->uploadSlicedFile(
             $slices,
-            $uploadOptions
+            $uploadOptions,
         );
 
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'entries',
-            new CsvFile(__DIR__ . '/../../_data/languages.not-normalized-column-names.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.not-normalized-column-names.csv'),
         );
         $this->_client->deleteTableRows($tableId, ['allowTruncate' => true]);
         $this->_client->writeTableAsyncDirect($tableId, [
@@ -140,7 +140,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
             $tableId,
             $workspace,
             'timestampSlicedImportFull',
-            $count
+            $count,
         );
 
         // incremental
@@ -160,7 +160,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
             $tableId,
             $workspace,
             'timestampSlicedImportInc',
-            $count + $count
+            $count + $count,
         );
     }
 
@@ -199,7 +199,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
             $table['id'],
             $workspace,
             'timestampCopyImportFull',
-            2
+            2,
         );
 
         $db = $this->getDbConnection($connection);
@@ -237,7 +237,7 @@ class TimestampTest extends ParallelWorkspacesTestCase
             $table['id'],
             $workspace,
             'timestampCopyImportInc',
-            3
+            3,
         );
     }
 
@@ -266,12 +266,12 @@ class TimestampTest extends ParallelWorkspacesTestCase
         foreach ($data as $timestampRecord) {
             $this->assertNotNull(
                 $timestampRecord['_timestamp'],
-                '_timestamp field must not be a null.'
+                '_timestamp field must not be a null.',
             );
             $this->assertMatchesRegularExpression(
                 self::TIMESTAMP_FORMAT,
                 $timestampRecord['_timestamp'],
-                '_timestamp has wrong pattern.'
+                '_timestamp has wrong pattern.',
             );
         }
     }

@@ -55,7 +55,7 @@ class ExportTableTest extends StorageApiTestCase
             $bucketName,
             self::STAGE_IN,
             $description,
-            $developerDevBranchClient
+            $developerDevBranchClient,
         );
 
         $tableId = $developerDevBranchClient->createTableAsync($devBranchBucketId, 'languages', $importFile);
@@ -69,7 +69,7 @@ class ExportTableTest extends StorageApiTestCase
         $this->assertLinesEqualsSorted(
             file_get_contents($expectationsFile),
             file_get_contents($this->downloadPath),
-            'imported data comparison'
+            'imported data comparison',
         );
 
         $projectManagerDevBranchClient = $this->getBranchAwareClient($newBranch['id'], [
@@ -84,7 +84,7 @@ class ExportTableTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertStringContainsString(
                 'You don\'t have access to the resource.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -103,7 +103,7 @@ class ExportTableTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertStringContainsString(
                 sprintf('The table "languages" was not found in the bucket "%s" in the project ', $devBranchBucketId),
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -117,7 +117,7 @@ class ExportTableTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertStringContainsString(
                 'Cannot export table from development branch to production',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }
@@ -135,7 +135,7 @@ class ExportTableTest extends StorageApiTestCase
             $bucketName,
             self::STAGE_IN,
             $description,
-            $projectManagerDefaultBranchClient
+            $projectManagerDefaultBranchClient,
         );
 
         $tableId = $projectManagerDefaultBranchClient->createTableAsync($productionBucketId, 'languages', $importFile);
@@ -162,7 +162,7 @@ class ExportTableTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(
                 'You don\'t have access to the resource.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -180,7 +180,7 @@ class ExportTableTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertStringContainsString(
                 'You don\'t have access to the resource.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }
@@ -198,7 +198,7 @@ class ExportTableTest extends StorageApiTestCase
             $bucketName,
             self::STAGE_IN,
             $description,
-            $projectManagerDefaultBranchClient
+            $projectManagerDefaultBranchClient,
         );
 
         $tableIdInDefault = $projectManagerDefaultBranchClient->createTableAsync($productionBucketId, 'languages', $importFile);
@@ -217,7 +217,7 @@ class ExportTableTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertStringContainsString(
                 sprintf('The table "%s" was not found in the bucket "%s" in the project ', 'languages', $productionBucketId),
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
         $devBranchExporter = new TableExporter($developerDevBranchBranchClient);
@@ -229,7 +229,7 @@ class ExportTableTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertStringContainsString(
                 sprintf('The table "languages" was not found in the bucket "%s" in the project ', $productionBucketId),
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -269,7 +269,7 @@ class ExportTableTest extends StorageApiTestCase
             $bucketName,
             self::STAGE_IN,
             $description,
-            $developerDevBranchBranchClient
+            $developerDevBranchBranchClient,
         );
 
         $tableIdInDevBranch = $developerDevBranchBranchClient->createTableAsync($devBranchBucketId, 'languages', $importFile);
@@ -291,7 +291,7 @@ class ExportTableTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertStringContainsString(
                 sprintf('The table "%s" was not found in the bucket "%s" in the project ', 'languages', $devBranchBucketId),
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -304,7 +304,7 @@ class ExportTableTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertStringContainsString(
                 sprintf('The table "languages" was not found in the bucket "%s" in the project ', $devBranchBucketId),
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -316,7 +316,7 @@ class ExportTableTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertStringContainsString(
                 sprintf('The table "languages" was not found in the bucket "%s" in the project ', $devBranchBucketId),
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }

@@ -78,7 +78,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                 "in.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
-                ]
+                ],
             );
         }
 
@@ -93,7 +93,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // first load
@@ -139,7 +139,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                 "in.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
-                ]
+                ],
             );
         }
 
@@ -154,7 +154,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // first load
@@ -253,7 +253,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                 "in.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
-                ]
+                ],
             );
         }
 
@@ -268,7 +268,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // first load
@@ -355,7 +355,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                 "out.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
-                ]
+                ],
             );
         }
 
@@ -370,7 +370,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         $this->_client->createTableAsync(
             $bucketId,
             'dates',
-            new CsvFile(__DIR__ . '/../../../_data/dates.csv')
+            new CsvFile(__DIR__ . '/../../../_data/dates.csv'),
         );
 
         $workspaces = new Workspaces($this->_client);
@@ -379,7 +379,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
             [
                 'backend' => self::BACKEND_REDSHIFT,
             ],
-            true
+            true,
         );
 
         $options = [
@@ -417,7 +417,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                 "out.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
-                ]
+                ],
             );
         }
 
@@ -426,7 +426,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                 "in.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
-                ]
+                ],
             );
         }
 
@@ -440,13 +440,13 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
             new CsvFile(__DIR__ . '/../../../_data/languages.csv'),
             [
                 'primaryKey' => 'id',
-            ]
+            ],
         );
 
         $table2Id = $this->_client->createAliasTable(
             $outBucketId,
             $table1Id,
-            'Languages'
+            'Languages',
         );
 
         $table3Id = $this->_client->createAliasTable(
@@ -457,7 +457,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                 'aliasColumns' => [
                     'id',
                 ],
-            ]
+            ],
         );
 
         $table4Id = $this->_client->createAliasTable(
@@ -472,7 +472,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                     'column' => 'id',
                     'values' => ['1'],
                 ],
-            ]
+            ],
         );
 
         $workspaces = new Workspaces($this->_client);
@@ -481,7 +481,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
             [
                 'backend' => $backend,
             ],
-            true
+            true,
         );
 
         $options = [

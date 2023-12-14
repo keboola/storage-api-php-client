@@ -72,26 +72,26 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
             $components,
             'transformation',
             $configurationNameMain1,
-            'Main 1'
+            'Main 1',
         );
         $transformationMain2Options = $this->createConfiguration(
             $components,
             'transformation',
             $configurationNameMain2,
-            'Main 2'
+            'Main 2',
         );
         $transformationDeletedOptions = $this->createConfiguration(
             $components,
             'transformation',
             $configurationNameDeleted,
-            'Deleted'
+            'Deleted',
         );
 
         $wrDbMain1Options = $this->createConfiguration(
             $components,
             'wr-db',
             $configurationNameMain2,
-            'Main 2'
+            'Main 2',
         );
 
         // add metadata to all configs
@@ -319,7 +319,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
             $components,
             'wr-db',
             'component-search-metadata-events-test',
-            'Component metadata events'
+            'Component metadata events',
         );
         $configurationMetadataOptions = (new ConfigurationMetadata($configurationOptions))
             ->setMetadata(self::TEST_METADATA);
@@ -348,7 +348,7 @@ class SearchComponentsConfigurationsTest extends StorageApiTestCase
                     'metadataKeys' => ['KBC.SomeEnity.metadataKey'],
                     'include' => ['filteredMetadata'],
                 ],
-                $event['params']
+                $event['params'],
             );
         };
         $query = new EventsQueryBuilder();

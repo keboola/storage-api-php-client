@@ -65,7 +65,7 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
             'ALTER TABLE %s.%s DROP COLUMN %s;',
             SynapseQuote::quoteSingleIdentifier($this->schema),
             SynapseQuote::quoteSingleIdentifier($table),
-            SynapseQuote::quoteSingleIdentifier($column)
+            SynapseQuote::quoteSingleIdentifier($column),
         ));
     }
 
@@ -90,7 +90,7 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
         $this->db->executeStatement($qb->getCreateTableCommand(
             $this->schema,
             $tableName,
-            new ColumnCollection($cols)
+            new ColumnCollection($cols),
         ));
     }
 
@@ -102,7 +102,7 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
             'SELECT * FROM %s.%s %s;',
             SynapseQuote::quoteSingleIdentifier($this->schema),
             SynapseQuote::quoteSingleIdentifier($table),
-            $orderBy !== null ? "ORDER BY $orderBy" : null
+            $orderBy !== null ? "ORDER BY $orderBy" : null,
         ));
         switch ($style) {
             case \PDO::FETCH_NUM:
@@ -158,7 +158,7 @@ class SynapseWorkspaceBackend implements WorkspaceBackend
             SynapseQuote::quoteSingleIdentifier($this->schema),
             SynapseQuote::quoteSingleIdentifier($table),
             SynapseQuote::quoteSingleIdentifier($this->schema),
-            SynapseQuote::quoteSingleIdentifier($table)
+            SynapseQuote::quoteSingleIdentifier($table),
         ));
     }
 

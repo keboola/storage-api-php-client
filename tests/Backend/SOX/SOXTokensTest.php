@@ -236,7 +236,7 @@ class SOXTokensTest extends StorageApiTestCase
             $tokens->shareToken(
                 $this->getDefaultBranchTokenId(),
                 'test@devel.keboola.com',
-                'hi'
+                'hi',
             );
             $this->fail('Nobody can do this.');
         } catch (ClientException $e) {
@@ -541,7 +541,7 @@ class SOXTokensTest extends StorageApiTestCase
                 (new Configuration())
                 ->setName('will not be created')
                 ->setComponentId('wr-db')
-                ->setConfigurationId('not-created')
+                ->setConfigurationId('not-created'),
             );
             $this->fail('Token with canCreateJobs flag should not be able to create configurations');
         } catch (ClientException $e) {
@@ -705,7 +705,7 @@ class SOXTokensTest extends StorageApiTestCase
         $newTokenWithCanCreateJobs = $tokensApi->createToken(
             (new TokenCreateOptions())
                 ->setDescription($this->generateDescriptionForTestObject())
-                ->setCanCreateJobs(true)
+                ->setCanCreateJobs(true),
         );
 
         $tokenClient = $this->getBranchAwareClient($branch['id'], $this->getClientOptionsForToken($newTokenWithCanCreateJobs['token']));

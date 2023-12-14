@@ -40,7 +40,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             [
                 'primaryKey' => 'id',
                 'distributionKey' => 'name',
-            ]
+            ],
         );
         // legacy IM
         $options = [
@@ -101,13 +101,13 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'rates',
-            new CsvFile(__DIR__ . '/../../_data/rates.csv')
+            new CsvFile(__DIR__ . '/../../_data/rates.csv'),
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], [
@@ -186,7 +186,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
             [
                 'primaryKey' => implode(',', $primaries),
-            ]
+            ],
         );
 
         $mapping = [
@@ -263,7 +263,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
@@ -271,7 +271,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languagesDetails',
             new CsvFile($importFile),
-            ['primaryKey' => 'Id']
+            ['primaryKey' => 'Id'],
         );
 
         // first load
@@ -339,7 +339,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
@@ -347,7 +347,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languagesDetails',
             new CsvFile($importFile),
-            ['primaryKey' => 'Id']
+            ['primaryKey' => 'Id'],
         );
 
         // first load
@@ -411,7 +411,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // first load
@@ -507,7 +507,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // first load
@@ -597,7 +597,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             $table,
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         // first load
@@ -647,13 +647,13 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'rates',
-            new CsvFile(__DIR__ . '/../../_data/rates.csv')
+            new CsvFile(__DIR__ . '/../../_data/rates.csv'),
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], [
@@ -691,13 +691,13 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
-            new CsvFile(__DIR__ . '/../../_data/users.csv')
+            new CsvFile(__DIR__ . '/../../_data/users.csv'),
         );
 
         sleep(35);
@@ -799,7 +799,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             self::fail(sprintf(
                 'Project "%s" id:"%s" is missing feature "workspace-view-load"',
                 $currentToken['owner']['name'],
-                $currentToken['owner']['id']
+                $currentToken['owner']['id'],
             ));
         }
 
@@ -813,7 +813,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $bucketId,
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
         $fileId = $this->workspaceSapiClient->uploadFile(
             (new CsvFile($importFile))->getPathname(),
@@ -821,7 +821,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
                 ->setNotify(false)
                 ->setIsPublic(false)
                 ->setCompress(true)
-                ->setTags(['test-file-1'])
+                ->setTags(['test-file-1']),
         );
 
         $options = [
@@ -930,7 +930,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $this->_client->writeTableAsync(
             $tableId,
             new CsvFile($importFile),
-            ['incremental' => true]
+            ['incremental' => true],
         );
         // test view is still working
         $tableRef = $backend->getTableReflection('languages');
@@ -953,7 +953,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             [
                 'dataWorkspaceId' => $workspace2['id'],
                 'dataObject' => 'languages',
-            ]
+            ],
         );
         // test view is still working
         $tableRef = $backend->getTableReflection('languages');
@@ -965,7 +965,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             [
                 'backend' => 'abs',
             ],
-            true
+            true,
         );
         $options = [
             'input' => [
@@ -981,7 +981,7 @@ class WorkspacesSynapseTest extends ParallelWorkspacesTestCase
             [
                 'dataWorkspaceId' => $fileWorkspace['id'],
                 'dataObject' => 'languages/',
-            ]
+            ],
         );
         // test view is still working
         $tableRef = $backend->getTableReflection('languages');

@@ -39,7 +39,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
-            $tableId
+            $tableId,
         ));
 
         $db->executeQuery("create table $quotedTableId (
@@ -145,7 +145,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'languages3',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // create workspace and source table in workspace
@@ -162,7 +162,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
-            $tableId
+            $tableId,
         ));
 
         $db->executeQuery("create table $quotedTableId (
@@ -185,7 +185,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertLinesEqualsSorted(
             implode("\n", $expected) . "\n",
             $this->_client->getTableDataPreview($table_id, ['format' => 'rfc']),
-            'imported data comparsion'
+            'imported data comparsion',
         );
 
         // check that the new table has the correct metadata
@@ -216,7 +216,7 @@ class MetadataFromSynapseWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertLinesEqualsSorted(
             implode("\n", $expected) . "\n",
             $this->_client->getTableDataPreview($table['id'], ['format' => 'rfc']),
-            'new  column added'
+            'new  column added',
         );
 
         $table = $this->_client->getTable($table['id']);

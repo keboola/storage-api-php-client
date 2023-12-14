@@ -67,7 +67,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
             $result = $this->_client->shareBucketToProjects(
                 $bucketId,
                 [$targetProject['id']],
-                $isAsync
+                $isAsync,
             );
 
             $this->assertArrayHasKey('sharingParameters', $result);
@@ -144,7 +144,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
                 $token['owner']['id'],
                 $tokenAdmin2InSameOrg['owner']['id'],
             ],
-            $isAsync
+            $isAsync,
         );
 
         // link
@@ -159,7 +159,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
             $sharedBucket['project']['id'],
             $sharedBucket['id'],
             null,
-            $isAsync
+            $isAsync,
         );
 
         // validate bucket
@@ -183,7 +183,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
             $sharedBucket['project']['id'],
             $sharedBucket['id'],
             null,
-            $isAsync
+            $isAsync,
         );
 
         // validate bucket
@@ -201,7 +201,7 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
             [
                 $token['owner']['id'],
             ],
-            $isAsync
+            $isAsync,
         );
 
         $response = $this->clientAdmin2InSameOrg->listSharedBuckets();
@@ -247,13 +247,13 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
                 $this->_client->verifyToken()['owner']['id'],
                 $bucketId,
                 null,
-                $isAsync
+                $isAsync,
             );
             $this->fail('Linking bucket to unauthorized project should fail.');
         } catch (ClientException $e) {
             $this->assertEquals(
                 'You do not have permission to link this bucket.',
-                $e->getMessage()
+                $e->getMessage(),
             );
 
             $this->assertEquals('accessDenied', $e->getStringCode());
@@ -279,9 +279,9 @@ class SharingToSpecificProjectsTest extends StorageApiSharingTestCase
             $this->assertEquals(
                 sprintf(
                     'TargetProjectIds "[%s]" are not part of organization.',
-                    $targetProjectIdInOtherOrg
+                    $targetProjectIdInOtherOrg,
                 ),
-                $e->getMessage()
+                $e->getMessage(),
             );
 
             $this->assertEquals('storage.buckets.targetProjectIdsAreNotPartOfOrganization', $e->getStringCode());

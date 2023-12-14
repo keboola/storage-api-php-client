@@ -88,14 +88,14 @@ class SnapshottingTest extends StorageApiTestCase
             function ($columnMedata) use ($testCase) {
                 return $testCase->filterIdAndTimestampFromMetadataArray($columnMedata);
             },
-            $sourceTable['columnMetadata']
+            $sourceTable['columnMetadata'],
         );
 
         $actualMetadata = array_map(
             function ($columnMedata) use ($testCase) {
                 return $testCase->filterIdAndTimestampFromMetadataArray($columnMedata);
             },
-            $newTable['columnMetadata']
+            $newTable['columnMetadata'],
         );
 
         $this->assertGreaterThan(0, count($expectedMetadata));
@@ -113,7 +113,7 @@ class SnapshottingTest extends StorageApiTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.camel-case-columns.csv'),
             [
                 'primaryKey' => 'Id',
-            ]
+            ],
         );
 
         $metadata = new Metadata($this->_client);
@@ -130,7 +130,7 @@ class SnapshottingTest extends StorageApiTestCase
                     'key' => 'KBC.SomeEnity.metadataKey',
                     'value' => 'some value',
                 ],
-            ]
+            ],
         );
 
         $metadata->postColumnMetadata(
@@ -149,7 +149,7 @@ class SnapshottingTest extends StorageApiTestCase
                     'key' => 'KBC.datatype.basetype',
                     'value' => 'NUMERIC',
                 ],
-            ]
+            ],
         );
 
         return $tableId;
@@ -186,7 +186,7 @@ class SnapshottingTest extends StorageApiTestCase
             [
                 'force' => true,
                 'async' => true,
-            ]
+            ],
         );
 
         $newTableId = $this->_client->createTableFromSnapshot($this->getTestBucketId(self::STAGE_OUT), $snapshotId, 'restored');
@@ -202,7 +202,7 @@ class SnapshottingTest extends StorageApiTestCase
                 unset($metadata['timestamp']);
                 return $metadata;
             },
-            $data
+            $data,
         );
     }
 }

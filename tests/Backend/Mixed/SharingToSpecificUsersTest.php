@@ -63,7 +63,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
             $result = $this->_client->shareBucketToUsers(
                 $bucketId,
                 [$targetUser['admin']['id']],
-                $isAsync
+                $isAsync,
             );
 
             $this->assertArrayHasKey('sharingParameters', $result);
@@ -108,7 +108,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
         $result = $this->_client->shareBucketToUsers(
             $bucketId,
             [$targetUser['description']],
-            $isAsync
+            $isAsync,
         );
 
         $this->assertArrayHasKey('sharingParameters', $result);
@@ -181,7 +181,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
                 $targetUser['id'],
                 $targetAdmin2InSameOrg['id'],
             ],
-            $isAsync
+            $isAsync,
         );
 
         // link
@@ -196,7 +196,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
             $sharedBucket['project']['id'],
             $sharedBucket['id'],
             null,
-            $isAsync
+            $isAsync,
         );
 
         // validate bucket
@@ -220,7 +220,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
             $sharedBucket['project']['id'],
             $sharedBucket['id'],
             null,
-            $isAsync
+            $isAsync,
         );
 
         // validate bucket
@@ -238,7 +238,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
             [
                 $targetUser['id'],
             ],
-            $isAsync
+            $isAsync,
         );
 
         $response = $this->clientAdmin2InSameOrg->listSharedBuckets();
@@ -277,13 +277,13 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
                 $this->_client->verifyToken()['owner']['id'],
                 $bucketId,
                 null,
-                $isAsync
+                $isAsync,
             );
             $this->fail('Linking bucket by unauthorized user should fail.');
         } catch (ClientException $e) {
             $this->assertEquals(
                 'You do not have permission to link this bucket.',
-                $e->getMessage()
+                $e->getMessage(),
             );
 
             $this->assertEquals('accessDenied', $e->getStringCode());
@@ -309,9 +309,9 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
             $this->assertEquals(
                 sprintf(
                     'Admins "[%s]" are not part of organization.',
-                    $targetUser['id']
+                    $targetUser['id'],
                 ),
-                $e->getMessage()
+                $e->getMessage(),
             );
 
             $this->assertEquals('storage.buckets.targetAdminsAreNotPartOfOrganization', $e->getStringCode());

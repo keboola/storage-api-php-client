@@ -43,14 +43,14 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
                 'in',
                 'will fail',
                 'snowflake',
-                'test-bucket-will-fail'
+                'test-bucket-will-fail',
             );
             $this->fail('should fail');
         } catch (ClientException $e) {
             $this->assertSame('storage.dbObjectNotFound', $e->getStringCode());
             $this->assertStringContainsString(
                 'doesn\'t exist or project user is missing privileges to read from it.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }
@@ -82,7 +82,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             'in',
             'Iam in workspace',
             $externalBucketBackend,
-            'Iam-your-workspace'
+            'Iam-your-workspace',
         );
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -145,14 +145,14 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             '1',
             'NUMERIC',
             '38,0',
-            $tableDetail['columnMetadata']['AMOUNT']
+            $tableDetail['columnMetadata']['AMOUNT'],
         );
         $this->assertColumnMetadata(
             'VARCHAR',
             '1',
             'STRING',
             '16777216',
-            $tableDetail['columnMetadata']['DESCRIPTION']
+            $tableDetail['columnMetadata']['DESCRIPTION'],
         );
 
         // export table from external bucket
@@ -249,7 +249,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             '1',
             'STRING',
             '16777216',
-            $tableDetail['columnMetadata']['DESCRIPTION']
+            $tableDetail['columnMetadata']['DESCRIPTION'],
         );
 
         $this->assertColumnMetadata(
@@ -257,7 +257,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             '1',
             'FLOAT',
             null,
-            $tableDetail['columnMetadata']['XXX']
+            $tableDetail['columnMetadata']['XXX'],
         );
 
         // try failing load
@@ -271,14 +271,14 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
                             'destination' => 'test',
                         ],
                     ],
-                ]
+                ],
             );
             $this->fail('Should fail');
         } catch (ClientException $e) {
             $this->assertSame('workspace.tableCannotBeLoaded', $e->getStringCode());
             $this->assertSame(
                 'Table "test-bucket-registration" is part of external bucket "in.test-bucket-registration.TEST" and cannot be loaded into workspace.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -292,14 +292,14 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
                             'destination' => 'test',
                         ],
                     ],
-                ]
+                ],
             );
             $this->fail('Should fail');
         } catch (ClientException $e) {
             $this->assertSame('workspace.tableCannotBeLoaded', $e->getStringCode());
             $this->assertSame(
                 'Table "test-bucket-registration" is part of external bucket "in.test-bucket-registration.TEST" and cannot be loaded into workspace.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -323,7 +323,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             <<<SQL
 CREATE OR REPLACE STAGE s3_stage URL = 's3://xxxx'
     CREDENTIALS = ( AWS_KEY_ID = 'XXX' AWS_SECRET_KEY = 'YYY');
-SQL
+SQL,
         );
         $db->executeQuery(
             <<<SQL
@@ -336,7 +336,7 @@ EXTERNAL TABLE MY_LITTLE_EXT_TABLE (
     REFRESH_ON_CREATE = FALSE 
     AUTO_REFRESH = FALSE 
     FILE_FORMAT = (TYPE = CSV SKIP_HEADER=1 TRIM_SPACE=TRUE );
-SQL
+SQL,
         );
 
         // register workspace as external bucket including external table
@@ -347,7 +347,7 @@ SQL
             'in',
             'Iam in workspace',
             'snowflake',
-            'Iam-your-workspace'
+            'Iam-your-workspace',
         );
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -374,7 +374,7 @@ SQL
         $db->executeQuery(
             <<<SQL
 DROP TABLE MY_LITTLE_EXT_TABLE;
-SQL
+SQL,
         );
         $db->createTable('MY_LITTLE_EXT_TABLE', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
         $this->_client->refreshBucket($idOfBucket);
@@ -405,7 +405,7 @@ SQL
         $db->executeQuery(
             <<<SQL
 CREATE OR REPLACE VIEW MY_LITTLE_VIEW AS SELECT * FROM  MY_LITTLE_TABLE_FOR_VIEW;
-SQL
+SQL,
         );
 
         // register workspace as external bucket including external table
@@ -416,7 +416,7 @@ SQL
             'in',
             'Iam in workspace',
             'snowflake',
-            'Iam-your-workspace'
+            'Iam-your-workspace',
         );
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -456,7 +456,7 @@ SQL
             'in',
             'Iam in other database',
             'snowflake',
-            'Iam-from-external-db-ext'
+            'Iam-from-external-db-ext',
         );
 
         $assertCallback = function ($events) {
@@ -501,7 +501,7 @@ SQL
 
         assert($db instanceof SnowflakeWorkspaceBackend);
         $result = $db->getDb()->fetchAll(
-            'SELECT COUNT(*) AS CNT FROM "TEST_EXTERNAL_BUCKETS"."TEST_SCHEMA"."TEST_TABLE"'
+            'SELECT COUNT(*) AS CNT FROM "TEST_EXTERNAL_BUCKETS"."TEST_SCHEMA"."TEST_TABLE"',
         );
         $this->assertSame([
             [
@@ -515,7 +515,7 @@ SQL
         // check that workspace user CANNOT READ from table in external bucket directly
         try {
             $db->getDb()->fetchAll(
-                'SELECT COUNT(*) AS CNT FROM "TEST_EXTERNAL_BUCKETS"."TEST_SCHEMA"."TEST_TABLE"'
+                'SELECT COUNT(*) AS CNT FROM "TEST_EXTERNAL_BUCKETS"."TEST_SCHEMA"."TEST_TABLE"',
             );
             $this->fail('Database should not be authorized');
         } catch (\RuntimeException $e) {
@@ -544,7 +544,7 @@ SQL
             'in',
             'Iam in workspace',
             'snowflake',
-            'Iam-your-workspace'
+            'Iam-your-workspace',
         );
 
         $assertCallback = function ($events) {
@@ -585,7 +585,7 @@ SQL
             'in',
             'Iam in workspace',
             'snowflake',
-            'Iam-your-workspace'
+            'Iam-your-workspace',
         );
 
         $assertCallback = function ($events) {

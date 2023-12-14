@@ -139,7 +139,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 new BigqueryColumn('geography', new Bigquery('GEOGRAPHY')),
                 new BigqueryColumn('interval', new Bigquery('INTERVAL')),
                 new BigqueryColumn('json', new Bigquery('JSON')),
-            ])
+            ]),
         )));
         $backend->executeQuery(sprintf(
         /** @lang BigQuery */
@@ -147,7 +147,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`, `interval`, `json`) VALUES 
 (1, [2,2], STRUCT(111, "roman"), b\'\x01\x02\x03\x04\', ST_GEOGPOINT(-122.4194, 37.7749), INTERVAL 1 YEAR, JSON\'{"a": 1, "b": 2}\') 
 ;',
-            $workspace['connection']['schema']
+            $workspace['connection']['schema'],
         ));
 
         $this->_client->writeTableAsyncDirect($tableId, [
@@ -200,7 +200,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
     }
 
@@ -340,7 +340,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
                 '1989-08-31',
                 '1989-08-31 00:00:00.000',
                 'roman',
-            ]
+            ],
         );
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
@@ -392,7 +392,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -405,7 +405,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -468,7 +468,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
                 '1989-08-31',
                 '1989-08-31 00:00:00.000',
                 'roman',
-            ]
+            ],
         );
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
@@ -520,7 +520,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -533,7 +533,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -590,7 +590,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
                 '1989-08-31',
                 '1989-08-31 00:00:00.000',
                 'roman',
-            ]
+            ],
         );
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
@@ -642,7 +642,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -655,7 +655,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -1094,17 +1094,17 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
             $client->query(
                 sprintf(
                     'CREATE OR REPLACE TABLE `%s`.`my_new_table_with_nulls` (id INT64, notnullcolumn INT64);',
-                    $dataset
-                )
-            )
+                    $dataset,
+                ),
+            ),
         );
         $client->runQuery(
             $client->query(
                 sprintf(
                     'INSERT INTO `%s`.`my_new_table_with_nulls` VALUES (1, null);',
-                    $dataset
-                )
-            )
+                    $dataset,
+                ),
+            ),
         );
 
         try {
@@ -1168,14 +1168,14 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
                 ->setNotify(false)
                 ->setIsPublic(false)
                 ->setCompress(true)
-                ->setTags(['file-import'])
+                ->setTags(['file-import']),
         );
         $options['dataFileId'] = $fileId;
         $this->expectExceptionMessage(
             'Load error: '
             .'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. '
             .'Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; '
-            .'line_number: 2 byte_offset_to_start_of_line: 17 col'
+            .'line_number: 2 byte_offset_to_start_of_line: 17 col',
         );
         $this->expectException(ClientException::class);
         $this->_client->writeTableAsyncDirect($tableId, $options);

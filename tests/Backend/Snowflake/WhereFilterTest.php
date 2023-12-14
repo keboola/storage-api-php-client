@@ -403,7 +403,7 @@ class WhereFilterTest extends StorageApiTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
     }
 

@@ -78,7 +78,7 @@ class EventsTest extends StorageApiTestCase
                         'message' => 'The property projectId is required',
                     ],
                 ],
-                $e->getContextParams()['errors']
+                $e->getContextParams()['errors'],
             );
         }
     }

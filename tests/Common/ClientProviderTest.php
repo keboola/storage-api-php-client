@@ -141,7 +141,7 @@ class ClientProviderTest extends StorageApiTestCase
 
         $this->assertMatchesRegularExpression(
             $branchNamePattern,
-            $this->clientProvider->getDevBranchName()
+            $this->clientProvider->getDevBranchName(),
         );
     }
 

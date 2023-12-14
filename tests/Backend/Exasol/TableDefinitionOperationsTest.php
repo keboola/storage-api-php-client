@@ -205,7 +205,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 '2 12:50:10.123', // 'column_interval_day_to_second_default',
                 'POINT(2 5)', // 'column_geometry',
                 '550e8400-e29b-11d4-a716-446655440000', // 'column_hashtype',
-            ]
+            ],
         );
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
@@ -291,7 +291,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -304,7 +304,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -368,7 +368,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 '1989-08-31',
                 '1989-08-31 00:00:00.000',
                 'roman',
-            ]
+            ],
         );
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
@@ -420,7 +420,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -433,7 +433,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -490,7 +490,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 '1989-08-31',
                 '1989-08-31 00:00:00.000',
                 'roman',
-            ]
+            ],
         );
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
@@ -542,7 +542,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -555,7 +555,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -815,7 +815,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 'id',
                 'name',
             ],
-            $newTable['columns']
+            $newTable['columns'],
         );
 
         $this->assertCount(1, $newTable['metadata']);
@@ -944,7 +944,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 '1989-08-31',
                 '2023-04-18 12:34:56',
                 0,
-            ]
+            ],
         );
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);

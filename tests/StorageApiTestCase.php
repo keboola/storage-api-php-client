@@ -162,7 +162,7 @@ abstract class StorageApiTestCase extends ClientTestCase
                         try {
                             $client->forceUnlinkBucket(
                                 $bucket['id'],
-                                $linkedBucket['project']['id']
+                                $linkedBucket['project']['id'],
                             );
                         } catch (\Keboola\StorageApi\ClientException $e) {
                             $this->throwExceptionIfNotDeleted($e);
@@ -536,7 +536,7 @@ abstract class StorageApiTestCase extends ClientTestCase
     {
         $this->createAndWaitForEvent(
             (new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'),
-            $client
+            $client,
         );
         $events = $client->listTokenEvents($client->verifyToken()['id']);
         foreach ($events as $event) {

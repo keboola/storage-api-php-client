@@ -685,7 +685,7 @@ class TokensTest extends StorageApiTestCase
         $configurationRow = new ConfigurationRow(
             (new Configuration())
                 ->setComponentId('provisioning')
-                ->setConfigurationId('main-1')
+                ->setConfigurationId('main-1'),
         );
 
         $configurationRow->setRowId('main-1-1');
@@ -717,7 +717,7 @@ class TokensTest extends StorageApiTestCase
         $outTableId = $this->_client->createTableAsync(
             $this->outBucketId,
             'languages',
-            new CsvFile(__DIR__ . '/../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../_data/languages.csv'),
         );
 
         $options = (new TokenCreateOptions())
@@ -764,7 +764,7 @@ class TokensTest extends StorageApiTestCase
         $outTableId = $this->_client->createTableAsync(
             $this->outBucketId,
             'languages',
-            new CsvFile(__DIR__ . '/../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../_data/languages.csv'),
         );
 
         $options = (new TokenCreateOptions())
@@ -806,7 +806,7 @@ class TokensTest extends StorageApiTestCase
         $outTableId = $this->_client->createTableAsync(
             $this->outBucketId,
             'languages',
-            new CsvFile(__DIR__ . '/../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../_data/languages.csv'),
         );
 
         $options = (new TokenCreateOptions())
@@ -956,7 +956,7 @@ class TokensTest extends StorageApiTestCase
             function ($bucket) {
                 return $bucket['id'];
             },
-            $this->_client->listBuckets()
+            $this->_client->listBuckets(),
         );
 
         $this->assertGreaterThan(0, count($bucketIds));
@@ -1503,7 +1503,7 @@ class TokensTest extends StorageApiTestCase
         // flag has no use in non-sox projects, but token can be created
         $tokenWithCreateJobsFlag = (new Tokens($this->_client))
             ->createToken(
-                (new TokenCreateOptions())->setCanCreateJobs(true)
+                (new TokenCreateOptions())->setCanCreateJobs(true),
             );
         $this->assertTrue($tokenWithCreateJobsFlag['canCreateJobs']);
     }

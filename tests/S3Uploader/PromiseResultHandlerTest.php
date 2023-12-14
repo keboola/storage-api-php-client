@@ -21,7 +21,7 @@ class PromiseResultHandlerTest extends StorageApiTestCase
                 'state' => 'rejected',
                 'reason' => new S3MultipartUploadException(
                     new UploadState([]),
-                    new AwsException('DummyAwsException', new Command('DummyCommand', ['Key' => 'DummyKey']))
+                    new AwsException('DummyAwsException', new Command('DummyCommand', ['Key' => 'DummyKey'])),
                 ),
             ],
         ];

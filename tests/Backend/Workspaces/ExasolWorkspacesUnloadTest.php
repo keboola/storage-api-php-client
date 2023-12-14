@@ -27,7 +27,7 @@ class ExasolWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
-            $tableId
+            $tableId,
         ));
 
         $db->query("create table $quotedTableId (
@@ -72,7 +72,7 @@ class ExasolWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
-            $tableId
+            $tableId,
         ));
 
         $db->query("create table $quotedTableId (
@@ -112,7 +112,7 @@ class ExasolWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
-            $tableId
+            $tableId,
         ));
 
         $db->query("create table $quotedTableId (
@@ -167,7 +167,7 @@ class ExasolWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
-            $tableId
+            $tableId,
         ));
 
         $db->query("create table $quotedTableId (

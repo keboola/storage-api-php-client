@@ -36,7 +36,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $backend->executeQuery(sprintf(
         /** @lang BigQuery */
             'INSERT INTO %s.`test_Languages3` (`id`, `Name`) VALUES (1, \'cz\'), (2, \'en\');',
-            $workspace['connection']['schema']
+            $workspace['connection']['schema'],
         ));
 
         $this->expectException(ClientException::class);
@@ -63,7 +63,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $backend->executeQuery(sprintf(
         /** @lang BigQuery */
             'INSERT INTO %s.`test_Languages3` (`Id`, `Name`) VALUES (1, \'cz\'), (2, \'en\');',
-            $workspace['connection']['schema']
+            $workspace['connection']['schema'],
         ));
         // create table from workspace
         $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
@@ -97,7 +97,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $backend->executeQuery(sprintf(
         /** @lang BigQuery */
             'INSERT INTO %s.`test_Languages3` (`_Id`, `Name`) VALUES (1, \'cz\'), (2, \'en\');',
-            $workspace['connection']['schema']
+            $workspace['connection']['schema'],
         ));
 
         try {
@@ -137,9 +137,9 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $this->assertEquals(
                 sprintf(
                     'Table "thisTableDoesNotExist" not found in schema "%s"',
-                    $workspace['connection']['schema']
+                    $workspace['connection']['schema'],
                 ),
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -155,9 +155,9 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $this->assertEquals(
                 sprintf(
                     'Table "thisTableDoesNotExist" not found in schema "%s"',
-                    $workspace['connection']['schema']
+                    $workspace['connection']['schema'],
                 ),
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }
@@ -177,7 +177,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $backend->executeQuery(sprintf(
         /** @lang BigQuery */
             'INSERT INTO %s.`test_Languages3` (`Id`, `Name`, `_update`) VALUES (1, \'cz\', \'x\'), (2, \'en\', \'z\');',
-            $workspace['connection']['schema']
+            $workspace['connection']['schema'],
         ));
 
         // sync create table is deprecated and does not support JSON
@@ -224,7 +224,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $backend->executeQuery(sprintf(
         /** @lang BigQuery */
             'INSERT INTO %s.`test_Languages3` (`Id`, `Name`) VALUES (1, \'cz\'), (2, \'en\');',
-            $workspace['connection']['schema']
+            $workspace['connection']['schema'],
         ));
 
         $this->_client->writeTableAsyncDirect($table['id'], [
@@ -245,12 +245,12 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $backend->executeQuery(sprintf(
         /** @lang BigQuery */
             'TRUNCATE TABLE %s.`test_Languages3`',
-            $workspace['connection']['schema']
+            $workspace['connection']['schema'],
         ));
         $backend->executeQuery(sprintf(
         /** @lang BigQuery */
             'INSERT INTO %s.`test_Languages3` VALUES (1, \'cz\', \'1\'), (3, \'sk\', \'1\');',
-            $workspace['connection']['schema']
+            $workspace['connection']['schema'],
         ));
 
         $this->_client->writeTableAsyncDirect($table['id'], [
@@ -272,17 +272,17 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $backend->executeQuery(sprintf(
         /** @lang BigQuery */
             'TRUNCATE TABLE %s.`test_Languages3`',
-            $workspace['connection']['schema']
+            $workspace['connection']['schema'],
         ));
         $backend->executeQuery(sprintf(
         /** @lang BigQuery */
             'ALTER TABLE %s.`test_Languages3` ADD COLUMN `new_col` string(10)',
-            $workspace['connection']['schema']
+            $workspace['connection']['schema'],
         ));
         $backend->executeQuery(sprintf(
         /** @lang BigQuery */
             'INSERT INTO %s.`test_Languages3` VALUES (1, \'cz\', \'1\', NULL), (3, \'sk\', \'1\', \'newValue\');',
-            $workspace['connection']['schema']
+            $workspace['connection']['schema'],
         ));
 
         $this->expectException(ClientException::class);
@@ -313,7 +313,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $mapping1 = ['source' => $table1Id, 'destination' => 'languagesLoaded'];
@@ -329,7 +329,7 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         } catch (ClientException $e) {
             $this->assertEquals(
                 'Backend "bigquery" does not support: "Other types of loading than view".',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }

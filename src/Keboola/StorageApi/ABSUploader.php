@@ -64,7 +64,7 @@ class ABSUploader
                     $container,
                     $blobName,
                     fopen($file, 'r'),
-                    $options
+                    $options,
                 ));
             }, $this));
             return $promise;
@@ -128,7 +128,7 @@ class ABSUploader
             $blobName = sprintf(
                 '%s%s',
                 $blobPrefix,
-                basename($slice)
+                basename($slice),
             );
             $promise = $this->uploadAsync($container, $slice, $blobName, $parallel);
             // wait for slice to upload

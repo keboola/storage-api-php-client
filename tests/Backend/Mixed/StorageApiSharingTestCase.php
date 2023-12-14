@@ -33,21 +33,21 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
         parent::setUp();
 
         $this->_client2 = $this->getClientForToken(
-            STORAGE_API_LINKING_TOKEN
+            STORAGE_API_LINKING_TOKEN,
         );
 
         $this->tokensInLinkingProject = new Tokens($this->_client2);
 
         $this->clientAdmin2InSameOrg = $this->getClientForToken(
-            STORAGE_API_TOKEN_ADMIN_2_IN_SAME_ORGANIZATION
+            STORAGE_API_TOKEN_ADMIN_2_IN_SAME_ORGANIZATION,
         );
 
         $this->clientAdmin3InOtherOrg = $this->getClientForToken(
-            STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION
+            STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION,
         );
 
         $this->shareRoleClient = $this->getClientForToken(
-            STORAGE_API_SHARE_TOKEN
+            STORAGE_API_SHARE_TOKEN,
         );
 
         $tokenData = $this->_client->verifyToken();
@@ -69,8 +69,8 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
                 'Tokens %s cannot belong to the same admin',
                 implode(
                     ', ',
-                    array_keys($adminIds)
-                )
+                    array_keys($adminIds),
+                ),
             ));
         }
 
@@ -79,14 +79,14 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
             throw new \Exception('STORAGE_API_LINKING_TOKEN is not in the same organization as STORAGE_API_TOKEN');
         } elseif ($tokenData['organization']['id'] !== $tokenAdmin2InSameOrgData['organization']['id']) {
             throw new \Exception(
-                'STORAGE_API_TOKEN_ADMIN_2_IN_SAME_ORGANIZATION is not in the same organization as STORAGE_API_TOKEN'
+                'STORAGE_API_TOKEN_ADMIN_2_IN_SAME_ORGANIZATION is not in the same organization as STORAGE_API_TOKEN',
             );
         }
 
         // not same organization
         if ($tokenData['organization']['id'] === $tokenAdmin3InOtherOrg['organization']['id']) {
             throw new \Exception(
-                'STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION is in the same organization as STORAGE_API_TOKEN'
+                'STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION is in the same organization as STORAGE_API_TOKEN',
             );
         }
     }
@@ -128,7 +128,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
                 [
                     'force' => true,
                     'async' => true,
-                ]
+                ],
             );
         }
 
@@ -259,7 +259,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
                 $this->assertEquals(
                     $table[$fieldName],
                     $linkedTables[$i][$fieldName],
-                    sprintf('Bad value for `%s` metadata attribute', $fieldName)
+                    sprintf('Bad value for `%s` metadata attribute', $fieldName),
                 );
             }
 
@@ -267,7 +267,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
                 $this->assertEquals(
                     $table['isAlias'] === false ? $table['columnMetadata'] : $table['sourceTable']['columnMetadata'],
                     $linkedTables[$i]['sourceTable']['columnMetadata'],
-                    'Bad value for `columnMetadata` metadata attribute'
+                    'Bad value for `columnMetadata` metadata attribute',
                 );
             }
 

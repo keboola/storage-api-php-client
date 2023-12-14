@@ -19,7 +19,7 @@ final class AbsUrlParser
             . '\/'
             . '(.*)$/', // filepath
             $url,
-            $matched
+            $matched,
         );
         list($full, $protocol, $account, $container, $file) = $matched;
 

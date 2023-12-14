@@ -23,13 +23,13 @@ class CopyIntoWorkspaceTest extends WorkspacesTestCase
         $workspace = $workspaces->createWorkspace([], true);
 
         $client2 = $this->getClientForToken(
-            STORAGE_API_LINKING_TOKEN
+            STORAGE_API_LINKING_TOKEN,
         );
 
         $tableId = $this->createTableFromFile(
             $this->_client,
             $this->getTestBucketId(self::STAGE_IN),
-            self::IMPORT_FILE_PATH
+            self::IMPORT_FILE_PATH,
         );
 
         $this->dropBucketIfExists($this->_client, 'out.c-linked-bucket', true);
@@ -42,7 +42,7 @@ class CopyIntoWorkspaceTest extends WorkspacesTestCase
             $bucket,
             __DIR__ . '/../../_data/languages.more-rows.csv',
             'id',
-            'languagesDetails2'
+            'languagesDetails2',
         );
 
         $client2->shareBucket($bucket);
@@ -52,7 +52,7 @@ class CopyIntoWorkspaceTest extends WorkspacesTestCase
             'linked-bucket',
             'out',
             $sourceProjectId,
-            $bucket
+            $bucket,
         );
 
         // first load
@@ -65,7 +65,7 @@ class CopyIntoWorkspaceTest extends WorkspacesTestCase
                         'destination' => 'Langs',
                     ],
                 ],
-            ]
+            ],
         );
 
         $backend = new SnowflakeWorkspaceBackend($workspace);
@@ -84,7 +84,7 @@ class CopyIntoWorkspaceTest extends WorkspacesTestCase
                         ],
                     ],
                     'preserve' => true,
-                ]
+                ],
             );
             $this->fail('table should not be created');
         } catch (ClientException $e) {
@@ -150,7 +150,7 @@ class CopyIntoWorkspaceTest extends WorkspacesTestCase
             $bucketId,
             $tableName,
             new CsvFile($importFilePath),
-            ['primaryKey' => $primaryKey]
+            ['primaryKey' => $primaryKey],
         );
     }
 }

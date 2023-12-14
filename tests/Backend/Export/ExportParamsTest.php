@@ -85,7 +85,7 @@ class ExportParamsTest extends StorageApiTestCase
         } elseif ($exportedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
             // Check ABC ACL and listing blobs
             $blobClient = BlobClientFactory::createClientFromConnectionString(
-                $exportedFile['absCredentials']['SASConnectionString']
+                $exportedFile['absCredentials']['SASConnectionString'],
             );
             $listResult = $blobClient->listBlobs($exportedFile['absPath']['container']);
             $table = $this->_client->getTable($tableId);
@@ -98,7 +98,7 @@ class ExportParamsTest extends StorageApiTestCase
             foreach ($listResult->getBlobs() as $blob) {
                 $blobClient->getBlob(
                     $exportedFile['absPath']['container'],
-                    $blob->getName()
+                    $blob->getName(),
                 );
             }
         } else {

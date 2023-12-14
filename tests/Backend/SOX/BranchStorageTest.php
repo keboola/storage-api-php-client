@@ -81,7 +81,7 @@ class BranchStorageTest extends StorageApiTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.increment.csv'),
             [
                 'incremental' => true,
-            ]
+            ],
         );
         $this->assertBranchEvent($branchClient, 'storage.tableImportDone', $devTableId, 'table');
         $this->assertTableRowsCount(8, $devTableId, $branchClient);
@@ -92,7 +92,7 @@ class BranchStorageTest extends StorageApiTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.more-rows.csv'),
             [
                 'incremental' => true,
-            ]
+            ],
         );
         $this->assertBranchEvent($privilegedClient, 'storage.tableImportDone', $productionTableId, 'table');
         $this->assertTableRowsCount(8, $devTableId, $branchClient);
@@ -360,12 +360,12 @@ class BranchStorageTest extends StorageApiTestCase
             $this->getTestBucketName($description),
             self::STAGE_IN,
             $description,
-            $privilegedClient
+            $privilegedClient,
         );
         $productionTableId = $privilegedClient->createTableAsync(
             $productionBucketId,
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
         $branchClient = $this->getBranchAwareClient($newBranch['id'], [
             'token' => STORAGE_API_DEVELOPER_TOKEN,
@@ -472,7 +472,7 @@ class BranchStorageTest extends StorageApiTestCase
             $devTableId,
             'test',
             $tableDevMetadata,
-            $columnsDevMetadata
+            $columnsDevMetadata,
         ));
         $branchMetadataApi->postColumnMetadata($devTableId . '.name', 'test', [
             [
@@ -546,7 +546,7 @@ class BranchStorageTest extends StorageApiTestCase
             $productionTableId,
             'test',
             $tableProdMetadata,
-            $columnsProdMetadata
+            $columnsProdMetadata,
         ));
         $productionMetadataApi->postColumnMetadata($productionTableId . '.name', 'test', [
             [

@@ -85,7 +85,7 @@ class BranchEventsTest extends StorageApiTestCase
 
         $bucketsListedEvents = $this->waitForListEvents(
             $branchAwareClient,
-            'event:ext.ex-sfdc.sys.c-sfdc.account-'.$branch['id']
+            'event:ext.ex-sfdc.sys.c-sfdc.account-'.$branch['id'],
         );
         $this->assertCount(1, $bucketsListedEvents);
         $this->assertEquals('ex-sfdc', $bucketsListedEvents[0]['component']);
@@ -127,7 +127,7 @@ class BranchEventsTest extends StorageApiTestCase
 
         $componentCreateInMainBranchListedEvents = $this->waitForListEvents(
             $this->_client,
-            'objectId:main-config-created-' . $branch['id']
+            'objectId:main-config-created-' . $branch['id'],
         );
 
         try {

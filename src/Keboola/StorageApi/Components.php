@@ -81,7 +81,7 @@ class Components
 
         return $this->client->apiPutJson(
             $this->branchPrefix . "components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}",
-            $data
+            $data,
         );
     }
 
@@ -99,7 +99,7 @@ class Components
 
         return $this->client->apiPutJson(
             $this->branchPrefix . "components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}/state",
-            $data
+            $data,
         );
     }
 
@@ -156,7 +156,7 @@ class Components
     {
         return $this->client->apiPostJson(
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/versions/{$version}/rollback",
-            ['changeDescription' => $changeDescription]
+            ['changeDescription' => $changeDescription],
         );
     }
 
@@ -164,7 +164,7 @@ class Components
     {
         return $this->client->apiPostJson(
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/versions/{$version}/create",
-            ['name' => $name, 'description' => $description, 'changeDescription' => $changeDescription]
+            ['name' => $name, 'description' => $description, 'changeDescription' => $changeDescription],
         );
     }
 
@@ -174,7 +174,7 @@ class Components
             $this->branchPrefix . 'components/%s/configs/%s/rows/%s',
             $componentId,
             $configurationId,
-            $rowId
+            $rowId,
         ));
     }
 
@@ -202,7 +202,7 @@ class Components
             sprintf(
                 $this->branchPrefix . 'components/%s/configs/%s/rows',
                 $options->getComponentConfiguration()->getComponentId(),
-                $options->getComponentConfiguration()->getConfigurationId()
+                $options->getComponentConfiguration()->getConfigurationId(),
             ),
             [
                 'rowId' => $options->getRowId(),
@@ -212,7 +212,7 @@ class Components
                 'name' => $options->getName(),
                 'description' => $options->getDescription(),
                 'isDisabled' => $options->getIsDisabled(),
-            ]
+            ],
         );
     }
 
@@ -222,7 +222,7 @@ class Components
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}",
             [
                 'changeDescription' => $changeDescription,
-            ]
+            ],
         );
     }
 
@@ -266,9 +266,9 @@ class Components
                 $this->branchPrefix . 'components/%s/configs/%s/rows/%s',
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId(),
-                $options->getRowId()
+                $options->getRowId(),
             ),
-            $data
+            $data,
         );
     }
 
@@ -289,9 +289,9 @@ class Components
                 $this->branchPrefix . 'components/%s/configs/%s/rows/%s/state',
                 $options->getComponentConfiguration()->getComponentId(),
                 $options->getComponentConfiguration()->getConfigurationId(),
-                $options->getRowId()
+                $options->getRowId(),
             ),
-            $data
+            $data,
         );
     }
 
@@ -303,8 +303,8 @@ class Components
                 $options->getComponentId(),
                 $options->getConfigurationId(),
                 $options->getRowId(),
-                http_build_query($options->toParamsArray())
-            )
+                http_build_query($options->toParamsArray()),
+            ),
         );
     }
 
@@ -317,7 +317,7 @@ class Components
     {
         return $this->client->apiPostJson(
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/rollback",
-            ['changeDescription' => $changeDescription]
+            ['changeDescription' => $changeDescription],
         );
     }
 
@@ -325,7 +325,7 @@ class Components
     {
         return $this->client->apiPostJson(
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/create",
-            ['targetConfigId' => $targetConfigurationId, 'changeDescription' => $changeDescription]
+            ['targetConfigId' => $targetConfigurationId, 'changeDescription' => $changeDescription],
         );
     }
 
@@ -339,7 +339,7 @@ class Components
             $url,
             $options,
             true,
-            [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true]
+            [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true],
         );
         assert(is_array($workspaceResponse));
 
@@ -354,11 +354,11 @@ class Components
             sprintf(
                 $this->branchPrefix . 'components/%s/configs/%s/metadata',
                 $options->getComponentConfiguration()->getComponentId(),
-                $options->getComponentConfiguration()->getConfigurationId()
+                $options->getComponentConfiguration()->getConfigurationId(),
             ),
             [
                 'metadata' => $options->getMetadata(),
-            ]
+            ],
         );
     }
 
@@ -367,7 +367,7 @@ class Components
         return $this->client->apiGet(sprintf(
             $this->branchPrefix . 'components/%s/configs/%s/metadata',
             $options->getComponentId(),
-            $options->getConfigurationId()
+            $options->getConfigurationId(),
         ));
     }
 
@@ -377,7 +377,7 @@ class Components
             $this->branchPrefix . 'components/%s/configs/%s/metadata/%s',
             $componentId,
             $configurationId,
-            $metadataId
+            $metadataId,
         ));
     }
 }

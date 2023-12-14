@@ -44,13 +44,13 @@ class BranchComponentTest extends StorageApiTestCase
         $components->addConfigurationRow(
             (new ConfigurationRow($configurationOptions))
                 ->setName('Main 1 Row 1')
-                ->setRowId('main-1-row-1')
+                ->setRowId('main-1-row-1'),
         );
 
         $components->addConfigurationRow(
             (new ConfigurationRow($configurationOptions))
                 ->setName('Main 1 Row 2')
-                ->setRowId('main-1-row-2')
+                ->setRowId('main-1-row-2'),
         );
 
         $newConfig = $components->createConfigurationFromVersion($componentId, $configurationId, 3, 'Copy version 3');
@@ -94,7 +94,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertNotEquals(
             $newConfigVuid1,
             $newConfigVuid2,
-            'Updated configuration should have different version identifier'
+            'Updated configuration should have different version identifier',
         );
         $this->assertArrayHasKey('rows', $configData);
         foreach ($configData['rows'] as $row) {
@@ -137,7 +137,7 @@ class BranchComponentTest extends StorageApiTestCase
         $row = $components->addConfigurationRow(
             (new ConfigurationRow($configurationOptions))
                 ->setName('Main 1 Row 1')
-                ->setRowId('main-1-row-1')
+                ->setRowId('main-1-row-1'),
         );
         $rowId = $row['id'];
 
@@ -155,21 +155,21 @@ class BranchComponentTest extends StorageApiTestCase
         // If create a new branch, config should be the same, also version identifier
         $this->assertEquals(
             $this->withoutKeysChangingInBranch($originalConfiguration),
-            $this->withoutKeysChangingInBranch($originalConfigurationInBranch)
+            $this->withoutKeysChangingInBranch($originalConfigurationInBranch),
         );
 
         // update configuration in main branch (version 3)
         $components->updateConfiguration(
             $configurationOptions
                 ->setName('Main updated')
-                ->setConfiguration(['test' => 'true'])
+                ->setConfiguration(['test' => 'true']),
         );
 
         // update configuration in dev branch (version 2)
         $branchComponents->updateConfiguration(
             $configurationOptions
                 ->setName('Main updated in branch')
-                ->setConfiguration(['test' => 'true in branch'])
+                ->setConfiguration(['test' => 'true in branch']),
         );
 
         $updatedConfiguration = $components->getConfiguration($componentId, $configurationId);
@@ -177,18 +177,18 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertNotSame(
             $originalConfigurationInBranch['currentVersion']['versionIdentifier'],
             $updatedConfigurationInBranch['currentVersion']['versionIdentifier'],
-            'If update configuration in branch, version identifier should change'
+            'If update configuration in branch, version identifier should change',
         );
 
         $this->assertSame(3, $updatedConfiguration['version']);
         $this->assertSame(2, $updatedConfigurationInBranch['version']);
         $this->assertNotEquals(
             $this->withoutKeysChangingInBranch($originalConfigurationInBranch),
-            $this->withoutKeysChangingInBranch($updatedConfiguration)
+            $this->withoutKeysChangingInBranch($updatedConfiguration),
         );
         $this->assertNotEquals(
             $this->withoutKeysChangingInBranch($updatedConfigurationInBranch),
-            $this->withoutKeysChangingInBranch($updatedConfiguration)
+            $this->withoutKeysChangingInBranch($updatedConfiguration),
         );
 
         // reset to default does not work for main branch
@@ -203,13 +203,13 @@ class BranchComponentTest extends StorageApiTestCase
         $branchComponents->updateConfiguration(
             $configurationOptions
                 ->setName('Main updated')
-                ->setConfiguration(['test' => 'true'])
+                ->setConfiguration(['test' => 'true']),
         );
 
         $configurationVersionsInBranch = $branchComponents->listConfigurationVersions(
             (new ListConfigurationVersionsOptions())
                 ->setComponentId($componentId)
-                ->setConfigurationId($configurationId)
+                ->setConfigurationId($configurationId),
         );
 
         // can get configuration version 2
@@ -245,13 +245,13 @@ class BranchComponentTest extends StorageApiTestCase
 
         $this->assertSame(
             $this->withoutKeysChangingInBranch($updatedConfiguration),
-            $this->withoutKeysChangingInBranch($resetConfigurationInBranch)
+            $this->withoutKeysChangingInBranch($resetConfigurationInBranch),
         );
 
         $resetConfigurationVersionsInBranch = $branchComponents->listConfigurationVersions(
             (new ListConfigurationVersionsOptions())
                 ->setComponentId($componentId)
-                ->setConfigurationId($configurationId)
+                ->setConfigurationId($configurationId),
         );
 
         $this->assertCount(1, $resetConfigurationVersionsInBranch);
@@ -263,12 +263,12 @@ class BranchComponentTest extends StorageApiTestCase
                 ->setComponentId($componentId)
                 ->setConfigurationId($configurationId)
                 ->setName('Main updated')
-                ->setConfiguration(['test' => 'true in branch'])
+                ->setConfiguration(['test' => 'true in branch']),
         );
         $configurationVersionsInBranch = $branchComponents->listConfigurationVersions(
             (new \Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions())
                 ->setComponentId($componentId)
-                ->setConfigurationId($configurationId)
+                ->setConfigurationId($configurationId),
         );
         $this->assertCount(2, $configurationVersionsInBranch);
         $branchComponents->getConfigurationVersion($componentId, $configurationId, 2);
@@ -287,7 +287,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $this->assertSame(
             $this->withoutKeysChangingInBranch($updatedConfiguration),
-            $this->withoutKeysChangingInBranch($configurationAfterReset)
+            $this->withoutKeysChangingInBranch($configurationAfterReset),
         );
         try {
             $branchComponents->getConfigurationVersion($componentId, $configurationId, 2);
@@ -343,7 +343,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $this->assertSame(
             $this->withoutKeysChangingInBranch($updatedConfiguration),
-            $this->withoutKeysChangingInBranch($configurationAfterReset)
+            $this->withoutKeysChangingInBranch($configurationAfterReset),
         );
 
         // purge the deleted configuration
@@ -370,12 +370,12 @@ class BranchComponentTest extends StorageApiTestCase
             $branch['version'],
             $branch['changeDescription'],
             $branch['isDisabled'],
-            $branch['currentVersion']['changeDescription']
+            $branch['currentVersion']['changeDescription'],
         );
         foreach ($branch['rows'] as &$row) {
             unset(
                 $row['created'],
-                $row['changeDescription']
+                $row['changeDescription'],
             );
         }
         return $branch;
@@ -397,7 +397,7 @@ class BranchComponentTest extends StorageApiTestCase
         $components->addConfigurationRow(
             (new ConfigurationRow($configurationOptions))
                 ->setName('Main 1 Row 1')
-                ->setRowId('main-1-row-1')
+                ->setRowId('main-1-row-1'),
         );
         // be sure that create time of copied row is different
         sleep(1);
@@ -410,7 +410,7 @@ class BranchComponentTest extends StorageApiTestCase
         $components->addConfigurationRow(
             (new ConfigurationRow($deletedConfigurationOptions))
                 ->setName('Deleted Main Row 1')
-                ->setRowId('deleted-main-row-1')
+                ->setRowId('deleted-main-row-1'),
         );
         // configuration exists
         $components->getConfiguration($componentId, 'deleted-main');
@@ -445,7 +445,7 @@ class BranchComponentTest extends StorageApiTestCase
         $configurationVersions = $branchComponents->listConfigurationVersions(
             (new ListConfigurationVersionsOptions())
                 ->setComponentId($componentId)
-                ->setConfigurationId('main-1')
+                ->setConfigurationId('main-1'),
         );
 
         $this->assertCount(1, $configurationVersions);
@@ -459,7 +459,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertSame($configurationData, $configurationVersion['configuration']);
         $this->assertSame(
             'Copied from default branch configuration version "Main 1" (configuration id: main-1) version 2',
-            $configurationVersion['changeDescription']
+            $configurationVersion['changeDescription'],
         );
 
         // test config time created is different for branch config
@@ -470,7 +470,7 @@ class BranchComponentTest extends StorageApiTestCase
         // but version identifier is same
         $this->assertSame(
             $this->withoutKeysChangingInBranch($configMain),
-            $this->withoutKeysChangingInBranch($configFromMain)
+            $this->withoutKeysChangingInBranch($configFromMain),
         );
 
         $currentVersion = $configFromMain['currentVersion'];
@@ -490,7 +490,7 @@ class BranchComponentTest extends StorageApiTestCase
         $row = $branchComponents->getConfigurationRow(
             $componentId,
             'main-1',
-            'main-1-row-1'
+            'main-1-row-1',
         );
 
         $this->assertEquals('main-1-row-1', $row['id']);
@@ -500,14 +500,14 @@ class BranchComponentTest extends StorageApiTestCase
         $mainBranchRow = $components->getConfigurationRow(
             $componentId,
             'main-1',
-            'main-1-row-1'
+            'main-1-row-1',
         );
 
         // test config row time created is different for branch config
         $this->assertNotEquals($mainBranchRow['created'], $row['created']);
 
         $branchConfigs = $branchComponents->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId),
         );
 
         // There is only the one configuration that was copied from production
@@ -522,7 +522,7 @@ class BranchComponentTest extends StorageApiTestCase
         $components->addConfigurationRow(
             (new ConfigurationRow($configurationOptions))
                 ->setName('Main 1 Row 2')
-                ->setRowId('main-1-row-2')
+                ->setRowId('main-1-row-2'),
         );
 
         // update version in main should generate new version identifier in main
@@ -530,7 +530,7 @@ class BranchComponentTest extends StorageApiTestCase
         $configFromMain = $branchComponents->getConfiguration($componentId, 'main-1');
         $this->assertNotSame(
             $this->withoutKeysChangingInBranch($configMain),
-            $this->withoutKeysChangingInBranch($configFromMain)
+            $this->withoutKeysChangingInBranch($configFromMain),
         );
 
         // Check new config rows added to main branch
@@ -540,13 +540,13 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertCount(2, $rows);
 
         $configs = $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId),
         );
         // two configuration was created in main branch
         $this->assertCount(2, $configs);
 
         $branchConfigs = $branchComponents->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId),
         );
 
         // Creating new configuration row in main branch shouldn't create new configuration row in dev branch
@@ -558,7 +558,7 @@ class BranchComponentTest extends StorageApiTestCase
         $row = $branchComponents->getConfigurationRow(
             $componentId,
             'main-1',
-            'main-1-row-1'
+            'main-1-row-1',
         );
 
         $this->assertEquals('main-1-row-1', $row['id']);
@@ -567,7 +567,7 @@ class BranchComponentTest extends StorageApiTestCase
             $branchComponents->getConfigurationRow(
                 $componentId,
                 'main-1',
-                'main-1-row-2'
+                'main-1-row-2',
             );
             $this->fail('Configuration row created in main branch shouldn\'t exist in dev branch');
         } catch (ClientException $e) {
@@ -604,14 +604,14 @@ class BranchComponentTest extends StorageApiTestCase
         $branchComponents->addConfigurationRow(
             (new ConfigurationRow($configurationOptions))
                 ->setName('Dev 1 Row 1')
-                ->setRowId('dev-1-row-1')
+                ->setRowId('dev-1-row-1'),
         );
 
         // test is version created for devBranch after add new config row
         $configurationVersions = $branchComponents->listConfigurationVersions(
             (new ListConfigurationVersionsOptions())
                 ->setComponentId($componentId)
-                ->setConfigurationId('main-1')
+                ->setConfigurationId('main-1'),
         );
 
         $this->assertCount(2, $configurationVersions);
@@ -633,7 +633,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertArrayNotHasKey('state', $configurationVersion);
         $this->assertSame(
             'Copied from default branch configuration version "Main 1" (configuration id: main-1) version 2',
-            $configurationVersion['changeDescription']
+            $configurationVersion['changeDescription'],
         );
 
         $configFromMain = $branchComponents->getConfiguration($componentId, 'main-1');
@@ -663,7 +663,7 @@ class BranchComponentTest extends StorageApiTestCase
             (new ConfigurationRow($configurationOptions))
                 ->setName('Dev 1 Row 3')
                 ->setRowId('dev-1-row-3')
-                ->setChangeDescription('Custom change desc')
+                ->setChangeDescription('Custom change desc'),
         );
 
         $configFromMain = $branchComponents->getConfiguration($componentId, 'main-1');
@@ -679,7 +679,7 @@ class BranchComponentTest extends StorageApiTestCase
         $configurationVersions = $branchComponents->listConfigurationVersions(
             (new ListConfigurationVersionsOptions())
                 ->setComponentId($componentId)
-                ->setConfigurationId('main-1')
+                ->setConfigurationId('main-1'),
         );
 
         $this->assertCount(4, $configurationVersions);
@@ -715,13 +715,13 @@ class BranchComponentTest extends StorageApiTestCase
                 ->setRowId('dev-1-row-1')
                 ->setName('Renamed Dev 1 Row 1')
                 ->setConfiguration('{"id":"10","stuff":"true"}')
-                ->setChangeDescription('Test change dev-1-row-1')
+                ->setChangeDescription('Test change dev-1-row-1'),
         );
 
         $updatedRow = $branchComponents->getConfigurationRow(
             $componentId,
             'main-1',
-            'dev-1-row-1'
+            'dev-1-row-1',
         );
         $configurationAssociatedWithUpdatedRow = $branchComponents->getConfiguration('transformation', 'main-1');
 
@@ -741,7 +741,7 @@ class BranchComponentTest extends StorageApiTestCase
         $configurationVersions = $branchComponents->listConfigurationVersions(
             (new ListConfigurationVersionsOptions())
                 ->setComponentId('transformation')
-                ->setConfigurationId('main-1')
+                ->setConfigurationId('main-1'),
         );
 
         $this->assertCount(5, $configurationVersions);
@@ -758,13 +758,13 @@ class BranchComponentTest extends StorageApiTestCase
             (new ConfigurationRow($configurationOptions))
                 ->setRowId('dev-1-row-1')
                 ->setName('Renamed Dev 1 Row 1')
-                ->setConfiguration('{"id":"10","stuff":"true"}')
+                ->setConfiguration('{"id":"10","stuff":"true"}'),
         );
 
         $updatedRow = $branchComponents->getConfigurationRow(
             $componentId,
             'main-1',
-            'dev-1-row-1'
+            'dev-1-row-1',
         );
         $configurationAssociatedWithUpdatedRow = $branchComponents->getConfiguration('transformation', 'main-1');
 
@@ -784,7 +784,7 @@ class BranchComponentTest extends StorageApiTestCase
         $configurationVersions = $branchComponents->listConfigurationVersions(
             (new ListConfigurationVersionsOptions())
                 ->setComponentId('transformation')
-                ->setConfigurationId('main-1')
+                ->setConfigurationId('main-1'),
         );
 
         $this->assertCount(6, $configurationVersions);
@@ -805,14 +805,14 @@ class BranchComponentTest extends StorageApiTestCase
                     ->setChangeDescription('state update')
                     ->setState([
                         'cache' => true,
-                    ])
+                    ]),
             );
             $this->fail('Update of row state should be restricted.');
         } catch (ClientException $e) {
             $this->assertEquals(400, $e->getCode());
             $this->assertEquals(
                 'Using \'state\' parameter on configuration row update is restricted for dev/branch context. Use direct API call.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -832,7 +832,7 @@ class BranchComponentTest extends StorageApiTestCase
         $row = $branchComponents->getConfigurationRow(
             $rowState->getComponentConfiguration()->getComponentId(),
             $rowState->getComponentConfiguration()->getConfigurationId(),
-            $rowState->getRowId()
+            $rowState->getRowId(),
         );
 
         $this->assertEquals($state, $row['state']);
@@ -840,7 +840,7 @@ class BranchComponentTest extends StorageApiTestCase
 
         $updatedConfiguration = $branchComponents->getConfiguration(
             $componentId,
-            'main-1'
+            'main-1',
         );
         $this->assertEquals('Row dev-1-row-1 changed', $updatedConfiguration['changeDescription']);
 
@@ -848,7 +848,7 @@ class BranchComponentTest extends StorageApiTestCase
             $components->getConfigurationRow(
                 $componentId,
                 'main-1',
-                'dev-1-row-1'
+                'dev-1-row-1',
             );
             $this->fail('Configuration row created in dev branch shouldn\'t exist in main branch');
         } catch (ClientException $e) {
@@ -887,7 +887,7 @@ class BranchComponentTest extends StorageApiTestCase
         $configurationVersions = $branchComponents->listConfigurationVersions(
             (new ListConfigurationVersionsOptions())
                 ->setComponentId($componentId)
-                ->setConfigurationId('dev-branch-1')
+                ->setConfigurationId('dev-branch-1'),
         );
         $this->assertCount(1, $configurationVersions);
 
@@ -900,11 +900,11 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertEmpty($branchComponentDetail['configuration']);
         $this->assertSame(
             'Configuration created',
-            $configurationVersion['changeDescription']
+            $configurationVersion['changeDescription'],
         );
 
         $configs = $branchComponents->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId),
         );
 
         $this->assertCount(2, $configs);
@@ -948,7 +948,7 @@ class BranchComponentTest extends StorageApiTestCase
         $configurationVersions = $branchComponents->listConfigurationVersions(
             (new ListConfigurationVersionsOptions())
                 ->setComponentId($config->getComponentId())
-                ->setConfigurationId($config->getConfigurationId())
+                ->setConfigurationId($config->getConfigurationId()),
         );
 
         $this->assertCount(3, $configurationVersions);
@@ -995,7 +995,7 @@ class BranchComponentTest extends StorageApiTestCase
         $configurationVersions = $branchComponents->listConfigurationVersions(
             (new ListConfigurationVersionsOptions())
                 ->setComponentId('transformation')
-                ->setConfigurationId('dev-branch-1')
+                ->setConfigurationId('dev-branch-1'),
         );
 
         $this->assertCount(4, $configurationVersions);
@@ -1059,7 +1059,7 @@ class BranchComponentTest extends StorageApiTestCase
         $configurationVersions = $branchComponents->listConfigurationVersions(
             (new ListConfigurationVersionsOptions())
                 ->setComponentId('wr-db')
-                ->setConfigurationId('branch-1')
+                ->setConfigurationId('branch-1'),
         );
 
         $this->assertCount(1, $configurationVersions);
@@ -1072,7 +1072,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertArrayHasKey('configuration', $configurationVersion);
         $this->assertSame(
             'create custom desc',
-            $configurationVersion['changeDescription']
+            $configurationVersion['changeDescription'],
         );
 
         $branchComponents->addConfiguration((new Configuration())
@@ -1127,13 +1127,13 @@ class BranchComponentTest extends StorageApiTestCase
             $this->assertEquals(400, $e->getCode());
             $this->assertEquals(
                 'Using \'state\' parameter on configuration update is restricted for dev/branch context. Use direct API call.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
         $this->assertEquals(
             $configuration,
-            $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId())
+            $branchComponents->getConfiguration($config->getComponentId(), $config->getConfigurationId()),
         );
     }
 
@@ -1154,7 +1154,7 @@ class BranchComponentTest extends StorageApiTestCase
         $components->addConfigurationRow(
             (new ConfigurationRow($configurationOptions))
                 ->setName('Main 1 Row 1')
-                ->setRowId('main-1-row-1')
+                ->setRowId('main-1-row-1'),
         );
 
         // create dev branch
@@ -1168,7 +1168,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertCount(1, $rows);
 
         $configurations = $branchComponents->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId),
         );
         $this->assertCount(1, $configurations);
 
@@ -1222,7 +1222,7 @@ class BranchComponentTest extends StorageApiTestCase
             $this->assertSame('storage.components.cannotDeleteConfiguration', $e->getStringCode());
             $this->assertSame(
                 'Deleting configuration from trash is not allowed in development branches.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }
@@ -1244,7 +1244,7 @@ class BranchComponentTest extends StorageApiTestCase
         $components->addConfigurationRow(
             (new ConfigurationRow($configurationOptions))
                 ->setName('Main 1 Row 1')
-                ->setRowId('main-1-row-1')
+                ->setRowId('main-1-row-1'),
         );
 
         $mainConfig = $components->getConfiguration($componentId, 'main-1');
@@ -1269,7 +1269,7 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertCount(1, $branchConfigRows);
 
         $branchConfig = $branchComponents->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId),
         );
         $this->assertCount(1, $branchConfig);
 
@@ -1324,7 +1324,7 @@ class BranchComponentTest extends StorageApiTestCase
         $branchComponents->addConfigurationRow(
             (new ConfigurationRow($configurationOptions))
                 ->setName('Main 1 Row 2')
-                ->setRowId('main-1-row-2')
+                ->setRowId('main-1-row-2'),
         );
 
         $mainConfig = $branchComponents->getConfiguration($componentId, 'main-1');

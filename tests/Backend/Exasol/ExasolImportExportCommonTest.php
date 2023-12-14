@@ -41,7 +41,7 @@ class ExasolImportExportCommonTest extends ImportExportCommonTest
             $importFile,
             [
                 'primaryKey' => 'name',
-            ]
+            ],
         );
     }
 }

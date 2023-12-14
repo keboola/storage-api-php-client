@@ -46,7 +46,7 @@ class TableExporter
         }
         $getFileResponse = $this->client->getFile(
             $fileId,
-            (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true)
+            (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true),
         );
 
         // Temporary folder to save downloaded files
@@ -64,7 +64,7 @@ class TableExporter
 
         $downloader = DownloaderFactory::createDownloaderForFileResponse(
             $getFileResponse,
-            $this->client->getAwsRetries()
+            $this->client->getAwsRetries(),
         );
 
         if ($getFileResponse['isSliced'] === true) {
@@ -207,7 +207,7 @@ class TableExporter
                 $jobResult['results']['file']['id'],
                 $exportJob['destination'],
                 $exportJob['exportOptions'],
-                isset($exportOptions[$exportJob['tableId']]['gzip']) ? $exportOptions[$exportJob['tableId']]['gzip'] : false
+                isset($exportOptions[$exportJob['tableId']]['gzip']) ? $exportOptions[$exportJob['tableId']]['gzip'] : false,
             );
         }
         return $jobResults;

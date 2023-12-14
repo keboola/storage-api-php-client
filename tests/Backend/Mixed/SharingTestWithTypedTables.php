@@ -61,7 +61,7 @@ class SharingTestWithTypedTables extends StorageApiSharingTestCase
         $aliasTableId = $this->_client->createAliasTable(
             $bucketId,
             $table2Id,
-            'languages-alias'
+            'languages-alias',
         );
 
         $this->_client->shareOrganizationBucket($bucketId, true);
@@ -78,7 +78,7 @@ class SharingTestWithTypedTables extends StorageApiSharingTestCase
             $sharedBucket['project']['id'],
             $sharedBucket['id'],
             null,
-            true
+            true,
         );
 
         // validate bucket
@@ -99,7 +99,7 @@ class SharingTestWithTypedTables extends StorageApiSharingTestCase
             [
                 'primaryKey' => 'id',
                 'incremental' => true,
-            ]
+            ],
         );
 
         $this->assertTablesMetadata($bucketId, $linkedBucketId, true);
@@ -129,7 +129,7 @@ class SharingTestWithTypedTables extends StorageApiSharingTestCase
         $aliasId = $this->_client->createAliasTable(
             $bucketId,
             $table2Id,
-            'languages-alias-2'
+            'languages-alias-2',
         );
         $this->assertTablesMetadata($bucketId, $linkedBucketId);
         $aliasTable = $this->_client->getTable($aliasId);

@@ -265,13 +265,13 @@ class MergeRequestsTest extends StorageApiTestCase
             $this->getBranchAwareClient($newBranch1['id'], [
                 'token' => STORAGE_API_DEVELOPER_TOKEN,
                 'url' => STORAGE_API_URL,
-            ])
+            ]),
         ))->addConfiguration($configuration);
         (new Components(
             $this->getBranchAwareClient($newBranch2['id'], [
                 'token' => STORAGE_API_DEVELOPER_TOKEN,
                 'url' => STORAGE_API_URL,
-            ])
+            ]),
         ))->addConfiguration($configuration);
 
         // create MR for each branch
@@ -306,13 +306,13 @@ class MergeRequestsTest extends StorageApiTestCase
                 $this->getBranchAwareClient($newBranch1['id'], [
                     'token' => STORAGE_API_DEVELOPER_TOKEN,
                     'url' => STORAGE_API_URL,
-                ])
+                ]),
             ))->addConfiguration($configuration);
         } catch (ClientException $e) {
             // error messages should be improved in the future SOX-155
             $this->assertSame(
                 'You don\'t have access to the resource.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
         try {
@@ -322,7 +322,7 @@ class MergeRequestsTest extends StorageApiTestCase
             $this->prodManagerClient->apiPutJson("merge-request/{$mr2}/merge", [], false);
             $this->fail(sprintf(
                 'Second MR cannot be merged. (This could be race-condition because "%s" job ended before this request)',
-                $mrJob['id']
+                $mrJob['id'],
             ));
         } catch (ClientException $e) {
             $this->assertSame('Cannot merge, another merge is in progress.', $e->getMessage());
@@ -626,7 +626,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $actualIdentifierInBranch = $devBranchComponents->getConfigurationVersion($componentId, $configurationId, 1)['versionIdentifier'];
         $this->assertNotSame(
             $actualIdentifierInBranch,
-            $actualIdentifierInMain
+            $actualIdentifierInMain,
         );
         try {
             $this->prodManagerClient->mergeMergeRequest($mrId);
@@ -644,9 +644,9 @@ class MergeRequestsTest extends StorageApiTestCase
  - %s
 ',
                     $mrId,
-                    $expectedError
+                    $expectedError,
                 ),
-                $e->getMessage()
+                $e->getMessage(),
             );
             $this->assertSame([
                 'errors' => [
@@ -670,7 +670,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $actualIdentifierInBranch = $devBranchComponents->getConfiguration($componentId, $configurationId)['currentVersion']['versionIdentifier'];
         $this->assertSame(
             $actualIdentifierInBranch,
-            $actualIdentifierInMain
+            $actualIdentifierInMain,
         );
         $this->initEvents($this->getDefaultBranchStorageApiClient());
         // todo now is works like this, but maybe it should go through approval process again
@@ -717,7 +717,7 @@ class MergeRequestsTest extends StorageApiTestCase
                     'Merge request %s cannot be merged.',
                     $mrId,
                 ),
-                $e->getMessage()
+                $e->getMessage(),
             );
             $this->assertCount(1, $e->getContextParams()['params']['errors']);
         }
@@ -814,9 +814,9 @@ class MergeRequestsTest extends StorageApiTestCase
             sprintf(
                 'Configuration merged in merge request #%s from branch: "%s"',
                 $mrId,
-                $this->generateDescriptionForTestObject() . '_aaa'
+                $this->generateDescriptionForTestObject() . '_aaa',
             ),
-            $configInDefault['changeDescription']
+            $configInDefault['changeDescription'],
         );
         $this->assertSame($lastVersionIdentifierInDevBranch, $configInDefault['currentVersion']['versionIdentifier']);
         $this->assertSame($lastVersionIdentifierInDevBranch, $lastVIFromChangeLogOfUpdatedConfig);
@@ -917,7 +917,7 @@ class MergeRequestsTest extends StorageApiTestCase
             $this->assertArrayHasKey('lastVersionIdentifier', $changedConfiguration);
             $config = $devBranchComponents->getConfiguration(
                 $changedConfiguration['componentId'],
-                $changedConfiguration['configurationId']
+                $changedConfiguration['configurationId'],
             );
             $this->assertSame($config['currentVersion']['versionIdentifier'], $changedConfiguration['lastVersionIdentifier']);
         }
@@ -948,7 +948,7 @@ class MergeRequestsTest extends StorageApiTestCase
             $this->assertArrayHasKey('lastVersionIdentifier', $changedConfiguration);
             $config = $devBranchComponents->getConfiguration(
                 $changedConfiguration['componentId'],
-                $changedConfiguration['configurationId']
+                $changedConfiguration['configurationId'],
             );
             $this->assertSame($config['currentVersion']['versionIdentifier'], $changedConfiguration['lastVersionIdentifier']);
         }
@@ -1007,7 +1007,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $lastVIFromChangeLogOfCreatedConfig = $mr['changeLog']['configurations'][0]['lastVersionIdentifier'];
 
         $configs = $components->listComponentConfigurations(
-            (new ListComponentConfigurationsOptions())->setComponentId($componentId)
+            (new ListComponentConfigurationsOptions())->setComponentId($componentId),
         );
         $this->assertCount(2, $configs);
 
@@ -1025,9 +1025,9 @@ class MergeRequestsTest extends StorageApiTestCase
             sprintf(
                 'Configuration merged in merge request #%s from branch: "%s"',
                 $mrId,
-                $this->generateDescriptionForTestObject() . '_aaa'
+                $this->generateDescriptionForTestObject() . '_aaa',
             ),
-            $secondConfigInDefault['changeDescription']
+            $secondConfigInDefault['changeDescription'],
         );
         $this->assertSame('DevBranch', $secondConfigInDefault['name']);
         $this->assertSame('dev config', $secondConfigInDefault['description']);
@@ -1124,9 +1124,9 @@ class MergeRequestsTest extends StorageApiTestCase
             sprintf(
                 'Configuration merged in merge request #%s from branch: "%s"',
                 $mrId,
-                $this->generateDescriptionForTestObject() . '_aaa'
+                $this->generateDescriptionForTestObject() . '_aaa',
             ),
-            $configInDefault['changeDescription']
+            $configInDefault['changeDescription'],
         );
         $versions = $components->listConfigurationVersions((new ListConfigurationVersionsOptions())
             ->setComponentId($componentId)
@@ -1624,7 +1624,7 @@ class MergeRequestsTest extends StorageApiTestCase
             },
             (new EventsQueryBuilder())
                 ->setEvent('storage.devBranchDeleted')
-                ->setObjectId((string) $id)
+                ->setObjectId((string) $id),
         );
 
         $devBranch = new DevBranches($this->developerClient);
