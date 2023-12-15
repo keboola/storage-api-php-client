@@ -45,7 +45,7 @@ class CommonTest extends StorageApiTestCase
         $tableId = $this->_client->createTableAsync(
             $inBucketId,
             'rates',
-            new CsvFile(__DIR__ . '/../../_data/rates.csv')
+            new CsvFile(__DIR__ . '/../../_data/rates.csv'),
         );
 
         $inBucket = $this->_client->getBucket($inBucketId);

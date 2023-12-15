@@ -23,7 +23,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
             [
                 'backend' => $backend,
             ],
-            true
+            true,
         );
 
         $this->assertEquals($backend, $workspace['connection']['backend']);
@@ -102,7 +102,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
             [
                 'backend' => $backend,
             ],
-            true
+            true,
         );
 
         $this->assertEquals($backend, $workspace['connection']['backend']);
@@ -155,7 +155,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
             [
                 'backend' => $backend,
             ],
-            true
+            true,
         );
         $backend = new Abs($workspace['connection']);
         // sync delete

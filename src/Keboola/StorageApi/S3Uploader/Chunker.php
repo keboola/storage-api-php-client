@@ -47,7 +47,7 @@ class Chunker
             $currentChunk = array_slice(
                 $items,
                 $i * $this->getSize(),
-                $this->getSize()
+                $this->getSize(),
             );
             $chunks[] = $currentChunk;
         }

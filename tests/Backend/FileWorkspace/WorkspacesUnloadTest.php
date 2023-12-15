@@ -25,7 +25,7 @@ class WorkspacesUnloadTest extends FileWorkspaceTestCase
             'languages',
             'languagesLoaded',
             $workspaces,
-            (int) $workspace['id']
+            (int) $workspace['id'],
         );
         // load table 1 incremental
         $this->loadTable(
@@ -34,7 +34,7 @@ class WorkspacesUnloadTest extends FileWorkspaceTestCase
             'languagesLoadedIncremental',
             $workspaces,
             (int) $workspace['id'],
-            true
+            true,
         );
         // upload csv
         $backend->uploadFile($table1Csv, 'languages.csv');
@@ -65,9 +65,9 @@ class WorkspacesUnloadTest extends FileWorkspaceTestCase
                 $tableId,
                 [
                     'format' => 'rfc',
-                ]
+                ],
             ),
-            'imported data comparsion'
+            'imported data comparsion',
         );
 
         // create table from workspace manifest
@@ -84,9 +84,9 @@ class WorkspacesUnloadTest extends FileWorkspaceTestCase
                 $tableId,
                 [
                     'format' => 'rfc',
-                ]
+                ],
             ),
-            'imported data comparsion'
+            'imported data comparsion',
         );
 
         // create table from workspace csv file
@@ -103,16 +103,16 @@ class WorkspacesUnloadTest extends FileWorkspaceTestCase
                 $tableId,
                 [
                     'format' => 'rfc',
-                ]
+                ],
             ),
-            'imported data comparsion'
+            'imported data comparsion',
         );
 
         // clear table
         $this->_client->writeTableAsync(
             $tableId,
             new CsvFile($tableEmptyCsv),
-            []
+            [],
         );
         $this->assertLinesEqualsSorted(
             file_get_contents($tableEmptyCsv),
@@ -120,9 +120,9 @@ class WorkspacesUnloadTest extends FileWorkspaceTestCase
                 $tableId,
                 [
                     'format' => 'rfc',
-                ]
+                ],
             ),
-            'imported data comparsion'
+            'imported data comparsion',
         );
 
         // write to table from workspace
@@ -132,7 +132,7 @@ class WorkspacesUnloadTest extends FileWorkspaceTestCase
                 'dataWorkspaceId' => $workspace['id'],
                 'dataObject' => 'languagesLoaded/',
                 'columns' => ['id', 'name'],
-            ]
+            ],
         );
 
         $this->assertLinesEqualsSorted(
@@ -141,9 +141,9 @@ class WorkspacesUnloadTest extends FileWorkspaceTestCase
                 $tableId,
                 [
                     'format' => 'rfc',
-                ]
+                ],
             ),
-            'imported data comparsion'
+            'imported data comparsion',
         );
 
         // write to table incremental
@@ -154,7 +154,7 @@ class WorkspacesUnloadTest extends FileWorkspaceTestCase
                 'dataObject' => 'languagesLoadedIncremental/',
                 'columns' => ['id', 'name'],
                 'incremental' => true,
-            ]
+            ],
         );
 
         $this->assertCount(
@@ -163,9 +163,9 @@ class WorkspacesUnloadTest extends FileWorkspaceTestCase
                 $tableId,
                 [
                     'format' => 'rfc',
-                ]
+                ],
             )),
-            'imported data comparsion'
+            'imported data comparsion',
         );
     }
 
@@ -188,7 +188,7 @@ class WorkspacesUnloadTest extends FileWorkspaceTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             $tableName,
-            new CsvFile($csvPath)
+            new CsvFile($csvPath),
         );
         $workspaces->loadWorkspaceData($workspaceId, [
             'input' => [

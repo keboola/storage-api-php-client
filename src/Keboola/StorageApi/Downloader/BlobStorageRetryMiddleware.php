@@ -42,16 +42,16 @@ class BlobStorageRetryMiddleware
             $numberOfRetries > 0,
             sprintf(
                 Resources::INVALID_NEGATIVE_PARAM,
-                'numberOfRetries'
-            )
+                'numberOfRetries',
+            ),
         );
         //interval
         Validate::isTrue(
             $interval > 0,
             sprintf(
                 Resources::INVALID_NEGATIVE_PARAM,
-                'interval'
-            )
+                'interval',
+            ),
         );
         //accumulationMethod
         Validate::isTrue(
@@ -59,8 +59,8 @@ class BlobStorageRetryMiddleware
             $accumulationMethod === self::EXPONENTIAL_INTERVAL_ACCUMULATION,
             sprintf(
                 Resources::INVALID_PARAM_GENERAL,
-                'accumulationMethod'
-            )
+                'accumulationMethod',
+            ),
         );
 
         //Get the interval calculator according to the type of the
@@ -146,7 +146,7 @@ class BlobStorageRetryMiddleware
 
             return static::generalRetryDecider(
                 $response->getStatusCode(),
-                $isSecondary
+                $isSecondary,
             );
         };
     }

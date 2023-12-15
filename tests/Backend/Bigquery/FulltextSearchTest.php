@@ -37,7 +37,7 @@ class FulltextSearchTest extends StorageApiTestCase
                 ],
             ],
             $dataPreviewCsv,
-            'column_1'
+            'column_1',
         );
     }
 

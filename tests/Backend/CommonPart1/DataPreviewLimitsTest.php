@@ -40,7 +40,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
             [
                 'format' => 'json',
                 'orderBy' => [['column' => 'Id']],
-            ]
+            ],
         );
         // check columns order
         $this->assertEquals('Name', $data['columns'][0]);
@@ -80,14 +80,14 @@ class DataPreviewLimitsTest extends StorageApiTestCase
                             // values are missing on purpose
                         ],
                     ],
-                ]
+                ],
             );
             $this->fail('Missing values should throw an exception');
         } catch (ClientException $e) {
             $this->assertEquals('storage.tables.validation', $e->getStringCode());
             $this->assertEquals(
                 "Invalid request:\n - whereFilters[0][values]: \"This field is missing.\"",
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }

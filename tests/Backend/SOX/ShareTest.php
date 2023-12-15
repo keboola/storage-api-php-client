@@ -21,7 +21,7 @@ class ShareTest extends StorageApiTestCase
         $this->cleanupTestBranches($developerClient);
 
         $clientInOtherProject = $this->getClientForToken(
-            STORAGE_API_LINKING_TOKEN
+            STORAGE_API_LINKING_TOKEN,
         );
         foreach ([$clientInOtherProject, $this->_client] as $client) {
             // unlink buckets
@@ -59,14 +59,14 @@ class ShareTest extends StorageApiTestCase
 
         $linkedBucketName = 'linked-' . time();
         $clientInOtherProject = $this->getClientForToken(
-            STORAGE_API_LINKING_TOKEN
+            STORAGE_API_LINKING_TOKEN,
         );
         // test PM can link bucket
         $linkedBucketId = $clientInOtherProject->linkBucket(
             $linkedBucketName,
             'out',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
         );
 
         $linkedBucket = $clientInOtherProject->getBucket($linkedBucketId);
@@ -87,7 +87,7 @@ class ShareTest extends StorageApiTestCase
             $linkedBucketName,
             'out',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
         );
         $linkedBucket = $clientInOtherProject->getBucket($linkedBucketId);
         $this->assertSame($linkedBucketId, $linkedBucket['id']);
@@ -151,7 +151,7 @@ class ShareTest extends StorageApiTestCase
                 $linkedBucketName,
                 'out',
                 $sharedBucket['project']['id'],
-                $sharedBucket['id']
+                $sharedBucket['id'],
             );
             $this->fail('Others should not be able to link bucket in branch');
         } catch (ClientException $e) {
@@ -160,13 +160,13 @@ class ShareTest extends StorageApiTestCase
         }
 
         $clientInOtherProject = $this->getClientForToken(
-            STORAGE_API_LINKING_TOKEN
+            STORAGE_API_LINKING_TOKEN,
         );
         $otherProjectLinkedBucketId = $clientInOtherProject->linkBucket(
             $linkedBucketName,
             'out',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
         );
         $otherProjectId = $clientInOtherProject->verifyToken()['owner']['id'];
         try {
@@ -184,7 +184,7 @@ class ShareTest extends StorageApiTestCase
             $linkedBucketName,
             'out',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
         );
 
         try {
@@ -258,7 +258,7 @@ class ShareTest extends StorageApiTestCase
                 $linkedBucketName,
                 'out',
                 $sharedBucket['project']['id'],
-                $sharedBucket['id']
+                $sharedBucket['id'],
             );
             $this->fail('Others should not be able to link bucket in branch');
         } catch (ClientException $e) {
@@ -267,13 +267,13 @@ class ShareTest extends StorageApiTestCase
         }
 
         $otherProjectClient = $this->getClientForToken(
-            STORAGE_API_LINKING_TOKEN
+            STORAGE_API_LINKING_TOKEN,
         );
         $linkedBucketId = $otherProjectClient->linkBucket(
             $linkedBucketName,
             'out',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
         );
         $otherProjectId = $otherProjectClient->verifyToken()['owner']['id'];
         try {
@@ -355,7 +355,7 @@ class ShareTest extends StorageApiTestCase
                 $linkedBucketName,
                 'out',
                 $sharedBucket['project']['id'],
-                $sharedBucket['id']
+                $sharedBucket['id'],
             );
             $this->fail('Production manager should not be able to link bucket in branch');
         } catch (ClientException $e) {

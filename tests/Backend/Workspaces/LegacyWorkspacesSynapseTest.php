@@ -20,7 +20,7 @@ class LegacyWorkspacesSynapseTest extends ParallelWorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
             [
                 'primaryKey' => implode(',', $primaries),
-            ]
+            ],
         );
 
         $mapping = [
@@ -82,7 +82,7 @@ class LegacyWorkspacesSynapseTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // first load
@@ -172,7 +172,7 @@ class LegacyWorkspacesSynapseTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // first load
@@ -268,7 +268,7 @@ class LegacyWorkspacesSynapseTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             $table,
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         // first load

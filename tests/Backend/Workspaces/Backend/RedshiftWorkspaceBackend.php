@@ -66,7 +66,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
         $this->db->query(sprintf(
             "ALTER TABLE  \"{$this->schema}\".\"%s\" DROP COLUMN \"%s\";",
             $table,
-            $column
+            $column,
         ));
     }
 
@@ -84,7 +84,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
         $stmt = $this->db->prepare(sprintf(
             "SELECT * FROM \"{$this->schema}\".\"%s\" %s",
             $table,
-            $orderBy !== null ? "ORDER BY $orderBy" : null
+            $orderBy !== null ? "ORDER BY $orderBy" : null,
         ));
         $stmt->execute();
         return $stmt->fetchAll($style);
@@ -99,7 +99,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
         $definition = join(",\n", $cols);
 
         $this->db->query(
-            sprintf('CREATE TABLE %s (%s)', $tableName, $definition)
+            sprintf('CREATE TABLE %s (%s)', $tableName, $definition),
         );
     }
 
@@ -211,7 +211,7 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
         $this->db->query(sprintf(
             'DROP TABLE IF EXISTS "%s"."%s";',
             $this->schema,
-            $table
+            $table,
         ));
     }
 

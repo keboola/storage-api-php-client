@@ -48,7 +48,7 @@ class BranchAwareClientTest extends StorageApiTestCase
                     $devBranch->listBranches(),
                     function (array $branch) {
                         return $branch['isDefault'] === true;
-                    }
+                    },
                 );
                 $defaultBranch = reset($defaultBranches);
                 $branchClient = $this->getBranchAwareDefaultClient($defaultBranch['id']);
@@ -77,12 +77,12 @@ class BranchAwareClientTest extends StorageApiTestCase
 
         $this->assertSame(
             $configuration,
-            $branchComponents->getConfiguration($componentId, $configurationId)
+            $branchComponents->getConfiguration($componentId, $configurationId),
         );
 
         $this->assertSame(
             $components->listComponents(),
-            $branchComponents->listComponents()
+            $branchComponents->listComponents(),
         );
     }
 
@@ -114,7 +114,7 @@ class BranchAwareClientTest extends StorageApiTestCase
         ];
         $options['userAgent'] = $this->buildUserAgentString(
             $options['token'],
-            $options['url']
+            $options['url'],
         );
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(sprintf('Branch "%s" is not valid.', $branchId));

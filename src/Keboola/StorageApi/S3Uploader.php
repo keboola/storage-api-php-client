@@ -143,7 +143,7 @@ class S3Uploader
                 $acl,
                 count($files) > 1 ? $this->transferOptions->getMultiFileConcurrency() : $this->transferOptions->getSingleFileConcurrency(),
                 $encryption ? $encryption : null,
-                $name ? $name : basename($filePath)
+                $name ? $name : basename($filePath),
             );
             $promises[$filePath] = $uploader->promise();
         }
@@ -173,7 +173,7 @@ class S3Uploader
                     count($rejected) > 1 ? $this->transferOptions->getMultiFileConcurrency() : $this->transferOptions->getSingleFileConcurrency(),
                     $encryption ? $encryption : null,
                     $name ? $name : basename($filePath),
-                    $reason->getState()
+                    $reason->getState(),
                 );
                 $promises[$filePath] = $uploader->promise();
             }

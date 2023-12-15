@@ -34,7 +34,7 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
         if ($async === false) {
             $this->allowTestForBackendsOnly(
                 [self::BACKEND_SNOWFLAKE],
-                'Test sync actions only on Snowflake'
+                'Test sync actions only on Snowflake',
             );
         }
         $componentId = 'wr-db';
@@ -122,7 +122,7 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
         }, $branchComponents->listConfigurationWorkspaces(
             (new ListConfigurationWorkspacesOptions())
             ->setComponentId($componentId)
-            ->setConfigurationId($configurationId)
+            ->setConfigurationId($configurationId),
         ));
 
         $this->assertCount(2, $componentWorkspacesIds);
@@ -133,7 +133,7 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         /** @var int $branchWorkspaceId */

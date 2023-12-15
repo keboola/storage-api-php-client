@@ -88,7 +88,7 @@ class GCSUploader
                     $filePath,
                     filesize($filePath),
                     $blobName,
-                    $blob->info()['size']
+                    $blob->info()['size'],
                 ));
                 $failedUploads[$filePath] = $blobName;
             }
@@ -108,7 +108,7 @@ class GCSUploader
             $file,
             [
                 'name' => $filePath,
-            ]
+            ],
         );
     }
 
@@ -123,7 +123,7 @@ class GCSUploader
             $blobName = sprintf(
                 '%s%s',
                 $key,
-                basename($filePath)
+                basename($filePath),
             );
 
             $preparedSlices[$filePath] = $blobName;
@@ -132,7 +132,7 @@ class GCSUploader
                 'url' => sprintf(
                     'gs://%s/%s',
                     $bucket,
-                    $blobName
+                    $blobName,
                 ),
             ];
         }
@@ -150,14 +150,14 @@ class GCSUploader
             if ($currentRetry > self::MAX_RETRIES_FOR_SLICE_UPLOAD) {
                 throw new ClientException(sprintf(
                     'Exceeded maximum number of retries for sliced file uploads. Failed slices: %s',
-                    implode(', ', array_keys($failedUploads))
+                    implode(', ', array_keys($failedUploads)),
                 ));
             }
             $this->logger->warning(sprintf(
                 'Retrying [%s/%s] failed uploads. Failed slices: %s',
                 $currentRetry,
                 self::MAX_RETRIES_FOR_SLICE_UPLOAD,
-                implode(', ', array_keys($failedUploads))
+                implode(', ', array_keys($failedUploads)),
             ));
             $chunks = $chunker->makeChunks($failedUploads);
             foreach ($chunks as $chunk) {
@@ -187,7 +187,7 @@ class GCSUploader
                     $fileToUpload,
                     [
                         'name' => $blobName,
-                    ]
+                    ],
                 );
                 continue;
             }
@@ -196,7 +196,7 @@ class GCSUploader
                 $fileToUpload,
                 [
                     'name' => $blobName,
-                ]
+                ],
             );
         }
         $retries = 0;
@@ -221,14 +221,14 @@ class GCSUploader
                 $blobName = sprintf(
                     '%s%s',
                     $key,
-                    basename($filePath)
+                    basename($filePath),
                 );
                 $this->logger->notice(sprintf(sprintf('Uploadfailed: %s, %s, %s, %s', $filePath, $reason->getMessage(), $reason->getCode(), $blobName)));
                 $promise = $retBucket->uploadAsync(
                     $filePath,
                     [
                         'name' => $blobName,
-                    ]
+                    ],
                 );
 
                 $promises[$filePath] = $promise;

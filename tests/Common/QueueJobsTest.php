@@ -34,7 +34,7 @@ class QueueJobsTest extends StorageApiTestCase
             [
                 'dataWorkspaceId' => 1000,
                 'dataTableName' => 'myTable',
-            ]
+            ],
         );
         $job = $this->_client->getJob($jobId);
         $this->assertEquals('in.c-API-tests.table1', $job['tableId']);
@@ -109,7 +109,7 @@ class QueueJobsTest extends StorageApiTestCase
                 'dataWorkspaceId' => 1000,
                 'dataTableName' => 'myTable',
                 'name' => 'my-new-queued-table',
-            ]
+            ],
         );
         $job = $this->_client->getJob($jobId);
         $this->assertNull($job['tableId']);

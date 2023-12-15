@@ -341,7 +341,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'languages3',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // create workspace and source table in workspace
@@ -365,7 +365,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertLinesEqualsSorted(
             implode("\n", $expected) . "\n",
             $this->_client->getTableDataPreview($table_id, ['format' => 'rfc']),
-            'imported data comparsion'
+            'imported data comparsion',
         );
         // check the created metadata
         $expectedIdMetadata = [
@@ -412,7 +412,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertLinesEqualsSorted(
             implode("\n", $expected) . "\n",
             $this->_client->getTableDataPreview($table['id'], ['format' => 'rfc']),
-            'new  column added'
+            'new  column added',
         );
         $expectedUpdateMetadata = [
             'KBC.datatype.type' => 'VARCHAR',
@@ -434,7 +434,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'metadata_columns',
-            new CsvFile(__DIR__ . '/../../_data/metadataBug.csv')
+            new CsvFile(__DIR__ . '/../../_data/metadataBug.csv'),
         );
 
         // create workspace and source table in workspace

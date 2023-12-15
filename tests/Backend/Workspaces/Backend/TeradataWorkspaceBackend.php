@@ -97,7 +97,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
             'ALTER TABLE %s.%s DROP %s;',
             TeradataQuote::quoteSingleIdentifier($this->schema),
             TeradataQuote::quoteSingleIdentifier($table),
-            TeradataQuote::quoteSingleIdentifier($column)
+            TeradataQuote::quoteSingleIdentifier($column),
         ));
     }
 
@@ -131,7 +131,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
         $this->getDb()->executeStatement($qb->getCreateTableCommand(
             $this->schema,
             $tableName,
-            new ColumnCollection($cols)
+            new ColumnCollection($cols),
         ));
     }
 
@@ -148,7 +148,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
             'SELECT * FROM %s.%s %s;',
             TeradataQuote::quoteSingleIdentifier($this->schema),
             TeradataQuote::quoteSingleIdentifier($table),
-            $orderBy !== null ? "ORDER BY $orderBy" : null
+            $orderBy !== null ? "ORDER BY $orderBy" : null,
         ));
         switch ($style) {
             case \PDO::FETCH_NUM:
@@ -210,7 +210,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
             $this->getDb()->executeStatement(sprintf(
                 'DROP TABLE %s.%s;',
                 TeradataQuote::quoteSingleIdentifier($this->schema),
-                TeradataQuote::quoteSingleIdentifier($table)
+                TeradataQuote::quoteSingleIdentifier($table),
             ));
         }
     }
@@ -225,7 +225,7 @@ class TeradataWorkspaceBackend implements WorkspaceBackend
         $tables = $this->getDb()->fetchAllAssociative(sprintf(
             'SELECT TableName FROM DBC.TablesVX WHERE DatabaseName = %s AND TableName = %s',
             TeradataQuote::quote($databaseName),
-            TeradataQuote::quote($tableName)
+            TeradataQuote::quote($tableName),
         ));
         return count($tables) === 1;
     }

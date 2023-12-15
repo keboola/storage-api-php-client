@@ -44,7 +44,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
                 new CsvFile($fullLoadFile),
                 [
                     'incremental' => false,
-                ]
+                ],
             );
             $this->fail('Should throw ClientException');
         } catch (ClientException $e) {
@@ -58,7 +58,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
                 new CsvFile($fullLoadFile),
                 [
                     'incremental' => true,
-                ]
+                ],
             );
             $this->fail('Should throw ClientException');
         } catch (ClientException $e) {

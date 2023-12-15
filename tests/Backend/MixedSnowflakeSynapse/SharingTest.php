@@ -70,7 +70,7 @@ class SharingTest extends StorageApiSharingTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
             [
                 'primaryKey' => 'name',
-            ]
+            ],
         );
         $table1SecondBucketId = $this->_client->createTableAsync(
             $secondBucketId,
@@ -78,7 +78,7 @@ class SharingTest extends StorageApiSharingTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
             [
                 'primaryKey' => 'name',
-            ]
+            ],
         );
         if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)) {
             $this->assertExpectedDistributionKeyColumn($table1Id, 'name');
@@ -90,7 +90,7 @@ class SharingTest extends StorageApiSharingTestCase
             new CsvFile(__DIR__ . '/../../_data/numbers.csv'),
             [
                 'primaryKey' => '1',
-            ]
+            ],
         );
         if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)) {
             $this->assertExpectedDistributionKeyColumn($table2Id, '1');
@@ -99,7 +99,7 @@ class SharingTest extends StorageApiSharingTestCase
         $table3Id = $this->_client->createAliasTable(
             $bucketId,
             $table2Id,
-            'numbers-alias'
+            'numbers-alias',
         );
         if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)) {
             $this->assertExpectedDistributionKeyColumn($table3Id, '1');
@@ -116,7 +116,7 @@ class SharingTest extends StorageApiSharingTestCase
             'linked-' . time(),
             'out',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
         );
         if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)) {
             $tables = $this->_client2->listTables($linkedId);
@@ -142,7 +142,7 @@ class SharingTest extends StorageApiSharingTestCase
             'linked-2-' . time(),
             'out',
             $sharedBucket2['project']['id'],
-            $sharedBucket2['id']
+            $sharedBucket2['id'],
         );
         $this->_client2->dropBucket($linked2Id, ['async' => true]);
 
@@ -167,7 +167,7 @@ class SharingTest extends StorageApiSharingTestCase
             [
                 'backend' => $workspaceBackend,
             ],
-            true
+            true,
         );
 
         $input = [$mapping1, $mapping2, $mapping3];
@@ -224,7 +224,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertArrayEqualsSorted(
             Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ',', '"'),
             $data,
-            'id'
+            'id',
         );
 
         if ($this->isSynapseTestCase($sharingBackend, $workspaceBackend)
@@ -246,7 +246,7 @@ class SharingTest extends StorageApiSharingTestCase
         $table3Id = $this->_client->createTableAsync(
             $bucketId,
             'numbersLater',
-            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv'),
         );
 
         $runId = $this->_client2->generateRunId();

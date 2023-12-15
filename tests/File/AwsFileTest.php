@@ -28,7 +28,7 @@ class AwsFileTest extends StorageApiTestCase
         [$this->_client, $this->_testClient] = (new TestSetupHelper())->setUpForProtectedDevBranch(
             $this->clientProvider,
             $devBranchType,
-            $userRole
+            $userRole,
         );
 
         if ($devBranchType === ClientProvider::DEV_BRANCH) {
@@ -43,7 +43,7 @@ class AwsFileTest extends StorageApiTestCase
         $this->assertSame(
             'aws',
             $token['owner']['fileStorageProvider'],
-            'Project must have S3 file storage'
+            'Project must have S3 file storage',
         );
     }
 
@@ -329,7 +329,7 @@ class AwsFileTest extends StorageApiTestCase
             $uploadParams['acl'],
             $filePath,
             $prepareResult['name'],
-            null
+            null,
         );
 
         // re-upload should work
@@ -339,7 +339,7 @@ class AwsFileTest extends StorageApiTestCase
             $uploadParams['acl'],
             $filePath,
             $prepareResult['name'],
-            null
+            null,
         );
     }
 

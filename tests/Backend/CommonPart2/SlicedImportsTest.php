@@ -39,7 +39,7 @@ class SlicedImportsTest extends StorageApiTestCase
 
         $fileId = $this->_client->uploadSlicedFile(
             $slices,
-            $uploadOptions
+            $uploadOptions,
         );
 
         $headerFile = new CsvFile(__DIR__ . '/../../_data/sliced/header.csv');
@@ -72,13 +72,13 @@ class SlicedImportsTest extends StorageApiTestCase
 
         $fileId = $this->_client->uploadSlicedFile(
             $slices,
-            $uploadOptions
+            $uploadOptions,
         );
 
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'entries',
-            new CsvFile(__DIR__ . '/../../_data/languages.not-normalized-column-names.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.not-normalized-column-names.csv'),
         );
         $this->_client->deleteTableRows($tableId, ['allowTruncate' => true]);
         $this->_client->writeTableAsyncDirect($tableId, [
@@ -97,7 +97,7 @@ class SlicedImportsTest extends StorageApiTestCase
             $this->_client->getTableDataPreview($tableId, [
                 'format' => 'rfc',
             ]),
-            'imported data comparsion'
+            'imported data comparsion',
         );
 
         // incremental
@@ -123,7 +123,7 @@ class SlicedImportsTest extends StorageApiTestCase
             $this->_client->getTableDataPreview($tableId, [
                 'format' => 'rfc',
             ]),
-            'imported data comparsion'
+            'imported data comparsion',
         );
     }
 
@@ -185,7 +185,7 @@ class SlicedImportsTest extends StorageApiTestCase
                 $file,
                 [
                     'name' => $uploadParams['key'] . 'part001.gz',
-                ]
+                ],
             );
 
             /** @var string $data */
@@ -205,22 +205,22 @@ class SlicedImportsTest extends StorageApiTestCase
                 $data,
                 [
                     'name' => $uploadParams['key'] . 'manifest',
-                ]
+                ],
             );
         } elseif ($slicedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
             $uploadParams = $slicedFile['absUploadParams'];
 
             $blobClient = BlobClientFactory::createClientFromConnectionString(
-                $uploadParams['absCredentials']['SASConnectionString']
+                $uploadParams['absCredentials']['SASConnectionString'],
             );
             $blobClient->createBlockBlob(
                 $uploadParams['container'],
                 sprintf(
                     '%s%s',
                     $uploadParams['blobName'],
-                    'part001.gz'
+                    'part001.gz',
                 ),
-                fopen(__DIR__ . '/../../_data/sliced/neco_0000_part_00.gz', 'r')
+                fopen(__DIR__ . '/../../_data/sliced/neco_0000_part_00.gz', 'r'),
             );
 
             $blobClient->createBlockBlob(
@@ -234,7 +234,7 @@ class SlicedImportsTest extends StorageApiTestCase
                                 $uploadParams['accountName'],
                                 $uploadParams['container'],
                                 $uploadParams['blobName'],
-                                'part001.gz'
+                                'part001.gz',
                             ),
                         ],
                         [
@@ -243,11 +243,11 @@ class SlicedImportsTest extends StorageApiTestCase
                                 $uploadParams['accountName'],
                                 $uploadParams['container'],
                                 $uploadParams['blobName'],
-                                'part001.gzsome'
+                                'part001.gzsome',
                             ),
                         ],
                     ],
-                ])
+                ]),
             );
         } else {
             $uploadParams = $slicedFile['uploadParams'];
@@ -327,7 +327,7 @@ class SlicedImportsTest extends StorageApiTestCase
                 $file,
                 [
                     'name' => $uploadParams['key'] . 'part001.gz',
-                ]
+                ],
             );
 
             $part1URL = $object->gcsUri();
@@ -335,7 +335,7 @@ class SlicedImportsTest extends StorageApiTestCase
             $uploadParams = $slicedFile['absUploadParams'];
 
             $blobClient = BlobClientFactory::createClientFromConnectionString(
-                $uploadParams['absCredentials']['SASConnectionString']
+                $uploadParams['absCredentials']['SASConnectionString'],
             );
 
             $blobClient->createBlockBlob(
@@ -343,9 +343,9 @@ class SlicedImportsTest extends StorageApiTestCase
                 sprintf(
                     '%s%s',
                     $uploadParams['blobName'],
-                    'part001.gz'
+                    'part001.gz',
                 ),
-                fopen(__DIR__ . '/../../_data/escaping.csv', 'r')
+                fopen(__DIR__ . '/../../_data/escaping.csv', 'r'),
             );
 
             $part1URL = sprintf(
@@ -353,7 +353,7 @@ class SlicedImportsTest extends StorageApiTestCase
                 $uploadParams['accountName'],
                 $uploadParams['container'],
                 $uploadParams['blobName'],
-                'part001.gz'
+                'part001.gz',
             );
         } else {
             $uploadParams = $slicedFile['uploadParams'];
@@ -395,13 +395,13 @@ class SlicedImportsTest extends StorageApiTestCase
                 $data,
                 [
                     'name' => $uploadParams['key'] . 'manifest',
-                ]
+                ],
             );
         } elseif ($slicedFile['provider'] === Client::FILE_PROVIDER_AZURE) {
             $uploadParams = $slicedFile['absUploadParams'];
 
             $blobClient = BlobClientFactory::createClientFromConnectionString(
-                $uploadParams['absCredentials']['SASConnectionString']
+                $uploadParams['absCredentials']['SASConnectionString'],
             );
 
             $blobClient->createBlockBlob(
@@ -413,7 +413,7 @@ class SlicedImportsTest extends StorageApiTestCase
                             'url' => $part1URL,
                         ],
                     ],
-                ])
+                ]),
             );
         } else {
             $uploadParams = $slicedFile['uploadParams'];

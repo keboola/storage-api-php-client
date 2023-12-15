@@ -23,7 +23,7 @@ class AbsDownloader implements DownloaderInterface
     {
         $result = $this->client->getBlob(
             $fileResponse['absPath']['container'],
-            $fileResponse['absPath']['name']
+            $fileResponse['absPath']['name'],
         );
         file_put_contents($tmpFilePath, $result->getContentStream());
     }
@@ -39,7 +39,7 @@ class AbsDownloader implements DownloaderInterface
 
         $result = $this->client->getBlob(
             $container,
-            $file
+            $file,
         );
         file_put_contents($filePath, $result->getContentStream());
         return $filePath;

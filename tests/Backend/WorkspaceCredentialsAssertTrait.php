@@ -48,8 +48,8 @@ trait WorkspaceCredentialsAssertTrait
                         sprintf(
                             'Unexpected error message from Teradata code: "%s" message: "%s".',
                             $e->getCode(),
-                            $e->getMessage()
-                        )
+                            $e->getMessage(),
+                        ),
                     );
                     break;
                 case StorageApiTestCase::BACKEND_EXASOL:
@@ -57,7 +57,7 @@ trait WorkspaceCredentialsAssertTrait
                     self::assertEquals(
                         -373252,
                         $e->getCode(),
-                        'Unexpected error code, expected code for Exasol is -373252.'
+                        'Unexpected error code, expected code for Exasol is -373252.',
                     );
                     break;
                 default:
@@ -65,7 +65,7 @@ trait WorkspaceCredentialsAssertTrait
                         'Unexpected error message from "%s" backend. code: "%s" message: "%s".',
                         $connection['backend'],
                         $e->getCode(),
-                        $e->getMessage()
+                        $e->getMessage(),
                     ));
             }
         } catch (\PDOException $e) {
@@ -83,8 +83,8 @@ trait WorkspaceCredentialsAssertTrait
                 sprintf(
                     'Unexpected error message from Bigquery code: "%s" message: "%s".',
                     $e->getCode(),
-                    $e->getMessage()
-                )
+                    $e->getMessage(),
+                ),
             );
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage(), (int) $e->getCode(), $e);

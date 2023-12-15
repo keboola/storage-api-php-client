@@ -35,7 +35,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         if ($token['owner']['defaultBackend'] !== self::BACKEND_SYNAPSE) {
             self::markTestSkipped(sprintf(
                 'Backend "%s" is not supported tables with configuration',
-                $token['owner']['defaultBackend']
+                $token['owner']['defaultBackend'],
             ));
         }
 
@@ -77,7 +77,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $configurationOptions = (new TableWithConfigurationOptions($tableName, $this->configId));
         $tableId = $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
-            $configurationOptions
+            $configurationOptions,
         );
 
         $table = $this->_client->getTable($tableId);
@@ -166,7 +166,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $configurationOptions = (new TableWithConfigurationOptions($tableName, $this->configId));
         $tableId = $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
-            $configurationOptions
+            $configurationOptions,
         );
 
         $table = $this->_client->getTable($tableId);
@@ -243,7 +243,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $this->expectExceptionMessage('Configuration did not create any table');
         $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
-            $configurationOptions
+            $configurationOptions,
         );
 
         $assertCallback = function ($events) {
@@ -277,7 +277,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $configurationOptions = (new TableWithConfigurationOptions($tableName, $this->configId));
             $this->_client->createTableWithConfiguration(
                 $this->getTestBucketId(),
-                $configurationOptions
+                $configurationOptions,
             );
             $this->fail('Table with dot in name should not be created');
         } catch (ClientException $e) {
@@ -293,7 +293,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $configurationOptions = (new TableWithConfigurationOptions($tableName, 'doesNotExist'));
             $this->_client->createTableWithConfiguration(
                 $this->getTestBucketId(),
-                $configurationOptions
+                $configurationOptions,
             );
             $this->fail('Table with invalid configurationId should not be created');
         } catch (ClientException $e) {
@@ -317,7 +317,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $configurationOptions = (new TableWithConfigurationOptions($tableName, $this->configId));
             $this->_client->createTableWithConfiguration(
                 $this->getTestBucketId(),
-                $configurationOptions
+                $configurationOptions,
             );
             $this->fail('Table with invalid configurationId should not be created');
         } catch (ClientException $e) {
@@ -353,7 +353,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $configurationOptions = (new TableWithConfigurationOptions($tableName, $this->configId));
             $this->_client->createTableWithConfiguration(
                 $this->getTestBucketId(),
-                $configurationOptions
+                $configurationOptions,
             );
             $this->fail('Table with invalid query in configuration should result in exception');
         } catch (ClientException $e) {
@@ -426,7 +426,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $configurationOptions = (new TableWithConfigurationOptions($tableName, $this->configId));
         $tableId = $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
-            $configurationOptions
+            $configurationOptions,
         );
 
         try {
@@ -464,7 +464,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
         $configurationOptions = (new TableWithConfigurationOptions($tableName, $this->configId));
         $this->_client->createTableWithConfiguration(
             $this->getTestBucketId(),
-            $configurationOptions
+            $configurationOptions,
         );
 
         try {
@@ -472,7 +472,7 @@ class CreateTableWithConfigurationTest extends StorageApiTestCase
             $configurationOptions = (new TableWithConfigurationOptions($tableName, $this->configId));
             $this->_client->createTableWithConfiguration(
                 $this->getTestBucketId(),
-                $configurationOptions
+                $configurationOptions,
             );
             $this->fail('shouldn\'t be able to create table with same config');
         } catch (ClientException $e) {

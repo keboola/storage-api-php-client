@@ -27,7 +27,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
-            $tableId
+            $tableId,
         ));
 
         $db->executeQuery("create table $quotedTableId (
@@ -72,7 +72,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
-            $tableId
+            $tableId,
         ));
 
         $db->executeQuery("create table $quotedTableId (
@@ -112,7 +112,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
-            $tableId
+            $tableId,
         ));
 
         $db->executeQuery("create table $quotedTableId (
@@ -167,7 +167,7 @@ class SynapseWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $quotedTableId = $db->getDatabasePlatform()->quoteIdentifier(sprintf(
             '%s.%s',
             $connection['schema'],
-            $tableId
+            $tableId,
         ));
 
         $db->executeQuery("create table $quotedTableId (

@@ -103,9 +103,9 @@ class TeradataWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $this->assertEquals(
                 sprintf(
                     'Table "thisTableDoesNotExist" not found in schema "%s"',
-                    $workspace['connection']['schema']
+                    $workspace['connection']['schema'],
                 ),
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -121,9 +121,9 @@ class TeradataWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $this->assertEquals(
                 sprintf(
                     'Table "thisTableDoesNotExist" not found in schema "%s"',
-                    $workspace['connection']['schema']
+                    $workspace['connection']['schema'],
                 ),
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }
@@ -229,7 +229,7 @@ class TeradataWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $this->assertLinesEqualsSorted(
             implode("\n", $expected) . "\n",
             $this->_client->getTableDataPreview($table['id'], ['format' => 'rfc',]),
-            'previously null column updated'
+            'previously null column updated',
         );
     }
 
@@ -241,7 +241,7 @@ class TeradataWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $mapping1 = ['source' => $table1Id, 'destination' => 'languagesLoaded'];
@@ -257,7 +257,7 @@ class TeradataWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         } catch (ClientException $e) {
             $this->assertEquals(
                 'Loading data into workspaces is only supported for snowflake, redshift, synapse, exasol, abs.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }

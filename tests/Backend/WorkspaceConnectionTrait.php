@@ -63,12 +63,12 @@ trait WorkspaceConnectionTrait
             [
                 'database' => $connection['database'],
                 'warehouse' => $connection['warehouse'],
-            ]
+            ],
         );
         // set connection to use workspace schema
         $db->executeStatement(sprintf(
             'USE SCHEMA %s;',
-            $db->quoteIdentifier($connection['schema'])
+            $db->quoteIdentifier($connection['schema']),
         ));
 
         return $db;
@@ -80,7 +80,7 @@ trait WorkspaceConnectionTrait
         $pdo = new \PDO(
             "pgsql:dbname={$connection['database']};port=5439;host=" . $connection['host'],
             $connection['user'],
-            $connection['password']
+            $connection['password'],
         );
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
@@ -114,12 +114,12 @@ trait WorkspaceConnectionTrait
         $db = ExasolConnectionFactory::getConnection(
             $connection['host'],
             $connection['user'],
-            $connection['password']
+            $connection['password'],
         );
         $db->connect();
         $db->executeStatement(sprintf(
             'OPEN SCHEMA %s',
-            ExasolQuote::quoteSingleIdentifier($connection['schema'])
+            ExasolQuote::quoteSingleIdentifier($connection['schema']),
         ));
 
         return $db;
@@ -137,7 +137,7 @@ trait WorkspaceConnectionTrait
         $db->connect();
         $db->executeStatement(sprintf(
             'SET SESSION DATABASE %s',
-            TeradataQuote::quoteSingleIdentifier($connection['schema'])
+            TeradataQuote::quoteSingleIdentifier($connection['schema']),
         ));
         $db->executeStatement('SET ROLE ALL');
 
@@ -151,7 +151,7 @@ trait WorkspaceConnectionTrait
         ]);
 
         $bqClient->runQuery(
-            $bqClient->query('SELECT SESSION_USER() AS USER')
+            $bqClient->query('SELECT SESSION_USER() AS USER'),
         )->getIterator()->current();
 
         return $bqClient;

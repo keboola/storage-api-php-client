@@ -41,13 +41,13 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'rates',
-            new CsvFile(__DIR__ . '/../../_data/rates.csv')
+            new CsvFile(__DIR__ . '/../../_data/rates.csv'),
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], [
@@ -133,7 +133,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
 
         $isKeepAlive = $db->fetchAll(sprintf(
             'SHOW PARAMETERS LIKE \'CLIENT_SESSION_KEEP_ALIVE\' IN USER %s',
-            $workspace['connection']['user']
+            $workspace['connection']['user'],
         ))[0]['value'];
         $this->assertEquals('true', $isKeepAlive);
     }
@@ -148,13 +148,13 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages-rs',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
-            new CsvFile(__DIR__ . '/../../_data/users.csv')
+            new CsvFile(__DIR__ . '/../../_data/users.csv'),
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], [
@@ -216,7 +216,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/multiple-columns-pk.csv'),
             [
                 'primaryKey' => implode(',', $primaries),
-            ]
+            ],
         );
 
         $mapping = [
@@ -283,7 +283,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
@@ -291,7 +291,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languagesDetails',
             new CsvFile($importFile),
-            ['primaryKey' => 'Id']
+            ['primaryKey' => 'Id'],
         );
 
         // first load
@@ -364,7 +364,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         $importFile = __DIR__ . '/../../_data/languages-more-columns.csv';
@@ -372,7 +372,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languagesDetails',
             new CsvFile($importFile),
-            ['primaryKey' => 'Id']
+            ['primaryKey' => 'Id'],
         );
 
         // first load
@@ -436,7 +436,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // first load
@@ -532,7 +532,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // first load
@@ -622,7 +622,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             $table,
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         // first load
@@ -672,13 +672,13 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'rates',
-            new CsvFile(__DIR__ . '/../../_data/rates.csv')
+            new CsvFile(__DIR__ . '/../../_data/rates.csv'),
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], [
@@ -721,13 +721,13 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
-            new CsvFile(__DIR__ . '/../../_data/users.csv')
+            new CsvFile(__DIR__ . '/../../_data/users.csv'),
         );
 
         sleep(35);
@@ -852,7 +852,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             self::fail(sprintf(
                 'Project "%s" id:"%s" is missing feature "input-mapping-read-only-storage"',
                 $currentToken['owner']['name'],
-                $currentToken['owner']['id']
+                $currentToken['owner']['id'],
             ));
         }
 
@@ -865,7 +865,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $bucketId,
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         // test loading alias in IM not supported
@@ -888,7 +888,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             $this->assertSame('workspace.loadRequestLogicalException', $e->getStringCode());
             $this->assertSame(
                 'View load is not supported, only table can be loaded using views, alias of table supplied. Use read-only storage instead or copy input mapping if supported.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
         // drop alias as source table is modified later
@@ -950,7 +950,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $tableId = $this->_client->createTableAsync(
             $bucketId,
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
@@ -1015,7 +1015,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->_client->writeTableAsync(
             $tableId,
             new CsvFile($importFile),
-            ['incremental' => true]
+            ['incremental' => true],
         );
         // test view is still working
         $tableRef = $backend->getTableReflection('languages');
@@ -1038,7 +1038,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             [
                 'dataWorkspaceId' => $workspace2['id'],
                 'dataObject' => 'languages',
-            ]
+            ],
         );
         // test view is still working
         $tableRef = $backend->getTableReflection('languages');
@@ -1053,14 +1053,14 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                     ->setNotify(false)
                     ->setIsPublic(false)
                     ->setCompress(true)
-                    ->setTags(['test-file-1'])
+                    ->setTags(['test-file-1']),
             );
             // load data from file workspace Not supported yet on S3 on ABS and not used in SNFLK
             $fileWorkspace = $workspaces->createWorkspace(
                 [
                     'backend' => 'abs',
                 ],
-                true
+                true,
             );
             $options = [
                 'input' => [
@@ -1076,7 +1076,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                 [
                     'dataWorkspaceId' => $fileWorkspace['id'],
                     'dataObject' => 'languages/',
-                ]
+                ],
             );
             // test view is still working
             $tableRef = $backend->getTableReflection('languages');
@@ -1109,7 +1109,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $prodTableId = $this->_client->createTableAsync(
             $prodBucketId,
             'test-table',
-            new CsvFile(self::IMPORT_FILE_PATH_LANGUAGES)
+            new CsvFile(self::IMPORT_FILE_PATH_LANGUAGES),
         );
 
         // get bucket detail
@@ -1123,7 +1123,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $devTableId = $branchAwareClient->createTableAsync(
             $devBucketId,
             'test-table',
-            new CsvFile(self::IMPORT_FILE_PATH_USERS)
+            new CsvFile(self::IMPORT_FILE_PATH_USERS),
         );
 
         // create WS in branch
@@ -1184,7 +1184,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                         ],
                     ],
                 ],
-            ]
+            ],
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 

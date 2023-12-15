@@ -38,13 +38,13 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
                 'in',
                 'will fail',
                 $this->thisBackend,
-                'test-bucket-will-fail'
+                'test-bucket-will-fail',
             );
         } catch (ClientException $e) {
             $this->assertSame('storage.dbObjectNotFound', $e->getStringCode());
             $this->assertStringContainsString(
                 'doesn\'t exist or project user is missing privileges to read from it.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }
@@ -65,7 +65,7 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
             'in',
             'Iam in workspace',
             $this->thisBackend,
-            'Iam-your-workspace'
+            'Iam-your-workspace',
         );
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -122,14 +122,14 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
             '1',
             'NUMERIC',
             '38,19', // default length for TD
-            $tableDetail['columnMetadata']['AMOUNT']
+            $tableDetail['columnMetadata']['AMOUNT'],
         );
         $this->assertColumnMetadata(
             'VARCHAR',
             '1',
             'STRING',
             '32000',
-            $tableDetail['columnMetadata']['DESCRIPTION']
+            $tableDetail['columnMetadata']['DESCRIPTION'],
         );
 
         $preview = $this->_client->getTableDataPreview($tables[0]['id']);
@@ -180,7 +180,7 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
             '1',
             'STRING',
             '32000',
-            $tableDetail['columnMetadata']['DESCRIPTION']
+            $tableDetail['columnMetadata']['DESCRIPTION'],
         );
 
         $this->assertColumnMetadata(
@@ -188,7 +188,7 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
             '1',
             'FLOAT',
             null,
-            $tableDetail['columnMetadata']['XXX']
+            $tableDetail['columnMetadata']['XXX'],
         );
 
         $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
@@ -211,7 +211,7 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
             'in',
             'Iam in other database',
             'teradata',
-            'Iam-from-external-db-ext'
+            'Iam-from-external-db-ext',
         );
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -257,8 +257,8 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
             sprintf(
                 'SELECT COUNT(*) AS CNT FROM %s.%s',
                 TeradataQuote::quoteSingleIdentifier($dbName),
-                TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
-            )
+                TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE),
+            ),
         );
         $this->assertSame([
             [
@@ -275,8 +275,8 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
                 sprintf(
                     'SELECT COUNT(*) AS CNT FROM %s.%s',
                     TeradataQuote::quoteSingleIdentifier($dbName),
-                    TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
-                )
+                    TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE),
+                ),
             );
             $this->fail('Database should not be authorized');
         } catch (\Doctrine\DBAL\Exception\DriverException $e) {

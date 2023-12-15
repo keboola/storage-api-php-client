@@ -44,7 +44,7 @@ class EventsAttachmentTest extends StorageApiTestCase
                 $importEvent['attachments'][0]['id'],
                 $importEvent['attachments'][0]['created'],
                 $importEvent['attachments'][0]['url'],
-                $importEvent['attachments'][0]['sizeBytes']
+                $importEvent['attachments'][0]['sizeBytes'],
             );
             $this->assertSame([
                 'isSliced' => false,

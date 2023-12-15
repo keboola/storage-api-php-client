@@ -24,7 +24,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         try {
@@ -43,7 +43,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $csv = new CsvFile(__DIR__ . '/../../_data/languages.csv', ',', '"', '\\');
@@ -58,7 +58,7 @@ class ImportExportCommonTest extends StorageApiTestCase
             $this->_client->createTableAsync(
                 $this->getTestBucketId(self::STAGE_IN),
                 'languages-2',
-                $csv
+                $csv,
             );
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('csvImport.invalidCsvParams', $e->getStringCode());
