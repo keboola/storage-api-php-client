@@ -41,7 +41,7 @@ class SharingTest extends StorageApiSharingTestCase
                 [
                     'sharing' => $sharingType,
                     'async' => $isAsync,
-                ]
+                ],
             );
             $this->fail('Bucket should not be shared');
         } catch (ClientException $e) {
@@ -73,7 +73,7 @@ class SharingTest extends StorageApiSharingTestCase
                 $sharedBucket['project']['id'],
                 $sharedBucket['id'],
                 null,
-                $isAsync
+                $isAsync,
             );
             $this->fail('bucket can\'t be linked with same name');
         } catch (ClientException $e) {
@@ -90,7 +90,7 @@ class SharingTest extends StorageApiSharingTestCase
                 $sharedBucket['project']['id'],
                 $sharedBucket['id'],
                 self::BUCKET_API_SHARING,
-                $isAsync
+                $isAsync,
             );
             $this->fail('bucket can\'t be linked with same display name');
         } catch (ClientException $e) {
@@ -147,7 +147,7 @@ class SharingTest extends StorageApiSharingTestCase
             self::STAGE_IN,
             $sharedBuckets[0]['project']['id'],
             $sharedBuckets[0]['id'],
-            $displayName
+            $displayName,
         );
 
         $linkedBucket = $client->getBucket($linkedBucketId);
@@ -163,7 +163,7 @@ class SharingTest extends StorageApiSharingTestCase
                 $sharedBuckets[0]['project']['id'],
                 $sharedBuckets[0]['id'],
                 $displayName,
-                $isAsync
+                $isAsync,
             );
             $this->fail('bucket can\'t be linked with same displayName');
         } catch (ClientException $e) {
@@ -179,13 +179,13 @@ class SharingTest extends StorageApiSharingTestCase
                 $sharedBuckets[0]['project']['id'],
                 $sharedBuckets[0]['id'],
                 '&&&&&&',
-                $isAsync
+                $isAsync,
             );
             $this->fail('bucket can\'t be linked with same displayName');
         } catch (ClientException $e) {
             $this->assertEquals(
                 'Invalid data - displayName: Only alphanumeric characters dash and underscores are allowed.',
-                $e->getMessage()
+                $e->getMessage(),
             );
             $this->assertEquals(400, $e->getCode());
             $this->assertEquals('storage.buckets.validation', $e->getStringCode());
@@ -196,7 +196,7 @@ class SharingTest extends StorageApiSharingTestCase
             'same-project-link-test',
             self::STAGE_IN,
             $sharedBuckets[0]['project']['id'],
-            $sharedBuckets[0]['id']
+            $sharedBuckets[0]['id'],
         );
         $selfLinkedBucket = $this->_client->getBucket($selfLinkedBucketId);
         $this->assertEquals($sharedBuckets[0]['id'], $selfLinkedBucket['sourceBucket']['id']);
@@ -264,9 +264,9 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertSame(
                 sprintf(
                     'There is no linked bucket in project "%s"',
-                    $this->_client2->verifyToken()['owner']['id']
+                    $this->_client2->verifyToken()['owner']['id'],
                 ),
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -284,7 +284,7 @@ class SharingTest extends StorageApiSharingTestCase
         } catch (ClientException $e) {
             $this->assertSame(
                 'There is no linked bucket in project "' . $linkedBucketProjectId . '"',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -294,7 +294,7 @@ class SharingTest extends StorageApiSharingTestCase
             self::STAGE_IN,
             $sharedBuckets[0]['project']['id'],
             $sharedBuckets[0]['id'],
-            $displayName
+            $displayName,
         );
 
         $runId = $this->_client->generateRunId();
@@ -324,7 +324,7 @@ class SharingTest extends StorageApiSharingTestCase
             self::STAGE_IN,
             $sharedBuckets[0]['project']['id'],
             $sharedBuckets[0]['id'],
-            $displayName
+            $displayName,
         );
 
         $runId = $this->_client->generateRunId();
@@ -354,7 +354,7 @@ class SharingTest extends StorageApiSharingTestCase
             self::STAGE_IN,
             $sharedBuckets[0]['project']['id'],
             $sharedBuckets[0]['id'],
-            $displayName
+            $displayName,
         );
 
         // bucket unlink with token without canManage permission
@@ -362,7 +362,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         $this->tokensInLinkingProject->updateToken(
             (new TokenUpdateOptions($token['id']))
-                ->addBucketPermission($linkedBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ)
+                ->addBucketPermission($linkedBucketId, TokenAbstractOptions::BUCKET_PERMISSION_READ),
         );
 
         $cannotManageBucketsClient = $this->getClientForToken($token['token']);
@@ -403,7 +403,7 @@ class SharingTest extends StorageApiSharingTestCase
             'linked-' . time(),
             'out',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
         );
 
         // new token creation
@@ -439,7 +439,7 @@ class SharingTest extends StorageApiSharingTestCase
                 'linked-' . time(),
                 'out',
                 $sharedBucket['project']['id'],
-                $sharedBucket['id']
+                $sharedBucket['id'],
             );
             $this->fail('`linkBucket` should fail with `accessDenied` error');
         } catch (ClientException $e) {
@@ -633,14 +633,14 @@ class SharingTest extends StorageApiSharingTestCase
         $tableId = $this->_client->createTableAsync(
             $bucketId,
             $expectedTableName,
-            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv'),
         );
 
         $expectedTableAliasName = 'numbers_alias';
         $aliasTableId = $this->_client->createAliasTable(
             $bucketId,
             $tableId,
-            $expectedTableAliasName
+            $expectedTableAliasName,
         );
 
         $this->_client->createAliasTable(
@@ -653,7 +653,7 @@ class SharingTest extends StorageApiSharingTestCase
                     'values' => ['PRG'],
                     'operator' => 'eq',
                 ],
-            ]
+            ],
         );
 
         // ensure that sharing data is not output for unshared bucket
@@ -701,18 +701,18 @@ class SharingTest extends StorageApiSharingTestCase
 
         $this->assertEquals(
             $verifyTokenResponse['id'],
-            $sharedBucket['sharedBy']['id']
+            $sharedBucket['sharedBy']['id'],
         );
         $this->assertEquals(
             $verifyTokenResponse['description'],
-            $sharedBucket['sharedBy']['name']
+            $sharedBucket['sharedBy']['name'],
         );
         $this->assertNotNull(
-            $sharedBucket['sharedBy']['date']
+            $sharedBucket['sharedBy']['date'],
         );
         $this->assertGreaterThan(
             (new DateTimeImmutable())->sub(new DateInterval('PT5M')),
-            new DateTimeImmutable($sharedBucket['sharedBy']['date'])
+            new DateTimeImmutable($sharedBucket['sharedBy']['date']),
         );
 
         // should show table and alias, but not filtered alias
@@ -721,7 +721,7 @@ class SharingTest extends StorageApiSharingTestCase
         $sharedTable = array_values(
             array_filter($sharedBucket['tables'], static function (array $table) use ($tableId) {
                 return $table['id'] === $tableId;
-            })
+            }),
         );
         $this->assertCount(1, $sharedTable);
         $sharedTable = $sharedTable[0];
@@ -730,7 +730,7 @@ class SharingTest extends StorageApiSharingTestCase
         $sharedTableAlias = array_values(
             array_filter($sharedBucket['tables'], static function (array $table) use ($aliasTableId) {
                 return $table['id'] === $aliasTableId;
-            })
+            }),
         );
         $this->assertCount(1, $sharedTableAlias);
         $sharedTableAlias = $sharedTableAlias[0];
@@ -751,7 +751,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertEquals(
             $tableName,
             $sharedTable['displayName'],
-            'display name is same as name'
+            'display name is same as name',
         );
     }
 
@@ -768,7 +768,7 @@ class SharingTest extends StorageApiSharingTestCase
         $tableId = $this->_client->createTableAsync(
             $bucketId,
             $tableName,
-            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv'),
         );
 
         $metadataClient = new Metadata($this->_client);
@@ -780,7 +780,7 @@ class SharingTest extends StorageApiSharingTestCase
                     'key' => 'test.metadata.key',
                     'value' => 'test.metadata.value',
                 ],
-            ]
+            ],
         );
 
         $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
@@ -896,7 +896,7 @@ class SharingTest extends StorageApiSharingTestCase
             new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
             [
                 'primaryKey' => 'id',
-            ]
+            ],
         );
 
         $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
@@ -992,7 +992,7 @@ class SharingTest extends StorageApiSharingTestCase
             new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
             [
                 'primaryKey' => 'id',
-            ]
+            ],
         );
 
         $displayName = 'display-name-first';
@@ -1001,7 +1001,7 @@ class SharingTest extends StorageApiSharingTestCase
         $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_OUT),
             'languages-out',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $metadataApi = new Metadata($this->_client);
@@ -1022,7 +1022,7 @@ class SharingTest extends StorageApiSharingTestCase
         $aliasTableId = $this->_client->createAliasTable(
             $bucketId,
             $table2Id,
-            'languages-alias'
+            'languages-alias',
         );
 
         $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
@@ -1039,7 +1039,7 @@ class SharingTest extends StorageApiSharingTestCase
             $sharedBucket['project']['id'],
             $sharedBucket['id'],
             null,
-            $isAsync
+            $isAsync,
         );
 
         // validate bucket
@@ -1060,7 +1060,7 @@ class SharingTest extends StorageApiSharingTestCase
             [
                 'primaryKey' => 'id',
                 'incremental' => true,
-            ]
+            ],
         );
 
         $this->assertTablesMetadata($bucketId, $linkedBucketId);
@@ -1091,12 +1091,12 @@ class SharingTest extends StorageApiSharingTestCase
             new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
             [
                 'primaryKey' => 'id',
-            ]
+            ],
         );
         $aliasId = $this->_client->createAliasTable(
             $bucketId,
             $table2Id,
-            'languages-alias-2'
+            'languages-alias-2',
         );
         $this->assertTablesMetadata($bucketId, $linkedBucketId);
         $aliasTable = $this->_client->getTable($aliasId, ['include' => 'columnMetadata']);
@@ -1119,7 +1119,7 @@ class SharingTest extends StorageApiSharingTestCase
             new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
             [
                 'primaryKey' => 'id',
-            ]
+            ],
         );
 
         $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
@@ -1136,7 +1136,7 @@ class SharingTest extends StorageApiSharingTestCase
             $sharedBucket['project']['id'],
             $sharedBucket['id'],
             null,
-            $isAsync
+            $isAsync,
         );
 
         $tables = $this->_client->listTables($bucketId);
@@ -1186,7 +1186,7 @@ class SharingTest extends StorageApiSharingTestCase
             new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
             [
                 'primaryKey' => 'id',
-            ]
+            ],
         );
 
         $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
@@ -1203,7 +1203,7 @@ class SharingTest extends StorageApiSharingTestCase
             $sharedBucket['project']['id'],
             $sharedBucket['id'],
             null,
-            $isAsync
+            $isAsync,
         );
 
         $tables = $this->_client->listTables($bucketId);
@@ -1245,19 +1245,19 @@ class SharingTest extends StorageApiSharingTestCase
         $table1Id = $this->_client->createTableAsync(
             $bucketId,
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $table2Id = $this->_client->createTableAsync(
             $bucketId,
             'numbers',
-            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv'),
         );
 
         $table3Id = $this->_client->createAliasTable(
             $bucketId,
             $table2Id,
-            'numbers-alias'
+            'numbers-alias',
         );
 
         // share and link bucket
@@ -1274,7 +1274,7 @@ class SharingTest extends StorageApiSharingTestCase
             $sharedBucket['project']['id'],
             $sharedBucket['id'],
             null,
-            $isAsync
+            $isAsync,
         );
 
         // share and unshare second bucket - test that it doesn't break permissions of first linked bucket
@@ -1288,7 +1288,7 @@ class SharingTest extends StorageApiSharingTestCase
             $sharedBucket2['project']['id'],
             $sharedBucket2['id'],
             null,
-            $isAsync
+            $isAsync,
         );
         $this->_client2->dropBucket($linked2Id, ['async' => true]);
 
@@ -1313,7 +1313,7 @@ class SharingTest extends StorageApiSharingTestCase
             [
                 'backend' => $workspaceBackend,
             ],
-            true
+            true,
         );
 
         $input = [$mapping1, $mapping2, $mapping3];
@@ -1355,7 +1355,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertArrayEqualsSorted(
             Client::parseCsv(file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ',', '"'),
             $data,
-            'id'
+            'id',
         );
 
         // now we'll load another table and use the preserve parameters to check that all tables are present
@@ -1363,7 +1363,7 @@ class SharingTest extends StorageApiSharingTestCase
         $table3Id = $this->_client->createTableAsync(
             $bucketId,
             'numbersLater',
-            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv'),
         );
 
         $mapping3 = ['source' => str_replace($bucketId, $linkedId, $table3Id), 'destination' => 'table3'];
@@ -1420,26 +1420,26 @@ class SharingTest extends StorageApiSharingTestCase
         $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'languagesDetails',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
         $this->_client->shareBucket($sourceBucketId, ['async'=>$isAsync]);
 
         $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'numbers',
-            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv'),
         );
 
         $table3Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_OUT),
             'languages-out',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $table4Id = $this->_client->createAliasTable(
             $sourceBucketId,
             $table3Id,
-            'languages-alias'
+            'languages-alias',
         );
 
         $sourceProjectId = $this->_client->verifyToken()['owner']['id'];
@@ -1449,7 +1449,7 @@ class SharingTest extends StorageApiSharingTestCase
             $sourceProjectId,
             $sourceBucketId,
             null,
-            $isAsync
+            $isAsync,
         );
 
         // load data into workspace in destination project
@@ -1458,7 +1458,7 @@ class SharingTest extends StorageApiSharingTestCase
             [
                 'backend' => self::BACKEND_SNOWFLAKE,
             ],
-            true
+            true,
         );
 
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
@@ -1513,8 +1513,8 @@ class SharingTest extends StorageApiSharingTestCase
                         'type' => $column['type'],
                     ];
                 },
-                $workspaceTableColumns
-            )
+                $workspaceTableColumns,
+            ),
         );
 
         $workspaceTableData = $backend->fetchAll('languagesDetails');
@@ -1540,8 +1540,8 @@ class SharingTest extends StorageApiSharingTestCase
                         'type' => $column['type'],
                     ];
                 },
-                $workspaceTableColumns
-            )
+                $workspaceTableColumns,
+            ),
         );
 
         // assert table 2 data
@@ -1580,8 +1580,8 @@ class SharingTest extends StorageApiSharingTestCase
                         'type' => $column['type'],
                     ];
                 },
-                $workspaceTableColumns
-            )
+                $workspaceTableColumns,
+            ),
         );
 
         $workspaceTableData = $backend->fetchAll('NUMBERS');
@@ -1611,8 +1611,8 @@ class SharingTest extends StorageApiSharingTestCase
                         'type' => $column['type'],
                     ];
                 },
-                $workspaceTableColumns
-            )
+                $workspaceTableColumns,
+            ),
         );
 
         $workspaceTableData = $backend->fetchAll('languagesAlias');
@@ -1638,8 +1638,8 @@ class SharingTest extends StorageApiSharingTestCase
                         'type' => $column['type'],
                     ];
                 },
-                $workspaceTableColumns
-            )
+                $workspaceTableColumns,
+            ),
         );
     }
 
@@ -1687,7 +1687,7 @@ class SharingTest extends StorageApiSharingTestCase
         $tableId = $this->_client->createTableAsync(
             $bucketId,
             $tableName,
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $metadata = new Metadata($this->_client);
@@ -1701,7 +1701,7 @@ class SharingTest extends StorageApiSharingTestCase
                     'key' => $metadataKey,
                     'value' => '1234',
                 ],
-            ]
+            ],
         );
 
         $metadata->postTableMetadata(
@@ -1712,7 +1712,7 @@ class SharingTest extends StorageApiSharingTestCase
                     'key' => $metadataKey,
                     'value' => '1234',
                 ],
-            ]
+            ],
         );
 
         $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
@@ -1731,7 +1731,7 @@ class SharingTest extends StorageApiSharingTestCase
                     'key' => $metadataKey,
                     'value' => '1234',
                 ],
-            ]
+            ],
         );
 
         try {

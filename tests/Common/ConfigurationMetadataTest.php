@@ -63,13 +63,13 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components,
             'transformation',
             $configurationNameMain1,
-            'Main 1'
+            'Main 1',
         );
         $this->createConfiguration(
             $components,
             'transformation',
             $configurationNameMain2,
-            'Main 2'
+            'Main 2',
         );
 
         // test if both return 0 metadata
@@ -88,7 +88,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components,
             'wr-db',
             $configurationNameMain1,
-            'Main 1'
+            'Main 1',
         );
         $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
             ->setComponentId('wr-db')
@@ -181,7 +181,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components,
             'transformation',
             $configurationNameMain1,
-            'Main 1'
+            'Main 1',
         );
 
         $listConfigurationMetadata = $components->listConfigurationMetadata((new ListConfigurationMetadataOptions())
@@ -225,7 +225,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components,
             'wr-db',
             'component-metadata-events-test',
-            'Component metadata event'
+            'Component metadata event',
         );
 
         $configurationMetadataOptions = (new ConfigurationMetadata($configurationOptions))
@@ -247,7 +247,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
                     'configurationId' => $configurationOptions->getConfigurationId(),
                     'name' => 'Component metadata event',
                     'version' => 1,
-                ]
+                ],
             );
         };
         $query = new EventsQueryBuilder();
@@ -268,7 +268,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components,
             'transformation',
             $configurationNameMain1,
-            'Main 1'
+            'Main 1',
         );
 
         // add metadata to first configuration
@@ -459,13 +459,13 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components,
             'transformation',
             $configurationNameMain1,
-            'Main 1'
+            'Main 1',
         );
         $wrDbMain1Options = $this->createConfiguration(
             $components,
             'wr-db',
             $configurationNameMain1,
-            'Main 1'
+            'Main 1',
         );
 
         // add metadata to first configuration
@@ -504,7 +504,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $this->assertMatchesRegularExpression(
                 '/^Metadata with id "[0-9]+" not found for "transformation" configuration '.
                 '"[a-z0-9]+\\\main-1" in branch "[0-9]+"$/',
-                $e->getMessage()
+                $e->getMessage(),
             );
             $this->assertSame(404, $e->getCode());
         }
@@ -544,7 +544,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $this->assertMatchesRegularExpression(
                 '/^Metadata with id "[0-9]+" not found for "transformation" configuration '.
                 '"[a-z0-9]+\\\+main-1" in branch "[0-9]+"$/',
-                $e->getMessage()
+                $e->getMessage(),
             );
             $this->assertSame(404, $e->getCode());
         }
@@ -562,7 +562,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components,
             'wr-db',
             'component-metadata-events-test',
-            'Component metadata events'
+            'Component metadata events',
         );
 
         $configurationMetadataOptions = (new ConfigurationMetadata($configurationOptions))
@@ -578,7 +578,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
                 'storage.componentConfigurationMetadataDeleted',
                 sprintf(
                     'Deleted component configuration metadata id "%s" with key "KBC.SomeEnity.metadataKey"',
-                    (int) $newMetadata[0]['id']
+                    (int) $newMetadata[0]['id'],
                 ),
                 $configurationOptions->getConfigurationId(),
                 'Component metadata events',
@@ -590,7 +590,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
                     'version' => 1,
                     'metadataId' => (int) $newMetadata[0]['id'],
                     'key' => 'KBC.SomeEnity.metadataKey',
-                ]
+                ],
             );
         };
         $query = new EventsQueryBuilder();

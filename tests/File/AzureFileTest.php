@@ -21,7 +21,7 @@ class AzureFileTest extends StorageApiTestCase
         $this->assertSame(
             'azure',
             $token['owner']['fileStorageProvider'],
-            'Project must have ABS file storage'
+            'Project must have ABS file storage',
         );
     }
 
@@ -146,7 +146,7 @@ class AzureFileTest extends StorageApiTestCase
         $prepareResult = $this->_client->prepareFileUpload($options);
 
         $blobClient = BlobClientFactory::createClientFromConnectionString(
-            $prepareResult['absUploadParams']['absCredentials']['SASConnectionString']
+            $prepareResult['absUploadParams']['absCredentials']['SASConnectionString'],
         );
 
         $parallel = true;
@@ -157,7 +157,7 @@ class AzureFileTest extends StorageApiTestCase
             $parallel = false;
         }
         $options->setContentDisposition(
-            sprintf('attachment; filename=%s', $prepareResult['name'])
+            sprintf('attachment; filename=%s', $prepareResult['name']),
         );
 
         $uploader = new ABSUploader($blobClient);
@@ -166,7 +166,7 @@ class AzureFileTest extends StorageApiTestCase
             $prepareResult['absUploadParams']['blobName'],
             $filePath,
             $options,
-            $parallel
+            $parallel,
         );
 
         // re-upload should work
@@ -175,7 +175,7 @@ class AzureFileTest extends StorageApiTestCase
             $prepareResult['absUploadParams']['blobName'],
             $filePath,
             $options,
-            $parallel
+            $parallel,
         );
     }
 

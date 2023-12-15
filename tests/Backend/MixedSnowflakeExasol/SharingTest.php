@@ -77,7 +77,7 @@ class SharingTest extends StorageApiSharingTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
             [
                 'primaryKey' => 'name',
-            ]
+            ],
         );
 
         $table2Id = $this->_client->createTableAsync(
@@ -86,13 +86,13 @@ class SharingTest extends StorageApiSharingTestCase
             new CsvFile(__DIR__ . '/../../_data/numbers.csv'),
             [
                 'primaryKey' => '1',
-            ]
+            ],
         );
 
         $table3Id = $this->_client->createAliasTable(
             $bucketId,
             $table2Id,
-            'numbers-alias'
+            'numbers-alias',
         );
 
         // share and link bucket
@@ -108,7 +108,7 @@ class SharingTest extends StorageApiSharingTestCase
             'linked-' . time(),
             'out',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
         );
 
         // share and unshare second bucket - test that it doesn't break permissions of first linked bucket
@@ -123,7 +123,7 @@ class SharingTest extends StorageApiSharingTestCase
             'linked-2-' . time(),
             'out',
             $sharedBucket2['project']['id'],
-            $sharedBucket2['id']
+            $sharedBucket2['id'],
         );
         $this->_client2->dropBucket($linked2Id, ['async' => true,]);
 
@@ -148,7 +148,7 @@ class SharingTest extends StorageApiSharingTestCase
             [
                 'backend' => $workspaceBackend,
             ],
-            true
+            true,
         );
 
         $input = [$mapping1, $mapping2, $mapping3];
@@ -205,7 +205,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertArrayEqualsSorted(
             Client::parseCsv((string) file_get_contents(__DIR__ . '/../../_data/languages.csv'), true, ',', '"'),
             $data,
-            'id'
+            'id',
         );
 
         // now we'll load another table and use the preserve parameters to check that all tables are present
@@ -213,7 +213,7 @@ class SharingTest extends StorageApiSharingTestCase
         $table3Id = $this->_client->createTableAsync(
             $bucketId,
             'numbersLater',
-            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv'),
         );
 
         $runId = $this->_client2->generateRunId();

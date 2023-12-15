@@ -71,7 +71,7 @@ class ExasolWorkspaceBackend implements WorkspaceBackend
             'ALTER TABLE %s.%s DROP COLUMN %s;',
             ExasolQuote::quoteSingleIdentifier($this->schema),
             ExasolQuote::quoteSingleIdentifier($table),
-            ExasolQuote::quoteSingleIdentifier($column)
+            ExasolQuote::quoteSingleIdentifier($column),
         ));
     }
 
@@ -96,7 +96,7 @@ class ExasolWorkspaceBackend implements WorkspaceBackend
         $this->db->executeStatement($qb->getCreateTableCommand(
             $this->schema,
             $tableName,
-            new ColumnCollection($cols)
+            new ColumnCollection($cols),
         ));
     }
 
@@ -107,7 +107,7 @@ class ExasolWorkspaceBackend implements WorkspaceBackend
             'SELECT * FROM %s.%s %s;',
             ExasolQuote::quoteSingleIdentifier($this->schema),
             ExasolQuote::quoteSingleIdentifier($table),
-            $orderBy !== null ? "ORDER BY $orderBy" : null
+            $orderBy !== null ? "ORDER BY $orderBy" : null,
         ));
         switch ($style) {
             case \PDO::FETCH_NUM:
@@ -161,7 +161,7 @@ class ExasolWorkspaceBackend implements WorkspaceBackend
         $this->db->executeStatement(sprintf(
             'DROP TABLE IF EXISTS %s.%s;',
             ExasolQuote::quoteSingleIdentifier($this->schema),
-            ExasolQuote::quoteSingleIdentifier($table)
+            ExasolQuote::quoteSingleIdentifier($table),
         ));
     }
 

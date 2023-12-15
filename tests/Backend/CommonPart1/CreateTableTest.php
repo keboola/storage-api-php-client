@@ -58,7 +58,7 @@ class CreateTableTest extends StorageApiTestCase
         if ($async === false) {
             $this->allowTestForBackendsOnly(
                 [self::BACKEND_SNOWFLAKE],
-                'Test sync actions only on Snowflake'
+                'Test sync actions only on Snowflake',
             );
         }
         $createMethod = $async ? 'createTableAsync' : 'createTable';
@@ -87,14 +87,14 @@ class CreateTableTest extends StorageApiTestCase
         $this->assertLinesEqualsSorted(
             file_get_contents($expectationFile),
             $this->_client->getTableDataPreview($tableId),
-            'initial data imported into table'
+            'initial data imported into table',
         );
         $displayName = 'Romanov-display-name';
         $tableId = $this->_client->updateTable(
             $tableId,
             [
                 'displayName' => $displayName,
-            ]
+            ],
         );
         assert($tableId !== null);
 
@@ -107,7 +107,7 @@ class CreateTableTest extends StorageApiTestCase
             $tableId,
             [
                 'displayName' => $displayName,
-            ]
+            ],
         );
 
         try {
@@ -123,9 +123,9 @@ class CreateTableTest extends StorageApiTestCase
                 sprintf(
                     'The table "%s" in the bucket already has the same display name "%s".',
                     $table['name'],
-                    $displayName
+                    $displayName,
                 ),
-                $e->getMessage()
+                $e->getMessage(),
             );
             $this->assertEquals('storage.buckets.tableAlreadyExists', $e->getStringCode());
         }
@@ -135,13 +135,13 @@ class CreateTableTest extends StorageApiTestCase
                 $tableId,
                 [
                     'displayName' => '_wrong-display-name',
-                ]
+                ],
             );
             $this->fail('Should fail');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals(
                 'Invalid data - displayName: Cannot start with underscore.',
-                $e->getMessage()
+                $e->getMessage(),
             );
             $this->assertEquals('storage.tables.validation', $e->getStringCode());
             $this->assertEquals(400, $e->getCode());
@@ -159,7 +159,7 @@ class CreateTableTest extends StorageApiTestCase
                 $anotherTableId,
                 [
                     'displayName' => $displayName,
-                ]
+                ],
             );
             $this->fail('Renaming another table to existing displayname should fail');
         } catch (\Keboola\StorageApi\ClientException $e) {
@@ -167,9 +167,9 @@ class CreateTableTest extends StorageApiTestCase
                 sprintf(
                     'The table "%s" in the bucket already has the same display name "%s".',
                     $table['name'],
-                    $displayName
+                    $displayName,
                 ),
-                $e->getMessage()
+                $e->getMessage(),
             );
             $this->assertEquals('storage.buckets.tableAlreadyExists', $e->getStringCode());
             $this->assertEquals(400, $e->getCode());
@@ -242,7 +242,7 @@ class CreateTableTest extends StorageApiTestCase
             $this->_client->createTable(
                 $this->getTestBucketId(),
                 'languages.main',
-                new CsvFile(__DIR__ . '/../../_data/languages.csv')
+                new CsvFile(__DIR__ . '/../../_data/languages.csv'),
             );
             $this->fail('Table with dot in name should not be created');
         } catch (\Keboola\StorageApi\ClientException $e) {
@@ -256,7 +256,7 @@ class CreateTableTest extends StorageApiTestCase
             $this->_client->createTableAsync(
                 $this->getTestBucketId(self::STAGE_IN),
                 'languages',
-                new CsvFile(__DIR__ . '/../../_data/languages.invalid-column-name.csv')
+                new CsvFile(__DIR__ . '/../../_data/languages.invalid-column-name.csv'),
             );
             $this->fail('Table should not be created');
         } catch (\Keboola\StorageApi\ClientException $e) {
@@ -270,7 +270,7 @@ class CreateTableTest extends StorageApiTestCase
             $this->_client->createTableAsync(
                 $this->getTestBucketId(self::STAGE_IN),
                 'languages',
-                new CsvFile(__DIR__ . '/../../_data/empty.csv')
+                new CsvFile(__DIR__ . '/../../_data/empty.csv'),
             );
             $this->fail('Table should not be created');
         } catch (\Keboola\StorageApi\ClientException $e) {
@@ -287,7 +287,7 @@ class CreateTableTest extends StorageApiTestCase
                 [
                     'name' => 'languages',
                     'dataFileId' => $fileId,
-                ]
+                ],
             );
             $this->fail('Table should not be created');
         } catch (\Keboola\StorageApi\ClientException $e) {
@@ -300,7 +300,7 @@ class CreateTableTest extends StorageApiTestCase
         $file = $this->_client->prepareFileUpload(
             (new FileUploadOptions())
                 ->setFileName('missing')
-                ->setFederationToken(true)
+                ->setFederationToken(true),
         );
         try {
             $this->_client->createTableAsyncDirect(
@@ -308,7 +308,7 @@ class CreateTableTest extends StorageApiTestCase
                 [
                     'name' => 'languages',
                     'dataFileId' => $file['id'],
-                ]
+                ],
             );
             $this->fail('Table should not be created');
         } catch (\Keboola\StorageApi\ClientException $e) {
@@ -325,7 +325,7 @@ class CreateTableTest extends StorageApiTestCase
         if ($async === false) {
             $this->allowTestForBackendsOnly(
                 [self::BACKEND_SNOWFLAKE],
-                'Test sync actions only on Snowflake'
+                'Test sync actions only on Snowflake',
             );
         }
         $method = $async ? 'createTableAsync' : 'createTable';
@@ -349,7 +349,7 @@ class CreateTableTest extends StorageApiTestCase
         if ($async === false) {
             $this->allowTestForBackendsOnly(
                 [self::BACKEND_SNOWFLAKE],
-                'Test sync actions only on Snowflake'
+                'Test sync actions only on Snowflake',
             );
         }
         try {
@@ -384,7 +384,7 @@ class CreateTableTest extends StorageApiTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
             [
                 'primaryKey' => 'id',
-            ]
+            ],
         );
 
         $table = $this->_client->getTable($tableId);
@@ -404,7 +404,7 @@ class CreateTableTest extends StorageApiTestCase
                 new CsvFile(__DIR__ . '/../../_data/languages.csv'),
                 [
                     'primaryKey' => $primaryKey,
-                ]
+                ],
             );
             $this->fail('exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
@@ -418,7 +418,7 @@ class CreateTableTest extends StorageApiTestCase
                 new CsvFile(__DIR__ . '/../../_data/languages.csv'),
                 [
                     'primaryKey' => $primaryKey,
-                ]
+                ],
             );
             $this->fail('exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
@@ -433,7 +433,7 @@ class CreateTableTest extends StorageApiTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'tableWith.Dot',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-            []
+            [],
         );
 
         $this->expectException(ClientException::class);
@@ -441,7 +441,7 @@ class CreateTableTest extends StorageApiTestCase
             $this->getTestBucketId(self::STAGE_IN),
             'table.WithDot',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-            []
+            [],
         );
     }
 
@@ -455,7 +455,7 @@ class CreateTableTest extends StorageApiTestCase
                     'name' => 'languages',
                     'dataString' => 'id,name',
                     'primaryKey' => ['id', 'name'],
-                ]
+                ],
             );
             $this->fail('table should not be created');
         } catch (ClientException $e) {
@@ -472,7 +472,7 @@ class CreateTableTest extends StorageApiTestCase
                     'name' => 'languages',
                     'dataString' => 'id,name',
                     'primaryKey' => ['id', 'name'],
-                ]
+                ],
             );
             $this->fail('table should not be created');
         } catch (ClientException $e) {
@@ -489,7 +489,7 @@ class CreateTableTest extends StorageApiTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'column-name-row-number',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         // this used to fail because of the column named row_number
@@ -518,7 +518,7 @@ class CreateTableTest extends StorageApiTestCase
                 [
                     'name' => 'languages',
                     'dataFileId' => $slicedFileId,
-                ]
+                ],
             );
             $this->fail('Table should not be created');
         } catch (ClientException $e) {

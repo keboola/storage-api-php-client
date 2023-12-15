@@ -36,7 +36,7 @@ class MetricsTest extends StorageApiTestCase
                 ->setNotify(false)
                 ->setIsPublic(false)
                 ->setCompress(false)
-                ->setTags(['table-import'])
+                ->setTags(['table-import']),
         );
 
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
@@ -77,7 +77,7 @@ class MetricsTest extends StorageApiTestCase
                 ->setNotify(false)
                 ->setIsPublic(false)
                 ->setCompress(false)
-                ->setTags(['table-import'])
+                ->setTags(['table-import']),
         );
         $job = $this->_client->apiPostJson("tables/{$tableId}/import-async", [
             'dataFileId' => $fileId,

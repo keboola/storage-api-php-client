@@ -58,19 +58,19 @@ class BranchBucketsTest extends StorageApiTestCase
             new CsvFile($importFile),
             [
                 'primaryKey' => 'id',
-            ]
+            ],
         );
 
         $metadata->postColumnMetadata(
             sprintf('%s.%s', $sourceTableId, 'id'),
             $metadataProvider,
-            $branch1TestMetadata
+            $branch1TestMetadata,
         );
 
         $metadata->postTableMetadata(
             $sourceTableId,
             $metadataProvider,
-            $branch1TestMetadata
+            $branch1TestMetadata,
         );
 
         // init data in branch1 bucket
@@ -79,7 +79,7 @@ class BranchBucketsTest extends StorageApiTestCase
         $devBranchTable1 = $this->_client->createTableAsync(
             $devBranchBucketId1,
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         // init metadata for branch2 bucket
@@ -91,7 +91,7 @@ class BranchBucketsTest extends StorageApiTestCase
                     'key' => $metadataKey,
                     'value' => $branch2['id'],
                 ],
-            ]
+            ],
         );
 
         // test there is buckets for each dev branch

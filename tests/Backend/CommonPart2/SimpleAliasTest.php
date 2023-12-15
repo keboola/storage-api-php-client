@@ -30,7 +30,7 @@ class SimpleAliasTest extends StorageApiTestCase
             $this->getTestBucketId(),
             'languages',
             new CsvFile($importFile),
-            []
+            [],
         );
         // create alias tables with invalid name
         $this->expectException(ClientException::class);
@@ -49,7 +49,7 @@ class SimpleAliasTest extends StorageApiTestCase
             new CsvFile($importFile),
             [
                 'primaryKey' => 'id',
-            ]
+            ],
         );
         $sourceTable = $this->_client->getTable($sourceTableId);
 
@@ -67,17 +67,17 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertAliasMetadataAndExport(
             $firstAlias,
             $sourceTable,
-            $expectedData
+            $expectedData,
         );
         $this->assertAliasMetadataAndExport(
             $secondAlias,
             $firstAlias,
-            $expectedData
+            $expectedData,
         );
         $this->assertAliasMetadataAndExport(
             $thirdAlias,
             $secondAlias,
-            $expectedData
+            $expectedData,
         );
 
         // second import into source table
@@ -197,7 +197,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
-            new CsvFile(__DIR__ . '/../../_data/users.csv')
+            new CsvFile(__DIR__ . '/../../_data/users.csv'),
         );
 
         // alias table
@@ -211,7 +211,7 @@ class SimpleAliasTest extends StorageApiTestCase
                     'values' => ['PRG'],
                     'operator' => 'eq',
                 ],
-            ]
+            ],
         );
 
         $aliasTable = $this->_client->getTable($aliasTableId);
@@ -490,7 +490,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
-            new CsvFile(__DIR__ . '/../../_data/users.csv')
+            new CsvFile(__DIR__ . '/../../_data/users.csv'),
         );
 
         $aliasColumns = [
@@ -504,7 +504,7 @@ class SimpleAliasTest extends StorageApiTestCase
             'users',
             [
                 'aliasColumns' => $aliasColumns,
-            ]
+            ],
         );
 
         $aliasTable = $this->_client->getTable($aliasTableId);
@@ -551,7 +551,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
-            new CsvFile(__DIR__ . '/../../_data/users.csv')
+            new CsvFile(__DIR__ . '/../../_data/users.csv'),
         );
 
         $aliasParams = [
@@ -570,7 +570,7 @@ class SimpleAliasTest extends StorageApiTestCase
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
             'users',
-            $aliasParams
+            $aliasParams,
         );
 
         $data = $this->_client->getTableDataPreview($aliasTableId);
@@ -597,7 +597,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
-            new CsvFile(__DIR__ . '/../../_data/users.csv')
+            new CsvFile(__DIR__ . '/../../_data/users.csv'),
         );
 
         $aliasTableId = $this->_client->createAliasTable(
@@ -610,7 +610,7 @@ class SimpleAliasTest extends StorageApiTestCase
                     'column' => 'sex',
                     'values' => ['male'],
                 ],
-            ]
+            ],
         );
 
         $expectedResult = [
@@ -657,7 +657,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
-            new CsvFile(__DIR__ . '/../../_data/users.csv')
+            new CsvFile(__DIR__ . '/../../_data/users.csv'),
         );
 
         // alias table
@@ -670,7 +670,7 @@ class SimpleAliasTest extends StorageApiTestCase
                     'column' => 'city',
                     'values' => ['PRG'],
                 ],
-            ]
+            ],
         );
 
         $expectedResult = [
@@ -727,7 +727,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $inTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
-            new CsvFile(__DIR__ . '/../../_data/users.csv')
+            new CsvFile(__DIR__ . '/../../_data/users.csv'),
         );
 
         $aliasId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $inTableId);
@@ -741,7 +741,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $outTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_OUT),
             'users',
-            new CsvFile(__DIR__ . '/../../_data/users.csv')
+            new CsvFile(__DIR__ . '/../../_data/users.csv'),
         );
 
         $aliasId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $outTableId, 'users-alias-from-out');
@@ -760,13 +760,13 @@ class SimpleAliasTest extends StorageApiTestCase
         $aliasTableId = $this->_client->createAliasTable(
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
-            'users'
+            'users',
         );
 
         $this->_client->createAliasTable(
             $this->getTestBucketId(self::STAGE_OUT),
             $aliasTableId,
-            'users-2'
+            'users-2',
         );
 
         $this->expectException(ClientException::class);
@@ -782,13 +782,13 @@ class SimpleAliasTest extends StorageApiTestCase
         $aliasTableId = $this->_client->createAliasTable(
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
-            'users'
+            'users',
         );
 
         $this->_client->createAliasTable(
             $this->getTestBucketId(self::STAGE_OUT),
             $aliasTableId,
-            'users-2'
+            'users-2',
         );
 
         $this->expectException(ClientException::class);
@@ -808,7 +808,7 @@ class SimpleAliasTest extends StorageApiTestCase
             'users',
             [
                 'aliasColumns' => ['id', 'name'],
-            ]
+            ],
         );
         $aliasTable = $this->_client->getTable($aliasTableId);
         $this->assertFalse($aliasTable['isAliasable']);
@@ -831,7 +831,7 @@ class SimpleAliasTest extends StorageApiTestCase
                     'values' => ['foo'],
                     'operator' => 'eq',
                 ],
-            ]
+            ],
         );
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Aliasing an advanced alias is not allowed.');
@@ -852,7 +852,7 @@ class SimpleAliasTest extends StorageApiTestCase
             new CsvFile($importFile),
             [
                 'primaryKey' => 'id',
-            ]
+            ],
         );
 
         $metadata = new Metadata($this->_client);
@@ -866,7 +866,7 @@ class SimpleAliasTest extends StorageApiTestCase
                     'key' => $metadataKey,
                     'value' => '1234',
                 ],
-            ]
+            ],
         );
 
         $metadata->postTableMetadata(
@@ -877,7 +877,7 @@ class SimpleAliasTest extends StorageApiTestCase
                     'key' => $metadataKey,
                     'value' => '1234',
                 ],
-            ]
+            ],
         );
 
         $aliasName = 'languages-alias-1';
@@ -896,7 +896,7 @@ class SimpleAliasTest extends StorageApiTestCase
                     'key' => $metadataKey,
                     'value' => '1234',
                 ],
-            ]
+            ],
         );
 
         try {
@@ -927,7 +927,7 @@ class SimpleAliasTest extends StorageApiTestCase
             new CsvFile($importFile),
             [
                 'primaryKey' => 'id',
-            ]
+            ],
         );
 
         $metadata = new Metadata($this->_client);
@@ -941,7 +941,7 @@ class SimpleAliasTest extends StorageApiTestCase
                     'key' => $metadataKey,
                     'value' => '1234',
                 ],
-            ]
+            ],
         );
 
         $metadata->postTableMetadata(
@@ -952,7 +952,7 @@ class SimpleAliasTest extends StorageApiTestCase
                     'key' => $metadataKey,
                     'value' => '1234',
                 ],
-            ]
+            ],
         );
 
         $aliasName = 'languages-alias-1';
@@ -970,7 +970,7 @@ class SimpleAliasTest extends StorageApiTestCase
                     'key' => $metadataKey,
                     'value' => '1234',
                 ],
-            ]
+            ],
         );
 
         try {

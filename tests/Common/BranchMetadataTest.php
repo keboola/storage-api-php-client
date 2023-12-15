@@ -155,7 +155,7 @@ class BranchMetadataTest extends StorageApiTestCase
                 'devBranch',
                 [
                     'metadata' => self::TEST_METADATA,
-                ]
+                ],
             );
         };
 
@@ -270,7 +270,7 @@ class BranchMetadataTest extends StorageApiTestCase
                 [
                     'metadataId' => (int) $metadata[0]['id'],
                     'key' => self::TEST_METADATA[0]['key'],
-                ]
+                ],
             );
         };
 

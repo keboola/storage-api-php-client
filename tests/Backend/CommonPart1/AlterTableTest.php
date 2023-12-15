@@ -33,7 +33,7 @@ class AlterTableTest extends StorageApiTestCase
         $this->assertLinesEqualsSorted(
             file_get_contents($importFileWithNewCol),
             $this->_client->getTableDataPreview($tableId),
-            'new column is imported'
+            'new column is imported',
         );
     }
 
@@ -98,7 +98,7 @@ class AlterTableTest extends StorageApiTestCase
         try {
             $this->_client->addTableColumn(
                 $tableId,
-                $columnName
+                $columnName,
             );
             $this->fail('Column should not be created');
         } catch (ClientException $e) {
@@ -148,7 +148,7 @@ class AlterTableTest extends StorageApiTestCase
             new CsvFile($importFile),
             [
                 'primaryKey' => 'id,name',
-            ]
+            ],
         );
 
         $detail = $this->_client->getTable($tableId);
@@ -170,7 +170,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->getTestBucketId(),
             'users',
             new CsvFile($importFile),
-            []
+            [],
         );
 
         $tableDetail = $this->_client->getTable($tableId);
@@ -195,7 +195,7 @@ class AlterTableTest extends StorageApiTestCase
         $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'users',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         $this->_client->addTableColumn($table1Id, 'new-column');
@@ -203,7 +203,7 @@ class AlterTableTest extends StorageApiTestCase
         $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_OUT),
             'users',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         $this->_client->createTablePrimaryKey($table2Id, ['id']);
@@ -224,7 +224,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->getTestBucketId(),
             'users',
             new CsvFile($importFile),
-            []
+            [],
         );
 
         $this->_client->writeTableAsync(
@@ -232,7 +232,7 @@ class AlterTableTest extends StorageApiTestCase
             new CsvFile($importFile),
             [
                 'incremental' => true,
-            ]
+            ],
         );
 
         try {
@@ -249,7 +249,7 @@ class AlterTableTest extends StorageApiTestCase
             $this->getTestBucketId(),
             'languages',
             new CsvFile($importFile),
-            []
+            [],
         );
 
         $this->_client->writeTableAsync(
@@ -257,7 +257,7 @@ class AlterTableTest extends StorageApiTestCase
             new CsvFile($importFile),
             [
                 'incremental' => true,
-            ]
+            ],
         );
 
         try {
@@ -278,7 +278,7 @@ class AlterTableTest extends StorageApiTestCase
             new CsvFile($importFile),
             [
                 'primaryKey' => 'id',
-            ]
+            ],
         );
 
         $aliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $tableId);
@@ -314,7 +314,7 @@ class AlterTableTest extends StorageApiTestCase
             new CsvFile($importFile),
             [
                 'primaryKey' => 'Id,Name',
-            ]
+            ],
         );
 
         $tableDetail = $this->_client->getTable($tableId);
@@ -338,7 +338,7 @@ class AlterTableTest extends StorageApiTestCase
             new CsvFile($importFile),
             [
                 'primaryKey' => 'id',
-            ]
+            ],
         );
 
         $aliasTableId = $this->_client->createAliasTable(
@@ -350,7 +350,7 @@ class AlterTableTest extends StorageApiTestCase
                     'column' => 'id',
                     'values' => ['1'],
                 ],
-            ]
+            ],
         );
 
         $tables = [
@@ -406,7 +406,7 @@ class AlterTableTest extends StorageApiTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'users',
-            new CsvFile(__DIR__ . '/../../_data/users.csv')
+            new CsvFile(__DIR__ . '/../../_data/users.csv'),
         );
 
         $this->_client->removeTablePrimaryKey($tableId);
@@ -419,7 +419,7 @@ class AlterTableTest extends StorageApiTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'users',
-            new CsvFile(__DIR__ . '/../../_data/users.csv')
+            new CsvFile(__DIR__ . '/../../_data/users.csv'),
         );
         try {
             $this->_client->createTablePrimaryKey($tableId, ['fakeColumn']);

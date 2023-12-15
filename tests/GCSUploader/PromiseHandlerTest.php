@@ -19,7 +19,7 @@ class PromiseHandlerTest extends StorageApiTestCase
                 'reason' => new ServiceException(
                     'dummyMessage',
                     0,
-                    new \Exception('dummyReason')
+                    new \Exception('dummyReason'),
                 ),
             ],
         ];

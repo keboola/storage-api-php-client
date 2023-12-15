@@ -796,7 +796,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                             'Testing datatype "%s" with case "%s" not failed. Expected exception was: "%s"',
                             $type,
                             $caseName,
-                            $expectedMessage
+                            $expectedMessage,
                         ));
                     }
                 } catch (Throwable $e) {
@@ -808,7 +808,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                             'Testing datatype "%s" with case "%s" was not expected to fail. Error is: "%s"',
                             $type,
                             $caseName,
-                            $e->getMessage()
+                            $e->getMessage(),
                         ));
                     }
                     $this->assertInstanceOf(ClientException::class, $e);
@@ -819,8 +819,8 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                             'Testing datatype "%s" with case "%s" was not expected exception message: "%s"',
                             $type,
                             $caseName,
-                            $e->getMessage()
-                        )
+                            $e->getMessage(),
+                        ),
                     );
                 }
             }
@@ -947,7 +947,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 '1989-08-31',
                 '1989-08-31 00:00:00.000',
                 'roman',
-            ]
+            ],
         );
         try {
             $this->_client->writeTableAsync($tableId, $csvFile);
@@ -955,11 +955,11 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
         } catch (ClientException $e) {
             $this->assertEquals(
                 'rowTooLarge',
-                $e->getStringCode()
+                $e->getStringCode(),
             );
             $this->assertEquals(
                 'Load error: An exception occurred while executing a query: Numeric value \'123132456.1264654\' is out of range',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -974,7 +974,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 '1989-08-31',
                 '1989-08-31 00:00:00.000',
                 'roman',
-            ]
+            ],
         );
 
         $this->_client->writeTableAsync($tableId, $csvFile);
@@ -1024,7 +1024,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -1037,7 +1037,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -1579,7 +1579,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 
         $this->assertSame(
             [$expectedPreview],
-            $data['rows']
+            $data['rows'],
         );
 
         // test filters
@@ -1592,7 +1592,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 [
                     'format' => 'json',
                     'whereFilters' => [$filter],
-                ]
+                ],
             );
 
             $this->assertCount($expectedCount, $data['rows'], sprintf('Filter for column %s failed.', $filter['column']));
@@ -1688,7 +1688,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 
         $this->assertSame(
             $this->getExpectedExoticDataPreview(),
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -1708,7 +1708,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                     [
                         'format' => 'json',
                         'whereFilters' => [$filter],
-                    ]
+                    ],
                 );
                 // fail
             } catch (ClientException $e) {
@@ -1718,9 +1718,9 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                     sprintf(
                         'Filtering by column "%s" of type "%s" is not supported by the backend "Snowflake".',
                         $col['name'],
-                        $col['definition']['type']
+                        $col['definition']['type'],
                     ),
-                    $e->getMessage()
+                    $e->getMessage(),
                 );
             }
         }
@@ -1784,7 +1784,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 '1989-08-31',
                 '1989-08-31 00:00:00.000',
                 'roman',
-            ]
+            ],
         );
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
@@ -1836,7 +1836,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -1849,7 +1849,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -1906,7 +1906,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 '1989-08-31',
                 '1989-08-31 00:00:00.000',
                 'roman',
-            ]
+            ],
         );
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
@@ -1958,7 +1958,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -1971,7 +1971,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -2503,7 +2503,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 '12:00:00.000',
                 '2023-04-18 12:34:56',
                 0,
-            ]
+            ],
         );
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
@@ -2762,7 +2762,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 new SnowflakeColumn('binary', new Snowflake('BINARY')),
                 new SnowflakeColumn('geography', new Snowflake('GEOGRAPHY')),
                 new SnowflakeColumn('geometry', new Snowflake('GEOMETRY')),
-            ])
+            ]),
         );
         $db->query($query);
         $backend->executeQuery(sprintf(
@@ -2771,7 +2771,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 INSERT INTO "%s"."test_exotic_datatypes" ("id", "array", "variant", "object", "binary", "geography", "geometry") 
 SELECT 2, ARRAY_CONSTRUCT(1, 2, 3, NULL), TO_VARIANT(\'3.14\'), OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT), TO_CHAR(\'123abc\'), \'POINT(-122.35 37.55)\', \'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))\'; 
 ;',
-            $workspace['connection']['schema']
+            $workspace['connection']['schema'],
         ));
         return $workspace;
     }

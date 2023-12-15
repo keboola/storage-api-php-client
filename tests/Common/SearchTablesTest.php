@@ -58,7 +58,7 @@ class SearchTablesTest extends StorageApiTestCase
         $this->_initTable('table-nometa', []);
 
         $result = $this->_client->searchTables(
-            new SearchTablesOptions($testedKey, null, null)
+            new SearchTablesOptions($testedKey, null, null),
         );
         $this->assertCount(1, $result);
 
@@ -67,17 +67,17 @@ class SearchTablesTest extends StorageApiTestCase
         $this->assertArrayHasKey('displayName', $firstResult);
 
         $result = $this->_client->searchTables(
-            new SearchTablesOptions(null, $testedValue, null)
+            new SearchTablesOptions(null, $testedValue, null),
         );
         $this->assertCount(1, $result);
 
         $result = $this->_client->searchTables(
-            new SearchTablesOptions(null, null, self::TEST_PROVIDER)
+            new SearchTablesOptions(null, null, self::TEST_PROVIDER),
         );
         $this->assertCount(2, $result);
 
         $result = $this->_client->searchTables(
-            new SearchTablesOptions($testedKey, $testedValue, self::TEST_PROVIDER)
+            new SearchTablesOptions($testedKey, $testedValue, self::TEST_PROVIDER),
         );
         $this->assertCount(1, $result);
     }
@@ -110,7 +110,7 @@ class SearchTablesTest extends StorageApiTestCase
             $metadataApi->postTableMetadata(
                 $tableId,
                 self::TEST_PROVIDER,
-                $metadata
+                $metadata,
             );
         }
     }

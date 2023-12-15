@@ -68,14 +68,14 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
         $this->db->query(sprintf(
             'ALTER TABLE %s DROP COLUMN %s;',
             $this->db->quoteIdentifier($table),
-            $this->db->quoteIdentifier($column)
+            $this->db->quoteIdentifier($column),
         ));
     }
 
     public function countRows($table)
     {
         $tables = $this->db->fetchAll(
-            sprintf("SHOW TABLES LIKE '%s' IN SCHEMA %s", $table, $this->schema)
+            sprintf("SHOW TABLES LIKE '%s' IN SCHEMA %s", $table, $this->schema),
         );
         return (int) $tables[0]['rows'];
     }
@@ -97,7 +97,7 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
             'SELECT * FROM %s.%s %s;',
             $this->db->quoteIdentifier($this->schema),
             $this->db->quoteIdentifier($table),
-            $orderBy !== null ? "ORDER BY $orderBy" : null
+            $orderBy !== null ? "ORDER BY $orderBy" : null,
         ));
         switch ($style) {
             case \PDO::FETCH_NUM:
@@ -130,7 +130,7 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
         $this->db->query(sprintf(
             'DROP TABLE IF EXISTS %s.%s;',
             $this->db->quoteIdentifier($this->schema),
-            $this->db->quoteIdentifier($table)
+            $this->db->quoteIdentifier($table),
         ));
     }
 
@@ -139,7 +139,7 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
         $this->db->query(sprintf(
             'DROP VIEW IF EXISTS %s.%s;',
             $this->db->quoteIdentifier($this->schema),
-            $this->db->quoteIdentifier($table)
+            $this->db->quoteIdentifier($table),
         ));
     }
 

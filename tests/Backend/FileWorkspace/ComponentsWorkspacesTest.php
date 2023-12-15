@@ -86,7 +86,7 @@ class ComponentsWorkspacesTest extends FileWorkspaceTestCase
         }, $components->listConfigurationWorkspaces(
             (new ListConfigurationWorkspacesOptions())
                 ->setComponentId($componentId)
-                ->setConfigurationId($configurationId)
+                ->setConfigurationId($configurationId),
         ));
 
         $this->assertCount(2, $componentWorkspacesIds);

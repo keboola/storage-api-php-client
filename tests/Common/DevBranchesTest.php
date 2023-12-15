@@ -160,7 +160,7 @@ class DevBranchesTest extends StorageApiTestCase
             $this->assertSame(400, $e->getCode());
             $this->assertSame(
                 sprintf('There already is a branch with name "%s"', $branchName),
-                $e->getMessage()
+                $e->getMessage(),
             );
             $this->assertSame('devBranch.duplicateName', $e->getStringCode());
         }

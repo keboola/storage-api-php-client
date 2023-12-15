@@ -30,7 +30,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
                 "out.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
-                ]
+                ],
             );
         }
 
@@ -46,7 +46,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         $this->_client->createTableAsync(
             $bucketId,
             'dates',
-            new CsvFile(__DIR__ . '/../../_data/dates.csv')
+            new CsvFile(__DIR__ . '/../../_data/dates.csv'),
         );
 
         $workspaces = new Workspaces($this->_client);
@@ -55,7 +55,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
             [
                 'backend' => self::BACKEND_REDSHIFT,
             ],
-            true
+            true,
         );
 
         $options = [
@@ -97,7 +97,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
                 [
                     'force' => true,
                     'async' => true,
-                ]
+                ],
             );
         }
 
@@ -112,7 +112,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // first load
@@ -201,7 +201,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
                 [
                     'force' => true,
                     'async' => true,
-                ]
+                ],
             );
         }
 
@@ -216,7 +216,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
             $bucketId,
             'languages',
             new CsvFile($importFile),
-            ['primaryKey' => 'id']
+            ['primaryKey' => 'id'],
         );
 
         // first load
@@ -322,7 +322,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         $sourceTableId = $this->_client->createTableAsync(
             $bucketId,
             'transactions',
-            new CsvFile(__DIR__ . '/../../_data/transactions.csv')
+            new CsvFile(__DIR__ . '/../../_data/transactions.csv'),
         );
 
         $workspaces = new Workspaces($this->_client);
@@ -331,7 +331,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
             [
                 'backend' => $workspaceBackend,
             ],
-            true
+            true,
         );
 
         $options = [
@@ -369,7 +369,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
         $sourceTableId = $this->_client->createTableAsync(
             $bucketId,
             'transactions',
-            new CsvFile(__DIR__ . '/../../_data/transactions-nullify.csv')
+            new CsvFile(__DIR__ . '/../../_data/transactions-nullify.csv'),
         );
 
         $workspaces = new Workspaces($this->_client);
@@ -378,7 +378,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
             [
                 'backend' => $workspaceBackend,
             ],
-            true
+            true,
         );
 
         $dataType = $workspaceBackend === self::BACKEND_SNOWFLAKE ? 'NUMBER' : 'INTEGER';

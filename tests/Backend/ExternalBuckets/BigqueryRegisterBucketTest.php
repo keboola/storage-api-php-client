@@ -45,7 +45,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         [$this->_client, $this->_testClient] = (new TestSetupHelper())->setUpForProtectedDevBranch(
             $clientProvider,
             $devBranchType,
-            $userRole
+            $userRole,
         );
 
         $this->initEmptyTestBucketsForParallelTests();
@@ -74,14 +74,14 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
                 'in',
                 'will fail',
                 'bigquery',
-                'test-bucket-will-fail'
+                'test-bucket-will-fail',
             );
             $this->fail('should fail');
         } catch (ClientException $e) {
             $this->assertSame('storage.buckets.validation', $e->getStringCode());
             $this->assertStringContainsString(
                 'Invalid path for Bigquery backend. Path must have exactly four elements, project id, location, exchanger id, listing id',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }
@@ -101,14 +101,14 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
                 'in',
                 'will fail',
                 'bigquery',
-                'test-bucket-will-fail'
+                'test-bucket-will-fail',
             );
             $this->fail('should fail');
         } catch (ClientException $e) {
             $this->assertSame('storage.dbObjectNotFound', $e->getStringCode());
             $this->assertStringContainsString(
                 'Failed to register external bucket "test-bucket-registration" permission denied for subscribe listing "projects/132/locations/us/dataExchanges/non_exist/listings/non_exist"',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }
@@ -142,7 +142,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
                 'in',
                 'Iam in external bucket',
                 $externalBucketBackend,
-                'Iam-your-external-bucket_test_ex' . $devBranchType . '_' . $userRole
+                'Iam-your-external-bucket_test_ex' . $devBranchType . '_' . $userRole,
             );
         } catch (ClientException $e) {
             $this->assertSame('storage.analyticHubObjectNotFound', $e->getStringCode());
@@ -153,7 +153,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
                     $path[1],
                     $path[2],
                 ),
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }
@@ -191,7 +191,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
                     'in',
                     'Iam in external bucket',
                     $externalBucketBackend,
-                    'Iam-your-external-bucket_' . $devBranchType . '_' . $userRole
+                    'Iam-your-external-bucket_' . $devBranchType . '_' . $userRole,
                 );
                 $this->fail($userRole . ' should not have access to this.');
             } catch (ClientException $e) {
@@ -226,7 +226,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             'in',
             'Iam in external bucket',
             $externalBucketBackend,
-            'Iam-your-external-bucket_' . $devBranchType . '_' . $userRole
+            'Iam-your-external-bucket_' . $devBranchType . '_' . $userRole,
         );
 
         $assertCallback = function ($events) {
@@ -261,7 +261,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $db->executeQuery(sprintf(
         /** @lang BigQuery */
             'INSERT INTO %s.`TEST` (`AMOUNT`, `DESCRIPTION`) VALUES (1, \'test\');',
-            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema'])
+            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
         ));
 
         // refresh external bucket
@@ -303,14 +303,14 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             '1',
             'INTEGER',
             null,
-            $tableDetail['columnMetadata']['AMOUNT']
+            $tableDetail['columnMetadata']['AMOUNT'],
         );
         $this->assertColumnMetadata(
             'STRING',
             '1',
             'STRING',
             null,
-            $tableDetail['columnMetadata']['DESCRIPTION']
+            $tableDetail['columnMetadata']['DESCRIPTION'],
         );
 
         // export table from external bucket
@@ -355,12 +355,12 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $db->executeQuery(sprintf(
         /** @lang BigQuery */
             'ALTER TABLE %s.`TEST` DROP COLUMN `AMOUNT`',
-            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema'])
+            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
         ));
         $db->executeQuery(sprintf(
         /** @lang BigQuery */
             'ALTER TABLE %s.`TEST` ADD COLUMN `XXX` FLOAT64',
-            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema'])
+            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
         ));
         $db->createTable('TEST3', ['AMOUNT' => 'INT', 'DESCRIPTION' => 'STRING']);
 
@@ -417,7 +417,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             '1',
             'STRING',
             null,
-            $tableDetail['columnMetadata']['DESCRIPTION']
+            $tableDetail['columnMetadata']['DESCRIPTION'],
         );
 
         $this->assertColumnMetadata(
@@ -425,7 +425,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             '1',
             'FLOAT',
             null,
-            $tableDetail['columnMetadata']['XXX']
+            $tableDetail['columnMetadata']['XXX'],
         );
 
         $db->executeQuery(sprintf(
@@ -475,14 +475,14 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
                             'destination' => 'test',
                         ],
                     ],
-                ]
+                ],
             );
             $this->fail('Should fail');
         } catch (ClientException $e) {
             $this->assertSame('APPLICATION_ERROR', $e->getStringCode());
             $this->assertStringContainsString(
                 'Cloning data into workspaces is only supported for Snowflake,',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -496,7 +496,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
                             'destination' => 'test',
                         ],
                     ],
-                ]
+                ],
             );
             $this->fail('Should fail');
         } catch (ClientException $e) {
@@ -505,9 +505,9 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
                 sprintf(
                     'Table "%s" is part of external bucket "%s.TEST" and cannot be loaded into workspace.', // todo fix err msg in connection
                     $testBucketName,
-                    $bucketId
+                    $bucketId,
                 ),
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }
@@ -539,7 +539,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             'in',
             'Iam in external table from csv',
             'bigquery',
-            'Iam-your-external-bucket-for-external-table'
+            'Iam-your-external-bucket-for-external-table',
         );
 
         // check external bucket
@@ -562,7 +562,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $this->assertCount(1, $refreshJobResult['warnings']);
         $this->assertStringContainsString(
             'External tables are not supported.',
-            $refreshJobResult['warnings'][0]['message']
+            $refreshJobResult['warnings'][0]['message'],
         );
     }
 
@@ -597,7 +597,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             'in',
             'Iam in external bucket',
             'bigquery',
-            'Iam-your-external-bucket-' . $objectName
+            'Iam-your-external-bucket-' . $objectName,
         );
 
         $tables = $testClient->listTables($idOfBucket);
@@ -616,7 +616,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $db->executeQuery(sprintf(
         /** @lang BigQuery */
             'INSERT INTO %s.`TEST` (`AMOUNT`, `DESCRIPTION`) VALUES (1, \'test\');',
-            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema'])
+            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
         ));
 
         // refresh external bucket
@@ -630,8 +630,8 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             sprintf(
                 $query,
                 BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
-                BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema'])
-            )
+                BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
+            ),
         );
 
         // refresh external bucket
@@ -693,7 +693,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             'in',
             'Iam in external bucket',
             'bigquery',
-            'Iam-your-external-bucket-requirePartitionFilter'
+            'Iam-your-external-bucket-requirePartitionFilter',
         );
 
         $tables = $testClient->listTables($idOfBucket);
@@ -718,8 +718,8 @@ OPTIONS (
     require_partition_filter = TRUE
 );
 SQL,
-                BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema'])
-            )
+                BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
+            ),
         );
         // refresh external bucket
         $testClient->refreshBucket($idOfBucket);
@@ -760,8 +760,8 @@ SQL,
                 <<<SQL
 DROP TABLE %s.`requirePartitionFilter`;
 SQL,
-                BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema'])
-            )
+                BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
+            ),
         );
 
         $ws = (new Workspaces($testClient))->createWorkspace();
@@ -775,7 +775,7 @@ OPTIONS (
     require_partition_filter = TRUE
 );
 SQL,
-            $ws['connection']['schema']
+            $ws['connection']['schema'],
         ));
 
         try {
@@ -786,7 +786,7 @@ SQL,
                     'dataWorkspaceId' => $ws['id'],
                     'dataObject' => 'requirePartitionFilter',
                     'columns' => ['transaction_id', 'transaction_date'],
-                ]
+                ],
             );
             $this->fail('Should fail because of requirePartitionFilter');
         } catch (ClientException $e) {
@@ -806,7 +806,7 @@ SQL,
         // get last 63 chars becauase the displayName has limit
         $dataExchangeId = substr(
             sha1($description) . str_replace('-', '_', $externalProjectStringId),
-            -63
+            -63,
         );
         $location = 'US';
         $analyticHubClient = $this->getAnalyticsHubServiceClient($externalCredentials);
@@ -838,7 +838,7 @@ SQL,
         $dataExchange = $analyticHubClient->createDataExchange(
             $formattedParent,
             $dataExchangeId,
-            $dataExchange
+            $dataExchange,
         );
 
         $listingId = str_replace('-', '_', $externalCredentials['project_id']) . '_listing';
@@ -846,7 +846,7 @@ SQL,
             'dataset' => sprintf(
                 'projects/%s/datasets/%s',
                 $externalProjectStringId,
-                $bucketSchemaName
+                $bucketSchemaName,
             ),
         ]);
         $listing = new Listing();
@@ -948,7 +948,7 @@ SQL,
         $retBucket = $gcsClient->bucket(BQ_EXTERNAL_TABLE_GCS_BUCKET);
         if ($retBucket->exists() === false) {
             throw new LogicException(
-                'Bucket for external table does not exist, please check if you have set it up with terraform or if the ENV `BQ_EXTERNAL_TABLE_GCS_BUCKET` is filled in.'
+                'Bucket for external table does not exist, please check if you have set it up with terraform or if the ENV `BQ_EXTERNAL_TABLE_GCS_BUCKET` is filled in.',
             );
         }
 
@@ -960,7 +960,7 @@ SQL,
             $file,
             [
                 'name' => 'languages.csv',
-            ]
+            ],
         );
 
         // this must be done in a real situation by a user who registers an external bucket
@@ -974,7 +974,7 @@ SQL,
         $db->executeQuery(sprintf(
             "CREATE OR REPLACE EXTERNAL TABLE %s.externalTable OPTIONS (format = 'CSV',uris = [%s]);",
             BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
-            BigqueryQuote::quote($object->gcsUri())
+            BigqueryQuote::quote($object->gcsUri()),
         ));
         // create normal table so bucket is not empty
         $db->executeQuery(sprintf(

@@ -31,12 +31,12 @@ class TriggersTest extends StorageApiTestCase
             $this->getTestBucketName($description),
             self::STAGE_IN,
             $description,
-            $privilegedClient
+            $privilegedClient,
         );
         $productionTableId = $privilegedClient->createTableAsync(
             $productionBucketId,
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $token = $this->getDefaultClient()->verifyToken();
@@ -91,12 +91,12 @@ class TriggersTest extends StorageApiTestCase
             $this->getTestBucketName($description),
             self::STAGE_IN,
             $description,
-            $privilegedClient
+            $privilegedClient,
         );
         $productionTableId = $privilegedClient->createTableAsync(
             $productionBucketId,
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $token = $this->getDefaultClient()->verifyToken();
@@ -194,12 +194,12 @@ class TriggersTest extends StorageApiTestCase
             $this->getTestBucketName($description),
             self::STAGE_IN,
             $description,
-            $developerBranchClient
+            $developerBranchClient,
         );
         $branchTableId = $developerBranchClient->createTableAsync(
             $branchBucketId,
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $token = $this->getDefaultClient()->verifyToken();
@@ -219,9 +219,9 @@ class TriggersTest extends StorageApiTestCase
                 sprintf(
                     'The table "languages" was not found in the bucket "%s" in the project "%s"',
                     $branchBucketId,
-                    $token['owner']['id']
+                    $token['owner']['id'],
                 ),
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }

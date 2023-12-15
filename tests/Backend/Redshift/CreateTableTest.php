@@ -42,7 +42,7 @@ class CreateTableTest extends StorageApiTestCase
         $id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         try {
@@ -50,7 +50,7 @@ class CreateTableTest extends StorageApiTestCase
                 $this->getTestBucketId(self::STAGE_OUT),
                 $id,
                 date(DATE_ATOM),
-                'attempted-ts'
+                'attempted-ts',
             );
             $this->fail('TimeTravel is not supprted in redshift');
         } catch (ClientException $exception) {

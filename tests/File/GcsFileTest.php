@@ -30,7 +30,7 @@ class GcsFileTest extends StorageApiTestCase
         [$this->_client, $this->_testClient] = (new TestSetupHelper())->setUpForProtectedDevBranch(
             $this->clientProvider,
             $devBranchType,
-            $userRole
+            $userRole,
         );
 
         if ($devBranchType === ClientProvider::DEV_BRANCH) {
@@ -45,7 +45,7 @@ class GcsFileTest extends StorageApiTestCase
         $this->assertSame(
             'gcp',
             $token['owner']['fileStorageProvider'],
-            'Project must have GCS file storage'
+            'Project must have GCS file storage',
         );
     }
 
@@ -117,7 +117,7 @@ class GcsFileTest extends StorageApiTestCase
             $prepareResult['gcsUploadParams']['bucket'],
             $prepareResult['gcsUploadParams']['key'],
             $filePath,
-            false
+            false,
         );
 
         // re-upload should work
@@ -125,7 +125,7 @@ class GcsFileTest extends StorageApiTestCase
             $prepareResult['gcsUploadParams']['bucket'],
             $prepareResult['gcsUploadParams']['key'],
             $filePath,
-            false
+            false,
         );
     }
 

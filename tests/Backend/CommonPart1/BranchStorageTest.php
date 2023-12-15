@@ -40,12 +40,12 @@ class BranchStorageTest extends StorageApiTestCase
         if (!in_array(
             $backend,
             self::SUPPORTED_BACKENDS,
-            true
+            true,
         )) {
             $this->expectException(ClientException::class);
             $this->expectExceptionMessage(sprintf(
                 'Backend "%s" is not supported for development branch. Supported backends: "snowflake,bigquery".',
-                $backend
+                $backend,
             ));
         } else {
             $this->expectNotToPerformAssertions();
@@ -54,7 +54,7 @@ class BranchStorageTest extends StorageApiTestCase
             ->createBucket(
                 $this->getTestBucketName($description),
                 self::STAGE_IN,
-                $description
+                $description,
             );
     }
 }

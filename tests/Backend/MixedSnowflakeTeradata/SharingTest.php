@@ -31,7 +31,7 @@ class SharingTest extends StorageApiSharingTestCase
             $bucketId,
             'languagesFromClient1',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-            []
+            [],
         );
 
         // share and link bucket A->B
@@ -45,14 +45,14 @@ class SharingTest extends StorageApiSharingTestCase
             'linked-' . time(),
             'out',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
         );
 
         // create WS in project B
         $workspaces = new Workspaces($this->_client2);
         $workspace = $workspaces->createWorkspace(
             ['backend' => self::BACKEND_TERADATA],
-            true
+            true,
         );
 
         $wsDb = $this->getDbConnection($workspace['connection']);
@@ -69,14 +69,14 @@ class SharingTest extends StorageApiSharingTestCase
         $sharedBucketDbNameSuffix = sprintf(
             '%%%s-%s',
             $sharedBucket['project']['id'],
-            str_replace('.', '_', $sharedBucket['id'])
+            str_replace('.', '_', $sharedBucket['id']),
         );
 
         $foundDatabases = $wsDb->fetchAllAssociative(
             sprintf(
                 'SELECT * FROM DBC.DatabasesVX WHERE DatabaseName LIKE %s',
-                TeradataQuote::quote($sharedBucketDbNameSuffix)
-            )
+                TeradataQuote::quote($sharedBucketDbNameSuffix),
+            ),
         );
         $this->assertCount(1, $foundDatabases);
         $sourceBucketDBName = $foundDatabases[0]['DatabaseName'];
@@ -87,8 +87,8 @@ class SharingTest extends StorageApiSharingTestCase
             sprintf(
                 'SELECT * FROM %s.%s',
                 TeradataQuote::quoteSingleIdentifier($sourceBucketDBName),
-                TeradataQuote::quoteSingleIdentifier('languagesFromClient1')
-            )
+                TeradataQuote::quoteSingleIdentifier('languagesFromClient1'),
+            ),
         );
         $dataCreatedInWs = $wsBackend->fetchAll('tableInWs');
 
@@ -115,7 +115,7 @@ class SharingTest extends StorageApiSharingTestCase
             'linked-' . time(),
             'out',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
         );
 
         // unlink
@@ -138,7 +138,7 @@ class SharingTest extends StorageApiSharingTestCase
             'linked-' . time(),
             'out',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
         );
 
         $linkedBuckets = $this->_client2->listBuckets(['include' => 'linkedBuckets']);

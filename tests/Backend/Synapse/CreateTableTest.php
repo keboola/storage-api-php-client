@@ -55,7 +55,7 @@ class CreateTableTest extends StorageApiTestCase
             new CsvFile($importFile),
             [
                 'distributionKey' => 'name',
-            ]
+            ],
         );
 
         $table = $this->_client->getTable($tableId);
@@ -68,7 +68,7 @@ class CreateTableTest extends StorageApiTestCase
             new CsvFile($importFile),
             [
                 'primaryKey' => 'name',
-            ]
+            ],
         );
 
         $table = $this->_client->getTable($tableId);
@@ -81,18 +81,18 @@ class CreateTableTest extends StorageApiTestCase
                 new CsvFile($importFile),
                 [
                     'distributionKey' => ['name', 'id'],
-                ]
+                ],
             );
             self::fail('distributions keys send as array should throw exception');
         } catch (ClientException $e) {
             self::assertEquals(
             // phpcs:ignore
                 'distributionKey must be string. Use comma as separator for multiple distribution keys.',
-                $e->getMessage()
+                $e->getMessage(),
             );
             self::assertEquals(
                 'storage.validation.distributionKey',
-                $e->getStringCode()
+                $e->getStringCode(),
             );
         }
 
@@ -103,17 +103,17 @@ class CreateTableTest extends StorageApiTestCase
                 new CsvFile($importFile),
                 [
                     'distributionKey' => 'name,id',
-                ]
+                ],
             );
             self::fail('Multiple distributions keys should throw exception');
         } catch (ClientException $e) {
             self::assertEquals(
                 'Synapse backend only supports one distributionKey.',
-                $e->getMessage()
+                $e->getMessage(),
             );
             self::assertEquals(
                 'storage.validation.distributionKey',
-                $e->getStringCode()
+                $e->getStringCode(),
             );
         }
     }
@@ -126,7 +126,7 @@ class CreateTableTest extends StorageApiTestCase
         $tableId = $this->_client->createTableAsync(
             $bucketId,
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         $importedData = $this->_client->getTableDataPreview($tableId);
@@ -161,7 +161,7 @@ class CreateTableTest extends StorageApiTestCase
                     'id',
                     'name',
                 ],
-                $eventParams['columns']
+                $eventParams['columns'],
             );
             $this->assertSame(
                 [
@@ -176,7 +176,7 @@ class CreateTableTest extends StorageApiTestCase
                         'nullable' => true,
                     ],
                 ],
-                $eventParams['columnsTypes']
+                $eventParams['columnsTypes'],
             );
             $this->assertFalse($eventParams['syntheticPrimaryKeyEnabled']);
             $this->assertSame(['id'], $eventParams['distributionKey']);
@@ -209,7 +209,7 @@ class CreateTableTest extends StorageApiTestCase
                 'id',
                 'name',
             ],
-            $table['columns']
+            $table['columns'],
         );
 
         $this->assertCount(1, $table['metadata']);

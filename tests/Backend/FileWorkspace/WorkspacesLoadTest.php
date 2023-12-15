@@ -24,14 +24,14 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile($table1Csv)
+            new CsvFile($table1Csv),
         );
 
         $table2Csv = __DIR__ . '/../../_data/numbers.csv';
         $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'numbers',
-            new CsvFile($table2Csv)
+            new CsvFile($table2Csv),
         );
 
         $file1Csv = __DIR__ . '/../../_data/languages.more-rows.csv';
@@ -41,7 +41,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 ->setNotify(false)
                 ->setIsPublic(false)
                 ->setCompress(true)
-                ->setTags(['test-file-1'])
+                ->setTags(['test-file-1']),
         );
         // upload file again to get new fileId
         $file2Id = $this->_client->uploadFile(
@@ -50,7 +50,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 ->setNotify(false)
                 ->setIsPublic(false)
                 ->setCompress(true)
-                ->setTags(['test-file-1'])
+                ->setTags(['test-file-1']),
         );
 
         $mapping1 = [
@@ -96,19 +96,19 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table1Csv),
             $data,
-            0
+            0,
         );
         $data = $backend->fetchAll('tableNumbersLoaded', ['0','1','2','3','45'], false, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table2Csv),
             $data,
-            0
+            0,
         );
         $data = $backend->fetchAll('fileLanguagesLoaded', ['id', 'name'], true, true, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($file1Csv),
             $data,
-            0
+            0,
         );
 
         $blobs = $backend->listFiles('fileLanguagesLoaded/');
@@ -162,7 +162,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         } catch (ClientException $e) {
             $this->assertEquals(
                 'Table tableLoadAgain already exists in workspace',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -181,7 +181,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         } catch (ClientException $e) {
             $this->assertEquals(
                 "File \"fileLanguagesLoaded2/{$file2Id}\" already exists in workspace",
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }
@@ -195,7 +195,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 ->setNotify(false)
                 ->setIsPublic(false)
                 ->setCompress(true)
-                ->setTags(['test-file-1'])
+                ->setTags(['test-file-1']),
         );
 
         // non admin token having canReadAllFileUploads permission
@@ -225,13 +225,13 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $this->assertArrayEqualsSorted(
             $this->_readCsv($fileCsv),
             $data,
-            0
+            0,
         );
 
         // non admin token without canReadAllFileUploads permission
         $this->tokens->updateToken(
             (new TokenUpdateOptions($newToken['id']))
-                ->setCanReadAllFileUploads(false)
+                ->setCanReadAllFileUploads(false),
         );
 
         try {
@@ -256,20 +256,20 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
             new CsvFile($table1Csv),
             [
                 'primaryKey' => 'id',
-            ]
+            ],
         );
 
         $table2Id = $this->_client->createAliasTable(
             $this->getTestBucketId(self::STAGE_OUT),
             $table1Id,
-            'Languages'
+            'Languages',
         );
 
         // nested alias
         $table2AliasedId = $this->_client->createAliasTable(
             $this->getTestBucketId(self::STAGE_OUT),
             $table2Id,
-            'LanguagesNestedAlias'
+            'LanguagesNestedAlias',
         );
 
         $table3Id = $this->_client->createAliasTable(
@@ -280,7 +280,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 'aliasColumns' => [
                     'id',
                 ],
-            ]
+            ],
         );
 
         $table4Id = $this->_client->createAliasTable(
@@ -295,7 +295,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                     'column' => 'id',
                     'values' => ['1'],
                 ],
-            ]
+            ],
         );
 
         $mapping1 = ['source' => $table1Id, 'destination' => 'languagesLoaded'];
@@ -319,13 +319,13 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table1Csv),
             $data,
-            0
+            0,
         );
         $data = $backend->fetchAll('languagesAlias', ['id', 'name'], false, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table1Csv),
             $data,
-            0
+            0,
         );
         $this->assertEquals(1, $backend->countRows('languagesFiltered', ['id', 'name'], false));
 
@@ -347,7 +347,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languagesColumns',
-            new CsvFile(__DIR__ . '/../../_data/languages-more-columns.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages-more-columns.csv'),
         );
 
         $options = [
@@ -388,19 +388,19 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 function ($row) {
                     return $row['source'];
                 },
-                $options['input'][0]['columns']
+                $options['input'][0]['columns'],
             ),
             array_map(
                 function ($row) {
                     return $row['source'];
                 },
-                $options['input'][1]['columns']
+                $options['input'][1]['columns'],
             ),
         ];
 
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            $options
+            $options,
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
@@ -432,7 +432,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         ];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            $options
+            $options,
         );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
@@ -452,7 +452,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         $options = [
@@ -476,7 +476,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         ];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            $options
+            $options,
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
@@ -509,7 +509,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
 
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            $options
+            $options,
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
@@ -825,12 +825,12 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $table1_id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
         $table2_id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'numbers',
-            new CsvFile(__DIR__ . '/../../_data/numbers.csv')
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv'),
         );
 
         // now let's try and load 2 different sources to the same destination, this request should be rejected
@@ -876,7 +876,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         ];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            ['input' => [$mapping1, $mapping2]]
+            ['input' => [$mapping1, $mapping2]],
         );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
@@ -905,7 +905,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         ];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            ['input' => [$mappingInvalidSource]]
+            ['input' => [$mappingInvalidSource]],
         );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
@@ -935,7 +935,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         ];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            ['input' => [$mappingInvalidSource]]
+            ['input' => [$mappingInvalidSource]],
         );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
@@ -956,7 +956,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $table1_id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         //  test invalid destination double /
@@ -970,7 +970,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                             'destination' => 'languages//Loaded',
                         ],
                     ],
-                ]
+                ],
             );
         } catch (ClientException $e) {
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
@@ -987,7 +987,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                             'destination' => 'languages*(&#$@(Loaded',
                         ],
                     ],
-                ]
+                ],
             );
         } catch (ClientException $e) {
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
@@ -1011,7 +1011,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $input = [$mapping1];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            ['input' => $mapping1]
+            ['input' => $mapping1],
         );
         //  test for non-array input
         try {
@@ -1022,7 +1022,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         }
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            ['input' => $input]
+            ['input' => $input],
         );
 
         // test for invalid workspace id
@@ -1046,7 +1046,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         unset($testMapping['destination']);
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            ['input' => [$testMapping]]
+            ['input' => [$testMapping]],
         );
 
         try {
@@ -1060,7 +1060,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         unset($testMapping['source']);
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            ['input' => [$testMapping]]
+            ['input' => [$testMapping]],
         );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
@@ -1076,7 +1076,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $tokenOptions = (new TokenCreateOptions())
@@ -1112,7 +1112,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         ];
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            ['input' => $input]
+            ['input' => $input],
         );
         try {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
@@ -1133,7 +1133,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages_dotted',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
 
         $options = [
@@ -1157,7 +1157,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
 
         $options = InputMappingConverter::convertInputColumnsTypesForBackend(
             $workspace['connection']['backend'],
-            $options
+            $options,
         );
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
@@ -1190,14 +1190,14 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $table1Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languages',
-            new CsvFile($table1Csv)
+            new CsvFile($table1Csv),
         );
 
         $table2Csv = __DIR__ . '/../../_data/users.csv';
         $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'users',
-            new CsvFile($table2Csv)
+            new CsvFile($table2Csv),
         );
 
         $backend = new Abs($workspace['connection']);
@@ -1209,7 +1209,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 ->setNotify(false)
                 ->setIsPublic(false)
                 ->setCompress(true)
-                ->setTags(['test-file-1'])
+                ->setTags(['test-file-1']),
         );
 
         $file2Csv = __DIR__ . '/../../_data/users.csv';
@@ -1219,7 +1219,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
                 ->setNotify(false)
                 ->setIsPublic(false)
                 ->setCompress(true)
-                ->setTags(['test-file-2'])
+                ->setTags(['test-file-2']),
         );
 
         $options = [
@@ -1250,14 +1250,14 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table1Csv),
             $data,
-            0
+            0,
         );
 
         $data = $backend->fetchAll('tableUsers', ['id','name', 'city', 'sex'], false, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table2Csv),
             $data,
-            0
+            0,
         );
 
         $data = $backend->fetchAll('fileLanguages', ['id', 'name'], true, true, false);
@@ -1265,21 +1265,21 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $this->assertArrayEqualsSorted(
             $this->_readCsv($file1Csv),
             $data,
-            0
+            0,
         );
 
         $data = $backend->fetchAll('fileUsers', ['id','name', 'city', 'sex'], true, true, false);
         $this->assertArrayEqualsSorted(
             $this->_readCsv($file2Csv),
             $data,
-            0
+            0,
         );
 
         $table3Csv = __DIR__ . '/../../_data/languages.more-rows-no-duplicates.csv';
         $table3Id = $this->_client->createTableAsync(
             $this->getTestBucketId(self::STAGE_IN),
             'languagesMoreRows',
-            new CsvFile($table3Csv)
+            new CsvFile($table3Csv),
         );
 
         $options = [
@@ -1303,7 +1303,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         } catch (ClientException $e) {
             $this->assertEquals(
                 "File \"fileLanguages/{$file1Id}\" already exists in workspace",
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -1331,7 +1331,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table3Csv),
             $data,
-            0
+            0,
         );
 
         // test load from file overwrite existing data instead of add new data
@@ -1339,7 +1339,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $this->assertArrayEqualsSorted(
             $this->_readCsv($file1Csv),
             $data,
-            0
+            0,
         );
 
         // test table created from table before overwrite should be preserved
@@ -1347,7 +1347,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $this->assertArrayEqualsSorted(
             $this->_readCsv($table2Csv),
             $data,
-            0
+            0,
         );
 
         // test table created from file before overwrite table should be preserved
@@ -1355,7 +1355,7 @@ class WorkspacesLoadTest extends FileWorkspaceTestCase
         $this->assertArrayEqualsSorted(
             $this->_readCsv($file2Csv),
             $data,
-            0
+            0,
         );
     }
 }

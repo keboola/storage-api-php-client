@@ -79,7 +79,7 @@ class CommonFilePermissionsTest extends StorageApiTestCase
 
         $token = $this->tokens->updateToken(
             (new TokenUpdateOptions($newToken['id']))
-                ->setCanReadAllFileUploads(false)
+                ->setCanReadAllFileUploads(false),
         );
 
         $this->assertFalse($token['canReadAllFileUploads']);

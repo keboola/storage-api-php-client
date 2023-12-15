@@ -95,7 +95,7 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
         $this->bqClient->runQuery($this->bqClient->query($qb->getCreateTableCommand(
             $this->schema,
             $tableName,
-            new ColumnCollection($cols)
+            new ColumnCollection($cols),
         )));
     }
 
@@ -118,7 +118,7 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
         $this->executeQuery(sprintf(
             'DROP TABLE %s.%s',
             BigqueryQuote::quoteSingleIdentifier($this->schema),
-            BigqueryQuote::quoteSingleIdentifier($table)
+            BigqueryQuote::quoteSingleIdentifier($table),
         ));
     }
 
@@ -172,8 +172,8 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
                 'SELECT * FROM %s.%s%s;',
                 BigqueryQuote::quoteSingleIdentifier($this->schema),
                 BigqueryQuote::quoteSingleIdentifier($table),
-                $orderBy !== null ? " ORDER BY $orderBy" : null
-            )
+                $orderBy !== null ? " ORDER BY $orderBy" : null,
+            ),
         );
         $queryResults = $this->bqClient->runQuery($query);
 

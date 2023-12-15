@@ -28,7 +28,7 @@ class TimeTravelTest extends StorageApiTestCase
             [
                 self::BACKEND_SNOWFLAKE,
             ],
-            'Snowflake doesn\'t support time travel from typed table.'
+            'Snowflake doesn\'t support time travel from typed table.',
         );
 
         $sourceTable = 'languages_' . date('Ymd_His');
@@ -102,7 +102,7 @@ class TimeTravelTest extends StorageApiTestCase
                 '1989-08-31',
                 '1989-08-31 00:00:00.000',
                 'roman',
-            ]
+            ],
         );
 
         $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(), $tableDefinition);
@@ -142,7 +142,7 @@ class TimeTravelTest extends StorageApiTestCase
                 '1989-08-31',
                 '1989-08-31 00:00:00.000',
                 'roman',
-            ]
+            ],
         );
 
         $this->_client->writeTableAsync($sourceTableId, $csvFile, ['incremental' => true]);
@@ -154,7 +154,7 @@ class TimeTravelTest extends StorageApiTestCase
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
             $timestamp,
-            $newTableName
+            $newTableName,
         );
 
         $replicaTable = $this->_client->getTable($replicaTableId);
@@ -229,7 +229,7 @@ class TimeTravelTest extends StorageApiTestCase
             $importFile,
             [
                 'primaryKey' => 'id',
-            ]
+            ],
         );
         sleep(10);
         $timestamp = date(DATE_ATOM);
@@ -241,7 +241,7 @@ class TimeTravelTest extends StorageApiTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.increment.csv'),
             [
                 'incremental' => true,
-            ]
+            ],
         );
 
         $updatedTable = $this->_client->getTable($sourceTableId);
@@ -252,7 +252,7 @@ class TimeTravelTest extends StorageApiTestCase
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
             $timestamp,
-            $newTableName
+            $newTableName,
         );
 
         $replicaTable = $this->_client->getTable($replicaTableId);
@@ -278,7 +278,7 @@ class TimeTravelTest extends StorageApiTestCase
         $this->assertArrayEqualsSorted(
             Client::parseCsv($importedFileContent),
             Client::parseCsv($downloadedFileContent),
-            'id'
+            'id',
         );
     }
 
@@ -294,7 +294,7 @@ class TimeTravelTest extends StorageApiTestCase
             $importFile,
             [
                 'primaryKey' => 'id,name',
-            ]
+            ],
         );
         $originalTable = $this->_client->getTable($sourceTableId);
         sleep(5);
@@ -312,7 +312,7 @@ class TimeTravelTest extends StorageApiTestCase
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
             $timestamp,
-            $newTableName
+            $newTableName,
         );
 
         $replicaTable = $this->_client->getTable($replicaTableId);
@@ -335,14 +335,14 @@ class TimeTravelTest extends StorageApiTestCase
         $sourceTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             $sourceTable,
-            $importFile
+            $importFile,
         );
         try {
             $this->_client->createTableFromSourceTableAtTimestamp(
                 $this->getTestBucketId(self::STAGE_OUT),
                 $sourceTableId,
                 $beforeCreationTimestamp,
-                'table_should_never_be_created'
+                'table_should_never_be_created',
             );
             $this->fail('you should not be able to timeTravel to before table creation');
         } catch (ClientException $e) {
@@ -356,7 +356,7 @@ class TimeTravelTest extends StorageApiTestCase
         $originalTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'original_table',
-            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv')
+            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
         );
 
         // share the source bucket
@@ -369,7 +369,7 @@ class TimeTravelTest extends StorageApiTestCase
             sha1($this->generateDescriptionForTestObject()) . '-same-project-link-test',
             self::STAGE_OUT,
             $token['owner']['id'],
-            $this->getTestBucketId()
+            $this->getTestBucketId(),
         );
         $timestamp = $timestamp = date(DATE_ATOM);
         sleep(10);
@@ -378,7 +378,7 @@ class TimeTravelTest extends StorageApiTestCase
             $this->getTestBucketId(),
             $originalTableId,
             $timestamp,
-            'timestampedBackup'
+            'timestampedBackup',
         );
 
         $tables = $this->_client->listTables($selfLinkedBucketId);
@@ -396,7 +396,7 @@ class TimeTravelTest extends StorageApiTestCase
         $originalTableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
             'original_table',
-            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv')
+            new CsvFile(__DIR__ . '/../../_data/pk.simple.csv'),
         );
         sleep(10);
         $timestamp = date(DATE_ATOM);
@@ -458,7 +458,7 @@ class TimeTravelTest extends StorageApiTestCase
                 $this->getTestBucketId(self::STAGE_OUT),
                 $originalTableId,
                 $timestamp,
-                'shouldFail'
+                'shouldFail',
             );
             $this->fail('No read permission on source bucket');
         } catch (ClientException $e) {
@@ -471,7 +471,7 @@ class TimeTravelTest extends StorageApiTestCase
                 $this->getTestBucketId(self::STAGE_OUT),
                 $originalTableId,
                 $timestamp,
-                'shouldFail'
+                'shouldFail',
             );
             $this->fail('No write permission on destination bucket');
         } catch (ClientException $e) {
@@ -483,7 +483,7 @@ class TimeTravelTest extends StorageApiTestCase
             $this->getTestBucketId(self::STAGE_OUT),
             $originalTableId,
             $timestamp,
-            'created-with-minimal-permission'
+            'created-with-minimal-permission',
         );
 
         $this->assertNotNull($repllicaTableId);

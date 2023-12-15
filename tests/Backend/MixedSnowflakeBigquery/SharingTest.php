@@ -38,7 +38,7 @@ class SharingTest extends StorageApiSharingTestCase
             $bucketId,
             'languagesFromClient1',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-            []
+            [],
         );
 
         // share and link bucket A->B
@@ -68,14 +68,14 @@ class SharingTest extends StorageApiSharingTestCase
             $linkedBucketName,
             'out',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
         );
 
         // create WS in project B
         $workspaces = new Workspaces($this->_client2);
         $workspace = $workspaces->createWorkspace(
             ['backend' => self::BACKEND_BIGQUERY],
-            true
+            true,
         );
 
         /** @var BigQueryClient $wsDb */
@@ -89,12 +89,12 @@ class SharingTest extends StorageApiSharingTestCase
         $wsBackend->executeQuery(sprintf(
             "INSERT INTO %s.%s VALUES ('pat')",
             BigqueryQuote::quoteSingleIdentifier($workspace['name']),
-            BigqueryQuote::quoteSingleIdentifier('tableInWs')
+            BigqueryQuote::quoteSingleIdentifier('tableInWs'),
         ));
         $wsBackend->executeQuery(sprintf(
             "INSERT INTO %s.%s VALUES ('mat')",
             BigqueryQuote::quoteSingleIdentifier($workspace['name']),
-            BigqueryQuote::quoteSingleIdentifier('tableInWs')
+            BigqueryQuote::quoteSingleIdentifier('tableInWs'),
         ));
 
         $dataset = $wsDb->datasets();
@@ -189,7 +189,7 @@ class SharingTest extends StorageApiSharingTestCase
             'linked-' . time(),
             'out',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
         );
 
         // unlink
@@ -212,7 +212,7 @@ class SharingTest extends StorageApiSharingTestCase
             'linked-' . time(),
             'out',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
         );
 
         $linkedBuckets = $this->_client2->listBuckets(['include' => 'linkedBuckets']);
@@ -232,7 +232,7 @@ class SharingTest extends StorageApiSharingTestCase
             $bucketId,
             'languagesFromClient1',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-            []
+            [],
         );
 
         $preview = $this->_client->getTableDataPreview($tableId);
@@ -254,7 +254,7 @@ class SharingTest extends StorageApiSharingTestCase
         $sourceTableId = $this->_client->createTableAsync(
             $bucketId,
             'languages',
-            new CsvFile($importFile)
+            new CsvFile($importFile),
         );
         $this->_client->createAliasTable($bucketId, $sourceTableId, 'languages-alias');
 
@@ -272,7 +272,7 @@ class SharingTest extends StorageApiSharingTestCase
             $linkedBucketName,
             'out',
             $sharedBucket['project']['id'],
-            $sharedBucket['id']
+            $sharedBucket['id'],
         );
 
         $storageTablesInDestProject = $this->_client2->listTables($linkedBucketId);
@@ -315,7 +315,7 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertSame('workspace.loadRequestLogicalException', $e->getStringCode());
             $this->assertSame(
                 'View load is not supported, only table can be loaded using views, alias of table supplied. Use read-only storage instead or copy input mapping if supported.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }
@@ -325,7 +325,7 @@ class SharingTest extends StorageApiSharingTestCase
         $table->reload();
         $this->assertSame(
             $expectedColumns,
-            array_map(fn(array $i) => $i['name'], $table->info()['schema']['fields'])
+            array_map(fn(array $i) => $i['name'], $table->info()['schema']['fields']),
         );
     }
 }

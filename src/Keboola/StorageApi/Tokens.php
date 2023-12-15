@@ -57,7 +57,7 @@ class Tokens
             'tokens',
             $options->toParamsArray(true),
             true,
-            $headers
+            $headers,
         );
         assert(is_array($result));
         return $result;

@@ -24,7 +24,7 @@ class WorkspacesRenameTest extends WorkspacesTestCase
                 [
                     'force' => true,
                     'async' => true,
-                ]
+                ],
             );
         }
 
@@ -39,7 +39,7 @@ class WorkspacesRenameTest extends WorkspacesTestCase
             $bucketId,
             'languagesDetails',
             new CsvFile($importFile),
-            ['primaryKey' => 'Id']
+            ['primaryKey' => 'Id'],
         );
 
         // first load
@@ -152,7 +152,7 @@ class WorkspacesRenameTest extends WorkspacesTestCase
                 [
                     'force' => true,
                     'async' => true,
-                ]
+                ],
             );
         }
 
@@ -167,7 +167,7 @@ class WorkspacesRenameTest extends WorkspacesTestCase
             $bucketId,
             'languagesDetails',
             new CsvFile($importFile),
-            ['primaryKey' => 'Id']
+            ['primaryKey' => 'Id'],
         );
 
         // first load

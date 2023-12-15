@@ -102,7 +102,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                     'configurationId' => $this->configurationId,
                     'name' => 'component-events-test',
                     'version' => 2,
-                ]
+                ],
             );
         };
         $query = new EventsQueryBuilder();
@@ -148,7 +148,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                     'configurationId' => $config->getConfigurationId(),
                     'name' => 'component-events-test',
                     'version' => 1,
-                ]
+                ],
             );
         };
         $query = new EventsQueryBuilder();
@@ -174,7 +174,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                     'configurationId' => $this->configurationId,
                     'name' => 'component-events-test',
                     'version' => 3,
-                ]
+                ],
             );
         };
 
@@ -212,7 +212,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                     'configurationId' => $this->configurationId,
                     'name' => 'component-events-test',
                     'version' => 2,
-                ]
+                ],
             );
         };
 
@@ -241,7 +241,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                     'configurationId' => $this->configurationId,
                     'name' => 'component-events-test',
                     'version' => 2,
-                ]
+                ],
             );
         };
 
@@ -277,7 +277,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                     'configurationId' => $this->configurationId,
                     'name' => 'component-events-test',
                     'version' => 3,
-                ]
+                ],
             );
         };
         $query = new EventsQueryBuilder();
@@ -300,7 +300,7 @@ class ComponentsEventsTest extends StorageApiTestCase
             self::COMPONENT_ID,
             $this->configurationId,
             1,
-            'new'
+            'new',
         );
 
         $assertCallback = function ($events) use ($newConfig) {
@@ -323,7 +323,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                         'name' => 'component-events-test',
                         'version' => 1,
                     ],
-                ]
+                ],
             );
         };
         $query = new EventsQueryBuilder();
@@ -365,7 +365,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                         'name' => 'component-events-test',
                         'version' => 1,
                     ],
-                ]
+                ],
             );
         };
         $query = new EventsQueryBuilder();
@@ -408,7 +408,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                         'name' => 'component-events-test',
                         'version' => 3,
                     ],
-                ]
+                ],
             );
         };
 
@@ -463,7 +463,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                         'name' => 'component-events-test',
                         'version' => 2,
                     ],
-                ]
+                ],
             );
         };
         $query = new EventsQueryBuilder();
@@ -506,7 +506,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                         'name' => 'component-events-test',
                         'version' => 3,
                     ],
-                ]
+                ],
             );
         };
         $query = new EventsQueryBuilder();
@@ -532,7 +532,7 @@ class ComponentsEventsTest extends StorageApiTestCase
             self::COMPONENT_ID,
             $this->configurationId,
             $rowOptions->getRowId(),
-            1
+            1,
         );
         $assertCallback = function ($events) use ($rowResponse, $config, $sourceRowResponse) {
             $this->assertCount(1, $events);
@@ -564,7 +564,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                             'version' => 2,
                         ],
                     ],
-                ]
+                ],
             );
         };
         $query = new EventsQueryBuilder();
@@ -590,14 +590,14 @@ class ComponentsEventsTest extends StorageApiTestCase
             self::COMPONENT_ID,
             $this->configurationId,
             $rowOptions->getRowId(),
-            1
+            1,
         );
 
         $components->rollbackConfigurationRow(
             self::COMPONENT_ID,
             $this->configurationId,
             $rowOptions->getRowId(),
-            1
+            1,
         );
 
         $assertCallback = function ($events) use ($rowToRollbackTo) {
@@ -630,7 +630,7 @@ class ComponentsEventsTest extends StorageApiTestCase
                             'version' => 3,
                         ],
                     ],
-                ]
+                ],
             );
         };
 

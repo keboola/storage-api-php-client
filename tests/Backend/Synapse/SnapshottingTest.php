@@ -24,7 +24,7 @@ class SnapshottingTest extends StorageApiTestCase
             new CsvFile($importFile),
             [
                 'distributionKey' => 'name',
-            ]
+            ],
         );
 
         $table = $this->_client->getTable($tableId);
@@ -43,7 +43,7 @@ class SnapshottingTest extends StorageApiTestCase
             new CsvFile($importFile),
             [
                 'primaryKey' => 'name',
-            ]
+            ],
         );
 
         $table = $this->_client->getTable($tableId);

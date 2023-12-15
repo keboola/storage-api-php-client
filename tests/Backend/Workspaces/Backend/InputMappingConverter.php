@@ -57,7 +57,7 @@ final class InputMappingConverter
                     function ($column) use ($convert, $backendType) {
                         return $convert($column, $backendType);
                     },
-                    $input['columns']
+                    $input['columns'],
                 );
             } else {
                 $input['columns'] = $convert($input['columns'], $backendType);

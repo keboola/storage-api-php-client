@@ -82,7 +82,7 @@ class SnowflakeWorkspaceBackendDBAL implements WorkspaceBackend
         $this->db->executeStatement(sprintf(
             'ALTER TABLE %s DROP COLUMN %s;',
             $this->db->quoteIdentifier($table),
-            $this->db->quoteIdentifier($column)
+            $this->db->quoteIdentifier($column),
         ));
     }
 
@@ -114,7 +114,7 @@ class SnowflakeWorkspaceBackendDBAL implements WorkspaceBackend
         $this->db->executeStatement($qb->getCreateTableCommand(
             $this->schema,
             $tableName,
-            new ColumnCollection($cols)
+            new ColumnCollection($cols),
         ));
     }
 
@@ -132,7 +132,7 @@ class SnowflakeWorkspaceBackendDBAL implements WorkspaceBackend
             'SELECT * FROM %s.%s %s;',
             SnowflakeQuote::quoteSingleIdentifier($this->schema),
             SnowflakeQuote::quoteSingleIdentifier($table),
-            $orderBy !== null ? "ORDER BY $orderBy" : null
+            $orderBy !== null ? "ORDER BY $orderBy" : null,
         ));
         switch ($style) {
             case \PDO::FETCH_NUM:
@@ -194,7 +194,7 @@ class SnowflakeWorkspaceBackendDBAL implements WorkspaceBackend
         $this->db->executeStatement(sprintf(
             'DROP TABLE IF EXISTS %s.%s;',
             $this->db->quoteIdentifier($this->schema),
-            $this->db->quoteIdentifier($table)
+            $this->db->quoteIdentifier($table),
         ));
     }
 
@@ -203,7 +203,7 @@ class SnowflakeWorkspaceBackendDBAL implements WorkspaceBackend
         $this->db->executeStatement(sprintf(
             'DROP VIEW IF EXISTS %s.%s;',
             $this->db->quoteIdentifier($this->schema),
-            $this->db->quoteIdentifier($table)
+            $this->db->quoteIdentifier($table),
         ));
     }
 }

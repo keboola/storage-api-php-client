@@ -151,7 +151,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 '1989-08-31',
                 '1989-08-31 00:00:00.000',
                 'roman',
-            ]
+            ],
         );
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
@@ -198,7 +198,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -211,7 +211,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -275,7 +275,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 '1989-08-31',
                 '1989-08-31 00:00:00.000000',
                 'roman',
-            ]
+            ],
         );
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
@@ -327,7 +327,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -340,7 +340,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -397,7 +397,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
                 '1989-08-31',
                 '1989-08-31 00:00:00.000000',
                 'roman',
-            ]
+            ],
         );
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
@@ -449,7 +449,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);
@@ -462,7 +462,7 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $this->assertSame(
             $expectedPreview,
-            $data['rows']
+            $data['rows'],
         );
 
         $this->assertCount(1, $data['rows']);

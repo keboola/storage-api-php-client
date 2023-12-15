@@ -18,7 +18,7 @@ class JobsListTest extends StorageApiTestCase
             $this->_client->createTableAsync(
                 $this->getTestBucketId(),
                 'dummy_job_'. $i,
-                new CsvFile(__DIR__ . '/../_data/languages.csv')
+                new CsvFile(__DIR__ . '/../_data/languages.csv'),
             );
         }
     }

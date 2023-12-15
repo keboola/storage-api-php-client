@@ -38,7 +38,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         if ($async === false) {
             $this->allowTestForBackendsOnly(
                 [self::BACKEND_SNOWFLAKE],
-                'Test sync actions only on Snowflake'
+                'Test sync actions only on Snowflake',
             );
         }
         $this->initEvents($this->workspaceSapiClient);
@@ -206,7 +206,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         if ($async === false) {
             $this->allowTestForBackendsOnly(
                 [self::BACKEND_SNOWFLAKE],
-                'Test sync actions only on Snowflake'
+                'Test sync actions only on Snowflake',
             );
         }
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -253,8 +253,8 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
                         sprintf(
                             'Unexpected error message from Teradata code: "%s" message: "%s".',
                             $e->getCode(),
-                            $e->getMessage()
-                        )
+                            $e->getMessage(),
+                        ),
                     );
                     break;
                 case self::BACKEND_EXASOL:
@@ -267,8 +267,8 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
                         sprintf(
                             'Unexpected error message from Bigquery code: "%s" message: "%s".',
                             $e->getCode(),
-                            $e->getMessage()
-                        )
+                            $e->getMessage(),
+                        ),
                     );
                     break;
                 default:
@@ -276,7 +276,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
                         'Unexpected exception for backend "%s". code: "%s",message: "%s"',
                         $workspace['backend'],
                         $e->getCode(),
-                        $e->getMessage()
+                        $e->getMessage(),
                     ));
             }
         } catch (\Exception $e) {
@@ -299,7 +299,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         if ($async === false) {
             $this->allowTestForBackendsOnly(
                 [self::BACKEND_SNOWFLAKE],
-                'Test sync actions only on Snowflake'
+                'Test sync actions only on Snowflake',
             );
         }
         $workspaces = new Workspaces($this->workspaceSapiClient);

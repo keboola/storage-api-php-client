@@ -82,7 +82,7 @@ class SOXCommonTest extends StorageApiTestCase
         $productionRow = $productionComponents->addConfigurationRow(
             (new ConfigurationRow($configurationOptions))
                 ->setName('Main 1 Row 1')
-                ->setRowId('main-1-row-1')
+                ->setRowId('main-1-row-1'),
         );
 
         // version should be created by privileged token
@@ -90,7 +90,7 @@ class SOXCommonTest extends StorageApiTestCase
             'transformation',
             'main-1',
             $productionRow['id'],
-            1
+            1,
         );
         $this->assertEquals($privilegedTokenInfo['id'], $productionVersion['creatorToken']['id']);
         $this->assertEquals($privilegedTokenInfo['description'], $productionVersion['creatorToken']['description']);
@@ -108,7 +108,7 @@ class SOXCommonTest extends StorageApiTestCase
             'transformation',
             'main-1',
             $productionRow['id'],
-            1
+            1,
         );
 
         // version should be created by developer token in branch

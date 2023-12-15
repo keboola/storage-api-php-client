@@ -37,7 +37,7 @@ class BranchWorkspacesTest extends WorkspacesTest
                 'jobPollRetryDelay' => function () {
                     return 1;
                 },
-            ]
+            ],
         );
     }
 
