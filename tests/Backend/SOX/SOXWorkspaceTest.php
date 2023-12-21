@@ -257,10 +257,10 @@ class SOXWorkspaceTest extends SOXWorkspaceTestCase
             $tableRef = $backend->getTableReflection('languages');
             self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
             self::assertCount(10, $backend->fetchAll('languages'));
+            // @phpstan-ignore: tomasfejfar-phpstan-phpunit.missingFailInTryCatch
             if ($backend instanceof BigqueryWorkspaceBackend) {
                 $this->fail('BigQuery should throw exception');
             }
-            // intentionally don't fail
         } catch (ClientException $e) {
             if ($backend instanceof BigqueryWorkspaceBackend) {
                 self::assertSame('Backend "bigquery" does not support: "Other types of loading than view".', $e->getMessage());
