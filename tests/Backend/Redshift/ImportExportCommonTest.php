@@ -60,6 +60,7 @@ class ImportExportCommonTest extends StorageApiTestCase
                 'languages-2',
                 $csv,
             );
+            $this->fail('Should have thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals('csvImport.invalidCsvParams', $e->getStringCode());
         }

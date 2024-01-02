@@ -217,6 +217,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
                 'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
                 'backendSize' => 'ultralarge',
             ]);
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
             $this->assertMatchesRegularExpression(
@@ -236,6 +237,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
     ): void {
         try {
             $this->workspaces->createWorkspace($params, true);
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
             $this->assertStringStartsWith('Invalid request', $e->getMessage());

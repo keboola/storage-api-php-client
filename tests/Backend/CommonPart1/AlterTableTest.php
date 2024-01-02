@@ -83,6 +83,7 @@ class AlterTableTest extends StorageApiTestCase
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile($importFile));
         try {
             $this->_client->addTableColumn($tableId, 'ID');
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             $this->assertEquals('storage.tables.columnAlreadyExists', $e->getStringCode());
         }
@@ -237,6 +238,7 @@ class AlterTableTest extends StorageApiTestCase
 
         try {
             $this->_client->createTablePrimaryKey($tableId, $primaryKeyColumns);
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             $this->assertEquals('storage.tables.primaryKeyDuplicateValues', $e->getStringCode());
         }
@@ -366,6 +368,7 @@ class AlterTableTest extends StorageApiTestCase
         $indexRemoved = true;
         try {
             $this->_client->removeTablePrimaryKey($tableId);
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             if ($e->getStringCode() == 'storage.tables.cannotRemoveReferencedColumnFromPrimaryKey') {
                 $indexRemoved = false;
@@ -385,6 +388,7 @@ class AlterTableTest extends StorageApiTestCase
         $indexRemoved = true;
         try {
             $this->_client->removeTablePrimaryKey($aliasTableId);
+            $this->fail('Should have thrown');
         } catch (ClientException $e) {
             if ($e->getStringCode() == 'storage.tables.aliasImportNotAllowed') {
                 $indexRemoved = false;

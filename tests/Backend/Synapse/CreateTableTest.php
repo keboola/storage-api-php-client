@@ -400,6 +400,7 @@ class CreateTableTest extends StorageApiTestCase
 
         try {
             $this->_client->createTableDefinition($bucketId, $definition);
+            $this->fail('Should have thrown');
         } catch (ClientException $exception) {
             $this->assertEquals($exception->getStringCode(), 'validation.failed');
         }
