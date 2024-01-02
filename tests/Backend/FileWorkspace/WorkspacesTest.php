@@ -162,6 +162,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
         $workspaces->deleteWorkspace($workspace['id'], $dropOptions, true);
         try {
             $backend->listFiles(null);
+            $this->fail('Should have thrown');
         } catch (ServiceException $e) {
             $this->assertEquals(404, $e->getCode(), $e->getMessage());
         }

@@ -496,6 +496,7 @@ class SOXTokensTest extends StorageApiTestCase
         $elevatedComponentsApi = new Components($this->getDefaultBranchStorageApiClient());
 
         try {
+            // @phpstan-ignore: tomasfejfar-phpstan-phpunit.missingFailInTryCatch
             $elevatedComponentsApi->deleteConfiguration('wr-db', 'main');
         } catch (ClientException $e) {
             // ignore
