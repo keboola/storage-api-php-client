@@ -15,6 +15,8 @@ use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\Test\Backend\Workspaces\Backend\BigqueryWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
+use PHPUnit\Framework\AssertionFailedError;
+use Throwable;
 
 class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 {
@@ -1212,5 +1214,376 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
         );
         $this->expectException(ClientException::class);
         $this->_client->writeTableAsyncDirect($tableId, $options);
+    }
+
+    public function testCreateTableDefaults(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $types = [
+            'BOOL' => [
+                'working bool bool string' => [
+                    'value' => 'true',
+                    'expectFail' => [],
+                ],
+                'working bool false string' => [
+                    'value' => 'false',
+                    'expectFail' => [],
+                ],
+                'working bool true' => [
+                    'value' => true,
+                    'expectFail' => [],
+                ],
+                'working bool false' => [
+                    'value' => false,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'test',
+                    'expectFail' => [
+                        'message' => 'Boolean default value "test" is not boolean.',
+                    ],
+                ],
+                'fail type 2' => [
+                    'value' => 123,
+                    'expectFail' => [
+                        'message' => 'Boolean default value "123" is not boolean.',
+                    ],
+                ],
+            ],
+            'BYTES' => [
+                'working' => [
+                    'value' => 'B"abc"',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'DATE' => [
+                'working' => [
+                    'value' => '2022-02-22',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail quoted' => [
+                    'value' => '\'2022-02-22\'',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'DATETIME' => [
+                'working' => [
+                    'value' => 'CURRENT_DATETIME()',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                    ],
+                ],
+                'fail quoted' => [
+                    'value' => '\'2021-01-01 00:00:00\'',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'datetime' => [
+                    'value' => '2021-01-01 00:00:00',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'TIME' => [
+                'working' => [
+                    'value' => 'CURRENT_TIME()',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                    ],
+                ],
+                'time' => [
+                    'value' => '00:00:00',
+                    'expectFail' => [],
+                ],
+                'fail quoted' => [
+                    'value' => '\'00:00:00\'',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'TIMESTAMP' => [
+                'working' => [
+                    'value' => 'current_timestamp()',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [
+                    ],
+                ],
+                'fail quoted' => [
+                    'value' => '\'2021-01-01 00:00:00\'',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+                'timestamp' => [
+                    'value' => '2021-01-01 00:00:00',
+                    'expectFail' => [
+                    ],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'GEOGRAPHY' => [
+                'working' => [
+                    'value' => 'ST_GEOGPOINT(-122.4194, 37.7749)',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'JSON' => [
+                'working' => [
+                    'value' => 'JSON\'{\"name\": \"John\", \"age\": 30, \"city\": \"New York\"}\'',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'INT64' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+
+            'NUMERIC' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working float' => [
+                    'value' => '1.23',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'BIGNUMERIC' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working float' => [
+                    'value' => '1.23',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'FLOAT64' => [
+                'working' => [
+                    'value' => '1',
+                    'expectFail' => [],
+                ],
+                'working float' => [
+                    'value' => '1.23',
+                    'expectFail' => [],
+                ],
+                'working_num' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'fail type' => [
+                    'value' => 'string',
+                    'expectFail' => [
+                        'message' => 'Table creation ended with a syntax exception, probably due to an invalid "default" column specification. Original exception is:',
+                    ],
+                ],
+            ],
+            'STRING' => [
+                'working' => [
+                    'value' => '\'T\'',
+                    'expectFail' => [],
+                ],
+                'empty' => [
+                    'value' => '',
+                    'expectFail' => [],
+                ],
+                'not quoted' => [
+                    'value' => 'test',
+                    'expectFail' => [],
+                ],
+                'quoted' => [
+                    'value' => '"test"',
+                    'expectFail' => [],
+                ],
+                'type number' => [
+                    'value' => 1,
+                    'expectFail' => [],
+                ],
+            ],
+        ];
+
+        foreach ($types as $type => $cases) {
+            $columnName = 'c_' . str_replace(' ', '', strtolower($type));
+            foreach ($cases as $caseName => $options) {
+                $tableName = 'test_' . $columnName . '_' . str_replace(' ', '_', $caseName);
+                $tableDefinition = [
+                    'name' => $tableName,
+                    'primaryKeysNames' => [],
+                    'columns' => [
+                        [
+                            'name' => $columnName,
+                            'definition' => [
+                                'type' => $type,
+                                'default' => $options['value'],
+                            ],
+                        ],
+                    ],
+                ];
+                $expectFail = array_key_exists('message', $options['expectFail']);
+                $expectedMessage = '';
+                if ($expectFail) {
+                    // @phpstan-ignore-next-line
+                    $expectedMessage = $options['expectFail']['message'];
+                }
+                try {
+                    $this->_client->createTableDefinition($bucketId, $tableDefinition);
+                    if ($expectFail) {
+                        $this->fail(sprintf(
+                            'Testing datatype "%s" with case "%s" not failed. Expected exception was: "%s"',
+                            $type,
+                            $caseName,
+                            $expectedMessage,
+                        ));
+                    }
+                } catch (Throwable $e) {
+                    if ($e instanceof AssertionFailedError) {
+                        throw $e;
+                    }
+                    if (!$expectFail) {
+                        $this->fail(sprintf(
+                            'Testing datatype "%s" with case "%s" was not expected to fail. Error is: "%s"',
+                            $type,
+                            $caseName,
+                            $e->getMessage(),
+                        ));
+                    }
+                    $this->assertInstanceOf(ClientException::class, $e);
+                    $this->assertStringStartsWith(
+                        $expectedMessage,
+                        $e->getMessage(),
+                        sprintf(
+                            'Testing datatype "%s" with case "%s" was not expected exception message: "%s"',
+                            $type,
+                            $caseName,
+                            $e->getMessage(),
+                        ),
+                    );
+                }
+            }
+        }
     }
 }
