@@ -89,7 +89,9 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         );
 
         foreach ($oldTestTokens as $oldTestToken) {
-            if ($oldTestToken['canManageBuckets'] !== true) {
+            if ($oldTestToken['canManageBuckets'] !== true
+                || !array_key_exists('token', $oldTestToken)) {
+                // projects without hide-decrypted-token feature contain token in response so it can be reused
                 $tokens->dropToken($oldTestToken['id']);
             } else {
                 return $oldTestToken['token'];
@@ -98,8 +100,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
 
         $tokenOptions = (new TokenCreateOptions())
             ->setCanManageBuckets(true)
-            ->setDescription($this->generateDescriptionForTestObject())
-        ;
+            ->setDescription($this->generateDescriptionForTestObject());
 
         $tokenData = $tokens->createToken($tokenOptions);
         return $tokenData['token'];
