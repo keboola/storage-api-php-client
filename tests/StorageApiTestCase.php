@@ -155,7 +155,6 @@ abstract class StorageApiTestCase extends ClientTestCase
 
         try {
             $bucket = $client->getBucket("$stage.c-$name");
-            return $bucket['id'];
             // unlink and unshare buckets if they exist
             if ($client->isSharedBucket($bucket['id'])) {
                 if (array_key_exists('linkedBy', $bucket)) {

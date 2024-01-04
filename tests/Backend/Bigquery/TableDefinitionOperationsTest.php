@@ -25,7 +25,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
     public function setUp(): void
     {
         parent::setUp();
-        //$this->tableId = $this->createTableDefinition();
+        $this->tableId = $this->createTableDefinition();
     }
 
     private function createTableDefinition(): string
