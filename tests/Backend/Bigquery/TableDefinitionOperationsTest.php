@@ -1254,44 +1254,20 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
             $tableId = $this->_client->createTableDefinition($bucketId, $data);
         }
 
-        $data = $this->_client->getTableDataPreview($tableId, [
-            'format' => 'json',
-            'whereFilters' => $filter,
-        ]);
+
+        try {
+            $this->_client->getTableDataPreview($tableId, [
+                'format' => 'json',
+                'whereFilters' => $filter,
+            ]);
+            $this->expectNotToPerformAssertions();
+        } catch (ClientException $e) {
+            $this->assertMatchesRegularExpression('/Invalid cast from.*/', $e->getMessage());
+        }
     }
 
     public function provideDataForIllogicalFilter(): Generator
     {
-        /* yield 'null' => [
-             [
-                 [
-                     'column' => 'id',
-                     'operator' => 'eq',
-                     'values' => [42],
-                     'dataType' => 'INTEGER',
-                 ],
-             ],
-         ];
-         yield 'bool greater than' => [
-             [
-                 [
-                     'column' => 'id',
-                     'operator' => 'eq',
-                     'values' => [42],
-                     'dataType' => 'INTEGER',
-                 ],
-             ],
-         ];*/
-
-        $values = [
-            42,
-            42.4,
-//            '42',
-            '"xxx"',
-//            true,
-//            null,
-//            'true',
-        ];
         $operators = [
             'lt',
             'gt',
@@ -1300,8 +1276,6 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
         ];
         foreach ($this->provideFilterTypes() as $filterType => $valueToTest) {
             foreach ($operators as $operator) {
-                //       foreach ($values as $value) {
-
                 foreach ($this->providePlainBqTypes() as $bigqueryType) {
                     $filter = [];
                     $filter[] = [
@@ -1312,8 +1286,6 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
                     ];
                     yield $filterType . ' ' . $operator . ' ' . $valueToTest . ' ' . $bigqueryType => [$filter];
                 }
-
-                //     }
             }
         }
     }
