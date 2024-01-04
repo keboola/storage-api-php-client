@@ -91,7 +91,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         foreach ($oldTestTokens as $oldTestToken) {
             if ($oldTestToken['canManageBuckets'] !== true
                 || !array_key_exists('token', $oldTestToken)) {
-                // projects without hide-decrypted-token feature contain token in response so it can be reused
+                // projects with hide-decrypted-token feature does not contain token in response, so it cannot be reused
                 $tokens->dropToken($oldTestToken['id']);
             } else {
                 return $oldTestToken['token'];
