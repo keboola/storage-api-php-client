@@ -1254,7 +1254,6 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
             $tableId = $this->_client->createTableDefinition($bucketId, $data);
         }
 
-
         try {
             $this->_client->getTableDataPreview($tableId, [
                 'format' => 'json',
@@ -1315,7 +1314,6 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
     private function provideFilterTypes(): array
     {
         return [
-//            'STRING' => 'abc', // it's equivalent to 'STRING',
             'INTEGER' => 42,
             'DOUBLE' => 42.1,
             'BIGINT' => 4242424242,
@@ -1360,18 +1358,20 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
             $tableId = $this->_client->createTableDefinition($bucketId, $data);
         }
 
-        $this->expectExceptionMessage('xxxxxxxx');
-        $data = $this->_client->getTableDataPreview($tableId, [
-            'format' => 'json',
-            'whereFilters' => [
-                [
-                    'column' => 'BOOLEAN',
-                    'operator' => 'lt',
-                    'values' => [false],
-                  //  'dataType' => 'BOOLEAN',
-                ]
-            ],
-        ]);
+        try {
+            $this->_client->getTableDataPreview($tableId, [
+                'format' => 'json',
+                'whereFilters' => [
+                    [
+                        'column' => 'BOOL',
+                        'operator' => 'eq',
+                        'values' => [false],
+                    ],
+                ],
+            ]);
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('Invalid filter value, expected:"BOOL", actual:"STRING".', $e->getMessage());
+        }
     }
-
 }
