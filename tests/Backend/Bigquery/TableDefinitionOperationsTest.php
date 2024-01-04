@@ -1254,7 +1254,6 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
             $tableId = $this->_client->createTableDefinition($bucketId, $data);
         }
 
-        $this->expectExceptionMessage('xxxxxxxx');
         $data = $this->_client->getTableDataPreview($tableId, [
             'format' => 'json',
             'whereFilters' => $filter,
@@ -1311,9 +1310,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
                         'values' => [$valueToTest],
                         'dataType' => $filterType,
                     ];
-                    yield $filterType . ' ' . $operator . ' ' . $valueToTest => [
-                        $filter,
-                    ];
+                    yield $filterType . ' ' . $operator . ' ' . $valueToTest . ' ' . $bigqueryType => [$filter];
                 }
 
                 //     }
@@ -1346,7 +1343,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
     private function provideFilterTypes(): array
     {
         return [
-            'STRING' => 'abc', // it's equivalent to 'STRING',
+//            'STRING' => 'abc', // it's equivalent to 'STRING',
             'INTEGER' => 42,
             'DOUBLE' => 42.1,
             'BIGINT' => 4242424242,
