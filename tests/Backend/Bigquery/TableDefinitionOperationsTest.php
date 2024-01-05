@@ -1216,9 +1216,8 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
 
     /**
      * @dataProvider provideDataForIllogicalFilter
-     * @param $filter
      */
-    public function testIllogicalComparisonInFilter($filter): void
+    public function testIllogicalComparisonInFilter(array $filter): void
     {
         $bucketId = $this->getTestBucketId();
 
@@ -1259,6 +1258,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
                 'format' => 'json',
                 'whereFilters' => $filter,
             ]);
+            // @phpstan-ignore: tomasfejfar-phpstan-phpunit.missingFailInTryCatch
             $this->expectNotToPerformAssertions();
         } catch (ClientException $e) {
             $this->assertMatchesRegularExpression('/Invalid cast from.*/', $e->getMessage());
