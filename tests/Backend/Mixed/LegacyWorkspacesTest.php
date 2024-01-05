@@ -30,6 +30,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
                 "out.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
+                    'async' => true,
                 ],
             );
         }

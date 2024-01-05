@@ -339,7 +339,7 @@ class BucketsTest extends StorageApiTestCase
         );
 
         try {
-            $this->_testClient->dropBucket($newBucketId);
+            $this->_testClient->dropBucket($newBucketId, ['async' => true]);
             $this->fail('Should throw exception');
         } catch (ClientException $e) {
             $this->assertSame('Only empty buckets can be deleted. There are 1 tables in the bucket.', $e->getMessage());

@@ -78,6 +78,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                 "in.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
+                    'async' => true,
                 ],
             );
         }
@@ -139,6 +140,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                 "in.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
+                    'async' => true,
                 ],
             );
         }
@@ -253,6 +255,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                 "in.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
+                    'async' => true,
                 ],
             );
         }
@@ -355,6 +358,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                 "out.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
+                    'async' => true,
                 ],
             );
         }
@@ -362,6 +366,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         if ($this->_client->bucketExists('in.c-mixed-test-' . $bucketBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$bucketBackend}", [
                 'force' => true,
+                'async' => true,
             ]);
         }
         $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
@@ -417,6 +422,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                 "out.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
+                    'async' => true,
                 ],
             );
         }
@@ -426,6 +432,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
                 "in.c-mixed-test-{$bucketBackend}",
                 [
                     'force' => true,
+                    'async' => true,
                 ],
             );
         }
