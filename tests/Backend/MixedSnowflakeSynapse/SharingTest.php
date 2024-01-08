@@ -144,7 +144,7 @@ class SharingTest extends StorageApiSharingTestCase
             $sharedBucket2['project']['id'],
             $sharedBucket2['id'],
         );
-        $this->_client2->dropBucket($linked2Id, ['async' => true]);
+        $this->_client2->dropBucket($linked2Id);
 
         $mapping1 = [
             'source' => str_replace($bucketId, $linkedId, $table1Id),
@@ -298,7 +298,7 @@ class SharingTest extends StorageApiSharingTestCase
             $this->_client2->getBucket($unloadBucketId);
             // if bucket exists drop it
             // @phpstan-ignore: tomasfejfar-phpstan-phpunit.missingFailInTryCatch
-            $this->_client2->dropBucket($unloadBucketId, ['force' => true, 'async' => true]);
+            $this->_client2->dropBucket($unloadBucketId, ['force' => true]);
         } catch (ClientException $e) {
             $this->assertEquals("Bucket {$unloadBucketId} not found", $e->getMessage());
         } finally {
@@ -431,11 +431,11 @@ class SharingTest extends StorageApiSharingTestCase
 
         // drop second bucket without linking
         $this->_client->unshareBucket($secondBucketId);
-        $this->_client->dropBucket($secondBucketId, ['force' => true, 'async' => true]);
+        $this->_client->dropBucket($secondBucketId, ['force' => true]);
 
         // drop first bucket
         try {
-            $this->_client->dropBucket($bucketId, ['force' => true, 'async' => true]);
+            $this->_client->dropBucket($bucketId, ['force' => true]);
             $this->fail('Bucket must not be dropped as it\'s linked in other project.');
         } catch (ClientException $e) {
             $this->assertSame('The bucket is already linked in other projects.', $e->getMessage());
@@ -455,7 +455,7 @@ class SharingTest extends StorageApiSharingTestCase
             self::assertCount(1, $views);
         }
 
-        $this->_client->dropBucket($bucketId, ['force' => true, 'async' => true]);
+        $this->_client->dropBucket($bucketId, ['force' => true]);
     }
 
     /**

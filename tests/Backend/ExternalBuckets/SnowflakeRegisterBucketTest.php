@@ -304,7 +304,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         }
 
         // drop external bucket
-        $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
+        $this->_client->dropBucket($idOfBucket, ['force' => true]);
     }
 
     public function testRegistrationOfExternalTable(): void
@@ -510,7 +510,7 @@ SQL,
         ], $result);
 
         // drop external bucket
-        $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
+        $this->_client->dropBucket($idOfBucket, ['force' => true]);
 
         // check that workspace user CANNOT READ from table in external bucket directly
         try {
@@ -600,7 +600,7 @@ SQL,
         // delete workspace = simulates situation when BYODB owner simply deletes the registered schema -> should be able to delete the bucket
         $ws->deleteWorkspace($workspace['id']);
 
-        $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
+        $this->_client->dropBucket($idOfBucket, ['force' => true]);
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Bucket in.test-bucket-registration not found');

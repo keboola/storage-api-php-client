@@ -245,7 +245,7 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         $sharingProjectDatabase = str_replace($consumerProjectId, $sharingProjectId, $projectDatabase);
 
         // unlink
-        $this->_client->dropBucket($linkedBucketId, ['async' => true]);
+        $this->_client->dropBucket($linkedBucketId);
         $this->assertCannotAccessLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId);
         // link again
         $this->_client->linkBucket($linkedBucketName, 'in', $sharingProjectId, $sharedBucketId, null, false);
@@ -254,7 +254,7 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
 
         assert($this->linkingClient !== null);
         // unshare (unlink first)
-        $this->_client->dropBucket($linkedBucketId, ['async' => true]);
+        $this->_client->dropBucket($linkedBucketId);
         $this->linkingClient->unshareBucket($sharedBucketId, true);
         $this->assertCannotAccessLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId);
 
