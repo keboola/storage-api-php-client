@@ -330,7 +330,7 @@ class SharingTest extends StorageApiSharingTestCase
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
-        $this->_client->forceUnlinkBucket($bucketId, $linkedBucketProjectId);
+        $this->_client->forceUnlinkBucket($bucketId, $linkedBucketProjectId, ['async' => true]);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);

@@ -362,7 +362,7 @@ class S3WorkspacesTest extends BaseWorkSpacesTestCase
         if ($this->_client->bucketExists('in.c-mixed-test-' . $bucketBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$bucketBackend}", [
                 'force' => true,
-                            ]);
+            ]);
         }
         $bucketId = $this->_client->createBucket("mixed-test-{$bucketBackend}", 'in', '', $bucketBackend);
 
