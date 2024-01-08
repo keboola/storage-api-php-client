@@ -192,7 +192,7 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
             $tableDetail['columnMetadata']['XXX'],
         );
 
-        $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
+        $this->_client->dropBucket($idOfBucket, ['force' => true]);
         $db->dropTableIfExists('TEST');
         $ws->deleteWorkspace($workspace['id']);
     }
@@ -268,7 +268,7 @@ class TeradataRegisterBucketTest extends BaseExternalBuckets
         ], $result);
 
         // drop external bucket
-        $this->_client->dropBucket($idOfBucket, ['force' => true, 'async' => true]);
+        $this->_client->dropBucket($idOfBucket, ['force' => true]);
 
         // check that workspace user CANNOT READ from table in external bucket directly
         try {

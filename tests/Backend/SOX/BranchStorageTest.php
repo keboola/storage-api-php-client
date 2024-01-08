@@ -289,7 +289,7 @@ class BranchStorageTest extends StorageApiTestCase
         // cleanup test bucket
         try {
             // @phpstan-ignore: tomasfejfar-phpstan-phpunit.missingFailInTryCatch
-            $this->getDefaultBranchStorageApiClient()->dropBucket($bucketId, ['async' => true]);
+            $this->getDefaultBranchStorageApiClient()->dropBucket($bucketId);
         } catch (ClientException $e) {
             if ($e->getCode() !== 404) {
                 throw $e;
@@ -328,7 +328,7 @@ class BranchStorageTest extends StorageApiTestCase
         $this->assertNotEmpty($client2->getBucket($bucketId));
 
         // drop bucket in first branch and test that it does not exist
-        $client1->dropBucket($bucketId, ['async' => true]);
+        $client1->dropBucket($bucketId);
         try {
             $client1->getBucket($bucketId);
             $this->fail('Bucket should not exist');
@@ -339,7 +339,7 @@ class BranchStorageTest extends StorageApiTestCase
         // but exist in second branch
         $this->assertNotEmpty($client2->getBucket($bucketId));
 
-        $client2->dropBucket($bucketId, ['async' => true]);
+        $client2->dropBucket($bucketId);
         try {
             $client2->getBucket($bucketId);
             $this->fail('Bucket should not exist');

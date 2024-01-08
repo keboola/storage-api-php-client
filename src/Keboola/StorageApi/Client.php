@@ -491,6 +491,8 @@ class Client
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
+        // async=true is enforced
+        $filteredOptions['async'] = true;
         $url .= '?' . http_build_query($filteredOptions);
 
         return $this->apiDelete($url);

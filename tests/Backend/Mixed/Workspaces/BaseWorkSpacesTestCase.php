@@ -49,7 +49,6 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
         if ($this->_client->bucketExists('in.c-mixed-test-' . $sourceBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$sourceBackend}", [
                 'force' => true,
-                'async' => true,
             ]);
         }
         $bucketId = $this->_client->createBucket("mixed-test-{$sourceBackend}", 'in', '', $sourceBackend);
@@ -97,7 +96,6 @@ abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
         if ($this->_client->bucketExists('in.c-mixed-test-' . $sourceBackend)) {
             $this->_client->dropBucket("in.c-mixed-test-{$sourceBackend}", [
                 'force' => true,
-                'async' => true,
             ]);
         }
         $bucketId = $this->_client->createBucket("mixed-test-{$sourceBackend}", 'in', '', $sourceBackend);
