@@ -127,7 +127,6 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
                 "$stage.c-$name",
                 [
                     'force' => true,
-                    'async' => true,
                 ],
             );
         }
@@ -158,7 +157,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
         foreach ($clients as $client) {
             foreach ($client->listBuckets() as $bucket) {
                 if (!empty($bucket['sourceBucket'])) {
-                    $client->dropBucket($bucket['id'], ['async' => true]);
+                    $client->dropBucket($bucket['id']);
                 }
             }
         }

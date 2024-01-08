@@ -27,7 +27,7 @@ class ShareTest extends StorageApiTestCase
             // unlink buckets
             foreach ($client->listBuckets() as $bucket) {
                 if (!empty($bucket['sourceBucket'])) {
-                    $client->dropBucket($bucket['id'], ['async' => true]);
+                    $client->dropBucket($bucket['id']);
                 }
             }
         }
@@ -93,7 +93,7 @@ class ShareTest extends StorageApiTestCase
         $this->assertSame($linkedBucketId, $linkedBucket['id']);
 
         // test PM can unlink bucket
-        $clientInOtherProject->dropBucket($linkedBucketId, ['async' => true]);
+        $clientInOtherProject->dropBucket($linkedBucketId);
 
         try {
             $clientInOtherProject->getBucket($linkedBucketId);
@@ -188,14 +188,14 @@ class ShareTest extends StorageApiTestCase
         );
 
         try {
-            $otherRoleClient->dropBucket($linkedBucketId, ['async' => true]);
+            $otherRoleClient->dropBucket($linkedBucketId);
             $this->fail('Others should not be able to unlink bucket in branch');
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
             $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
         }
 
-        $pmBranchClient->dropBucket($linkedBucketId, ['async' => true]);
+        $pmBranchClient->dropBucket($linkedBucketId);
 
         try {
             $otherRoleClient->unshareBucket($productionBucketId, ['async' => true]);
@@ -297,7 +297,7 @@ class ShareTest extends StorageApiTestCase
             $this->assertSame(403, $e->getCode());
             $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
         }
-        $otherProjectClient->dropBucket($linkedBucketId, ['async' => true]);
+        $otherProjectClient->dropBucket($linkedBucketId);
 
         // validate cannot un-share bucket from main in branch
         try {

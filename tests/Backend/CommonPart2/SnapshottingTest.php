@@ -185,7 +185,6 @@ class SnapshottingTest extends StorageApiTestCase
             $this->getTestBucketId(),
             [
                 'force' => true,
-                'async' => true,
             ],
         );
 
