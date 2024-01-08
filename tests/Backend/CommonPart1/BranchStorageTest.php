@@ -31,7 +31,7 @@ class BranchStorageTest extends StorageApiTestCase
         try {
             $this->_client->getBucket($bucketId);
             // @phpstan-ignore: tomasfejfar-phpstan-phpunit.missingFailInTryCatch
-            $this->_client->dropBucket($bucketId, ['force' => true, 'async' => true]);
+            $this->_client->dropBucket($bucketId, ['force' => true]);
         } catch (ClientException $e) {
             // ignore if bucket not exists
         }

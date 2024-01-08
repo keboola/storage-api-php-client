@@ -119,7 +119,7 @@ class SharingTest extends StorageApiSharingTestCase
         );
 
         // unlink
-        $this->_client2->dropBucket($linkedId, ['async' => true]);
+        $this->_client2->dropBucket($linkedId);
         self::assertEmpty($this->_client2->listBuckets(['include' => 'linkedBuckets']));
 
         // unshare

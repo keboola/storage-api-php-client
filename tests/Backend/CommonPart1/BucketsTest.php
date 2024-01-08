@@ -177,7 +177,7 @@ class BucketsTest extends StorageApiTestCase
         $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $displayName);
         $bucket = $this->_testClient->updateBucket($bucketUpdateOptions);
 
-        $this->_testClient->dropBucket($bucket['id'], ['async' => true]);
+        $this->_testClient->dropBucket($bucket['id']);
     }
 
     /**
@@ -339,21 +339,21 @@ class BucketsTest extends StorageApiTestCase
         );
 
         try {
-            $this->_testClient->dropBucket($newBucketId, ['async' => true]);
+            $this->_testClient->dropBucket($newBucketId);
             $this->fail('Should throw exception');
         } catch (ClientException $e) {
             $this->assertSame('Only empty buckets can be deleted. There are 1 tables in the bucket.', $e->getMessage());
             $this->assertSame('buckets.deleteNotEmpty', $e->getStringCode());
         }
         try {
-            $this->_testClient->dropBucket($newBucketId, ['async' => true]);
+            $this->_testClient->dropBucket($newBucketId);
             $this->fail('Should throw exception');
         } catch (ClientException $e) {
             $this->assertSame('Only empty buckets can be deleted. There are 1 tables in the bucket.', $e->getMessage());
             $this->assertSame('buckets.deleteNotEmpty', $e->getStringCode());
         }
 
-        $this->_testClient->dropBucket($newBucketId, ['force' => true, 'async' => true]);
+        $this->_testClient->dropBucket($newBucketId, ['force' => true]);
 
         $newBucketId = $this->_testClient->createBucket(
             $bucketData['name'],
@@ -371,7 +371,7 @@ class BucketsTest extends StorageApiTestCase
             new CsvFile($importFile),
         );
 
-        $this->_testClient->dropBucket($newBucketId, ['async' => true, 'force' => true]);
+        $this->_testClient->dropBucket($newBucketId, ['force' => true]);
 
         $newBucketId = $this->_testClient->createBucket(
             $bucketData['name'],
@@ -422,7 +422,7 @@ class BucketsTest extends StorageApiTestCase
             $this->assertEquals('storage.buckets.validation', $e->getStringCode());
         }
 
-        $this->_testClient->dropBucket($newBucket['id'], ['async' => true]);
+        $this->_testClient->dropBucket($newBucket['id']);
 
         $newBucketId = $this->_testClient->createBucket(
             $bucketData['name'],
@@ -454,7 +454,7 @@ class BucketsTest extends StorageApiTestCase
         $bucketId = $this->_testClient->createBucket('something', self::STAGE_IN);
         $bucket = $this->_testClient->getBucket($bucketId);
         $this->assertEmpty($bucket['description']);
-        $this->_testClient->dropBucket($bucket['id'], ['async' => true]);
+        $this->_testClient->dropBucket($bucket['id']);
     }
 
     /**
