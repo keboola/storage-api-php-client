@@ -343,6 +343,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
             $workspaces->loadWorkspaceData($workspace['id'], $options);
             if ($workspaceBackend === self::BACKEND_REDSHIFT && $sourceBackend === self::BACKEND_SNOWFLAKE) {
                 // this will not throw
+                // @phpstan-ignore: tomasfejfar-phpstan-phpunit.missingFailInTryCatch because of some reason
                 $this->expectNotToPerformAssertions();
             } else {
                 $this->fail('Should have thrown');
