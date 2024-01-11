@@ -1586,4 +1586,165 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
             }
         }
     }
+
+    /**
+     * this testcase is not executed, because it takes too long for very low value. Code is being kept for future reference
+     * @dataProvider provideDataForIllogicalFilter
+     */
+    public function skipTestIllogicalComparisonInFilter(array $filter): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $columns = [
+            [
+                'name' => 'id',
+                'definition' => [
+                    'type' => 'INT64',
+                    'nullable' => false,
+                ],
+            ],
+        ];
+        $types = $this->providePlainBqTypes();
+
+        foreach ($types as $type) {
+            $columns[] = [
+                'name' => $type,
+                'definition' => [
+                    'type' => $type,
+                    'nullable' => true,
+                ],
+            ];
+        }
+
+        $data = [
+            'name' => 'my_new_table_with_nulls',
+            'primaryKeysNames' => ['id'],
+            'columns' => $columns,
+        ];
+
+        $tableId = $bucketId . '.' . 'my_new_table_with_nulls';
+        if (!$this->_client->tableExists($tableId)) {
+            $tableId = $this->_client->createTableDefinition($bucketId, $data);
+        }
+
+        try {
+            $this->_client->getTableDataPreview($tableId, [
+                'format' => 'json',
+                'whereFilters' => $filter,
+            ]);
+            $this->expectNotToPerformAssertions();
+        } catch (ClientException $e) {
+            $this->assertMatchesRegularExpression('/Invalid cast from.*/', $e->getMessage());
+        }
+    }
+
+    public function provideDataForIllogicalFilter(): Generator
+    {
+        $operators = [
+            'lt',
+            'gt',
+            'eq',
+            'ne',
+        ];
+        foreach ($this->provideFilterTypes() as $filterType => $valueToTest) {
+            foreach ($operators as $operator) {
+                foreach ($this->providePlainBqTypes() as $bigqueryType) {
+                    $filter = [];
+                    $filter[] = [
+                        'column' => $bigqueryType,
+                        'operator' => $operator,
+                        'values' => [$valueToTest],
+                        'dataType' => $filterType,
+                    ];
+                    yield $filterType . ' ' . $operator . ' ' . $valueToTest . ' ' . $bigqueryType => [$filter];
+                }
+            }
+        }
+    }
+
+    private function providePlainBqTypes(): array
+    {
+        return [
+//            'ARRAY',
+            'BIGNUMERIC',
+            'BOOL',
+//            'BYTES',
+            'DATE',
+            'DATETIME',
+            'FLOAT64',
+//            'GEOGRAPHY',
+            'INT64',
+//            'INTERVAL',
+//            'JSON',
+            'NUMERIC',
+            'STRING',
+//            'STRUCT',
+            'TIME',
+            'TIMESTAMP',
+        ];
+    }
+
+    private function provideFilterTypes(): array
+    {
+        return [
+            'INTEGER' => 42,
+            'DOUBLE' => 42.1,
+            'BIGINT' => 4242424242,
+            'REAL' => 42.1,
+            'DECIMAL' => 42.3,
+        ];
+    }
+
+    public function testIllogicalComparisonInFilterWithBool(): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $columns = [
+            [
+                'name' => 'id',
+                'definition' => [
+                    'type' => 'INT64',
+                    'nullable' => false,
+                ],
+            ],
+        ];
+        $types = ['BOOL'];
+
+        foreach ($types as $type) {
+            $columns[] = [
+                'name' => $type,
+                'definition' => [
+                    'type' => $type,
+                    'nullable' => true,
+                ],
+            ];
+        }
+
+        $data = [
+            'name' => 'test_table',
+            'primaryKeysNames' => ['id'],
+            'columns' => $columns,
+        ];
+
+        $tableId = $bucketId . '.' . 'test_table';
+        if (!$this->_client->tableExists($tableId)) {
+            $tableId = $this->_client->createTableDefinition($bucketId, $data);
+        }
+
+        try {
+            $this->_client->getTableDataPreview($tableId, [
+                'format' => 'json',
+                'whereFilters' => [
+                    [
+                        'column' => 'BOOL',
+                        'operator' => 'eq',
+                        'values' => [false],
+                    ],
+                ],
+            ]);
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('Invalid filter value, expected:"BOOL", actual:"STRING".', $e->getMessage());
+        }
+    }
 }
