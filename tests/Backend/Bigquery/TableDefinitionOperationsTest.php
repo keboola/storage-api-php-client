@@ -1216,6 +1216,65 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
         $this->_client->writeTableAsyncDirect($tableId, $options);
     }
 
+    public function testInsertInvalidValueToTypedColumn(): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $data = [
+            'name' => 'test-table',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'price',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => false,
+                    ],
+                ],
+            ],
+        ];
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $data);
+
+        $workspace = $this->initTestWorkspace('bigquery');
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists('test_prices');
+
+        /** @var BigQueryClient $db */
+        $db = $backend->getDb();
+
+        $qb = new BigqueryTableQueryBuilder();
+        $db->runQuery($db->query($qb->getCreateTableCommand(
+            $workspace['connection']['schema'],
+            'test_prices',
+            new ColumnCollection([
+                new BigqueryColumn('id', new Bigquery('INT64')),
+                new BigqueryColumn('price', new Bigquery('STRING')),
+            ]),
+        )));
+        $backend->executeQuery(sprintf(
+        /** @lang BigQuery */
+            '
+INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
+            $workspace['connection']['schema'],
+        ));
+
+        $this->expectExceptionMessage('Load error: Source destination columns mismatch. "price STRING"->"price NUMERIC"');
+        $this->expectException(ClientException::class);
+        $this->_client->writeTableAsyncDirect($tableId, [
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'test_prices',
+        ]);
+    }
+
     public function testCreateTableDefaults(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
