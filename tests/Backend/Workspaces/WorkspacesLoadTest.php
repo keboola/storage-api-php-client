@@ -1756,6 +1756,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                             'check' => null,
                             'expression' => null,
                             'comment' => null,
+                            'privacy domain' => null,
                         ],
                         [
                             'name' => 'Name',
@@ -1768,6 +1769,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                             'check' => null,
                             'expression' => null,
                             'comment' => null,
+                            'privacy domain' => null,
                         ],
                     ],
                     self::BACKEND_SYNAPSE => [
@@ -1852,6 +1854,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                             'check' => null,
                             'expression' => null,
                             'comment' => null,
+                            'privacy domain' => null,
                         ],
                         [
                             'name' => 'Name',
@@ -1864,6 +1867,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                             'check' => null,
                             'expression' => null,
                             'comment' => null,
+                            'privacy domain' => null,
                         ],
                     ],
                     self::BACKEND_SYNAPSE => [
