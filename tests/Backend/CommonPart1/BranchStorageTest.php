@@ -61,11 +61,11 @@ class BranchStorageTest extends StorageApiTestCase
                 'tableId' => null,
                 'operationName' => 'devBranchCreate',
                 'operationParams' => [
+                    'queue' => 'main',
                     'values' => [
                         'name' => 'Keboola\\Test\\Backend\\CommonPart1\\BranchStorageTest\\testCreateBranchResponse',
                         'description' => '',
                     ],
-                    'queue' => 'main',
                 ],
                 'startTime' => null,
                 'endTime' => null,
@@ -126,11 +126,11 @@ class BranchStorageTest extends StorageApiTestCase
                 'tableId' => null,
                 'operationName' => 'devBranchCreate',
                 'operationParams' => [
+                    'queue' => 'main',
                     'values' => [
                         'name' => 'Keboola\\Test\\Backend\\CommonPart1\\BranchStorageTest\\testCreateBranchResponse',
                         'description' => '',
                     ],
-                    'queue' => 'main',
                 ],
                 'results' => [
                     'name' => 'Keboola\\Test\\Backend\\CommonPart1\\BranchStorageTest\\testCreateBranchResponse',
