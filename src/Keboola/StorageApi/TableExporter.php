@@ -101,7 +101,7 @@ class TableExporter
 
             // Concat all files into one, compressed files need to be decompressed first
             foreach ($fileSlices as $fileSlice) {
-                $catCmd = 'gunzip ' . escapeshellarg($fileSlice) . ' --to-stdout >> ' . escapeshellarg($destination) . '.tmp';
+                $catCmd = 'gunzip ' . escapeshellarg($fileSlice) . ' --to-stdout >> ' . escapeshellarg($destination . '.tmp');
                 $process = ProcessPolyfill::createProcess($catCmd);
                 $process->setTimeout(null);
                 if (0 !== $process->run()) {
@@ -112,7 +112,7 @@ class TableExporter
 
             // Compress the file afterwards if required
             if ($gzipOutput) {
-                $gZipCmd = 'gzip ' . escapeshellarg($destination) . '.tmp --fast';
+                $gZipCmd = 'gzip ' . escapeshellarg($destination . '.tmp')  . ' --fast';
                 $process = ProcessPolyfill::createProcess($gZipCmd);
                 $process->setTimeout(null);
                 if (0 !== $process->run()) {
