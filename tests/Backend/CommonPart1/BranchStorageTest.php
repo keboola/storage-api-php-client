@@ -169,7 +169,7 @@ class BranchStorageTest extends StorageApiTestCase
 
         $this->assertSame(
             [
-                'name' => 'Keboola\Test\Backend\CommonPart1\BranchStorageTest\testCreateBranchResponse2',
+                'name' => $branchName . '2',
                 'description' => '',
                 'isDefault' => false,
                 'creatorToken' => [
