@@ -27,7 +27,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->tableId = $this->createTableDefinition();
+//        $this->tableId = $this->createTableDefinition();
     }
 
     private function createTableDefinition(): string
@@ -237,6 +237,159 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
                 );
             }
         }
+    }
+
+    public function testResponses(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $data = [
+            'name' => 'my_new_table',
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'c1',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'c2',
+                    'definition' => [
+                        'type' => 'STRING',
+                        'nullable' => true,
+                    ],
+                ],
+                [
+                    'name' => 'c3',
+                    'definition' => [
+                        'type' => 'STRING',
+                    ],
+                ],
+            ],
+        ];
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $resp = $this->_client->apiPostJson("buckets/{$bucketId}/tables-definition", $data);
+
+        unset($resp['created']);
+        $this->assertSame([
+            'uri' => 'https://localhost:8700/v2/storage/tables/in.c-API-tests-08afca048ed464de8680414e9c6b9a9cf9b8db31.my_new_table',
+            'id' => 'in.c-API-tests-08afca048ed464de8680414e9c6b9a9cf9b8db31.my_new_table',
+            'name' => 'my_new_table',
+            'displayName' => 'my_new_table',
+            'transactional' => false,
+            'primaryKey' => [],
+            'indexType' => null,
+            'indexKey' => [],
+            'distributionType' => null,
+            'distributionKey' => [],
+            'syntheticPrimaryKeyEnabled' => false,
+            'lastImportDate' => null,
+            'lastChangeDate' => null,
+            'rowsCount' => null,
+            'dataSizeBytes' => null,
+            'isAlias' => false,
+            'isAliasable' => true,
+            'isTyped' => true,
+            'tableType' => 'table',
+            'columns' => [
+                0 => 'c1',
+                1 => 'c2',
+                2 => 'c3',
+            ],
+        ], $resp);
+
+        $tableDetail = $this->_client->getTable($resp['id']);
+        unset(
+            $tableDetail['created'],
+            $tableDetail['columnMetadata'],
+            $tableDetail['attributes'],
+            $tableDetail['metadata'],
+            $tableDetail['bucket']['created'],
+            $tableDetail['bucket']['lastChangeDate'],
+        );
+        $this->assertSame([
+            'uri' => 'https://localhost:8700/v2/storage/tables/in.c-API-tests-08afca048ed464de8680414e9c6b9a9cf9b8db31.my_new_table',
+            'id' => 'in.c-API-tests-08afca048ed464de8680414e9c6b9a9cf9b8db31.my_new_table',
+            'name' => 'my_new_table',
+            'displayName' => 'my_new_table',
+            'transactional' => false,
+            'primaryKey' => [],
+            'indexType' => null,
+            'indexKey' => [],
+            'distributionType' => null,
+            'distributionKey' => [],
+            'syntheticPrimaryKeyEnabled' => false,
+            'lastImportDate' => null,
+            'lastChangeDate' => null,
+            'rowsCount' => null,
+            'dataSizeBytes' => null,
+            'isAlias' => false,
+            'isAliasable' => true,
+            'isTyped' => true,
+            'tableType' => 'table',
+            'columns' => [
+                0 => 'c1',
+                1 => 'c2',
+                2 => 'c3',
+            ],
+            'bucket' => [
+                'uri' => 'https://localhost:8700/v2/storage/buckets/in.c-API-tests-08afca048ed464de8680414e9c6b9a9cf9b8db31',
+                'id' => 'in.c-API-tests-08afca048ed464de8680414e9c6b9a9cf9b8db31',
+                'name' => 'c-API-tests-08afca048ed464de8680414e9c6b9a9cf9b8db31',
+                'displayName' => 'API-tests-08afca048ed464de8680414e9c6b9a9cf9b8db31',
+                'idBranch' => 5112,
+                'stage' => 'in',
+                'description' => 'Keboola\Test\Backend\Bigquery\TableDefinitionOperationsTest\testResponses',
+                'tables' => 'https://localhost:8700/v2/storage/buckets/in.c-API-tests-08afca048ed464de8680414e9c6b9a9cf9b8db31',
+                'isReadOnly' => false,
+                'dataSizeBytes' => 0,
+                'rowsCount' => 0,
+                'isMaintenance' => false,
+                'backend' => 'bigquery',
+                'sharing' => null,
+                'hasExternalSchema' => false,
+                'databaseName' => '',
+                'metadata' => [],
+            ],
+            'definition' => [
+                'primaryKeysNames' => [],
+                'columns' => [
+                    0 => [
+                        'name' => 'c1',
+                        'definition' => [
+                            'type' => 'INTEGER',
+                            'nullable' => false,
+                        ],
+                        'basetype' => 'INTEGER',
+                        'canBeFiltered' => true,
+                    ],
+                    1 => [
+                        'name' => 'c2',
+                        'definition' => [
+                            'type' => 'STRING',
+                            'nullable' => true,
+                        ],
+                        'basetype' => 'STRING',
+                        'canBeFiltered' => true,
+                    ],
+                    2 => [
+                        'name' => 'c3',
+                        'definition' => [
+                            'type' => 'STRING',
+                            'nullable' => true,
+                        ],
+                        'basetype' => 'STRING',
+                        'canBeFiltered' => true,
+                    ],
+                ],
+            ],
+        ],
+            $tableDetail);
     }
 
     public function testResponseDefinition(): void
@@ -1136,7 +1289,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
         $client->runQuery(
             $client->query(
                 sprintf(
-                    'INSERT INTO `%s`.`my_new_table_with_nulls` VALUES (1, null);',
+                    'INSERT INTO `%s`.`my_new_table_with_nulls` VALUES (1, NULL);',
                     $dataset,
                 ),
             ),
@@ -1208,9 +1361,9 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
         $options['dataFileId'] = $fileId;
         $this->expectExceptionMessage(
             'Load error: '
-            .'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. '
-            .'Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; '
-            .'line_number: 2 byte_offset_to_start_of_line: 17 col',
+            . 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. '
+            . 'Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; '
+            . 'line_number: 2 byte_offset_to_start_of_line: 17 col',
         );
         $this->expectException(ClientException::class);
         $this->_client->writeTableAsyncDirect($tableId, $options);
@@ -1647,7 +1800,9 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
     }
 
     /**
-     * this testcase is not executed, because it takes too long for very low value. Code is being kept for future reference
+     * this testcase is not executed, because it takes too long for very low value. Code is being kept for future
+     * reference
+     *
      * @dataProvider provideDataForIllogicalFilter
      */
     public function skipTestIllogicalComparisonInFilter(array $filter): void
