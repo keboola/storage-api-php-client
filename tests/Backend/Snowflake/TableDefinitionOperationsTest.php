@@ -25,7 +25,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
-        $this->tableId = $this->createTableDefinition();
+//        $this->tableId = $this->createTableDefinition();
     }
 
     private function createTableDefinition(): string
@@ -56,6 +56,162 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
         $this->_client->setRunId($runId);
 
         return $this->_client->createTableDefinition($bucketId, $data);
+    }
+
+    public function testResponses(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+
+        $data = [
+            'name' => 'my_new_table',
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'c1',
+                    'definition' => [
+                        'type' => 'INT',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'c2',
+                    'definition' => [
+                        'type' => 'VARCHAR',
+                        'nullable' => true,
+                    ],
+                ],
+                [
+                    'name' => 'c3',
+                    'definition' => [
+                        'type' => 'VARCHAR',
+                    ],
+                ],
+            ],
+        ];
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $resp = $this->_client->apiPostJson("buckets/{$bucketId}/tables-definition", $data);
+
+        unset($resp['created']);
+        $this->assertSame([
+            'uri' => 'https://localhost:8700/v2/storage/tables/in.c-API-tests-5520ea8161caaa70eef35f32ed31e21867dd0d78.my_new_table',
+            'id' => 'in.c-API-tests-5520ea8161caaa70eef35f32ed31e21867dd0d78.my_new_table',
+            'name' => 'my_new_table',
+            'displayName' => 'my_new_table',
+            'transactional' => false,
+            'primaryKey' => [],
+            'indexType' => null,
+            'indexKey' => [],
+            'distributionType' => null,
+            'distributionKey' => [],
+            'syntheticPrimaryKeyEnabled' => false,
+            'lastImportDate' => null,
+            'lastChangeDate' => null,
+            'rowsCount' => null,
+            'dataSizeBytes' => null,
+            'isAlias' => false,
+            'isAliasable' => true,
+            'isTyped' => true,
+            'tableType' => 'table',
+            'columns' => [
+                0 => 'c1',
+                1 => 'c2',
+                2 => 'c3',
+            ],
+        ], $resp);
+
+        $tableDetail = $this->_client->getTable($resp['id']);
+        unset(
+            $tableDetail['created'],
+            $tableDetail['columnMetadata'],
+            $tableDetail['attributes'],
+            $tableDetail['metadata'],
+            $tableDetail['bucket']['created'],
+            $tableDetail['bucket']['lastChangeDate'],
+        );
+        $this->assertSame([
+            'uri' => 'https://localhost:8700/v2/storage/tables/in.c-API-tests-5520ea8161caaa70eef35f32ed31e21867dd0d78.my_new_table',
+            'id' => 'in.c-API-tests-5520ea8161caaa70eef35f32ed31e21867dd0d78.my_new_table',
+            'name' => 'my_new_table',
+            'displayName' => 'my_new_table',
+            'transactional' => false,
+            'primaryKey' => [],
+            'indexType' => null,
+            'indexKey' => [],
+            'distributionType' => null,
+            'distributionKey' => [],
+            'syntheticPrimaryKeyEnabled' => false,
+            'lastImportDate' => null,
+            'lastChangeDate' => null,
+            'rowsCount' => null,
+            'dataSizeBytes' => null,
+            'isAlias' => false,
+            'isAliasable' => true,
+            'isTyped' => true,
+            'tableType' => 'table',
+            'columns' => [
+                0 => 'c1',
+                1 => 'c2',
+                2 => 'c3',
+            ],
+            'bucket' => [
+                'uri' => 'https://localhost:8700/v2/storage/buckets/in.c-API-tests-5520ea8161caaa70eef35f32ed31e21867dd0d78',
+                'id' => 'in.c-API-tests-5520ea8161caaa70eef35f32ed31e21867dd0d78',
+                'name' => 'c-API-tests-5520ea8161caaa70eef35f32ed31e21867dd0d78',
+                'displayName' => 'API-tests-5520ea8161caaa70eef35f32ed31e21867dd0d78',
+                'idBranch' => 6069,
+                'stage' => 'in',
+                'description' => 'Keboola\Test\Backend\Snowflake\TableDefinitionOperationsTest\testResponses',
+                'tables' => 'https://localhost:8700/v2/storage/buckets/in.c-API-tests-5520ea8161caaa70eef35f32ed31e21867dd0d78',
+                'isReadOnly' => false,
+                'dataSizeBytes' => 0,
+                'rowsCount' => 0,
+                'isMaintenance' => false,
+                'backend' => 'snowflake',
+                'sharing' => null,
+                'hasExternalSchema' => false,
+                'databaseName' => '',
+                'metadata' => [],
+            ],
+            'definition' => [
+                'primaryKeysNames' => [],
+                'columns' => [
+                    0 => [
+                        'name' => 'c1',
+                        'definition' => [
+                            'type' => 'NUMBER',
+                            'nullable' => false,
+                            'length' => '38,0',
+                        ],
+                        'basetype' => 'NUMERIC',
+                        'canBeFiltered' => true,
+                    ],
+                    1 => [
+                        'name' => 'c2',
+                        'definition' => [
+                            'type' => 'VARCHAR',
+                            'nullable' => true,
+                            'length' => '16777216',
+                        ],
+                        'basetype' => 'STRING',
+                        'canBeFiltered' => true,
+                    ],
+                    2 => [
+                        'name' => 'c3',
+                        'definition' => [
+                            'type' => 'VARCHAR',
+                            'nullable' => true,
+                            'length' => '16777216',
+                        ],
+                        'basetype' => 'STRING',
+                        'canBeFiltered' => true,
+                    ],
+                ],
+            ],
+        ],
+            $tableDetail);
     }
 
     public function testResponseDefinition(): void
