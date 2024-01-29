@@ -818,7 +818,7 @@ SQL,
         // Delete all exchangers with same prefix
         /** @var DataExchange $exchanger */
         foreach ($exchangers->getIterator() as $exchanger) {
-            if (strpos($exchanger->getName(), $dataExchangeId) !== 0) {
+            if (str_contains($exchanger->getName(), $dataExchangeId)) {
                 $analyticHubClient->deleteDataExchange($exchanger->getName());
             }
         }
