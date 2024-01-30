@@ -36,6 +36,8 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 {
     protected \Keboola\StorageApi\Client $_testClient;
 
+    private string $region;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -57,6 +59,8 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             $this->markTestSkipped(sprintf('External buckets are not enabled for project "%s"', $token['owner']['id']));
         }
         $this->allowTestForBackendsOnly([self::BACKEND_BIGQUERY], 'Backend has to support external buckets');
+
+        $this->region = BQ_EXTERNAL_BUCKET_REGION ?: 'us';
     }
 
     /**
@@ -809,10 +813,9 @@ SQL,
             sha1($description) . str_replace('-', '_', $externalProjectStringId),
             -63,
         );
-        $location = 'US';
         $analyticHubClient = $this->getAnalyticsHubServiceClient($externalCredentials);
 
-        $formattedParent = $analyticHubClient->locationName($externalProjectStringId, $location);
+        $formattedParent = $analyticHubClient->locationName($externalProjectStringId, $this->region);
         $exchangers = $analyticHubClient->listDataExchanges($formattedParent);
 
         // Delete all exchangers with same prefix
@@ -935,6 +938,7 @@ SQL,
         $bqClient = new BigQueryClient([
             'keyFile' => $externalCredentials,
             'httpHandler' => $handler,
+            'location' => $this->region,
         ]);
         return $bqClient;
     }
