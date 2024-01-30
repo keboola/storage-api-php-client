@@ -34,6 +34,7 @@ services:
       - BQ_KEY_FILE_FOR_EXTERNAL_BUCKET
       - BQ_DESTINATION_PROJECT_SERVICE_ACC_EMAIL
       - BQ_EXTERNAL_TABLE_GCS_BUCKET
+      - BQ_EXTERNAL_BUCKET_REGION
   dev: &dev
     <<: *base
     volumes:
