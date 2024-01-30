@@ -2467,6 +2467,14 @@ class Client
         ]);
     }
 
+    public function refreshFileCredentials(int $fileId): array
+    {
+        /** @var array $refreshedCredentialsResponse */
+        $refreshedCredentialsResponse = $this->apiPutJson("files/{$fileId}/refresh");
+
+        return $refreshedCredentialsResponse;
+    }
+
     /**
      * Delete a single file
      * @param $fileId
