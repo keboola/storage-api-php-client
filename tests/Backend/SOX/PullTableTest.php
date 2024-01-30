@@ -4,10 +4,13 @@ namespace Keboola\Test\Backend\SOX;
 
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Event;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\Metadata\TableMetadataUpdateOptions;
+use Keboola\StorageApi\Options\TokenCreateOptions;
+use Keboola\StorageApi\Tokens;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
@@ -29,6 +32,46 @@ class PullTableTest extends StorageApiTestCase
         $this->developerClient = $this->getDeveloperStorageApiClient();
         $this->branches = new DevBranches($this->developerClient);
         $this->cleanupTestBranches($this->developerClient);
+    }
+
+    public function testTokenWithoutPrivilegesCannotPullTable(): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $newBranch = $this->branches->createBranch($description);
+        $privilegedClient = $this->getDefaultBranchStorageApiClient();
+        $productionBucketId = $this->initEmptyBucket(
+            $this->getTestBucketName($description),
+            self::STAGE_IN,
+            $description,
+            $privilegedClient,
+        );
+        $productionTableId = $privilegedClient->createTableAsync(
+            $productionBucketId,
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+        );
+        $productionTable = $privilegedClient->getTable($productionTableId);
+
+        // need to pull the table before we can assign permissions to it
+        $this->developerClient->getBranchAwareClient($newBranch['id'])->pullTableToBranch($productionTableId);
+
+        // token with permissions
+        $tokens = new Tokens($this->developerClient);
+        $token = $tokens->createToken((new TokenCreateOptions())->addBucketPermission($productionBucketId, 'write'));
+        $tokenBranchClient = $this->getClientForToken($token['token'])
+            ->getBranchAwareClient($newBranch['id']);
+
+        $pulledTableId = $tokenBranchClient->pullTableToBranch($productionTableId);
+
+        // token without permissions
+        $tokens = new Tokens($this->developerClient);
+        $token = $tokens->createToken((new TokenCreateOptions()));
+        $tokenBranchClient = $this->getClientForToken($token['token'])
+            ->getBranchAwareClient($newBranch['id']);
+
+        $this->expectExceptionMessage('You don\'t have access to the resource.');
+        $this->expectException(ClientException::class);
+        $tokenBranchClient->pullTableToBranch($productionTableId);
     }
 
     public function testPullTableFromDefaultBranch(): void
