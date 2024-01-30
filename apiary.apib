@@ -6554,6 +6554,60 @@ For a more detailed guide on the file upload, see the corresponding part of the
                 }
             }
 
+## Refresh File Credentials [/v2/storage/files/{file_id}/refresh]
+### Refresh File Credentials [PUT]
+**Endpoint is used to generate new credentials only for files stored in GCS.**
+
+Because for GCS the maximum lifetime of a credentials are only one hour,
+so if in case of longer uploads than one hour we have to generate a new credentials with one hour validity after this time.
+
+**We can generate new credentials up to 12h after the first creation of a file using [Create File Resource](#reference/files/upload-file)**
+
++ Parameters
+    + file_id (required, number) - File Id
+
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "id": 236518631,
+                "created": "2017-02-14T10:34:45+0100",
+                "isPublic": false,
+                "isSliced": false,
+                "isEncrypted": true,
+                "name": "somefile.csv",
+                "url": "https://storage.googleapis.com/kbc-ci-connection-files-storage/exp-15/23058/files/2022/11/09/851783.somefile.csv?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=ci-connection-file-storage%40ci-connection-361807.iam.gserviceaccount.com%2F20221109%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20221109T193733Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&response-content-disposition=attachment&X-Goog-Signature=57f3...",
+                "provider": "gcp",
+                "region": "us-east-1",
+                "sizeBytes": 12345,
+                "tags": [
+                    "tag1",
+                    "tag2"
+                ],
+                "maxAgeDays": 30,
+                "runId": null,
+                "runIds": [],
+                "creatorToken": {
+                    "id": 27978,
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "gcsUploadParams": {
+                    "projectId": "ci-connection-361807",
+                    "bucket": "kbc-ci-connection-files-storage",
+                    "key": "exp-15/23058/files/2022/11/09/851783.somefile.csv",
+                    "access_token": "ya29.dr...",
+                    "expires_in": 3599,
+                    "token_type": "Bearer"
+                }
+            }
+
+
 ## List Files [/v2/storage/files?sinceId={sinceId}&maxId={maxId}&tags={tags}&q={q}&runId={runId}&limit={limit}&offset={offset}&showExpired={showExpired}]
 ### List Files [GET]
 Lists all files uploaded by your token. If the `canReadAllFileUploads` permission is set for your token,
