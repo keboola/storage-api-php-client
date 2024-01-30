@@ -75,6 +75,19 @@ class BranchFileStorageTest extends StorageApiTestCase
         $file1Id = $client1->uploadFile($filePath, new FileUploadOptions());
         $this->assertNotEmpty($client1->getFile($file1Id, new GetFileOptions()));
 
+        if ($this->getDefaultBackend($this->_client) === self::BACKEND_BIGQUERY) {
+            $refreshResponse1 = $client1->refreshFileCredentials($file1Id);
+            $this->assertNotEmpty($refreshResponse1);
+
+            try {
+                $client2->refreshFileCredentials($file1Id);
+                $this->fail('File should not exist');
+            } catch (ClientException $e) {
+                $this->assertEquals(404, $e->getCode());
+                $this->assertSame('File not found.', $e->getMessage());
+            }
+        }
+
         try {
             $client2->getFile($file1Id, new GetFileOptions());
             $this->fail('File should not exist');
@@ -84,6 +97,19 @@ class BranchFileStorageTest extends StorageApiTestCase
 
         $file2Id = $client2->uploadFile($filePath, new FileUploadOptions());
         $this->assertNotEmpty($client2->getFile($file2Id, new GetFileOptions()));
+
+        if ($this->getDefaultBackend($this->_client) === self::BACKEND_BIGQUERY) {
+            $refreshResponse2 = $client2->refreshFileCredentials($file2Id);
+            $this->assertNotEmpty($refreshResponse2);
+
+            try {
+                $client1->refreshFileCredentials($file2Id);
+                $this->fail('File should not exist');
+            } catch (ClientException $e) {
+                $this->assertEquals(404, $e->getCode());
+                $this->assertSame('File not found.', $e->getMessage());
+            }
+        }
 
         $client1->deleteFile($file1Id);
         try {
@@ -101,6 +127,24 @@ class BranchFileStorageTest extends StorageApiTestCase
             $this->fail('File should not exist');
         } catch (ClientException $e) {
             $this->assertEquals(404, $e->getCode());
+        }
+
+        if ($this->getDefaultBackend($this->_client) === self::BACKEND_BIGQUERY) {
+            try {
+                $client1->refreshFileCredentials($file1Id);
+                $this->fail('File should not exist');
+            } catch (ClientException $e) {
+                $this->assertEquals(404, $e->getCode());
+                $this->assertSame('File not found.', $e->getMessage());
+            }
+
+            try {
+                $client2->refreshFileCredentials($file2Id);
+                $this->fail('File should not exist');
+            } catch (ClientException $e) {
+                $this->assertEquals(404, $e->getCode());
+                $this->assertSame('File not found.', $e->getMessage());
+            }
         }
     }
 }
