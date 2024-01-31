@@ -2141,6 +2141,7 @@ class Client
         FileUploadTransferOptions $transferOptions = null
     ): void {
         $uploadParams = $preparedFileResult['gcsUploadParams'];
+        $refreshCallableWrapper = new RefreshFileCredentialsWrapper($this, $preparedFileResult['id']);
         $gcsUploader = new GCSUploader(
             [
                 'credentials' => [
@@ -2152,6 +2153,7 @@ class Client
             ],
             $this->logger,
             $transferOptions,
+            $refreshCallableWrapper,
         );
 
         $gcsUploader->uploadSlicedFile(

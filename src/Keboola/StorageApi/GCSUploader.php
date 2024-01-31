@@ -26,10 +26,13 @@ class GCSUploader
 
     private FileUploadTransferOptions $transferOptions;
 
+    private RefreshFileCredentialsWrapper $refreshFileCredentialsWrapper;
+
     public function __construct(
         array $options,
         LoggerInterface $logger = null,
-        FileUploadTransferOptions $transferOptions = null
+        FileUploadTransferOptions $transferOptions = null,
+        RefreshFileCredentialsWrapper $refreshFileCredentialsWrapper
     ) {
         $this->gcsClient = $this->initClient($options);
 
@@ -44,6 +47,8 @@ class GCSUploader
         } else {
             $this->logger = $logger;
         }
+
+        $this->refreshFileCredentialsWrapper = $refreshFileCredentialsWrapper;
     }
 
     private function getFailedUploads(
