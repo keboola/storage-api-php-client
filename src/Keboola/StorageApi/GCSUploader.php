@@ -190,11 +190,20 @@ class GCSUploader
                 break;
             }
             $retries++;
+            // detect expired credentials, and refresh only for first occurrence for retry run
+            $credentialsRefreshedInRetry = false;
             /**
              * @var string $filePath
              * @var ServiceException $reason
              */
             foreach ($rejected as $filePath => $reason) {
+                if ($reason->getCode() === 403 && $credentialsRefreshedInRetry === false) {
+                    $this->logger->notice('Detected expired credentials, refreshing and retrying upload.');
+                    $credentialsRefreshedInRetry = true;
+                    $reds = $this->refreshFileCredentialsWrapper->refreshCredentials();
+                    $this->gcsClient = $this->initClient($reds);
+                    $retBucket = $this->gcsClient->bucket($bucket);
+                }
                 $blobName = sprintf(
                     '%s%s',
                     $key,
