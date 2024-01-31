@@ -31,35 +31,7 @@ class GCSUploader
         LoggerInterface $logger = null,
         FileUploadTransferOptions $transferOptions = null
     ) {
-        $this->fetchAuthToken = new class ($options['credentials']) implements FetchAuthTokenInterface {
-            private array $creds;
-
-            public function __construct(
-                array $creds
-            ) {
-                $this->creds = $creds;
-            }
-
-            public function fetchAuthToken(callable $httpHandler = null)
-            {
-                return $this->creds;
-            }
-
-            public function getCacheKey()
-            {
-                return '';
-            }
-
-            public function getLastReceivedToken()
-            {
-                return $this->creds;
-            }
-        };
-        $this->gcsClient = new GoogleStorageClient([
-            'projectId' => $options['projectId'],
-            'credentialsFetcher' => $this->fetchAuthToken,
-            'requestTimeout' => 500,
-        ]);
+        $this->gcsClient = $this->initClient($options);
 
         if (!$transferOptions) {
             $this->transferOptions = new FileUploadTransferOptions();
@@ -234,5 +206,38 @@ class GCSUploader
                 $promises[$filePath] = $promise;
             }
         }
+    }
+
+    public function initClient(array $options): GoogleStorageClient
+    {
+        $this->fetchAuthToken = new class ($options['credentials']) implements FetchAuthTokenInterface {
+            private array $creds;
+
+            public function __construct(
+                array $creds
+            ) {
+                $this->creds = $creds;
+            }
+
+            public function fetchAuthToken(callable $httpHandler = null)
+            {
+                return $this->creds;
+            }
+
+            public function getCacheKey()
+            {
+                return '';
+            }
+
+            public function getLastReceivedToken()
+            {
+                return $this->creds;
+            }
+        };
+        return new GoogleStorageClient([
+            'projectId' => $options['projectId'],
+            'credentialsFetcher' => $this->fetchAuthToken,
+            'requestTimeout' => 500,
+        ]);
     }
 }
