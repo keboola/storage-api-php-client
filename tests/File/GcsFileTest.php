@@ -80,7 +80,7 @@ class GcsFileTest extends StorageApiTestCase
             ],
         );
 
-        $tableId = $this->_client->createTableAsyncDirect(
+        $tableId = $this->_testClient->createTableAsyncDirect(
             $this->getTestBucketId(),
             [
                 'name' => 'languages',
@@ -88,7 +88,7 @@ class GcsFileTest extends StorageApiTestCase
             ],
         );
 
-        $table = $this->_client->getTable($tableId);
+        $table = $this->_testClient->getTable($tableId);
         $this->assertEquals(5, $table['rowsCount']);
     }
 
