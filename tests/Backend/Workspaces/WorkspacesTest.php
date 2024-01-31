@@ -91,7 +91,6 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         // list workspaces
         $testWorkspaceInfo = null;
         foreach ($workspaces->listWorkspaces() as $workspaceInfo) {
-
             if ($workspaceInfo['id'] === $workspace['id']) {
                 $testWorkspaceInfo = $workspaceInfo;
             }
