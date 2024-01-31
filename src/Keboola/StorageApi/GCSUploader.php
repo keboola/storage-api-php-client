@@ -30,12 +30,12 @@ class GCSUploader
 
     public function __construct(
         array $options,
+        RefreshFileCredentialsWrapper $refreshFileCredentialsWrapper,
         LoggerInterface $logger = null,
-        FileUploadTransferOptions $transferOptions = null,
-        RefreshFileCredentialsWrapper $refreshFileCredentialsWrapper
+        FileUploadTransferOptions $transferOptions = null
     ) {
         $this->gcsClient = $this->initClient($options);
-
+        $this->refreshFileCredentialsWrapper = $refreshFileCredentialsWrapper;
         if (!$transferOptions) {
             $this->transferOptions = new FileUploadTransferOptions();
         } else {
@@ -47,8 +47,6 @@ class GCSUploader
         } else {
             $this->logger = $logger;
         }
-
-        $this->refreshFileCredentialsWrapper = $refreshFileCredentialsWrapper;
     }
 
     private function getFailedUploads(
@@ -200,8 +198,8 @@ class GCSUploader
                 if ($reason->getCode() === 403 && $credentialsRefreshedInRetry === false) {
                     $this->logger->notice('Detected expired credentials, refreshing and retrying upload.');
                     $credentialsRefreshedInRetry = true;
-                    $reds = $this->refreshFileCredentialsWrapper->refreshCredentials();
-                    $this->gcsClient = $this->initClient($reds);
+                    $credentials = $this->refreshFileCredentialsWrapper->refreshCredentials();
+                    $this->gcsClient = $this->initClient($credentials);
                     $retBucket = $this->gcsClient->bucket($bucket);
                 }
                 $blobName = sprintf(
