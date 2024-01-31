@@ -54,6 +54,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->workspaceSapiClient->setRunId($runId);
 
         $workspace = $workspaces->createWorkspace([], $async);
+        /** @var array $connection */
         $connection = $workspace['connection'];
         $this->assertArrayHasKey('region', $connection);
         $this->assertNotEmpty($connection['region']);
