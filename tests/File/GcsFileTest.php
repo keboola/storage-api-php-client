@@ -2,9 +2,13 @@
 
 namespace Keboola\Test\File;
 
+use DateTime;
+use DateTimeZone;
 use GuzzleHttp\Client;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client as StorageApiClient;
+use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\GCSUploader;
 use Keboola\StorageApi\Options\FileUploadOptions;
@@ -47,6 +51,45 @@ class GcsFileTest extends StorageApiTestCase
             $token['owner']['fileStorageProvider'],
             'Project must have GCS file storage',
         );
+    }
+
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testUploadFileWithRefreshedCredentials(): void
+    {
+        $prepareFile = $this->_testClient->prepareFileUpload((new FileUploadOptions())
+            ->setFileName('languages.csv')
+            ->setFederationToken(true));
+
+        $this->assertArrayHasKey('id', $prepareFile);
+
+        $refreshedCredentials = $this->_testClient->refreshFileCredentials($prepareFile['id']);
+        $uploadParams = $refreshedCredentials['gcsUploadParams'];
+        $client = $this->getGcsClientClient($uploadParams);
+        $bucket = $client->bucket($uploadParams['bucket']);
+        $file = fopen(__DIR__ . '/../_data/languages.csv', 'r');
+        if (!$file) {
+            throw new ClientException("Cannot open file {$file}");
+        }
+
+        $bucket->upload(
+            $file,
+            [
+                'name' => $uploadParams['key'],
+            ],
+        );
+
+        $tableId = $this->_testClient->createTableAsyncDirect(
+            $this->getTestBucketId(),
+            [
+                'name' => 'languages',
+                'dataFileId' => $prepareFile['id'],
+            ],
+        );
+
+        $table = $this->_testClient->getTable($tableId);
+        $this->assertEquals(5, $table['rowsCount']);
     }
 
     /**
