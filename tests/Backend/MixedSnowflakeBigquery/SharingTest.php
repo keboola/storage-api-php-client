@@ -320,6 +320,44 @@ class SharingTest extends StorageApiSharingTestCase
         }
     }
 
+    public function testLinkBucketExport():void
+    {
+        $this->deleteAllWorkspaces();
+        $this->initTestBuckets(self::BACKEND_BIGQUERY);
+        $bucketId = $this->getTestBucketId();
+
+        $importFile = __DIR__ . '/../../_data/languages.csv';
+        $this->_client->createTableAsync(
+            $bucketId,
+            'languages',
+            new CsvFile($importFile),
+        );
+
+        $targetProjectId = $this->_client2->verifyToken()['owner']['id'];
+        $this->_client->shareBucketToProjects($bucketId, [$targetProjectId], true);
+
+        self::assertTrue($this->_client->isSharedBucket($bucketId));
+        $response = $this->_client2->listSharedBuckets();
+        self::assertCount(1, $response);
+        $sharedBucket = reset($response);
+
+        // link bucket to another project
+        $linkedBucketName = 'linked-' . time();
+        $linkedBucketId = $this->_client2->linkBucket(
+            $linkedBucketName,
+            'out',
+            $sharedBucket['project']['id'],
+            $sharedBucket['id'],
+        );
+
+        $storageTablesInDestProject = $this->_client2->listTables($linkedBucketId);
+        $this->assertCount(1, $storageTablesInDestProject);
+
+        $this->_client2->exportTableAsync(
+            $storageTablesInDestProject[0]['id'],
+        );
+    }
+
     private function assertColumns(Table $table, array $expectedColumns): void
     {
         $table->reload();
