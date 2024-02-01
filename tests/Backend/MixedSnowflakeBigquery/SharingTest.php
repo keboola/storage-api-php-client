@@ -158,12 +158,12 @@ class SharingTest extends StorageApiSharingTestCase
                 $async,
             ];
 
-            yield  sprintf('shareBucketToProjects, async=%s', $async) => [
+            yield sprintf('shareBucketToProjects, async=%s', $async) => [
                 'shareBucketToProjects',
                 $async,
             ];
 
-            yield  sprintf('shareBucketToUsers, async=%s', $async) => [
+            yield sprintf('shareBucketToUsers, async=%s', $async) => [
                 'shareBucketToUsers',
                 $async,
             ];
@@ -320,7 +320,7 @@ class SharingTest extends StorageApiSharingTestCase
         }
     }
 
-    public function testLinkBucketExport():void
+    public function testLinkBucketExport(): void
     {
         $this->deleteAllWorkspaces();
         $this->initTestBuckets(self::BACKEND_BIGQUERY);
