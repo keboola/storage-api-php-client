@@ -54,8 +54,10 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->workspaceSapiClient->setRunId($runId);
 
         $workspace = $workspaces->createWorkspace([], $async);
+        /** @var array $connection */
         $connection = $workspace['connection'];
-
+        $this->assertArrayHasKey('region', $connection);
+        $this->assertNotEmpty($connection['region']);
         $workspaceWithSnowflakeBackend = $connection['backend'] === self::BACKEND_SNOWFLAKE;
 
         $this->assertArrayHasKey('backendSize', $workspace);
@@ -81,20 +83,21 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         // get workspace
         $workspace = $workspaces->getWorkspace($workspace['id']);
         $this->assertArrayNotHasKey('password', $workspace['connection']);
-
+        $this->assertArrayHasKey('region', $workspace['connection']);
+        $this->assertNotEmpty($workspace['connection']['region']);
         if ($workspaceWithSnowflakeBackend) {
             $this->assertNotEmpty($workspace['connection']['warehouse']);
         }
 
         // list workspaces
-        $workspacesIds = [];
         $testWorkspaceInfo = null;
         foreach ($workspaces->listWorkspaces() as $workspaceInfo) {
-            $workspacesIds[] = $workspaceInfo['id'];
-
             if ($workspaceInfo['id'] === $workspace['id']) {
                 $testWorkspaceInfo = $workspaceInfo;
             }
+
+            $this->assertArrayHasKey('region', $workspaceInfo['connection']);
+            $this->assertNotEmpty($workspaceInfo['connection']['region']);
         }
 
         $this->assertNotNull($testWorkspaceInfo);
