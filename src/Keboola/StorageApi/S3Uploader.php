@@ -12,6 +12,7 @@ use Keboola\StorageApi\S3Uploader\PromiseResultHandler;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/** @internal class used by the client for uploading files to file storage */
 class S3Uploader
 {
     /**
