@@ -26,41 +26,16 @@ class GCSUploader
 
     private FileUploadTransferOptions $transferOptions;
 
+    private RefreshFileCredentialsWrapper $refreshFileCredentialsWrapper;
+
     public function __construct(
         array $options,
+        RefreshFileCredentialsWrapper $refreshFileCredentialsWrapper,
         LoggerInterface $logger = null,
         FileUploadTransferOptions $transferOptions = null
     ) {
-        $this->fetchAuthToken = new class ($options['credentials']) implements FetchAuthTokenInterface {
-            private array $creds;
-
-            public function __construct(
-                array $creds
-            ) {
-                $this->creds = $creds;
-            }
-
-            public function fetchAuthToken(callable $httpHandler = null)
-            {
-                return $this->creds;
-            }
-
-            public function getCacheKey()
-            {
-                return '';
-            }
-
-            public function getLastReceivedToken()
-            {
-                return $this->creds;
-            }
-        };
-        $this->gcsClient = new GoogleStorageClient([
-            'projectId' => $options['projectId'],
-            'credentialsFetcher' => $this->fetchAuthToken,
-            'requestTimeout' => 500,
-        ]);
-
+        $this->gcsClient = $this->initClient($options);
+        $this->refreshFileCredentialsWrapper = $refreshFileCredentialsWrapper;
         if (!$transferOptions) {
             $this->transferOptions = new FileUploadTransferOptions();
         } else {
@@ -212,7 +187,19 @@ class GCSUploader
             if (count($rejected) == 0) {
                 break;
             }
-            $retries++;
+
+            // detect expired credentials, and refresh only once for retry run
+            if ($this->isCredentialsExpired($rejected)) {
+                $this->logger->notice('Detected expired credentials, refreshing and retrying upload.');
+                $credentials = $this->refreshFileCredentialsWrapper->refreshCredentials();
+                // re-init client with new credentials
+                $this->gcsClient = $this->initClient($credentials);
+                $retBucket = $this->gcsClient->bucket($bucket);
+            } else {
+                // Count retry only if is there other errors than 401, connection after 12h from created file automatically return 422
+                $retries++;
+            }
+
             /**
              * @var string $filePath
              * @var ServiceException $reason
@@ -234,5 +221,51 @@ class GCSUploader
                 $promises[$filePath] = $promise;
             }
         }
+    }
+
+    private function initClient(array $options): GoogleStorageClient
+    {
+        $this->fetchAuthToken = new class ($options['credentials']) implements FetchAuthTokenInterface {
+            private array $creds;
+
+            public function __construct(
+                array $creds
+            ) {
+                $this->creds = $creds;
+            }
+
+            public function fetchAuthToken(callable $httpHandler = null)
+            {
+                return $this->creds;
+            }
+
+            public function getCacheKey()
+            {
+                return '';
+            }
+
+            public function getLastReceivedToken()
+            {
+                return $this->creds;
+            }
+        };
+        return new GoogleStorageClient([
+            'projectId' => $options['projectId'],
+            'credentialsFetcher' => $this->fetchAuthToken,
+            'requestTimeout' => 500,
+        ]);
+    }
+
+    private function isCredentialsExpired(array $rejected): bool
+    {
+        $shouldRefreshCredentials = false;
+        foreach ($rejected as $reason) {
+            if ($reason instanceof ServiceException && $reason->getCode() === 401) {
+                $shouldRefreshCredentials = true;
+                break; // Exit the loop as soon as a 401 error is found
+            }
+        }
+
+        return $shouldRefreshCredentials;
     }
 }

@@ -1835,6 +1835,7 @@ class Client
         string $filePath,
         bool $isPermanent
     ): void {
+        $refreshCallableWrapper = new RefreshFileCredentialsWrapper($this, $prepareResult['id']);
         $gcsUploader = new GCSUploader([
             'credentials' => [
                  'access_token' => $prepareResult['gcsUploadParams']['access_token'],
@@ -1842,7 +1843,7 @@ class Client
                  'token_type' => $prepareResult['gcsUploadParams']['token_type'],
                 ],
             'projectId' => $prepareResult['gcsUploadParams']['projectId'],
-        ]);
+        ], $refreshCallableWrapper);
 
         $gcsUploader->uploadFile(
             $prepareResult['gcsUploadParams']['bucket'],
@@ -2141,6 +2142,7 @@ class Client
         FileUploadTransferOptions $transferOptions = null
     ): void {
         $uploadParams = $preparedFileResult['gcsUploadParams'];
+        $refreshCallableWrapper = new RefreshFileCredentialsWrapper($this, $preparedFileResult['id']);
         $gcsUploader = new GCSUploader(
             [
                 'credentials' => [
@@ -2150,6 +2152,7 @@ class Client
                 ],
                 'projectId' => $uploadParams['projectId'],
             ],
+            $refreshCallableWrapper,
             $this->logger,
             $transferOptions,
         );
