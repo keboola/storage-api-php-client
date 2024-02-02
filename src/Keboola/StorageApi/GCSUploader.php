@@ -14,6 +14,7 @@ use Keboola\StorageApi\S3Uploader\Chunker;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/** @internal class used by the client for uploading files to file storage */
 class GCSUploader
 {
     private const MAX_RETRIES_FOR_SLICE_UPLOAD = 5;

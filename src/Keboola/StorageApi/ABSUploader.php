@@ -10,6 +10,7 @@ use MicrosoftAzure\Storage\Blob\Models\CommitBlobBlocksOptions;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
 use MicrosoftAzure\Storage\Common\Models\ServiceOptions;
 
+/** @internal class used by the client for uploading files to file storage */
 class ABSUploader
 {
     const CHUNK_SIZE = 4 * 1024 * 1024; // 4MiB
