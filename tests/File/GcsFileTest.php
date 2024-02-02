@@ -13,6 +13,7 @@ use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\GCSUploader;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
+use Keboola\StorageApi\RefreshFileCredentialsWrapper;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\StorageApiTestCase;
@@ -146,7 +147,7 @@ class GcsFileTest extends StorageApiTestCase
             ->setIsEncrypted(false);
 
         $prepareResult = $this->_testClient->prepareFileUpload($options);
-
+        $refreshCallableWrapper = new RefreshFileCredentialsWrapper($this->_testClient, $prepareResult['id']);
         $gcsUploader = new GCSUploader([
             'credentials' => [
                 'access_token' => $prepareResult['gcsUploadParams']['access_token'],
@@ -154,7 +155,7 @@ class GcsFileTest extends StorageApiTestCase
                 'token_type' => $prepareResult['gcsUploadParams']['token_type'],
             ],
             'projectId' => $prepareResult['gcsUploadParams']['projectId'],
-        ]);
+        ], $refreshCallableWrapper);
 
         $gcsUploader->uploadFile(
             $prepareResult['gcsUploadParams']['bucket'],
