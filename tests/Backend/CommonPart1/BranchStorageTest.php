@@ -134,8 +134,8 @@ class BranchStorageTest extends StorageApiTestCase
                 ],
                 'results' => [
                     'name' => $branchName,
-                    'description' => '',
                     'isDefault' => false,
+                    'description' => '',
                     'creatorToken' => [
                     ],
                 ],
@@ -170,8 +170,8 @@ class BranchStorageTest extends StorageApiTestCase
         $this->assertSame(
             [
                 'name' => $branchName . '2',
-                'description' => '',
                 'isDefault' => false,
+                'description' => '',
                 'creatorToken' => [
                 ],
             ],
