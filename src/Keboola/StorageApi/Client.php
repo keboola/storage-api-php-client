@@ -14,6 +14,7 @@ use Keboola\StorageApi\Client\ExtraHeadersMiddleware;
 use Keboola\StorageApi\Client\RequestTimeoutMiddleware;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Options\BackendConfiguration;
+use Keboola\StorageApi\Options\BucketDetailOptions;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\Components\SearchComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\FileUploadTransferOptions;
@@ -314,11 +315,14 @@ class Client
      *
      * Bucket details
      *
-     * @param string $bucketId
+     * @param string|BucketDetailOptions $bucketId
      * @return array
      */
     public function getBucket($bucketId)
     {
+        if ($bucketId instanceof BucketDetailOptions) {
+            return $this->apiGet('buckets/' . $bucketId->getBucketId() . '?' . http_build_query($bucketId->toParamsArray()));
+        }
         return $this->apiGet('buckets/' . $bucketId);
     }
 
