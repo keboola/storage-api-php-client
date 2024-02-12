@@ -1204,12 +1204,17 @@ Returns a guide on how exactly you should register the external bucket. The text
             {"markdown":"* Log into Snowflake as account with at least following permissions\n  * grant usage on the schema and database\n  * grant select on all tables in the schema and future tables in the schema\n* Execute following queries\n\n```snowflake\nGRANT USAGE ON DATABASE \"my-database-name\" TO ROLE \"KEBOOLA_123\" WITH GRANT OPTION;\nGRANT USAGE ON SCHEMA \"my-database-name\".\"my-schema-name\" TO ROLE \"KEBOOLA_123\" WITH GRANT OPTION;\n\nGRANT SELECT ON ALL TABLES IN SCHEMA \"my-database-name\".\"my-schema-name\" TO ROLE \"KEBOOLA_123\" WITH GRANT OPTION;\nGRANT SELECT ON FUTURE TABLES IN SCHEMA \"my-database-name\".\"my-schema-name\" TO ROLE \"KEBOOLA_123\" WITH GRANT OPTION;\n```\n"}
 
 
-## Manage Bucket [/v2/storage/buckets/{bucket_id}]
+## Manage Bucket [/v2/storage/buckets/{bucket_id}?include={include}]
 ### Bucket Detail [GET]
 Obtains information about a bucket.
 
 + Parameters
     + bucket_id (required) - Bucket Id
+    + include (optional, enum[string]) - Comma-separated list of resources to include for each table.
+        + Members
+            + `metadata` - each table will include list of it's metadata
+            + `columns` - each table will include list of it's columns
+            + `columnMetadata` - each table will include list of it's columns metadata
 
 + Request
     + Headers
