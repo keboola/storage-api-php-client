@@ -8,7 +8,9 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Metadata;
+use Keboola\StorageApi\Options\BucketDetailOptions;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
+use Keboola\StorageApi\Options\Metadata\TableMetadataUpdateOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\StorageApiTestCase;
@@ -121,6 +123,7 @@ class BucketsTest extends StorageApiTestCase
                 'value' => 'test-value',
             ],
         ]);
+
         $bucket = $this->_testClient->getBucket($bucketId);
         $this->assertCount(1, $bucket['metadata']);
         $this->assertMetadataEquals(
@@ -177,7 +180,133 @@ class BucketsTest extends StorageApiTestCase
         $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $displayName);
         $bucket = $this->_testClient->updateBucket($bucketUpdateOptions);
 
+        // create table and test include parameters
+        $tableId = $this->_testClient->createTableAsync(
+            $bucket['id'],
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+        );
+        $metadataApi->postTableMetadataWithColumns(new TableMetadataUpdateOptions(
+            $tableId,
+            'test',
+            [
+                [
+                    'key' => 'test-key',
+                    'value' => 'test-value',
+                ],
+            ],
+            [
+                'id' => [
+                    [
+                        'key' => 'test-key',
+                        'value' => 'test-value',
+                    ],
+                ],
+            ],
+        ));
+
+        //test detail
+        $bucket = $this->_testClient->getBucket(
+            new BucketDetailOptions(
+                $bucket['id'],
+                ['metadata'],
+            ),
+        );
+        $this->assertBucketWithMetadata($bucket);
+
+        $bucket = $this->_testClient->getBucket(
+            new BucketDetailOptions(
+                $bucket['id'],
+                [
+                    'metadata',
+                    'columns',
+                ],
+            ),
+        );
+        $this->assertBucketWithColumns($bucket);
+
+        $bucket = $this->_testClient->getBucket(
+            new BucketDetailOptions(
+                $bucket['id'],
+                [
+                    'metadata',
+                    'columnMetadata',
+                ],
+            ),
+        );
+        $this->assertBucketWithColumnMetadata($bucket);
+
+        $bucket = $this->_testClient->getBucket(
+            new BucketDetailOptions(
+                $bucket['id'],
+                [
+                    'metadata',
+                    'buckets',
+                ],
+            ),
+        );
+        $this->assertBucketWithBucket($bucket);
+
+        $this->_testClient->dropTable($tableId);
         $this->_testClient->dropBucket($bucket['id']);
+    }
+
+    private function assertBucketWithBucket(array $bucket): void
+    {
+        self::assertArrayHasKey('tables', $bucket);
+        self::assertCount(1, $bucket['tables']);
+        self::assertArrayNotHasKey('columns', $bucket['tables'][0]);
+        self::assertArrayNotHasKey('columnMetadata', $bucket['tables'][0]);
+        self::assertArrayHasKey('bucket', $bucket['tables'][0]);
+        self::assertArrayHasKey('id', $bucket['tables'][0]['bucket']);
+    }
+
+    private function assertBucketWithColumnMetadata(array $bucket): void
+    {
+        self::assertArrayHasKey('tables', $bucket);
+        self::assertCount(1, $bucket['tables']);
+        self::assertArrayNotHasKey('columns', $bucket['tables'][0]);
+        self::assertArrayNotHasKey('bucket', $bucket['tables'][0]);
+        self::assertArrayHasKey('columnMetadata', $bucket['tables'][0]);
+        self::assertCount(1, $bucket['tables'][0]['columnMetadata']);
+        self::assertArrayHasKey('id', $bucket['tables'][0]['columnMetadata']);
+        self::assertCount(1, $bucket['tables'][0]['columnMetadata']['id']);
+        self::assertArrayHasKey('key', $bucket['tables'][0]['columnMetadata']['id'][0]);
+        self::assertEquals('test-key', $bucket['tables'][0]['columnMetadata']['id'][0]['key']);
+        self::assertArrayHasKey('value', $bucket['tables'][0]['columnMetadata']['id'][0]);
+        self::assertEquals('test-value', $bucket['tables'][0]['columnMetadata']['id'][0]['value']);
+    }
+
+    private function assertBucketWithColumns(array $bucket): void
+    {
+        self::assertArrayHasKey('tables', $bucket);
+        self::assertCount(1, $bucket['tables']);
+        self::assertArrayHasKey('columns', $bucket['tables'][0]);
+        self::assertCount(2, $bucket['tables'][0]['columns']);
+        self::assertArrayNotHasKey('columnMetadata', $bucket['tables'][0]);
+        self::assertArrayNotHasKey('bucket', $bucket['tables'][0]);
+    }
+
+    private function assertBucketWithMetadata(array $bucket): void
+    {
+        self::assertArrayHasKey('metadata', $bucket);
+        self::assertCount(1, $bucket['metadata']);
+        self::assertArrayHasKey('key', $bucket['metadata'][0]);
+        self::assertEquals('test-key', $bucket['metadata'][0]['key']);
+        self::assertArrayHasKey('value', $bucket['metadata'][0]);
+        self::assertEquals('test-value', $bucket['metadata'][0]['value']);
+
+        self::assertArrayHasKey('tables', $bucket);
+        self::assertCount(1, $bucket['tables']);
+        self::assertArrayNotHasKey('columns', $bucket['tables'][0]);
+        self::assertArrayNotHasKey('columnMetadata', $bucket['tables'][0]);
+        self::assertArrayNotHasKey('bucket', $bucket['tables'][0]);
+        self::assertArrayHasKey('metadata', $bucket['tables'][0]);
+        self::assertCount(1, $bucket['tables'][0]['metadata']);
+        self::assertArrayHasKey('key', $bucket['tables'][0]['metadata'][0]);
+        self::assertEquals('test-key', $bucket['tables'][0]['metadata'][0]['key']);
+        self::assertArrayHasKey('value', $bucket['tables'][0]['metadata'][0]);
+        self::assertEquals('test-value', $bucket['tables'][0]['metadata'][0]['value']);
     }
 
     /**
