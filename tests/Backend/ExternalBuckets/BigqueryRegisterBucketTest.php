@@ -587,7 +587,24 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         // check external bucket
         $tables = $testClient->listTables($idOfBucket);
         // contains only normal table not external table
+        // but external table return warning
         $this->assertCount(1, $tables);
+        $this->assertCount(1, $refreshJobResult['warnings']);
+        $this->assertStringContainsString(
+            'External tables are not supported.',
+            $refreshJobResult['warnings'][0]['message'],
+        );
+
+        $this->dropNormalTable($db, $schemaName);
+
+        /** @var array{warnings:array<array{message:string}>} $refreshJobResult */
+        $refreshJobResult = $testClient->refreshBucket($idOfBucket);
+
+        // check if normal table is deleted after refresh
+        $tables = $testClient->listTables($idOfBucket);
+        // normal table is deleted, external table is still there
+        // external table must return warning
+        $this->assertCount(0, $tables);
         $this->assertCount(1, $refreshJobResult['warnings']);
         $this->assertStringContainsString(
             'External tables are not supported.',
@@ -1105,6 +1122,16 @@ SQL,
         ));
     }
 
+    /**
+     * @param WorkspaceBackend $db
+     * @param string $schemaName
+     * @return void
+     */
+    public function dropNormalTable(WorkspaceBackend $db, string $schemaName): void
+    {
+        $db->executeQuery(sprintf(
+            'DROP TABLE %s.normalTable;',
+            BigqueryQuote::quoteSingleIdentifier($schemaName),
         ));
     }
 }
