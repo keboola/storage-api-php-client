@@ -11,7 +11,7 @@ class BucketDetailOptions
 
     /**
      * @param string $bucketId
-     * @param string[] $include
+     * @param string[] $include - available options: buckets, columns, metadata, columnMetadata
      */
     public function __construct(string $bucketId, array $include)
     {
