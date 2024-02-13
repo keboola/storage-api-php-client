@@ -13,7 +13,6 @@ use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
-use Keboola\Test\StorageApiTestCase;
 use PHPUnit\Framework\AssertionFailedError;
 use Throwable;
 
@@ -2816,5 +2815,164 @@ SELECT 2, ARRAY_CONSTRUCT(1, 2, 3, NULL), TO_VARIANT(\'3.14\'), OBJECT_CONSTRUCT
             'key' => 'KBC.datatype.length',
             'value' => '0',
         ], $columnMetadata[3], ['id', 'timestamp', 'provider']);
+    }
+
+    public function testUpdateTableDefinition(): void
+    {
+        $name = 'table-' . sha1($this->generateDescriptionForTestObject());
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $tableDefinition = [
+            'name' => $name,
+            'primaryKeysNames' => [],
+            'columns' => [
+                //drop default
+                [
+                    'name' => 'remove_default',
+                    'definition' => [
+                        'type' => 'VARCHAR',
+                        'nullable' => false,
+                        'length' => 12,
+                        'default' => 'spálnivec',
+                    ],
+                ],
+                //add nullable
+                [
+                    'name' => 'longint_non_nullable',
+                    'definition' => [
+                        'type' => 'NUMBER',
+                        'nullable' => false,
+                        'length' => '12,0',
+                    ],
+                ],
+                //drop nullable
+                [
+                    'name' => 'longint_nullable',
+                    'definition' => [
+                        'type' => 'NUMBER',
+                        'nullable' => true,
+                        'length' => '12,0',
+                    ],
+                ],
+                //increase length of text column
+                [
+                    'name' => 'short_varchar',
+                    'definition' => [
+                        'type' => 'VARCHAR',
+                        'nullable' => false,
+                        'length' => 12,
+                    ],
+                ],
+                //increase precision of numeric column
+                [
+                    'name' => 'short_int',
+                    'definition' => [
+                        'type' => 'NUMBER',
+                        'nullable' => false,
+                        'length' => '12,0',
+                    ],
+                ],
+            ],
+        ];
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+        $originalColumns = $this->_client->getTable($tableId)['definition']['columns'];
+        //drop default
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'remove_default',
+            [
+                'default' => null,
+            ],
+        );
+        //add nullable
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'longint_non_nullable',
+            [
+                'nullable' => true,
+            ],
+        );
+        //drop nullable
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'longint_nullable',
+            [
+                'nullable' => false,
+            ],
+        );
+        //increase length of text column
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'short_varchar',
+            [
+                'length' => '38',
+            ],
+        );
+        //increase precision of numeric column
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'short_int',
+            [
+                'length' => '38,0',
+            ],
+        );
+        $columns = $this->_client->getTable($tableId)['definition']['columns'];
+        //$this->assertSame($originalColumns, $columns);
+        $this->assertSame([
+            //add nullable
+            [
+                'name' => 'longint_non_nullable',
+                'definition' => [
+                    'type' => 'NUMBER',
+                    'nullable' => true,
+                    'length' => '12,0',
+                ],
+                'basetype' => 'NUMERIC',
+                'canBeFiltered' => true,
+            ],
+            //drop nullable
+            [
+                'name' => 'longint_nullable',
+                'definition' => [
+                    'type' => 'NUMBER',
+                    'nullable' => false,
+                    'length' => '12,0',
+                ],
+                'basetype' => 'NUMERIC',
+                'canBeFiltered' => true,
+            ],
+            //drop default
+            [
+                'name' => 'remove_default',
+                'definition' => [
+                    'type' => 'VARCHAR',
+                    'nullable' => false,
+                    'length' => '12',
+                ],
+                'basetype' => 'STRING',
+                'canBeFiltered' => true,
+            ],
+            //increase precision of numeric column
+            [
+                'name' => 'short_int',
+                'definition' => [
+                    'type' => 'NUMBER',
+                    'nullable' => false,
+                    'length' => '38,0',
+                ],
+                'basetype' => 'NUMERIC',
+                'canBeFiltered' => true,
+            ],
+            //increase length of text column
+            [
+                'name' => 'short_varchar',
+                'definition' => [
+                    'type' => 'VARCHAR',
+                    'nullable' => false,
+                    'length' => '38',
+                ],
+                'basetype' => 'STRING',
+                'canBeFiltered' => true,
+            ],
+        ], $columns);
     }
 }

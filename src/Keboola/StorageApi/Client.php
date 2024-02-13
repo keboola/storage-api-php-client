@@ -906,6 +906,17 @@ class Client
         return $createdTable['id'];
     }
 
+    public function updateTableColumnDefinition(
+        string $tableId,
+        string $columnName,
+        array $columnDefinition
+    ): array {
+        /** @var array $updatedTable */
+        $updatedTable = $this->apiPutJson("tables/{$tableId}/columns/{$columnName}/definition", $columnDefinition);
+        return $updatedTable;
+    }
+
+
     /**
      * Supplied table will be pulled from default branch to dev branch
      *
