@@ -20,6 +20,7 @@ use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\Test\Backend\Workspaces\Backend\BigQueryClientHandler;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\ClientProvider\TestSetupHelper;
@@ -571,7 +572,13 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $tables = $testClient->listTables($idOfBucket);
         $this->assertCount(0, $tables);
 
-        $this->createExternalTable($description);
+        $externalCredentials['connection']['backend'] = 'bigquery';
+        $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
+        $schemaName = $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
+        $this->createExternalTable($db, $schemaName);
+        $this->createNormalTable($db, $schemaName);
 
         // refresh external bucket
         /** @var array{warnings:array<array{message:string}>} $refreshJobResult */
@@ -1054,7 +1061,7 @@ SQL,
         return $bqClient;
     }
 
-    private function createExternalTable(string $description): void
+    private function createExternalTable(WorkspaceBackend $db, string $schemaName): void
     {
         $gcsClient = new StorageClient([
             'keyFile' => $this->getCredentialsArray(),
@@ -1082,20 +1089,22 @@ SQL,
         // this must be done in a real situation by a user who registers an external bucket
         $object->acl()->add('user-' . BQ_DESTINATION_PROJECT_SERVICE_ACC_EMAIL, 'READER');
 
-        $externalCredentials['connection']['backend'] = 'bigquery';
-        $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
-        $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
-
-        $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
         $db->executeQuery(sprintf(
             "CREATE OR REPLACE EXTERNAL TABLE %s.externalTable OPTIONS (format = 'CSV',uris = [%s]);",
-            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
+            BigqueryQuote::quoteSingleIdentifier($schemaName),
             BigqueryQuote::quote($object->gcsUri()),
         ));
+    }
+
+    private function createNormalTable(WorkspaceBackend $db, string $schema): void
+    {
         // create normal table so bucket is not empty
         $db->executeQuery(sprintf(
             'CREATE OR REPLACE TABLE %s.normalTable (id INT64);',
-            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
+            BigqueryQuote::quoteSingleIdentifier($schema),
+        ));
+    }
+
         ));
     }
 }
