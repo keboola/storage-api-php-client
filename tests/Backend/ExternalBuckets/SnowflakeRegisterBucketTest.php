@@ -55,6 +55,17 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         }
     }
 
+    public function testRegisterGuideShouldFailWithDifferentBackend(): void
+    {
+        try {
+            $this->_client->registerBucketGuide(['test', 'test'], 'bigquery');
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertSame('backendNotAllowed', $e->getStringCode());
+            $this->assertStringContainsString('Backend "bigquery" is not assigned to the project.', $e->getMessage());
+        }
+    }
+
     public function testRegisterWSAsExternalBucket(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
