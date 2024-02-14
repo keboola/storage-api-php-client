@@ -15,6 +15,8 @@ use Google\Cloud\Storage\StorageClient;
 use GuzzleHttp\Client;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Options\TokenAbstractOptions;
+use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\Test\Backend\Workspaces\Backend\BigQueryClientHandler;
@@ -667,6 +669,100 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 
         $preview = $testClient->getTableDataPreview($table['id']);
         $this->assertCount(2, \Keboola\StorageApi\Client::parseCsv($preview, false));
+    }
+
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testManageTriggerOnTableInExternalBucket(string $devBranchType, string $userRole): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $testClient = $this->_testClient;
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->markTestSkipped('Other user than PM cannot register external buckets. This is tested in self::testRegisterWSAsExternalBucket.');
+        }
+
+        $this->dropBucketIfExists($this->_client, $bucketId, true);
+        $this->initEvents($testClient);
+
+        // prepare external bucket
+        $path = $this->prepareExternalBucketForRegistration($description);
+
+        $externalCredentials['connection']['backend'] = 'bigquery';
+        $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
+        $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
+        $db->createTable('TEST', [
+            'AMOUNT' => 'INT',
+            'DESCRIPTION' => 'STRING',
+        ]);
+
+        // register external bucket
+        $idOfBucket = $testClient->registerBucket(
+            $testBucketName,
+            $path,
+            'in',
+            'Iam in external bucket',
+            'bigquery',
+            'Iam-your-external-bucket-for-trigger-test',
+        );
+
+        $tables = $testClient->listTables($idOfBucket);
+        $this->assertCount(1, $tables);
+
+        $tableIdFromExternalBucket = $tables[0]['id'];
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+        $newToken = $this->tokens->createToken($options);
+
+        // create trigger on table in external bucket should fail
+        try {
+            $this->_client->createTrigger([
+                'component' => 'orchestrator',
+                'configurationId' => 123,
+                'coolDownPeriodMinutes' => 1,
+                'runWithTokenId' => $newToken['id'],
+                'tableIds' => [
+                    $tableIdFromExternalBucket,
+                ],
+            ]);
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.triggers.triggerOnTableFromExternalBucket', $e->getStringCode());
+            $this->assertEquals(
+                sprintf('Trigger cannot be set on following tables, because they are from external buckets: %s', $tableIdFromExternalBucket),
+                $e->getMessage(),
+            );
+        }
+
+        $normalTableInStorage = $this->createTableWithRandomData('normal-table-1');
+
+        // create normal trigger
+        $trigger = $this->_client->createTrigger([
+            'component' => 'orchestrator',
+            'configurationId' => 123,
+            'coolDownPeriodMinutes' => 1,
+            'runWithTokenId' => $newToken['id'],
+            'tableIds' => [
+                $normalTableInStorage,
+            ],
+        ]);
+
+        // update existing trigger should also fail
+        try {
+            $this->_client->updateTrigger($trigger['id'], ['tableIds' => [$tableIdFromExternalBucket]]);
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.triggers.triggerOnTableFromExternalBucket', $e->getStringCode());
+            $this->assertEquals(
+                sprintf('Trigger cannot be set on following tables, because they are from external buckets: %s', $tableIdFromExternalBucket),
+                $e->getMessage(),
+            );
+        }
     }
 
     public function createOtherObjectsProvider(): Generator
