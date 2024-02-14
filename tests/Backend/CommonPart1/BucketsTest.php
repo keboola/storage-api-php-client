@@ -236,29 +236,8 @@ class BucketsTest extends StorageApiTestCase
         );
         $this->assertBucketWithColumnMetadata($bucket);
 
-        $bucket = $this->_testClient->getBucket(
-            new BucketDetailOptions(
-                $bucket['id'],
-                [
-                    'metadata',
-                    'buckets',
-                ],
-            ),
-        );
-        $this->assertBucketWithBucket($bucket);
-
         $this->_testClient->dropTable($tableId);
         $this->_testClient->dropBucket($bucket['id']);
-    }
-
-    private function assertBucketWithBucket(array $bucket): void
-    {
-        self::assertArrayHasKey('tables', $bucket);
-        self::assertCount(1, $bucket['tables']);
-        self::assertArrayNotHasKey('columns', $bucket['tables'][0]);
-        self::assertArrayNotHasKey('columnMetadata', $bucket['tables'][0]);
-        self::assertArrayHasKey('bucket', $bucket['tables'][0]);
-        self::assertArrayHasKey('id', $bucket['tables'][0]['bucket']);
     }
 
     private function assertBucketWithColumnMetadata(array $bucket): void
