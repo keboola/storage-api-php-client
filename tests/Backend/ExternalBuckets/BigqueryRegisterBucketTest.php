@@ -173,7 +173,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             $this->_client->registerBucketGuide(['test', 'test'], 'snowflake');
             $this->fail('should fail');
         } catch (ClientException $e) {
-            $this->assertSame('backendNotAllowed', $e->getStringCode());
+            $this->assertSame('storage.backendNotAllowed', $e->getStringCode());
             $this->assertStringContainsString('Backend "snowflake" is not assigned to the project.', $e->getMessage());
         }
     }
