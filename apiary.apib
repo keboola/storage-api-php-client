@@ -2461,6 +2461,89 @@ If there is no column datatype specified (column.definition.type or column.baset
             }
         }
 
+## Update Definition
+
+### Update Column Definition [PUT /v2/storage/tables/{table_id}/columns/{column_name}/definition]
+
+Updates a column of a table with typed columns. *Snowflake only.*
+
+Request is handled asynchronously which means that the create request is created and added to a queue and the job resource URL for status polling is returned.
+
+Supported alterations:
+| | Snowflake |
+| --- | --- |
+| Add default| ❌ |
+| Change default |  ❌ |
+| Drop default | ✅ |
+| Change nullability | ✅ |
+| Change type | ❌ |
+| Increase the length of a text column | ✅ |
+| Decrease the length of a text column | ❌ |
+| Increase the precision of a numeric column | ✅ |
+| Decrease the precision of a numeric column | ❌ |
+| Change the scale of a numeric column | ❌ |
+
+
++ Parameters
+    + table_id (required) - The table Id
+    + column_name (required) - The column name
+
++ Attributes
+    + length (string) - optional, supports numeric value for all columns (e.g. `12`) and complex length for numeric columns (e.g. `12,2`)
+    + nullable (boolean) - optional
+    + default (string) - optional, default value for column, null unsets default value
+
++ Request (application/json)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+                "length": "10",
+                "nullable": false,
+                "default": null
+            }
+
++ Response 202 (application/json)
+
+        {
+            "id": 2866,
+            "status": "waiting",
+            "url": "https:\/\/localhost:8700\/v2\/storage\/jobs\/2866",
+            "tableId": "in.c-API-tests-cb373d9e306e38e68f1c5824bbb3f9b256cc1077.table-cb373d9e306e38e68f1c5824bbb3f9b256cc1077",
+            "operationName": "tableColumnDefinitionUpdate",
+            "operationParams": {
+                "queue": "main",
+                "branchId": 18,
+                "columnName": "short_int",
+                "columnDefinition": {
+                    "length": "10",
+                    "nullable": false,
+                    "removeDefault": true
+                }
+            },
+            "createdTime": "2024-02-13T12:48:44+0100",
+            "startTime": null,
+            "endTime": null,
+            "runId": "5747",
+            "results": null,
+            "creatorToken": {
+                "id": "51",
+                "description": "devel-tests+test-backend_admin@keboola.com"
+            },
+            "metrics": {
+                "inCompressed": false,
+                "inBytes": 0,
+                "inBytesUncompressed": 0,
+                "outCompressed": false,
+                "outBytes": 0,
+                "outBytesUncompressed": 0
+            }
+        }
+
+
 ## Create Table with Configuration [/v2/storage/buckets/{bucket_id}/tables-with-configuration]
 
 ### Create new table with configuration [POST]
