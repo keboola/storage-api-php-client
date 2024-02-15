@@ -5514,7 +5514,7 @@ the HTTP 400 response code is returned.
             }
 
 ### Events list [GET /v2/storage/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
-Lists all events in the project.
+For admin tokens will endpoint lists all events in the project. For non-admin tokens will list only events created by the token.
 
 + Parameters
     + sinceId (optional) - Shows only events after the specified Id.
@@ -5537,7 +5537,7 @@ Lists all events in the project.
     + Attributes (array[Event])
 
 ### Development Branch Events list [GET /v2/storage/branch/{branch_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
-Lists all events in the project for [Development Branch](#reference/development-branches).
+For admin tokens will endpoint lists all events in the project for [Development Branch](#reference/development-branches). For non-admin tokens will list only events created by the token in branch.
 
 + Parameters
     + branch_id (required) - Id of the development branch
