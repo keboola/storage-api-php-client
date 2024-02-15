@@ -2871,6 +2871,16 @@ SELECT 2, ARRAY_CONSTRUCT(1, 2, 3, NULL), TO_VARIANT(\'3.14\'), OBJECT_CONSTRUCT
                         'length' => '12,0',
                     ],
                 ],
+                // multiple changes
+                [
+                    'name' => 'multiple',
+                    'definition' => [
+                        'type' => 'NUMBER',
+                        'nullable' => false,
+                        'length' => '12,0',
+                        'default' => '42',
+                    ],
+                ],
             ],
         ];
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
@@ -2915,6 +2925,18 @@ SELECT 2, ARRAY_CONSTRUCT(1, 2, 3, NULL), TO_VARIANT(\'3.14\'), OBJECT_CONSTRUCT
                 'length' => '38,0',
             ],
         );
+
+        // multiple changes
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'multiple',
+             [
+                'nullable' => true,
+                'length' => '14,0',
+                'default' => null,
+            ],
+        );
+
         $columns = $this->_client->getTable($tableId)['definition']['columns'];
         //$this->assertSame($originalColumns, $columns);
         $this->assertSame([
@@ -2936,6 +2958,17 @@ SELECT 2, ARRAY_CONSTRUCT(1, 2, 3, NULL), TO_VARIANT(\'3.14\'), OBJECT_CONSTRUCT
                     'type' => 'NUMBER',
                     'nullable' => false,
                     'length' => '12,0',
+                ],
+                'basetype' => 'NUMERIC',
+                'canBeFiltered' => true,
+            ],
+            // multiple changes
+            [
+                'name' => 'multiple',
+                'definition' => [
+                    'type' => 'NUMBER',
+                    'nullable' => true,
+                    'length' => '14,0',
                 ],
                 'basetype' => 'NUMERIC',
                 'canBeFiltered' => true,
