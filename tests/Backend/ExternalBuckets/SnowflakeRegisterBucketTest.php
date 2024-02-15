@@ -66,6 +66,62 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         }
     }
 
+    public function testRegisterTableWithLongName(): void
+    {
+        $this->dropBucketIfExists($this->_client, 'in.bucket-registration-long-table-name', true);
+
+        $ws = new Workspaces($this->_client);
+        // prepare workspace
+        $workspace = $ws->createWorkspace();
+        $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
+        $externalBucketBackend = 'snowflake';
+
+        // add first table to workspace with long name, table should be skipped
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $longTableName = str_repeat('TableTestLong', 8); // 104 chars
+        $db->createTable($longTableName, ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
+
+        // Api endpoint return warning, but client method return only bucket id
+        // I added warning message to logs
+        $idOfBucket = $this->_client->registerBucket(
+            'bucket-registration-long-table-name',
+            $externalBucketPath,
+            'in',
+            'Iam in workspace',
+            $externalBucketBackend,
+            'Bucket-with-long-table-name',
+        );
+
+        // only table with long name is there and is skipped
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(0, $tables);
+
+        $refreshJobResult = $this->_client->refreshBucket($idOfBucket);
+        assert(is_array($refreshJobResult));
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(0, $tables);
+
+        $this->assertCount(1, $refreshJobResult['warnings']);
+        $this->assertSame(
+            '\'TableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLong\' is more than 96 characters long',
+            $refreshJobResult['warnings'][0]['message'],
+        );
+
+        $db->createTable('normalTable', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
+
+        // new table should be added, and warning for table with long name should be returned
+        $refreshJobResult = $this->_client->refreshBucket($idOfBucket);
+        assert(is_array($refreshJobResult));
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(1, $tables);
+
+        $this->assertCount(1, $refreshJobResult['warnings']);
+        $this->assertSame(
+            '\'TableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLong\' is more than 96 characters long',
+            $refreshJobResult['warnings'][0]['message'],
+        );
+    }
+
     public function testRegisterWSAsExternalBucket(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
