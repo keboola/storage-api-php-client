@@ -572,12 +572,17 @@ SQL,
         // delete workspace = simulates situation when BYODB owner simply deletes the registered schema -> it should also delete the bucket
         $ws->deleteWorkspace($workspace['id']);
 
-        $this->_client->refreshBucket($idOfBucket);
+        // bucket shouldn't be deleted and exception should be thrown
+        try {
+            $this->_client->refreshBucket($idOfBucket);
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString('doesn\'t exist or project user is missing privileges to read from it.', $e->getMessage());
+        }
 
-        // bucket should be deleted
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Bucket in.test-bucket-registration not found');
-        $this->_client->getBucket($idOfBucket);
+        // test bucket still exists
+        $bucket = $this->_client->getBucket($idOfBucket);
+        $this->assertNotEmpty($bucket);
     }
 
 

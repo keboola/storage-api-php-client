@@ -182,6 +182,51 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
     }
 
     /**
+     * @group noSOX
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testRefreshBucketWhenSchemaDoesNotExist(): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $this->dropBucketIfExists($this->_client, $bucketId, true);
+
+        // prepare external bucket
+        $path = $this->prepareExternalBucketForRegistration($description);
+        $externalBucketBackend = 'bigquery';
+        $testClient = $this->_testClient;
+        $idOfBucket = $testClient->registerBucket(
+            $testBucketName,
+            $path,
+            'in',
+            'Iam in external bucket',
+            $externalBucketBackend,
+            'test-when-schema-does-not-exist',
+        );
+
+        $externalCredentials['connection']['backend'] = 'bigquery';
+        $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
+        $schemaName = $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
+        $db->executeQuery('DROP SCHEMA IF EXISTS`' . $schemaName . '`');
+
+        // bucket shouldn't be deleted and exception should be thrown
+        try {
+            $this->_client->refreshBucket($idOfBucket);
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString('doesn\'t exist or missing privileges to read from it.', $e->getMessage());
+        }
+
+        // test bucket still exists
+        $bucket = $this->_client->getBucket($idOfBucket);
+        $this->assertNotEmpty($bucket);
+    }
+
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      */
     public function testRegisterWSAsExternalBucket(string $devBranchType, string $userRole): void
