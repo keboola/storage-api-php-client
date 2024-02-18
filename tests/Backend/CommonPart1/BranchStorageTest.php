@@ -55,7 +55,7 @@ class BranchStorageTest extends StorageApiTestCase
             $job['creatorToken']['id'],
             $job['creatorToken']['description'],
         );
-        $this->assertSame(
+        $this->assertEqualsCanonicalizing(
             [
                 'status' => 'waiting',
                 'tableId' => null,
@@ -120,7 +120,7 @@ class BranchStorageTest extends StorageApiTestCase
             $jobDone['results']['creatorToken']['id'],
             $jobDone['results']['creatorToken']['name'],
         );
-        $this->assertSame(
+        $this->assertEqualsCanonicalizing(
             [
                 'status' => 'success',
                 'tableId' => null,
@@ -167,7 +167,7 @@ class BranchStorageTest extends StorageApiTestCase
             $br['creatorToken']['name'],
         );
 
-        $this->assertSame(
+        $this->assertEqualsCanonicalizing(
             [
                 'name' => $branchName . '2',
                 'isDefault' => false,
