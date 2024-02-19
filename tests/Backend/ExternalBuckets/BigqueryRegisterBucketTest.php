@@ -20,6 +20,7 @@ use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\Test\Backend\Workspaces\Backend\BigQueryClientHandler;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\ClientProvider\TestSetupHelper;
@@ -178,6 +179,51 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             $this->assertSame('storage.backendNotAllowed', $e->getStringCode());
             $this->assertStringContainsString('Backend "snowflake" is not assigned to the project.', $e->getMessage());
         }
+    }
+
+    /**
+     * @group noSOX
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testRefreshBucketWhenSchemaDoesNotExist(): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $this->dropBucketIfExists($this->_client, $bucketId, true);
+
+        // prepare external bucket
+        $path = $this->prepareExternalBucketForRegistration($description);
+        $externalBucketBackend = 'bigquery';
+        $testClient = $this->_testClient;
+        $idOfBucket = $testClient->registerBucket(
+            $testBucketName,
+            $path,
+            'in',
+            'Iam in external bucket',
+            $externalBucketBackend,
+            'test-when-schema-does-not-exist',
+        );
+
+        $externalCredentials['connection']['backend'] = 'bigquery';
+        $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
+        $schemaName = $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
+        $db->executeQuery('DROP SCHEMA IF EXISTS`' . $schemaName . '`');
+
+        // bucket shouldn't be deleted and exception should be thrown
+        try {
+            $this->_client->refreshBucket($idOfBucket);
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString('doesn\'t exist or missing privileges to read from it.', $e->getMessage());
+        }
+
+        // test bucket still exists
+        $bucket = $this->_client->getBucket($idOfBucket);
+        $this->assertNotEmpty($bucket);
     }
 
     /**
@@ -571,7 +617,13 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $tables = $testClient->listTables($idOfBucket);
         $this->assertCount(0, $tables);
 
-        $this->createExternalTable($description);
+        $externalCredentials['connection']['backend'] = 'bigquery';
+        $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
+        $schemaName = $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
+        $this->createExternalTable($db, $schemaName);
+        $this->createNormalTable($db, $schemaName);
 
         // refresh external bucket
         /** @var array{warnings:array<array{message:string}>} $refreshJobResult */
@@ -580,7 +632,24 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         // check external bucket
         $tables = $testClient->listTables($idOfBucket);
         // contains only normal table not external table
+        // but external table return warning
         $this->assertCount(1, $tables);
+        $this->assertCount(1, $refreshJobResult['warnings']);
+        $this->assertStringContainsString(
+            'External tables are not supported.',
+            $refreshJobResult['warnings'][0]['message'],
+        );
+
+        $this->dropNormalTable($db, $schemaName);
+
+        /** @var array{warnings:array<array{message:string}>} $refreshJobResult */
+        $refreshJobResult = $testClient->refreshBucket($idOfBucket);
+
+        // check if normal table is deleted after refresh
+        $tables = $testClient->listTables($idOfBucket);
+        // normal table is deleted, external table is still there
+        // external table must return warning
+        $this->assertCount(0, $tables);
         $this->assertCount(1, $refreshJobResult['warnings']);
         $this->assertStringContainsString(
             'External tables are not supported.',
@@ -1054,7 +1123,7 @@ SQL,
         return $bqClient;
     }
 
-    private function createExternalTable(string $description): void
+    private function createExternalTable(WorkspaceBackend $db, string $schemaName): void
     {
         $gcsClient = new StorageClient([
             'keyFile' => $this->getCredentialsArray(),
@@ -1082,20 +1151,32 @@ SQL,
         // this must be done in a real situation by a user who registers an external bucket
         $object->acl()->add('user-' . BQ_DESTINATION_PROJECT_SERVICE_ACC_EMAIL, 'READER');
 
-        $externalCredentials['connection']['backend'] = 'bigquery';
-        $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
-        $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
-
-        $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
         $db->executeQuery(sprintf(
             "CREATE OR REPLACE EXTERNAL TABLE %s.externalTable OPTIONS (format = 'CSV',uris = [%s]);",
-            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
+            BigqueryQuote::quoteSingleIdentifier($schemaName),
             BigqueryQuote::quote($object->gcsUri()),
         ));
+    }
+
+    private function createNormalTable(WorkspaceBackend $db, string $schema): void
+    {
         // create normal table so bucket is not empty
         $db->executeQuery(sprintf(
             'CREATE OR REPLACE TABLE %s.normalTable (id INT64);',
-            BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
+            BigqueryQuote::quoteSingleIdentifier($schema),
+        ));
+    }
+
+    /**
+     * @param WorkspaceBackend $db
+     * @param string $schemaName
+     * @return void
+     */
+    public function dropNormalTable(WorkspaceBackend $db, string $schemaName): void
+    {
+        $db->executeQuery(sprintf(
+            'DROP TABLE %s.normalTable;',
+            BigqueryQuote::quoteSingleIdentifier($schemaName),
         ));
     }
 }
