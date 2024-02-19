@@ -304,6 +304,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $db->query('alter table "test_Languages3" ADD COLUMN "new_col" varchar(10)');
         $db->query("insert into \"test_Languages3\" values (1, 'cz', '1', null), (3, 'sk', '1', 'newValue');");
 
+        // trying to add columns on the fly on SNFLK "string" table -> should be ok
         $this->_client->writeTableAsyncDirect($table['id'], [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test_Languages3',
@@ -319,5 +320,38 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], [
             'format' => 'rfc',
         ]), 'new  column added');
+
+        // trying to add columns on the fly on SNFLK "typed" table
+        $tableDefinition = [
+            'name' => 'languages_typed',
+            'primaryKeysNames' => ['Id'],
+            'columns' => [
+                [
+                    'name' => 'Id',
+                    'basetype' => 'INTEGER',
+                ],
+                [
+                    'name' => 'Name',
+                    'basetype' => 'STRING',
+                ],
+                [
+                    'name' => 'update',
+
+                ],
+            ],
+        ];
+
+        $typedTableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        try {
+            $this->_client->writeTableAsyncDirect($typedTableId, [
+                'dataWorkspaceId' => $workspace['id'],
+                'dataTableName' => 'test_Languages3',
+                'incremental' => true,
+            ]);
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('During the import of typed tables new columns can\'t be added. Extra columns found: "new_col". Add these these columns first (manually or using a transformation).', $e->getMessage());
+        }
     }
 }
