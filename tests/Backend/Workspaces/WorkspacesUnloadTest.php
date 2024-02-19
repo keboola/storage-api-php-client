@@ -31,7 +31,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         }
 
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
-        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages-case-sensitive', $importFile);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages-case-sensitive', $importFile);
 
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
@@ -79,7 +79,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $db->query("insert into \"test_Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
         // create table from workspace
-        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
+        $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(), [
             'name' => 'languages3',
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test_Languages3',
@@ -114,7 +114,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $db->query("insert into \"test_Languages3\" (\"_Id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
         try {
-            $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
+            $this->_client->createTableAsyncDirect($this->getTestBucketId(), [
                 'name' => 'languages3',
                 'dataWorkspaceId' => $workspace['id'],
                 'dataTableName' => 'test_Languages3',
@@ -130,10 +130,11 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
     {
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
+        $bucketId = $this->getTestBucketId();
 
         // sync create table is deprecated and does not support JSON
         /** @var array{id:string} $table */
-        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPost('buckets/' . $bucketId . '/tables', [
             'dataString' => 'Id,Name',
             'name' => 'languages',
             'primaryKey' => 'Id',
@@ -157,7 +158,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         }
 
         try {
-            $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
+            $this->_client->createTableAsyncDirect($bucketId, [
                 'name' => 'thisTableDoesNotExist',
                 'dataWorkspaceId' => $workspace['id'],
                 'dataTableName' => 'thisTableDoesNotExist',
@@ -195,7 +196,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         // sync create table is deprecated and does not support JSON
         /** @var array{id:string} $table */
-        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId() . '/tables', [
             'dataString' => 'Id,Name',
             'name' => 'languages',
             'primaryKey' => 'Id',
@@ -216,12 +217,13 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
     public function testCopyImport(): void
     {
+        $bucketId = $this->getTestBucketId();
         $tokenData = $this->_client->verifyToken();
         $testViewLoad = in_array($tokenData['owner']['defaultBackend'], [self::BACKEND_SNOWFLAKE,], true);
 
         // sync create table is deprecated and does not support JSON
         /** @var array{id:string} $table */
-        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPost('buckets/' . $bucketId . '/tables', [
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
             'primaryKey' => 'Id',
@@ -265,7 +267,7 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $db->query('create view "test_Languages3_view" as select * from "test_Languages3";');
             // sync create table is deprecated and does not support JSON
             /** @var array{id:string} $tableView */
-            $tableView = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+            $tableView = $this->_client->apiPost('buckets/' . $bucketId . '/tables', [
                 'dataString' => 'Id,Name,update',
                 'name' => 'languages_from_view',
                 'primaryKey' => 'Id',
