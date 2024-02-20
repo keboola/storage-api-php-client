@@ -341,17 +341,20 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
             ],
         ];
 
-        $typedTableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+        // RS does not support typed tables
+        if ($this->_client->verifyToken()['owner']['defaultBackend'] !== self::BACKEND_REDSHIFT) {
+            $typedTableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
 
-        try {
-            $this->_client->writeTableAsyncDirect($typedTableId, [
-                'dataWorkspaceId' => $workspace['id'],
-                'dataTableName' => 'test_Languages3',
-                'incremental' => true,
-            ]);
-            $this->fail('should fail');
-        } catch (ClientException $e) {
-            $this->assertEquals('During the import of typed tables new columns can\'t be added. Extra columns found: "new_col". Add these these columns first (manually or using a transformation).', $e->getMessage());
+            try {
+                $this->_client->writeTableAsyncDirect($typedTableId, [
+                    'dataWorkspaceId' => $workspace['id'],
+                    'dataTableName' => 'test_Languages3',
+                    'incremental' => true,
+                ]);
+                $this->fail('should fail');
+            } catch (ClientException $e) {
+                $this->assertEquals('During the import of typed tables new columns can\'t be added. Extra columns found: "new_col". Add these these columns first (manually or using a transformation).', $e->getMessage());
+            }
         }
     }
 }
