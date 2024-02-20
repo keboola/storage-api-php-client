@@ -62,7 +62,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             );
             $this->fail('Fullload into table having datatypes defined should fail.');
         } catch (ClientException $e) {
-            $this->assertSame('During the import of typed tables new columns can\'t be added. Extra columns found: "secret".', $e->getMessage());
+            $this->assertSame('During the import of typed tables new columns can\'t be added. Extra columns found: "secret". Add these these columns first (manually or using a transformation).', $e->getMessage());
             $this->assertSame('csvImport.columnsNotMatch', $e->getStringCode());
         }
 
