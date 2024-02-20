@@ -2930,7 +2930,7 @@ SELECT 2, ARRAY_CONSTRUCT(1, 2, 3, NULL), TO_VARIANT(\'3.14\'), OBJECT_CONSTRUCT
         $this->_client->updateTableColumnDefinition(
             $tableId,
             'multiple',
-             [
+            [
                 'nullable' => true,
                 'length' => '14,0',
                 'default' => null,
