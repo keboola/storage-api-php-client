@@ -583,6 +583,17 @@ SQL,
         // test bucket still exists
         $bucket = $this->_client->getBucket($idOfBucket);
         $this->assertNotEmpty($bucket);
+
+        $this->_client->dropBucket($idOfBucket);
+
+        // test bucket is deleted
+        try {
+            $this->_client->getBucket($idOfBucket);
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame(sprintf('Bucket %s not found', $idOfBucket), $e->getMessage());
+        }
     }
 
 
