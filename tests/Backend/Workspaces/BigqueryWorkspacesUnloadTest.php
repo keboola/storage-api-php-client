@@ -203,9 +203,10 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
     public function testCopyImport(): void
     {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
         // sync create table is deprecated and does not support JSON
         /** @var array{id:string} $table */
-        $table = $this->_client->apiPost('buckets/' . $this->getTestBucketId(self::STAGE_IN) . '/tables', [
+        $table = $this->_client->apiPost('buckets/' . $bucketId . '/tables', [
             'dataString' => 'Id,Name,update',
             'name' => 'languages',
             'primaryKey' => 'Id',
@@ -285,23 +286,49 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
             $workspace['connection']['schema'],
         ));
 
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('During the import of typed tables new columns can\'t be added. Extra columns found: "new_col".');
-        $this->_client->writeTableAsyncDirect($table['id'], [
-            'dataWorkspaceId' => $workspace['id'],
-            'dataTableName' => 'test_Languages3',
-            'incremental' => true,
-        ]);
+        // trying to add columns on the fly on BQ "string" table
+        try {
+            $this->_client->writeTableAsyncDirect($table['id'], [
+                'dataWorkspaceId' => $workspace['id'],
+                'dataTableName' => 'test_Languages3',
+                'incremental' => true,
+            ]);
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('During the import new columns can\'t be added. Extra columns found: "new_col". Add these these columns first (manually or using a transformation).', $e->getMessage());
+        }
 
-//        $expected = [
-//            '"Id","Name","update","new_col"',
-//            '"1","cz","1",""',
-//            '"2","en","",""',
-//            '"3","sk","1","newValue"',
-//        ];
-//        $this->assertLinesEqualsSorted(implode("\n", $expected) . "\n", $this->_client->getTableDataPreview($table['id'], [
-//            'format' => 'rfc',
-//        ]), 'new  column added');
+        // trying to add columns on the fly on BQ "typed" table
+        $tableDefinition = [
+            'name' => 'languages_typed',
+            'primaryKeysNames' => ['Id'],
+            'columns' => [
+                [
+                    'name' => 'Id',
+                    'basetype' => 'INTEGER',
+                ],
+                [
+                    'name' => 'Name',
+                    'basetype' => 'STRING',
+                ],
+                [
+                    'name' => 'update',
+                ],
+            ],
+        ];
+
+        $typedTableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        try {
+            $this->_client->writeTableAsyncDirect($typedTableId, [
+                'dataWorkspaceId' => $workspace['id'],
+                'dataTableName' => 'test_Languages3',
+                'incremental' => true,
+            ]);
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertEquals('During the import of typed tables new columns can\'t be added. Extra columns found: "new_col". Add these these columns first (manually or using a transformation).', $e->getMessage());
+        }
     }
 
 
