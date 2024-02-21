@@ -14,31 +14,29 @@ abstract class BaseExternalBuckets extends StorageApiTestCase
         string $expectedNullable,
         string $expectedBasetype,
         ?string $expectedLength,
-        array $columnMetadata
+        array $columnsMetadata
     ): void {
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.type',
-            'value' => $expectedType,
-            'provider' => 'storage',
-        ], $columnMetadata[0], ['id', 'timestamp']);
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.nullable',
-            'value' => $expectedNullable,
-            'provider' => 'storage',
-        ], $columnMetadata[1], ['id', 'timestamp']);
-        $this->assertArrayEqualsExceptKeys([
-            'key' => 'KBC.datatype.basetype',
-            'value' => $expectedBasetype,
-            'provider' => 'storage',
-        ], $columnMetadata[2], ['id', 'timestamp']);
+        $metadataToCompare = [];
+        foreach ($columnsMetadata as $columnMetadata) {
+            $metadataToCompare[$columnMetadata['key']] = $columnMetadata;
+        }
+
+        $this->assertSingleMetadataEntry($metadataToCompare['KBC.datatype.type'], $expectedType, 'KBC.datatype.type');
+        $this->assertSingleMetadataEntry($metadataToCompare['KBC.datatype.nullable'], $expectedNullable, 'KBC.datatype.nullable');
+        $this->assertSingleMetadataEntry($metadataToCompare['KBC.datatype.basetype'], $expectedBasetype, 'KBC.datatype.basetype');
 
         if ($expectedLength !== null) {
-            $this->assertArrayEqualsExceptKeys([
-                'key' => 'KBC.datatype.length',
-                'value' => $expectedLength,
-                'provider' => 'storage',
-            ], $columnMetadata[3], ['id', 'timestamp']);
+            $this->assertSingleMetadataEntry($metadataToCompare['KBC.datatype.length'], $expectedLength, 'KBC.datatype.length');
         }
+    }
+
+    protected function assertSingleMetadataEntry(array $metadataEntry, ?string $expectedValue, string $key)
+    {
+        $this->assertArrayEqualsExceptKeys([
+            'key' => $key,
+            'value' => $expectedValue,
+            'provider' => 'storage',
+        ], $metadataEntry, ['id', 'timestamp']);
     }
 
     protected function setRunId(): string
