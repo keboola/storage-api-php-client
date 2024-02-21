@@ -30,7 +30,7 @@ abstract class BaseExternalBuckets extends StorageApiTestCase
         }
     }
 
-    protected function assertSingleMetadataEntry(array $metadataEntry, ?string $expectedValue, string $key)
+    protected function assertSingleMetadataEntry(array $metadataEntry, ?string $expectedValue, string $key): void
     {
         $this->assertArrayEqualsExceptKeys([
             'key' => $key,
