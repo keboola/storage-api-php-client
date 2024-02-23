@@ -240,7 +240,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
     /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      */
-    public function testRegisterTableWithLongName(): void
+    public function testRegisterTableWithWrongName(): void
     {
         $description = $this->generateDescriptionForTestObject();
         $testBucketName = $this->getTestBucketName($description);
@@ -268,6 +268,14 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             ],
         );
 
+        $db->createTable(
+            'moje nova 1234 -2ěščěš',
+            [
+                'AMOUNT' => 'INT',
+                'DESCRIPTION' => 'STRING',
+            ],
+        );
+
         // Api endpoint return warning, but client method return only bucket id
         // I added warning message to logs
         $idOfBucket = $testClient->registerBucket(
@@ -276,7 +284,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             'in',
             'Iam in external bucket',
             $externalBucketBackend,
-            'Iam-your-external-bucket-with-long-table-name',
+            'Iam-your-external-bucket-with-wrong-table-name',
         );
 
         $bucket = $testClient->getBucket($idOfBucket);
@@ -292,10 +300,14 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $this->assertCount(0, $tables);
 
         // but return warning about name is longer than 96 chars
-        $this->assertCount(1, $refreshJobResult['warnings']);
+        $this->assertCount(2, $refreshJobResult['warnings']);
         $this->assertSame(
             '\'TableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLong\' is more than 96 characters long',
             $refreshJobResult['warnings'][0]['message'],
+        );
+        $this->assertSame(
+            '\'moje nova 1234 -2ěščěš\' contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+            $refreshJobResult['warnings'][1]['message'],
         );
 
         $db->createTable(
@@ -312,10 +324,14 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $tables = $testClient->listTables($idOfBucket);
         $this->assertCount(1, $tables);
 
-        $this->assertCount(1, $refreshJobResult['warnings']);
+        $this->assertCount(2, $refreshJobResult['warnings']);
         $this->assertSame(
             '\'TableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLong\' is more than 96 characters long',
             $refreshJobResult['warnings'][0]['message'],
+        );
+        $this->assertSame(
+            '\'moje nova 1234 -2ěščěš\' contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+            $refreshJobResult['warnings'][1]['message'],
         );
     }
 
