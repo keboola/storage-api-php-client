@@ -66,7 +66,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         }
     }
 
-    public function testRegisterTableWithLongName(): void
+    public function testRegisterTableWithWrongName(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.bucket-registration-long-table-name', true);
 
@@ -81,10 +81,18 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $longTableName = str_repeat('TableTestLong', 8); // 104 chars
         $db->createTable($longTableName, ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
 
+        $db->createTable(
+            'moje nova 1234 -2ěščěš',
+            [
+                'AMOUNT' => 'INT',
+                'DESCRIPTION' => 'STRING',
+            ],
+        );
+
         // Api endpoint return warning, but client method return only bucket id
         // I added warning message to logs
         $idOfBucket = $this->_client->registerBucket(
-            'bucket-registration-long-table-name',
+            'bucket-registration-wrong-table-name',
             $externalBucketPath,
             'in',
             'Iam in workspace',
@@ -101,10 +109,14 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(0, $tables);
 
-        $this->assertCount(1, $refreshJobResult['warnings']);
+        $this->assertCount(2, $refreshJobResult['warnings']);
         $this->assertSame(
             '\'TableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLong\' is more than 96 characters long',
             $refreshJobResult['warnings'][0]['message'],
+        );
+        $this->assertSame(
+            '\'moje nova 1234 -2ěščěš\' contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+            $refreshJobResult['warnings'][1]['message'],
         );
 
         $db->createTable('normalTable', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
@@ -115,10 +127,14 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(1, $tables);
 
-        $this->assertCount(1, $refreshJobResult['warnings']);
+        $this->assertCount(2, $refreshJobResult['warnings']);
         $this->assertSame(
             '\'TableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLong\' is more than 96 characters long',
             $refreshJobResult['warnings'][0]['message'],
+        );
+        $this->assertSame(
+            '\'moje nova 1234 -2ěščěš\' contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+            $refreshJobResult['warnings'][1]['message'],
         );
     }
 
