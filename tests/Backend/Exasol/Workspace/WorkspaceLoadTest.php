@@ -48,7 +48,7 @@ class WorkspaceLoadTest extends WorkspacesLoadTest
             self::fail('Dotted destination is not supported in exasol');
         } catch (ClientException $e) {
             self::assertEquals(
-                'Invalid table name: Only alphanumeric characters dash and underscores are allowed.',
+                'Invalid table name: \'dotted.destination\' contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
                 $e->getMessage(),
             );
             self::assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
