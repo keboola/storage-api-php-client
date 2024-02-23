@@ -4,6 +4,7 @@ namespace Keboola\Test\Backend\Workspaces;
 
 use Generator;
 use Google\Cloud\Core\Exception\ServiceException;
+use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
@@ -73,7 +74,9 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $grants = $backend->getDb()->fetchAll(sprintf('SHOW GRANTS TO ROLE "%s"', $connection['user']));
+        $db = $backend->getDb();
+        assert($db instanceof Connection);
+        $grants = $db->fetchAll(sprintf('SHOW GRANTS TO ROLE "%s"', $connection['user']));
         $grantsNames = array_map(function ($grant) {
             return $grant['privilege'];
         }, $grants);
