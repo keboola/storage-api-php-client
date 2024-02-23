@@ -73,6 +73,12 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
+        $grants = $backend->getDb()->fetchAll(sprintf('SHOW GRANTS TO ROLE "%s"', $connection['user']));
+        $grantsNames = array_map(function ($grant) {
+            return $grant['privilege'];
+        }, $grants);
+        $this->assertNotContains('CREATE STREAMLIT', $grantsNames);
+
         $backend->createTable('mytable', ['amount' => $this->getColumnAmountType($connection['backend'])]);
 
         $tableNames = $backend->getTables();
