@@ -5,6 +5,7 @@ namespace Keboola\Test\Backend\FileWorkspace;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\FileWorkspace\Backend\Abs;
 use Keboola\Test\Utils\EventsQueryBuilder;
+use MicrosoftAzure\Storage\Blob\Models\Blob;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 
 class WorkspacesTest extends FileWorkspaceTestCase
@@ -34,6 +35,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
 
         $fileName = $backend->uploadTestingFile();
 
+        /** @var Blob[] $files */
         $files = $backend->listFiles(null);
         $this->assertCount(1, $files);
         $this->assertEquals($files[0]->getName(), $fileName);
@@ -110,6 +112,7 @@ class WorkspacesTest extends FileWorkspaceTestCase
         $backend = new Abs($workspace['connection']);
         $this->assertCount(0, $backend->listFiles(null));
         $fileName = $backend->uploadTestingFile();
+        /** @var Blob[] $files */
         $files = $backend->listFiles(null);
         $this->assertCount(1, $files);
         $this->assertEquals($files[0]->getName(), $fileName);
