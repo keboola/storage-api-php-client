@@ -140,7 +140,7 @@ class CreateTableTest extends StorageApiTestCase
             $this->fail('Should fail');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertEquals(
-                'Invalid data - displayName: Cannot start with underscore.',
+                'Invalid data - displayName: \'_wrong-display-name\' contains not allowed characters. Cannot start with underscore.',
                 $e->getMessage(),
             );
             $this->assertEquals('storage.tables.validation', $e->getStringCode());
