@@ -1863,7 +1863,10 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
             ]);
             $this->fail('should fail');
         } catch (ClientException $exception) {
-            $this->assertSame('tba', $exception->getMessage());
+            $this->assertSame(
+                'Specifying data type for ordered column is not supported for typed tables',
+                $exception->getMessage(),
+            );
         }
     }
 
