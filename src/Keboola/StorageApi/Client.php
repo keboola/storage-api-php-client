@@ -405,6 +405,10 @@ class Client
 
         $this->log("Bucket {$result["id"]} registered", ['options' => $data, 'result' => $result]);
 
+        foreach ($result['warnings'] as $warning) {
+            $this->log('Registration bucket warning:' . $warning['message']);
+        };
+
         return $result['id'];
     }
 

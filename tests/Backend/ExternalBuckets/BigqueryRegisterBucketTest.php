@@ -240,6 +240,104 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
     /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      */
+    public function testRegisterTableWithWrongName(): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $this->dropBucketIfExists($this->_client, $bucketId, true);
+
+        $externalBucketBackend = 'bigquery';
+
+        $testClient = $this->_testClient;
+
+        $path = $this->prepareExternalBucketForRegistration($description);
+
+        $externalCredentials['connection']['backend'] = 'bigquery';
+        $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
+        $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
+        // create table with long name, limit is 96 chars
+        $db->createTable(
+            str_repeat('TableTestLong', 8), // 104 chars
+            [
+                'AMOUNT' => 'INT',
+                'DESCRIPTION' => 'STRING',
+            ],
+        );
+
+        $db->createTable(
+            'moje nova 1234 -2ěščěš',
+            [
+                'AMOUNT' => 'INT',
+                'DESCRIPTION' => 'STRING',
+            ],
+        );
+
+        // Api endpoint return warning, but client method return only bucket id
+        // I added warning message to logs
+        $idOfBucket = $testClient->registerBucket(
+            $testBucketName,
+            $path,
+            'in',
+            'Iam in external bucket',
+            $externalBucketBackend,
+            'Iam-your-external-bucket-with-wrong-table-name',
+        );
+
+        $bucket = $testClient->getBucket($idOfBucket);
+        $this->assertTrue($bucket['hasExternalSchema']);
+
+        // only table with long name is there and is skipped
+        $tables = $testClient->listTables($idOfBucket);
+        $this->assertCount(0, $tables);
+
+        $refreshJobResult = $testClient->refreshBucket($bucketId);
+        assert(is_array($refreshJobResult));
+        $tables = $testClient->listTables($idOfBucket);
+        $this->assertCount(0, $tables);
+
+        // but return warning about name is longer than 96 chars
+        $this->assertCount(2, $refreshJobResult['warnings']);
+        $this->assertSame(
+            '\'TableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLong\' is more than 96 characters long',
+            $refreshJobResult['warnings'][0]['message'],
+        );
+        $this->assertSame(
+            '\'moje nova 1234 -2ěščěš\' contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+            $refreshJobResult['warnings'][1]['message'],
+        );
+
+        $db->createTable(
+            'normalTable',
+            [
+                'AMOUNT' => 'INT',
+                'DESCRIPTION' => 'STRING',
+            ],
+        );
+
+        // new table should be added, and warning for table with long name should be returned
+        $refreshJobResult = $testClient->refreshBucket($bucketId);
+        assert(is_array($refreshJobResult));
+        $tables = $testClient->listTables($idOfBucket);
+        $this->assertCount(1, $tables);
+
+        $this->assertCount(2, $refreshJobResult['warnings']);
+        $this->assertSame(
+            '\'TableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLongTableTestLong\' is more than 96 characters long',
+            $refreshJobResult['warnings'][0]['message'],
+        );
+        $this->assertSame(
+            '\'moje nova 1234 -2ěščěš\' contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+            $refreshJobResult['warnings'][1]['message'],
+        );
+    }
+
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testRegisterWSAsExternalBucket(string $devBranchType, string $userRole): void
     {
         $description = $this->generateDescriptionForTestObject();
