@@ -34,7 +34,7 @@ class SimpleAliasTest extends StorageApiTestCase
         );
         // create alias tables with invalid name
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Invalid table name: Only alphanumeric characters dash and underscores are allowed.');
+        $this->expectExceptionMessage('Invalid table name: \'aliasWithDot.\' contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.');
         $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'aliasWithDot.');
     }
 
