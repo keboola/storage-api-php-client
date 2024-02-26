@@ -74,19 +74,21 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $db = $backend->getDb();
-        assert($db instanceof Connection);
-        $grants = $db->fetchAll(sprintf('SHOW GRANTS TO ROLE "%s"', $connection['user']));
-        $grantsNames = array_map(function ($grant) {
-            return $grant['privilege'];
-        }, $grants);
-        $this->assertNotContains('CREATE STREAMLIT', $grantsNames);
-
+        if ($workspaceWithSnowflakeBackend) {
+            $db = $backend->getDb();
+            assert($db instanceof Connection);
+            $grants = $db->fetchAll(sprintf('SHOW GRANTS TO ROLE "%s"', $connection['user']));
+            $grantsNames = array_map(function ($grant) {
+                return $grant['privilege'];
+            }, $grants);
+            $this->assertNotContains('CREATE STREAMLIT', $grantsNames);
+            $db = null; // force odbc disconnect
+        }
         $backend->createTable('mytable', ['amount' => $this->getColumnAmountType($connection['backend'])]);
 
         $tableNames = $backend->getTables();
         $backend = null; // force odbc disconnect
-        $db = null; // force odbc disconnect
+
 
         $this->assertArrayHasKey('mytable', array_flip($tableNames));
 
