@@ -211,7 +211,7 @@ class GCSUploader
                     $key,
                     basename($filePath),
                 );
-                $this->logger->notice(sprintf(sprintf('Uploadfailed: %s, %s, %s, %s', $filePath, $reason->getMessage(), $reason->getCode(), $blobName)));
+                $this->logger->notice(sprintf('Uploadfailed: %s, %s, %s, %s', $filePath, $reason->getMessage(), $reason->getCode(), $blobName));
                 $promise = $retBucket->uploadAsync(
                     $filePath,
                     [
