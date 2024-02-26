@@ -68,7 +68,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
 
     public function testRegisterTableWithWrongName(): void
     {
-        $this->dropBucketIfExists($this->_client, 'in.bucket-registration-long-table-name', true);
+        $this->dropBucketIfExists($this->_client, 'in.bucket-registration-wrong-table-name', true);
 
         $ws = new Workspaces($this->_client);
         // prepare workspace
@@ -97,7 +97,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             'in',
             'Iam in workspace',
             $externalBucketBackend,
-            'Bucket-with-long-table-name',
+            'Bucket-with-wrong-table-name',
         );
 
         // only table with long name is there and is skipped
