@@ -89,7 +89,6 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $tableNames = $backend->getTables();
         $backend = null; // force odbc disconnect
 
-
         $this->assertArrayHasKey('mytable', array_flip($tableNames));
 
         // get workspace
