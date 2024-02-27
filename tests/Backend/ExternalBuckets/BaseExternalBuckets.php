@@ -4,9 +4,12 @@ namespace Keboola\Test\Backend\ExternalBuckets;
 
 use Keboola\StorageApi\Client;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\MetadataUtils;
 
 abstract class BaseExternalBuckets extends StorageApiTestCase
 {
+    use MetadataUtils;
+
     protected string $thisBackend;
 
     protected function assertColumnMetadata(
@@ -28,15 +31,6 @@ abstract class BaseExternalBuckets extends StorageApiTestCase
         if ($expectedLength !== null) {
             $this->assertSingleMetadataEntry($metadataToCompare['KBC.datatype.length'], $expectedLength, 'KBC.datatype.length');
         }
-    }
-
-    protected function assertSingleMetadataEntry(array $metadataEntry, ?string $expectedValue, string $key): void
-    {
-        $this->assertArrayEqualsExceptKeys([
-            'key' => $key,
-            'value' => $expectedValue,
-            'provider' => 'storage',
-        ], $metadataEntry, ['id', 'timestamp']);
     }
 
     protected function setRunId(): string
