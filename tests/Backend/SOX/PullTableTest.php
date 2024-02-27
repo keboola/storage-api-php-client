@@ -153,6 +153,16 @@ class PullTableTest extends StorageApiTestCase
         $query->setEvent('storage.tableCopyToBucket');
         $this->assertEventWithRetries($branchClient, $assertCallback, $query);
 
+        $newBucket = $branchClient->getBucket($productionBucketId);
+
+        $metadataToCompare = [];
+        foreach ($newBucket['metadata'] as $columnMetadata) {
+            $metadataToCompare[$columnMetadata['key']] = $columnMetadata;
+        }
+
+        $this->assertSingleMetadataEntry($metadataToCompare['KBC.createdBy.branch.id'], $newBranch['id'], 'KBC.createdBy.branch.id', 'system');
+        $this->assertSingleMetadataEntry($metadataToCompare['KBC.lastUpdatedBy.branch.id'], $newBranch['id'], 'KBC.lastUpdatedBy.branch.id', 'system');
+
         // check table created
         $newTable = $branchClient->getTable($newTableId);
         $this->assertNotSame($productionTable['created'], $newTable['created']);
