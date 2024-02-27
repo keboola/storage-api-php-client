@@ -31,7 +31,8 @@ class WorkspacesTest extends FileWorkspaceTestCase
 
         $connection = $workspace['connection'];
         $backend = new Abs($workspace['connection']);
-        $this->assertCount(0, $backend->listFiles(null));
+        $files = $backend->listFiles(null);
+        $this->assertCount(0, $files);
 
         $fileName = $backend->uploadTestingFile();
 
@@ -110,7 +111,8 @@ class WorkspacesTest extends FileWorkspaceTestCase
         $this->assertEquals($backend, $workspace['connection']['backend']);
 
         $backend = new Abs($workspace['connection']);
-        $this->assertCount(0, $backend->listFiles(null));
+        $files = $backend->listFiles(null);
+        $this->assertCount(0, $files);
         $fileName = $backend->uploadTestingFile();
         /** @var Blob[] $files */
         $files = $backend->listFiles(null);
