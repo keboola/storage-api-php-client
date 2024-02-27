@@ -1583,6 +1583,24 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                     'expectFail' => [],
                 ],
             ],
+            'ARRAY' => [
+                'failing' => [
+                    'value' => '\'T\'',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][type]: "Type ARRAY not recognized. Possible values are [BOOL|BYTES|DATE|DATETIME|TIME|TIMESTAMP|GEOGRAPHY|JSON|INT64|NUMERIC|BIGNUMERIC|FLOAT64|STRING|INT|SMALLINT|INTEGER|BIGINT|TINYINT|BYTEINT|DECIMAL|BIGDECIMAL]"',
+                    ],
+                ],
+            ],
+            'INTERVAL' => [
+                'failing' => [
+                    'value' => '\'T\'',
+                    'expectFail' => [
+                        'message' => 'Invalid request:
+ - columns[0][definition][type]: "Type INTERVAL not recognized. Possible values are [BOOL|BYTES|DATE|DATETIME|TIME|TIMESTAMP|GEOGRAPHY|JSON|INT64|NUMERIC|BIGNUMERIC|FLOAT64|STRING|INT|SMALLINT|INTEGER|BIGINT|TINYINT|BYTEINT|DECIMAL|BIGDECIMAL]"',
+                    ],
+                ],
+            ],
         ];
 
         foreach ($types as $type => $cases) {
