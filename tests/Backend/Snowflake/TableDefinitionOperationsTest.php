@@ -1852,6 +1852,22 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
         );
 
         $this->assertCount(1, $data['rows']);
+
+        // order without datatype should work
+        $this->_client->getTableDataPreview($tableId, ['format' => 'json', 'orderBy' => [['column' => 'column_float']]]);
+        try {
+            // order with column_decimal and datatype should fail because it does TRY_TO_DOUBLE on NUMERIC
+            $this->_client->getTableDataPreview($tableId, [
+                'format' => 'json',
+                'orderBy' => [['column' => 'column_decimal', 'dataType' => 'DOUBLE']],
+            ]);
+            $this->fail('should fail');
+        } catch (ClientException $exception) {
+            $this->assertSame(
+                'Specifying data type for ordered column is not supported for typed tables',
+                $exception->getMessage(),
+            );
+        }
     }
 
     public function testDataPreviewForTableDefinitionWithoutDefinitionAndBaseType(): void
