@@ -338,6 +338,94 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
     /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      */
+    public function testRegisterTablesWithDuplicateNameWithDifferentCase(): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $this->dropBucketIfExists($this->_client, $bucketId, true);
+
+        $externalBucketBackend = 'bigquery';
+
+        $testClient = $this->_testClient;
+
+        $path = $this->prepareExternalBucketForRegistration($description);
+
+        $externalCredentials['connection']['backend'] = 'bigquery';
+        $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
+        $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
+        $db->createTable(
+            'test1',
+            [
+                'AMOUNT' => 'INT',
+            ],
+        );
+        $db->createTable(
+            'test2',
+            [
+                'AMOUNT' => 'INT',
+            ],
+        );
+        $db->createTable(
+            'tEst1',
+            [
+                'AMOUNT' => 'INT',
+            ],
+        );
+
+        // Api endpoint return warning, but client method return only bucket id
+        // I added warning message to logs
+        try {
+            $testClient->registerBucket(
+                $testBucketName,
+                $path,
+                'in',
+                'Iam in workspace',
+                $externalBucketBackend,
+                'Bucket-with-duplicate-table-name',
+            );
+            $this->fail('Register bucket should fail with duplicate table name');
+        } catch (ClientException $e) {
+            $this->assertSame('storage.duplicateTableNamesInSchema', $e->getStringCode());
+            $this->assertSame(
+                'More that one table with same name. Tables are read case insensitive. Duplicates: "tEst1, test1"',
+                $e->getMessage(),
+            );
+        }
+        $db->dropTable('tEst1');
+
+        $registeredBucketId = $testClient->registerBucket(
+            $testBucketName,
+            $path,
+            'in',
+            'Iam in workspace',
+            $externalBucketBackend,
+            'Bucket-with-duplicate-table-name',
+        );
+        $db->createTable(
+            'tEst1',
+            [
+                'AMOUNT' => 'INT',
+            ],
+        );
+        try {
+            $testClient->refreshBucket($registeredBucketId);
+            $this->fail('Refresh bucket should fail with duplicate table name');
+        } catch (ClientException $e) {
+            $this->assertSame('storage.duplicateTableNamesInSchema', $e->getStringCode());
+            $this->assertSame(
+                'More that one table with same name. Tables are read case insensitive. Duplicates: "tEst1, test1"',
+                $e->getMessage(),
+            );
+        }
+    }
+
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testRegisterWSAsExternalBucket(string $devBranchType, string $userRole): void
     {
         $description = $this->generateDescriptionForTestObject();
