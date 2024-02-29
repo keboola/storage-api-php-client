@@ -138,6 +138,83 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         );
     }
 
+    public function testRegisterTablesWithDuplicateNameWithDifferentCase(): void
+    {
+        $this->dropBucketIfExists($this->_client, 'in.bucket-registration-duplicate-table-name', true);
+
+        $ws = new Workspaces($this->_client);
+        // prepare workspace
+        $workspace = $ws->createWorkspace();
+        $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
+        $externalBucketBackend = 'snowflake';
+
+        // add first table to workspace with long name, table should be skipped
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $db->createTable(
+            'test1',
+            [
+                'AMOUNT' => 'INT',
+            ],
+        );
+        $db->createTable(
+            'test2',
+            [
+                'AMOUNT' => 'INT',
+            ],
+        );
+        $db->createTable(
+            'tEst1',
+            [
+                'AMOUNT' => 'INT',
+            ],
+        );
+
+        try {
+            $this->_client->registerBucket(
+                'bucket-registration-duplicate-table-name',
+                $externalBucketPath,
+                'in',
+                'Iam in workspace',
+                $externalBucketBackend,
+                'Bucket-with-duplicate-table-name',
+            );
+            $this->fail('Register bucket should fail with duplicate table name');
+        } catch (ClientException $e) {
+            $this->assertSame('storage.duplicateTableNamesInSchema', $e->getStringCode());
+            $this->assertSame(
+                'More that one table with same name. Tables are read case insensitive. Duplicates: "tEst1, test1"',
+                $e->getMessage(),
+            );
+        }
+        // refresh
+        $db->dropTable('tEst1');
+        $registeredBucketId = $this->_client->registerBucket(
+            'bucket-registration-duplicate-table-name',
+            $externalBucketPath,
+            'in',
+            'Iam in workspace',
+            $externalBucketBackend,
+            'Bucket-with-duplicate-table-name',
+        );
+        $db->createTable(
+            'tEst1',
+            [
+                'AMOUNT' => 'INT',
+            ],
+        );
+        try {
+            $this->_client->refreshBucket($registeredBucketId);
+            $this->fail('Refresh bucket should fail with duplicate table name');
+        } catch (ClientException $e) {
+            $this->assertSame('storage.duplicateTableNamesInSchema', $e->getStringCode());
+            $this->assertSame(
+                'More that one table with same name. Tables are read case insensitive. Duplicates: "tEst1, test1"',
+                $e->getMessage(),
+            );
+        }
+    }
+
     public function testRegisterWSAsExternalBucket(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
