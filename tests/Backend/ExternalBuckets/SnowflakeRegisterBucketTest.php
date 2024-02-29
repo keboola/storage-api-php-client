@@ -392,6 +392,60 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $this->_client->dropBucket($idOfBucket, ['force' => true]);
     }
 
+    public function testAliasFromExternalBucketNotAllowed(): void
+    {
+        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
+        $this->initEvents($this->_client);
+
+        $ws = new Workspaces($this->_client);
+
+        // prepare workspace
+        $workspace = $ws->createWorkspace([], true);
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $db->createTable('TEST', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
+        $db->executeQuery('INSERT INTO "TEST" VALUES (1, \'test\')');
+
+        $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
+        $externalBucketBackend = 'snowflake';
+
+        // register workspace as external bucket
+        $idOfBucket = $this->_client->registerBucket(
+            'test-bucket-registration',
+            $externalBucketPath,
+            'in',
+            'Iam in workspace',
+            $externalBucketBackend,
+            'Iam-your-workspace',
+        );
+
+        // test that it's not possible to alias table in external bucket
+        $testBucketId = $this->getTestBucketId();
+        $testTableId = $this->_client->getTableId('TEST', $idOfBucket);
+        assert(is_string($testTableId));
+        try {
+            $this->_client->createAliasTable(
+                $testBucketId,
+                $testTableId,
+                'testAlias',
+            );
+
+            // delete bucket in case the call didn't fail
+            $this->_client->dropBucket($idOfBucket, ['force' => true]);
+
+            $this->fail('Should have failed');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'Creating an alias from a table in an external bucket is not supported.',
+                $e->getMessage(),
+            );
+            $this->assertSame(
+                'storage.buckets.invalidAlias',
+                $e->getStringCode(),
+            );
+        }
+        $this->_client->dropBucket($idOfBucket, ['force' => true]);
+    }
+
     public function testRegistrationOfExternalTable(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
