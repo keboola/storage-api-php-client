@@ -391,7 +391,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         } catch (ClientException $e) {
             $this->assertSame('storage.duplicateTableNamesInSchema', $e->getStringCode());
             $this->assertSame(
-                'More that one table with same name. Tables are read case insensitive. Duplicates: "tEst1, test1"',
+                'Multiple tables with the same name detected. Table names are case-insensitive, leading to duplicates: "tEst1, test1"',
                 $e->getMessage(),
             );
         }
@@ -417,7 +417,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         } catch (ClientException $e) {
             $this->assertSame('storage.duplicateTableNamesInSchema', $e->getStringCode());
             $this->assertSame(
-                'More that one table with same name. Tables are read case insensitive. Duplicates: "tEst1, test1"',
+                'Multiple tables with the same name detected. Table names are case-insensitive, leading to duplicates: "tEst1, test1"',
                 $e->getMessage(),
             );
         }
