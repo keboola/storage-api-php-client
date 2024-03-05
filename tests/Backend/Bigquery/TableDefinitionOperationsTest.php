@@ -1838,7 +1838,7 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                     'name' => 'remove_default',
                     'definition' => [
                         'type' => 'STRING',
-                        'nullable' => false,
+                        'nullable' => true,
                         'length' => 12,
                         'default' => 'spálnivec',
                     ],
@@ -1927,13 +1927,13 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
         );
         //increase precision of numeric column
         // TODO - pise to, ze 35 is not valid for numeric
-//        $this->_client->updateTableColumnDefinition(
-//            $tableId,
-//            'short_int',
-//            [
-//                'length' => '35',
-//            ],
-//        );
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'short_int',
+            [
+                'length' => '25',
+            ],
+        );
 
         // multiple changes
         $this->_client->updateTableColumnDefinition(
@@ -1946,7 +1946,9 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
             ],
         );
 
-        $columns = $this->_client->getTable($tableId)['definition']['columns'];
+        $tableDetail = $this->_client->getTable($tableId);
+
+        $columns = $tableDetail['definition']['columns'];
         //$this->assertSame($originalColumns, $columns);
         $this->assertSame([
             //add nullable
@@ -1960,12 +1962,12 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                 'basetype' => 'NUMERIC',
                 'canBeFiltered' => true,
             ],
-            //drop nullable
+            //drop nullable - won't have any affect because in BQ nullable->required is not possible
             [
                 'name' => 'longint_nullable',
                 'definition' => [
                     'type' => 'NUMERIC',
-                    'nullable' => false,
+                    'nullable' => true,
                     'length' => '12',
                 ],
                 'basetype' => 'NUMERIC',
@@ -1978,6 +1980,7 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                     'type' => 'NUMERIC',
                     'nullable' => true,
                     'length' => '14',
+                    'default' => 'NULL',
                 ],
                 'basetype' => 'NUMERIC',
                 'canBeFiltered' => true,
@@ -1987,8 +1990,9 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                 'name' => 'remove_default',
                 'definition' => [
                     'type' => 'STRING',
-                    'nullable' => false,
+                    'nullable' => true,
                     'length' => '12',
+                    'default' => 'NULL',
                 ],
                 'basetype' => 'STRING',
                 'canBeFiltered' => true,
@@ -1999,7 +2003,7 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                 'definition' => [
                     'type' => 'NUMERIC',
                     'nullable' => false,
-                    'length' => '38,0',
+                    'length' => '25',
                 ],
                 'basetype' => 'NUMERIC',
                 'canBeFiltered' => true,
