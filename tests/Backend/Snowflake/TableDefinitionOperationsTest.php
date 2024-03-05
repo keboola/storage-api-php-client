@@ -2282,7 +2282,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
             [
                 'name' => 'basetype',
                 'definition' => null,
-                'basetype' => 'STRING',
+                'basetype' => 'NUMERIC',
             ],
             [
                 'name' => 'column_string_with_default',
@@ -2312,6 +2312,16 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
         $this->assertEquals($expectedColumns, $this->_client->getTable($sourceTableId)['columns']);
         $this->assertEquals($expectedColumns, $this->_client->getTable($firstAliasTableId)['columns']);
         $this->assertEquals($expectedColumns, $this->_client->getTable($secondAliasTableId)['columns']);
+
+        //test length for basetype column
+        $baseTypeColumn = array_values(array_filter(
+            $this->_client->getTable($sourceTableId)['definition']['columns'],
+            fn($column) => $column['name'] === 'basetype'
+        ));
+        $this->assertCount(1, $baseTypeColumn);
+        $this->assertSame('basetype', $baseTypeColumn[0]['name']);
+        $this->assertSame('NUMBER', $baseTypeColumn[0]['definition']['type']);
+        $this->assertSame('38,9', $baseTypeColumn[0]['definition']['length']);
 
         // check that the new table has correct datypes in metadata
         $metadataClient = new Metadata($this->_client);
