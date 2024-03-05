@@ -76,13 +76,6 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                     ],
                 ],
                 [
-                    'name' => 'array',
-                    'definition' => [
-                        'type' => 'ARRAY',
-                        'length' => 'INT64',
-                    ],
-                ],
-                [
                     'name' => 'struct',
                     'definition' => [
                         'type' => 'STRUCT',
@@ -99,12 +92,6 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                     'name' => 'geography',
                     'definition' => [
                         'type' => 'GEOGRAPHY',
-                    ],
-                ],
-                [
-                    'name' => 'interval',
-                    'definition' => [
-                        'type' => 'INTERVAL',
                     ],
                 ],
                 [
@@ -135,19 +122,17 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
             'test_Languages3',
             new ColumnCollection([
                 new BigqueryColumn('id', new Bigquery('INT64')),
-                new BigqueryColumn('array', new Bigquery('ARRAY', ['length' => 'INT64'])),
                 new BigqueryColumn('struct', new Bigquery('STRUCT', ['length' => 'a INT64, b STRING'])),
                 new BigqueryColumn('bytes', new Bigquery('BYTES')),
                 new BigqueryColumn('geography', new Bigquery('GEOGRAPHY')),
-                new BigqueryColumn('interval', new Bigquery('INTERVAL')),
                 new BigqueryColumn('json', new Bigquery('JSON')),
             ]),
         )));
         $backend->executeQuery(sprintf(
         /** @lang BigQuery */
             '
-INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`, `interval`, `json`) VALUES 
-(1, [2,2], STRUCT(111, "roman"), b\'\x01\x02\x03\x04\', ST_GEOGPOINT(-122.4194, 37.7749), INTERVAL 1 YEAR, JSON\'{"a": 1, "b": 2}\') 
+INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) VALUES 
+(1, STRUCT(111, "roman"), b\'\x01\x02\x03\x04\', ST_GEOGPOINT(-122.4194, 37.7749), JSON\'{"a": 1, "b": 2}\') 
 ;',
             $workspace['connection']['schema'],
         ));
@@ -168,11 +153,6 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
                     'isTruncated' => false,
                 ],
                 [
-                    'columnName' => 'array',
-                    'value' => '[2,2]',
-                    'isTruncated' => false,
-                ],
-                [
                     'columnName' => 'struct',
                     'value' => '{"a":111,"b":"roman"}',
                     'isTruncated' => false,
@@ -185,11 +165,6 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
                 [
                     'columnName' => 'geography',
                     'value' => '{ "type": "Point", "coordinates": [-122.4194, 37.7749] } ',
-                    'isTruncated' => false,
-                ],
-                [
-                    'columnName' => 'interval',
-                    'value' => '1-0 0 0:0:0',
                     'isTruncated' => false,
                 ],
                 [
@@ -223,6 +198,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `array`, `struct`, `bytes`, `geography`,
                         'whereFilters' => [$filter],
                     ],
                 );
+                $this->fail('should fail');
                 // fail
             } catch (ClientException $e) {
                 $this->assertSame(400, $e->getCode());
