@@ -2465,23 +2465,24 @@ If there is no column datatype specified (column.definition.type or column.baset
 
 ### Update Column Definition [PUT /v2/storage/tables/{table_id}/columns/{column_name}/definition]
 
-Updates a column of a table with typed columns. *Snowflake only.*
+Updates a column of a table with typed columns. *Snowflake, BigQuery only.*
 
 Request is handled asynchronously which means that the create request is created and added to a queue and the job resource URL for status polling is returned.
 
 Supported alterations:
-| | Snowflake |
-| --- | --- |
-| Add default| ❌ |
-| Change default |  ❌ |
-| Drop default | ✅ |
-| Change nullability | ✅ |
-| Change type | ❌ |
-| Increase the length of a text column | ✅ |
-| Decrease the length of a text column | ❌ |
-| Increase the precision of a numeric column | ✅ |
-| Decrease the precision of a numeric column | ❌ |
-| Change the scale of a numeric column | ❌ |
+| | Snowflake | BigQuery |
+| --- | --- | --- |
+| Add default| ❌ | ✅ |
+| Change default |  ❌ | ✅ |
+| Drop default | ✅ | ✅ |
+| Set as nullable | ✅ | ✅ |
+| Set as required | ✅ | ❌ |
+| Change type | ❌ | ❌ |
+| Increase the length of a text column | ✅ | ✅ |
+| Decrease the length of a text column | ❌ | ❌ |
+| Increase the precision of a numeric column | ✅ | ✅ |
+| Decrease the precision of a numeric column | ❌ | ❌ |
+| Change the scale of a numeric column | ❌ | ✅ |
 
 
 + Parameters
