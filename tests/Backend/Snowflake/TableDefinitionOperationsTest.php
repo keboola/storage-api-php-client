@@ -826,6 +826,140 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
         }
     }
 
+    public function testCreateTableBasetypes(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $data = [
+            'name' => 'table_basetypes',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'basetype' => 'numeric',
+                ],
+                [
+                    'name' => 'numeric',
+                    'basetype' => 'numeric',
+                ],
+                [
+                    'name' => 'BOOLEAN',
+                    'basetype' => 'BOOLEAN',
+                ],
+                [
+                    'name' => 'DATE',
+                    'basetype' => 'DATE',
+                ],
+                [
+                    'name' => 'FLOAT',
+                    'basetype' => 'FLOAT',
+                ],
+                [
+                    'name' => 'INTEGER',
+                    'basetype' => 'INTEGER',
+                ],
+                [
+                    'name' => 'STRING',
+                    'basetype' => 'STRING',
+                ],
+                [
+                    'name' => 'TIMESTAMP',
+                    'basetype' => 'TIMESTAMP',
+                ],
+            ],
+        ];
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $newTableId = $this->_client->createTableDefinition($bucketId, $data);
+        $tableDetail = $this->_client->getTable($newTableId);
+        $this->assertSame([
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'BOOLEAN',
+                    'definition' => [
+                        'type' => 'BOOLEAN',
+                        'nullable' => true,
+                    ],
+                    'basetype' => 'BOOLEAN',
+                    'canBeFiltered' => true,
+                ],
+                [
+                    'name' => 'DATE',
+                    'definition' => [
+                        'type' => 'DATE',
+                        'nullable' => true,
+                    ],
+                    'basetype' => 'DATE',
+                    'canBeFiltered' => true,
+                ],
+                [
+                    'name' => 'FLOAT',
+                    'definition' => [
+                        'type' => 'FLOAT',
+                        'nullable' => true,
+                    ],
+                    'basetype' => 'FLOAT',
+                    'canBeFiltered' => true,
+                ],
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'NUMBER',
+                        'nullable' => false,
+                        'length' => '38,9',
+                    ],
+                    'basetype' => 'NUMERIC',
+                    'canBeFiltered' => true,
+                ],
+                [
+                    'name' => 'INTEGER',
+                    'definition' => [
+                        'type' => 'NUMBER',
+                        'nullable' => true,
+                        'length' => '38,0',
+                    ],
+                    'basetype' => 'NUMERIC',
+                    'canBeFiltered' => true,
+                ],
+                [
+                    'name' => 'numeric',
+                    'definition' => [
+                        'type' => 'NUMBER',
+                        'nullable' => true,
+                        'length' => '38,9',
+                    ],
+                    'basetype' => 'NUMERIC',
+                    'canBeFiltered' => true,
+                ],
+                [
+                    'name' => 'STRING',
+                    'definition' => [
+                        'type' => 'VARCHAR',
+                        'nullable' => true,
+                        'length' => '16777216',
+                    ],
+                    'basetype' => 'STRING',
+                    'canBeFiltered' => true,
+                ],
+                [
+                    'name' => 'TIMESTAMP',
+                    'definition' => [
+                        'type' => 'TIMESTAMP_NTZ',
+                        'nullable' => true,
+                        'length' => '9',
+                    ],
+                    'basetype' => 'TIMESTAMP',
+                    'canBeFiltered' => true,
+                ],
+            ],
+        ], $tableDetail['definition']);
+    }
+
     public function testPrimaryKeys(): void
     {
         $this->_client->dropTable($this->tableId);
@@ -1854,7 +1988,10 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
         $this->assertCount(1, $data['rows']);
 
         // order without datatype should work
-        $this->_client->getTableDataPreview($tableId, ['format' => 'json', 'orderBy' => [['column' => 'column_float']]]);
+        $this->_client->getTableDataPreview($tableId, [
+            'format' => 'json',
+            'orderBy' => [['column' => 'column_float']],
+        ]);
         try {
             // order with column_decimal and datatype should fail because it does TRY_TO_DOUBLE on NUMERIC
             $this->_client->getTableDataPreview($tableId, [
