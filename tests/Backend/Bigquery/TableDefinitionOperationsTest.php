@@ -1926,7 +1926,6 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
             ],
         );
         //increase precision of numeric column
-        // TODO - pise to, ze 35 is not valid for numeric
         $this->_client->updateTableColumnDefinition(
             $tableId,
             'short_int',
