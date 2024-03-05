@@ -1824,4 +1824,197 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
             $this->assertEquals('Invalid filter value, expected:"BOOL", actual:"STRING".', $e->getMessage());
         }
     }
+
+    public function testUpdateTableDefinition(): void
+    {
+        $name = 'table-' . sha1($this->generateDescriptionForTestObject());
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $tableDefinition = [
+            'name' => $name,
+            'primaryKeysNames' => [],
+            'columns' => [
+                //drop default
+                [
+                    'name' => 'remove_default',
+                    'definition' => [
+                        'type' => 'STRING',
+                        'nullable' => false,
+                        'length' => 12,
+                        'default' => 'spálnivec',
+                    ],
+                ],
+                //add nullable
+                [
+                    'name' => 'longint_non_nullable',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => false,
+                        'length' => '12,1',
+                    ],
+                ],
+                //drop nullable
+                [
+                    'name' => 'longint_nullable',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => true,
+                        'length' => '12,0',
+                    ],
+                ],
+                //increase length of text column
+                [
+                    'name' => 'short_string',
+                    'definition' => [
+                        'type' => 'STRING',
+                        'nullable' => false,
+                        'length' => 13,
+                    ],
+                ],
+                //increase precision of numeric column
+                [
+                    'name' => 'short_int',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => false,
+                        'length' => '12,0',
+                    ],
+                ],
+                // multiple changes
+                [
+                    'name' => 'multiple',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => false,
+                        'length' => '12,0',
+                        'default' => '42',
+                    ],
+                ],
+            ],
+        ];
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+        $originalColumns = $this->_client->getTable($tableId)['definition']['columns'];
+        //drop default
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'remove_default',
+            [
+                'default' => null,
+            ],
+        );
+        //add nullable
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'longint_non_nullable',
+            [
+                'nullable' => true,
+            ],
+        );
+        //drop nullable
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'longint_nullable',
+            [
+                'nullable' => false,
+            ],
+        );
+        //increase length of text column
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'short_string',
+            [
+                'length' => '38',
+            ],
+        );
+        //increase precision of numeric column
+        // TODO - pise to, ze 35 is not valid for numeric
+//        $this->_client->updateTableColumnDefinition(
+//            $tableId,
+//            'short_int',
+//            [
+//                'length' => '35',
+//            ],
+//        );
+
+        // multiple changes
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'multiple',
+            [
+                'nullable' => true,
+                'length' => '14,0',
+                'default' => null,
+            ],
+        );
+
+        $columns = $this->_client->getTable($tableId)['definition']['columns'];
+        //$this->assertSame($originalColumns, $columns);
+        $this->assertSame([
+            //add nullable
+            [
+                'name' => 'longint_non_nullable',
+                'definition' => [
+                    'type' => 'NUMERIC',
+                    'nullable' => true,
+                    'length' => '12,1',
+                ],
+                'basetype' => 'NUMERIC',
+                'canBeFiltered' => true,
+            ],
+            //drop nullable
+            [
+                'name' => 'longint_nullable',
+                'definition' => [
+                    'type' => 'NUMERIC',
+                    'nullable' => false,
+                    'length' => '12',
+                ],
+                'basetype' => 'NUMERIC',
+                'canBeFiltered' => true,
+            ],
+            // multiple changes
+            [
+                'name' => 'multiple',
+                'definition' => [
+                    'type' => 'NUMERIC',
+                    'nullable' => true,
+                    'length' => '14',
+                ],
+                'basetype' => 'NUMERIC',
+                'canBeFiltered' => true,
+            ],
+            //drop default
+            [
+                'name' => 'remove_default',
+                'definition' => [
+                    'type' => 'STRING',
+                    'nullable' => false,
+                    'length' => '12',
+                ],
+                'basetype' => 'STRING',
+                'canBeFiltered' => true,
+            ],
+            //increase precision of numeric column
+            [
+                'name' => 'short_int',
+                'definition' => [
+                    'type' => 'NUMERIC',
+                    'nullable' => false,
+                    'length' => '38,0',
+                ],
+                'basetype' => 'NUMERIC',
+                'canBeFiltered' => true,
+            ],
+            //increase length of text column
+            [
+                'name' => 'short_string',
+                'definition' => [
+                    'type' => 'STRING',
+                    'nullable' => false,
+                    'length' => '38',
+                ],
+                'basetype' => 'STRING',
+                'canBeFiltered' => true,
+            ],
+        ], $columns);
+    }
 }
