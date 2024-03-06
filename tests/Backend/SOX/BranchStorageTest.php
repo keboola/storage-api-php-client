@@ -489,29 +489,27 @@ class BranchStorageTest extends StorageApiTestCase
 
         // branch resources have metadata
         $actualBranchBucketMetadata = $branchMetadataApi->listBucketMetadata($bucketStringId);
-        $this->assertMetadataEquals([
-            'key' => 'branch',
-            'value' => 'dev',
-            'provider' => 'test',
-        ], $actualBranchBucketMetadata[0]);
+        $bucketMetadataToCompare = [];
+        foreach ($actualBranchBucketMetadata as $columnMetadata) {
+            $bucketMetadataToCompare[$columnMetadata['key']] = $columnMetadata;
+        }
+        $this->assertSingleMetadataEntry($bucketMetadataToCompare['branch'], 'dev', 'branch', 'test');
+
         $actualBranchTableMetadata = $branchMetadataApi->listTableMetadata($devTableId);
-        $this->assertMetadataEquals([
-            'key' => 'branch',
-            'value' => 'dev',
-            'provider' => 'test',
-        ], $actualBranchTableMetadata[0]);
+        $tableMetadataToCompare = [];
+        foreach ($actualBranchTableMetadata as $columnMetadata) {
+            $tableMetadataToCompare[$columnMetadata['key']] = $columnMetadata;
+        }
+        $this->assertSingleMetadataEntry($tableMetadataToCompare['branch'], 'dev', 'branch', 'test');
         $this->assertCount(1, $actualBranchTableMetadata);
+
         $actualBranchColumnMetadata = $branchMetadataApi->listColumnMetadata($devTableId . '.name');
-        $this->assertMetadataEquals([
-            'key' => 'branch',
-            'value' => 'dev',
-            'provider' => 'test',
-        ], $actualBranchColumnMetadata[0]);
-        $this->assertMetadataEquals([
-            'key' => 'branch-from-column-call',
-            'value' => 'dev',
-            'provider' => 'test',
-        ], $actualBranchColumnMetadata[1]);
+        $columnMetadataToCompare = [];
+        foreach ($actualBranchColumnMetadata as $columnMetadata) {
+            $columnMetadataToCompare[$columnMetadata['key']] = $columnMetadata;
+        }
+        $this->assertSingleMetadataEntry($columnMetadataToCompare['branch'], 'dev', 'branch', 'test');
+        $this->assertSingleMetadataEntry($columnMetadataToCompare['branch-from-column-call'], 'dev', 'branch-from-column-call', 'test');
         $this->assertCount(2, $actualBranchColumnMetadata);
 
         // pulling should overwrite metadata in branch
@@ -558,12 +556,14 @@ class BranchStorageTest extends StorageApiTestCase
 
         // branch bucket still has the old metadata
         $actualBranchBucketMetadata = $branchMetadataApi->listBucketMetadata($bucketStringId);
-        $this->assertCount(1, $actualBranchBucketMetadata);
-        $this->assertMetadataEquals([
-            'key' => 'branch',
-            'value' => 'dev',
-            'provider' => 'test',
-        ], $actualBranchBucketMetadata[0]);
+        // The bucket is created through a table pull, so it contains two metadata that identifies it as a branch bucket.
+        // plus the metadata that was set in the branch
+        $this->assertCount(3, $actualBranchBucketMetadata);
+        $bucketMetadataToCompare = [];
+        foreach ($actualBranchBucketMetadata as $columnMetadata) {
+            $bucketMetadataToCompare[$columnMetadata['key']] = $columnMetadata;
+        }
+        $this->assertSingleMetadataEntry($bucketMetadataToCompare['branch'], 'dev', 'branch', 'test');
 
         // branch table does not have metadata
         $this->assertSame([], $branchMetadataApi->listTableMetadata($devTableId));
@@ -571,44 +571,39 @@ class BranchStorageTest extends StorageApiTestCase
 
         $actualProdTableMetadata = $productionMetadataApi->listTableMetadata($devTableId);
         $this->assertCount(1, $actualProdTableMetadata);
-        $this->assertMetadataEquals([
-            'key' => 'branch',
-            'value' => 'prod',
-            'provider' => 'test',
-        ], $actualProdTableMetadata[0]);
+
+        $tableMetadataToCompare = [];
+        foreach ($actualProdTableMetadata as $columnMetadata) {
+            $tableMetadataToCompare[$columnMetadata['key']] = $columnMetadata;
+        }
+        $this->assertSingleMetadataEntry($tableMetadataToCompare['branch'], 'prod', 'branch', 'test');
+
         $actualProdColumnMetadata = $productionMetadataApi->listColumnMetadata($productionTableId . '.name');
+        $columnMetadataToCompare = [];
+        foreach ($actualProdColumnMetadata as $columnMetadata) {
+            $columnMetadataToCompare[$columnMetadata['key']] = $columnMetadata;
+        }
+        $this->assertSingleMetadataEntry($columnMetadataToCompare['branch'], 'prod', 'branch', 'test');
+        $this->assertSingleMetadataEntry($columnMetadataToCompare['branch-from-column-call'], 'prod', 'branch-from-column-call', 'test');
         $this->assertCount(2, $actualProdColumnMetadata);
-        $this->assertMetadataEquals([
-            'key' => 'branch',
-            'value' => 'prod',
-            'provider' => 'test',
-        ], $actualProdColumnMetadata[0]);
-        $this->assertMetadataEquals([
-            'key' => 'branch-from-column-call',
-            'value' => 'prod',
-            'provider' => 'test',
-        ], $actualProdColumnMetadata[1]);
 
         // pull should copy metadata
         $branchClient->pullTableToBranch($productionTableId);
         $actualBranchTableMetadata = $branchMetadataApi->listTableMetadata($devTableId);
-        $this->assertMetadataEquals([
-            'key' => 'branch',
-            'value' => 'prod',
-            'provider' => 'test',
-        ], $actualBranchTableMetadata[0]);
+        $tableMetadataToCompare = [];
+        foreach ($actualBranchTableMetadata as $columnMetadata) {
+            $tableMetadataToCompare[$columnMetadata['key']] = $columnMetadata;
+        }
+        $this->assertSingleMetadataEntry($tableMetadataToCompare['branch'], 'prod', 'branch', 'test');
         $this->assertCount(1, $actualBranchTableMetadata);
+
         $actualBranchColumnMetadata = $branchMetadataApi->listColumnMetadata($devTableId . '.name');
+        $tableMetadataToCompare = [];
+        foreach ($actualBranchColumnMetadata as $columnMetadata) {
+            $tableMetadataToCompare[$columnMetadata['key']] = $columnMetadata;
+        }
+        $this->assertSingleMetadataEntry($tableMetadataToCompare['branch'], 'prod', 'branch', 'test');
+        $this->assertSingleMetadataEntry($tableMetadataToCompare['branch-from-column-call'], 'prod', 'branch-from-column-call', 'test');
         $this->assertCount(2, $actualBranchColumnMetadata);
-        $this->assertMetadataEquals([
-            'key' => 'branch',
-            'value' => 'prod',
-            'provider' => 'test',
-        ], $actualBranchColumnMetadata[0]);
-        $this->assertMetadataEquals([
-            'key' => 'branch-from-column-call',
-            'value' => 'prod',
-            'provider' => 'test',
-        ], $actualBranchColumnMetadata[1]);
     }
 }
