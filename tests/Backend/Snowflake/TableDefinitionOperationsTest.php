@@ -1936,7 +1936,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 ],
                 [
                     'columnName' => 'column_decimal',
-                    'value' => '0', // default is NUMBER(38,0) => no scale => 0
+                    'value' => '0.123000000', // default is NUMBER(38,9) there are trailing zeros
                     'isTruncated' => false,
                 ],
                 [
