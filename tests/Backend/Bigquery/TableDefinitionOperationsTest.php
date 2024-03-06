@@ -32,7 +32,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 
     private function createTableDefinition(): string
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $data = [
             'name' => 'my_new_table',
@@ -62,7 +62,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 
     public function testDataPreviewExoticTypes(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $tableDefinition = [
             'name' => 'exotic_my_new_table',
@@ -279,7 +279,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
     public function testDataPreviewForTableDefinitionWithDecimalType(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $tableDefinition = [
             'name' => 'my-new-table-for_data_preview',
@@ -409,7 +409,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
         $this->assertCount(1, $data['rows']);
 
         //test types is provided from source table for alias
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $tableId, 'table-1');
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $tableId, 'table-1');
 
         /** @var array $data */
         $data = $this->_client->getTableDataPreview($firstAliasTableId, ['format' => 'json']);
@@ -424,7 +424,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
     public function testDataPreviewForTableDefinitionBaseType(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
         $tableDefinition = [
             'name' => 'my-new-table-for_data_preview',
             'primaryKeysNames' => [],
@@ -537,7 +537,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
         $this->assertCount(1, $data['rows']);
 
         //test types is provided from source table for alias
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $tableId, 'table-1');
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $tableId, 'table-1');
 
         /** @var array $data */
         $data = $this->_client->getTableDataPreview($firstAliasTableId, ['format' => 'json']);
@@ -552,7 +552,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
     public function testDataPreviewForTableDefinitionWithoutDefinitionAndBaseType(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $tableDefinition = [
             'name' => 'my-new-table-for_data_preview',
@@ -659,7 +659,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
         $this->assertCount(1, $data['rows']);
 
         //test types is provided from source table for alias
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $tableId, 'table-1');
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $tableId, 'table-1');
 
         /** @var array $data */
         $data = $this->_client->getTableDataPreview($firstAliasTableId, ['format' => 'json']);
@@ -674,7 +674,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
     public function testAddTypedColumnOnNonTypedTable(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $tableDefinition = [
             'name' => 'my-new-table-non-typed',
@@ -701,7 +701,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
     public function testTableWithDot(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $tableDefinition = [
             'name' => 'nameWith.Dot',
@@ -743,10 +743,10 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
             ],
         ];
 
-        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(self::STAGE_IN), $tableDefinition);
+        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(), $tableDefinition);
 
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $sourceTableId, 'table-1');
-        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $firstAliasTableId, 'table-2');
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $sourceTableId, 'table-1');
+        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $firstAliasTableId, 'table-2');
 
         $newColumns = [
             [
@@ -862,7 +862,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
             ],
         ];
 
-        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(self::STAGE_IN), $tableDefinition);
+        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(), $tableDefinition);
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Column "definition" or "basetype" must be set.');
@@ -871,8 +871,8 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
     public function testDropColumnOnTypedTable(): void
     {
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $this->tableId, 'table-1');
-        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $firstAliasTableId, 'table-2');
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $this->tableId, 'table-1');
+        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $firstAliasTableId, 'table-2');
 
         $expectedColumns = ['id', 'name'];
         $this->assertEquals($expectedColumns, $this->_client->getTable($this->tableId)['columns']);
@@ -906,7 +906,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
     public function testCreateSnapshotOnTypedTable(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         // check that the new table has correct datypes in metadata
         $metadataClient = new Metadata($this->_client);
@@ -986,7 +986,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
      */
     public function testColumnTypesInTableDefinition(array $params, string $expectExceptionMessage): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $tableId = $this->_client->createTableDefinition($bucketId, $this->getTestTableDefinitions());
 
@@ -1184,9 +1184,9 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
         $options['dataFileId'] = $fileId;
         $this->expectExceptionMessage(
             'Load error: '
-            .'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. '
-            .'Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; '
-            .'line_number: 2 byte_offset_to_start_of_line: 17 col',
+            . 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. '
+            . 'Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; '
+            . 'line_number: 2 byte_offset_to_start_of_line: 17 col',
         );
         $this->expectException(ClientException::class);
         $this->_client->writeTableAsyncDirect($tableId, $options);
@@ -1253,7 +1253,7 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
 
     public function testCreateTableDefaults(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
@@ -1641,7 +1641,9 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
     }
 
     /**
-     * this testcase is not executed, because it takes too long for very low value. Code is being kept for future reference
+     * this testcase is not executed, because it takes too long for very low value. Code is being kept for future
+     * reference
+     *
      * @dataProvider provideDataForIllogicalFilter
      */
     public function skipTestIllogicalComparisonInFilter(array $filter): void
@@ -1804,7 +1806,7 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
     public function testUpdateTableDefinition(): void
     {
         $name = 'table-' . sha1($this->generateDescriptionForTestObject());
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
         $tableDefinition = [
             'name' => $name,
             'primaryKeysNames' => [],
@@ -1868,7 +1870,7 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
             ],
         ];
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
-        $originalColumns = $this->_client->getTable($tableId)['definition']['columns'];
+
         //drop default
         $this->_client->updateTableColumnDefinition(
             $tableId,
@@ -1924,7 +1926,6 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
         $tableDetail = $this->_client->getTable($tableId);
 
         $columns = $tableDetail['definition']['columns'];
-        //$this->assertSame($originalColumns, $columns);
         $this->assertSame([
             //add nullable
             [
