@@ -2469,6 +2469,8 @@ Updates a column of a table with typed columns. *Snowflake, BigQuery only.*
 
 Request is handled asynchronously which means that the create request is created and added to a queue and the job resource URL for status polling is returned.
 
+*BigQuery* executes each change of definition in a single atomic operation. If one of the operations fails (e.g. trying to set string DEFAULT value on NUMERIC column), job ends in error (even if other operations succeeded) with description of each operation.
+
 Supported alterations:
 | | Snowflake | BigQuery |
 | --- | --- | --- |
