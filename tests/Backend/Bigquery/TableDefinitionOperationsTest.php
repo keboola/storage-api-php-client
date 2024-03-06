@@ -32,7 +32,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 
     private function createTableDefinition(): string
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $data = [
             'name' => 'my_new_table',
@@ -62,7 +62,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 
     public function testDataPreviewExoticTypes(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $tableDefinition = [
             'name' => 'exotic_my_new_table',
@@ -279,7 +279,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
     public function testDataPreviewForTableDefinitionWithDecimalType(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $tableDefinition = [
             'name' => 'my-new-table-for_data_preview',
@@ -409,7 +409,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
         $this->assertCount(1, $data['rows']);
 
         //test types is provided from source table for alias
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $tableId, 'table-1');
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $tableId, 'table-1');
 
         /** @var array $data */
         $data = $this->_client->getTableDataPreview($firstAliasTableId, ['format' => 'json']);
@@ -424,7 +424,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
     public function testDataPreviewForTableDefinitionBaseType(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
         $tableDefinition = [
             'name' => 'my-new-table-for_data_preview',
             'primaryKeysNames' => [],
@@ -537,7 +537,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
         $this->assertCount(1, $data['rows']);
 
         //test types is provided from source table for alias
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $tableId, 'table-1');
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $tableId, 'table-1');
 
         /** @var array $data */
         $data = $this->_client->getTableDataPreview($firstAliasTableId, ['format' => 'json']);
@@ -552,7 +552,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
     public function testDataPreviewForTableDefinitionWithoutDefinitionAndBaseType(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $tableDefinition = [
             'name' => 'my-new-table-for_data_preview',
@@ -659,7 +659,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
         $this->assertCount(1, $data['rows']);
 
         //test types is provided from source table for alias
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $tableId, 'table-1');
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $tableId, 'table-1');
 
         /** @var array $data */
         $data = $this->_client->getTableDataPreview($firstAliasTableId, ['format' => 'json']);
@@ -674,7 +674,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
     public function testAddTypedColumnOnNonTypedTable(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $tableDefinition = [
             'name' => 'my-new-table-non-typed',
@@ -701,7 +701,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
     public function testTableWithDot(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $tableDefinition = [
             'name' => 'nameWith.Dot',
@@ -743,10 +743,10 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
             ],
         ];
 
-        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(self::STAGE_IN), $tableDefinition);
+        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(), $tableDefinition);
 
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $sourceTableId, 'table-1');
-        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $firstAliasTableId, 'table-2');
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $sourceTableId, 'table-1');
+        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $firstAliasTableId, 'table-2');
 
         $newColumns = [
             [
@@ -862,7 +862,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
             ],
         ];
 
-        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(self::STAGE_IN), $tableDefinition);
+        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(), $tableDefinition);
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Column "definition" or "basetype" must be set.');
@@ -871,8 +871,8 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
     public function testDropColumnOnTypedTable(): void
     {
-        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $this->tableId, 'table-1');
-        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_IN), $firstAliasTableId, 'table-2');
+        $firstAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $this->tableId, 'table-1');
+        $secondAliasTableId = $this->_client->createAliasTable($this->getTestBucketId(), $firstAliasTableId, 'table-2');
 
         $expectedColumns = ['id', 'name'];
         $this->assertEquals($expectedColumns, $this->_client->getTable($this->tableId)['columns']);
@@ -906,7 +906,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
     public function testCreateSnapshotOnTypedTable(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         // check that the new table has correct datypes in metadata
         $metadataClient = new Metadata($this->_client);
@@ -986,7 +986,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
      */
     public function testColumnTypesInTableDefinition(array $params, string $expectExceptionMessage): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
 
         $tableId = $this->_client->createTableDefinition($bucketId, $this->getTestTableDefinitions());
 
@@ -1184,9 +1184,9 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
         $options['dataFileId'] = $fileId;
         $this->expectExceptionMessage(
             'Load error: '
-            .'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. '
-            .'Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; '
-            .'line_number: 2 byte_offset_to_start_of_line: 17 col',
+            . 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. '
+            . 'Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; '
+            . 'line_number: 2 byte_offset_to_start_of_line: 17 col',
         );
         $this->expectException(ClientException::class);
         $this->_client->writeTableAsyncDirect($tableId, $options);
@@ -1253,7 +1253,7 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
 
     public function testCreateTableDefaults(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketId = $this->getTestBucketId();
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
@@ -1641,7 +1641,9 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
     }
 
     /**
-     * this testcase is not executed, because it takes too long for very low value. Code is being kept for future reference
+     * this testcase is not executed, because it takes too long for very low value. Code is being kept for future
+     * reference
+     *
      * @dataProvider provideDataForIllogicalFilter
      */
     public function skipTestIllogicalComparisonInFilter(array $filter): void
@@ -1799,5 +1801,309 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
         } catch (ClientException $e) {
             $this->assertEquals('Invalid filter value, expected:"BOOL", actual:"STRING".', $e->getMessage());
         }
+    }
+
+    public function testUpdateTableDefinition(): void
+    {
+        $name = 'table-' . sha1($this->generateDescriptionForTestObject());
+        $bucketId = $this->getTestBucketId();
+        $tableDefinition = [
+            'name' => $name,
+            'primaryKeysNames' => [],
+            'columns' => [
+                //drop default
+                [
+                    'name' => 'remove_default',
+                    'definition' => [
+                        'type' => 'STRING',
+                        'nullable' => true,
+                        'length' => 12,
+                        'default' => 'spálnivec',
+                    ],
+                ],
+                //add nullable
+                [
+                    'name' => 'longint_non_nullable',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => false,
+                        'length' => '12,1',
+                    ],
+                ],
+                //drop nullable
+                [
+                    'name' => 'longint_nullable',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => true,
+                        'length' => '12,0',
+                    ],
+                ],
+                //increase length of text column
+                [
+                    'name' => 'short_string',
+                    'definition' => [
+                        'type' => 'STRING',
+                        'nullable' => false,
+                        'length' => 13,
+                    ],
+                ],
+                //increase precision of numeric column
+                [
+                    'name' => 'short_int',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => false,
+                        'length' => '12,0',
+                    ],
+                ],
+                // multiple changes
+                [
+                    'name' => 'multiple',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => false,
+                        'length' => '12,0',
+                        'default' => '42',
+                    ],
+                ],
+            ],
+        ];
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        //drop default
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'remove_default',
+            [
+                'default' => null,
+            ],
+        );
+        //add nullable
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'longint_non_nullable',
+            [
+                'nullable' => true,
+            ],
+        );
+        //drop nullable
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'longint_nullable',
+            [
+                'nullable' => false,
+            ],
+        );
+        //increase length of text column
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'short_string',
+            [
+                'length' => '38',
+            ],
+        );
+        //increase precision of numeric column
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'short_int',
+            [
+                'length' => '25',
+            ],
+        );
+
+        // multiple changes
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'multiple',
+            [
+                'nullable' => true,
+                'length' => '14,0',
+                'default' => null,
+            ],
+        );
+
+        $tableDetail = $this->_client->getTable($tableId);
+
+        $columns = $tableDetail['definition']['columns'];
+        $this->assertSame([
+            //add nullable
+            [
+                'name' => 'longint_non_nullable',
+                'definition' => [
+                    'type' => 'NUMERIC',
+                    'nullable' => true,
+                    'length' => '12,1',
+                ],
+                'basetype' => 'NUMERIC',
+                'canBeFiltered' => true,
+            ],
+            //drop nullable - won't have any affect because in BQ nullable->required is not possible
+            [
+                'name' => 'longint_nullable',
+                'definition' => [
+                    'type' => 'NUMERIC',
+                    'nullable' => true,
+                    'length' => '12',
+                ],
+                'basetype' => 'NUMERIC',
+                'canBeFiltered' => true,
+            ],
+            // multiple changes
+            [
+                'name' => 'multiple',
+                'definition' => [
+                    'type' => 'NUMERIC',
+                    'nullable' => true,
+                    'length' => '14',
+                    'default' => 'NULL',
+                ],
+                'basetype' => 'NUMERIC',
+                'canBeFiltered' => true,
+            ],
+            //drop default
+            [
+                'name' => 'remove_default',
+                'definition' => [
+                    'type' => 'STRING',
+                    'nullable' => true,
+                    'length' => '12',
+                    'default' => 'NULL',
+                ],
+                'basetype' => 'STRING',
+                'canBeFiltered' => true,
+            ],
+            //increase precision of numeric column
+            [
+                'name' => 'short_int',
+                'definition' => [
+                    'type' => 'NUMERIC',
+                    'nullable' => false,
+                    'length' => '25',
+                ],
+                'basetype' => 'NUMERIC',
+                'canBeFiltered' => true,
+            ],
+            //increase length of text column
+            [
+                'name' => 'short_string',
+                'definition' => [
+                    'type' => 'STRING',
+                    'nullable' => false,
+                    'length' => '38',
+                ],
+                'basetype' => 'STRING',
+                'canBeFiltered' => true,
+            ],
+        ], $columns);
+    }
+
+    /**
+     * @dataProvider  failedOperationsProvider
+     */
+    public function testInvalidUpdateTableDefinition(
+        string $columnName,
+        array $updateDefinition,
+        string $partialExceptionMessage
+    ): void {
+        $name = 'table-' . sha1($this->generateDescriptionForTestObject());
+        $bucketId = $this->getTestBucketId();
+        $tableDefinition = [
+            'name' => $name,
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'decrease_length',
+                    'definition' => [
+                        'type' => 'STRING',
+                        'nullable' => true,
+                        'length' => 100,
+                        'default' => 'spálnivec',
+                    ],
+                ],
+                [
+                    'name' => 'decrease_precision',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => true,
+                        'length' => '15,5',
+                    ],
+                ],
+                [
+                    'name' => 'set_null_default_on_required',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => false,
+                        'length' => '12,1',
+                        'default' => 42,
+                    ],
+                ],
+                [
+                    'name' => 'string_default_on_numeric',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => false,
+                        'length' => '12,1',
+                    ],
+                ],
+                [
+                    'name' => 'invalid_boolean_default',
+                    'definition' => [
+                        'type' => 'BOOL',
+                        'nullable' => false,
+                        'length' => '',
+                    ],
+                ],
+            ],
+        ];
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        try {
+            $this->_client->updateTableColumnDefinition($tableId, $columnName, $updateDefinition);
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString($partialExceptionMessage, $e->getMessage());
+        }
+    }
+
+    public function failedOperationsProvider(): Generator
+    {
+        yield 'decrease_length' => [
+            'decrease_length',
+            [
+                'length' => 50,
+            ],
+            // end of message might contain `Narrowing type parameters is not compatible` but bucket/table are too long
+            // and error message is truncated with current jobs table
+            'Failed: "KBC.datatype.length": Provided Schema does not match Table',
+        ];
+        yield 'decrease_precision' => [
+            'decrease_precision',
+            [
+                'length' => '10,2',
+            ],
+            'Failed: "KBC.datatype.length": Provided Schema does not match Table',
+        ];
+        yield 'set_null_default_on_required' => [
+            'set_null_default_on_required',
+            [
+                'default' => null,
+            ],
+            'Field set_null_default_on_required has NOT NULL constraint',
+        ];
+        yield 'string_default_on_numeric' => [
+            'string_default_on_numeric',
+            [
+                'default' => 'test',
+            ],
+            'Invalid default value for column "string_default_on_numeric". Expected numeric value, got "test".',
+        ];
+        yield 'invalid_boolean_default' => [
+            'invalid_boolean_default',
+            [
+                'default' => 'test',
+            ],
+            'Invalid default value for column "invalid_boolean_default". Allowed values are true, false, 0, 1, got "test".',
+        ];
     }
 }
