@@ -1997,4 +1997,113 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
             ],
         ], $columns);
     }
+
+    /**
+     * @dataProvider  failedOperationsProvider
+     */
+    public function testInvalidUpdateTableDefinition(
+        string $columnName,
+        array $updateDefinition,
+        string $partialExceptionMessage
+    ): void {
+        $name = 'table-' . sha1($this->generateDescriptionForTestObject());
+        $bucketId = $this->getTestBucketId();
+        $tableDefinition = [
+            'name' => $name,
+            'primaryKeysNames' => [],
+            'columns' => [
+                [
+                    'name' => 'decrease_length',
+                    'definition' => [
+                        'type' => 'STRING',
+                        'nullable' => true,
+                        'length' => 100,
+                        'default' => 'spálnivec',
+                    ],
+                ],
+                [
+                    'name' => 'decrease_precision',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => true,
+                        'length' => '15,5',
+                    ],
+                ],
+                [
+                    'name' => 'set_null_default_on_required',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => false,
+                        'length' => '12,1',
+                        'default' => 42,
+                    ],
+                ],
+                [
+                    'name' => 'string_default_on_numeric',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => false,
+                        'length' => '12,1',
+                    ],
+                ],
+                [
+                    'name' => 'invalid_boolean_default',
+                    'definition' => [
+                        'type' => 'BOOL',
+                        'nullable' => false,
+                        'length' => '',
+                    ],
+                ],
+            ],
+        ];
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        try {
+            $this->_client->updateTableColumnDefinition($tableId, $columnName, $updateDefinition);
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString($partialExceptionMessage, $e->getMessage());
+        }
+    }
+
+    public function failedOperationsProvider(): Generator
+    {
+        yield 'decrease_length' => [
+            'decrease_length',
+            [
+                'length' => 50,
+            ],
+            // end of message might contain `Narrowing type parameters is not compatible` but bucket/table are too long
+            // and error message is truncated with current jobs table
+            'Failed: "KBC.datatype.length": Provided Schema does not match Table',
+        ];
+        yield 'decrease_precision' => [
+            'decrease_precision',
+            [
+                'length' => '10,2',
+            ],
+            'Failed: "KBC.datatype.length": Provided Schema does not match Table',
+        ];
+        yield 'set_null_default_on_required' => [
+            'set_null_default_on_required',
+            [
+                'default' => null,
+            ],
+            'Field set_null_default_on_required has NOT NULL constraint',
+        ];
+        yield 'string_default_on_numeric' => [
+            'string_default_on_numeric',
+            [
+                'default' => 'test',
+            ],
+            'Invalid default value for column "string_default_on_numeric". Expected numeric value, got "test".',
+        ];
+        yield 'invalid_boolean_default' => [
+            'invalid_boolean_default',
+            [
+                'default' => 'test',
+            ],
+            'Invalid default value for column "invalid_boolean_default". Allowed values are true, false, 0, 1, got "test".',
+        ];
+    }
 }
