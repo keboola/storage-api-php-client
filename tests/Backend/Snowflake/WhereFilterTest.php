@@ -285,7 +285,7 @@ class WhereFilterTest extends StorageApiTestCase
         ]);
         $csvFile->writeRow([
             1,
-            1.1, // decimal gets rounded to NUMERIC(38,0) -> 1
+            1.1, // decimal gets trailing zeros NUMERIC(38,9) -> 1.100000000
             1.5,
             'true',
             '1989-08-31',
@@ -370,7 +370,7 @@ class WhereFilterTest extends StorageApiTestCase
                 ],
                 [
                     'columnName' => 'column_decimal',
-                    'value' => '1',
+                    'value' => '1.100000000',
                     'isTruncated' => false,
                 ],
                 [
@@ -458,7 +458,7 @@ class WhereFilterTest extends StorageApiTestCase
 
         $csvFile->writeRow([
             1,
-            1.1, // decimal gets rounded to NUMERIC(38,0) -> 11
+            1.1, // decimal gets trailing zeros NUMERIC(38,9) -> 1.100000000
             1.5,
             'true',
             '1989-08-31',
@@ -548,7 +548,7 @@ class WhereFilterTest extends StorageApiTestCase
         $parsedData = Client::parseCsv($csv, false, ',', '"');
         $expectedPreview = [
             '1',
-            '1', // decimal gets rounded to NUMERIC(38,0) -> 1
+            '1.100000000', // decimal gets trailing zeros NUMERIC(38,9) -> 1.100000000
             '1.5',
             'true',
             '1989-08-31',
