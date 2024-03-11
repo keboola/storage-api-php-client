@@ -524,24 +524,30 @@ and the associated administrator (`admin`) with organization (if any). If the pr
 
             {
                 "id": "44",
-                "token": "your_token",
-                "description": "",
                 "created": "2017-02-13T10:27:50+0100",
                 "refreshed": "2017-11-13T16:48:28+0100",
-                "uri": "https://connection-devel.keboola.com/v2/storage/tokens/44",
-                "isMasterToken": false,
-                "canReadAllFileUploads": false,
-                "canPurgeTrash": false,
+                "description": "",
+                "uri": "https:\/\/connection.keboola.com\/v2\/storage\/tokens\/44",
+                "isMasterToken": true,
+                "canManageBuckets": true,
+                "canManageTokens": true,
+                "canReadAllFileUploads": true,
+                "canPurgeTrash": true,
+                "canManageProtectedDefaultBranch": false,
+                "canCreateJobs": false,
                 "expires": null,
                 "isExpired": false,
                 "isDisabled": false,
-                "dailyCapacity": 5,
+                "dailyCapacity": 0,
+                "token": "your_token",
+                "bucketPermissions": {
+                    "in.c-test": "manage",
+                },
                 "creatorToken": {
                     "id": 1,
                     "description": "dev@keboola.com"
                 },
-                "bucketPermissions": [],
-                "componentPermissions": [],
+                "componentAccess": [],
                 "admin": {
                     "id": 124,
                     "name": "John Doe",
@@ -555,77 +561,97 @@ and the associated administrator (`admin`) with organization (if any). If the pr
                 "owner": {
                     "name": "Buckets 5",
                     "id": "58",
+                    "type": "production",
+                    "region": "us-east-1",
+                    "created": "2022-08-18T08:47:07+0200",
+                    "expires": null,
+                    "features": [],
+                    "dataSizeBytes": 112128,
+                    "rowsCount": 1036,
+                    "hasMysql": false,
+                    "hasSynapse": false,
+                    "hasRedshift": false,
+                    "hasSnowflake": true,
+                    "hasExasol": false,
+                    "hasTeradata": false,
+                    "hasBigquery": false,
+                    "defaultBackend": "snowflake",
+                    "hasTryModeOn": "0",
                     "limits": {
-                            "components.jobsParallelism": {
-                                "name": "components.jobsParallelism",
-                                "value": 10
-                            },
-                            "goodData.dataSizeBytes": {
-                                "name": "goodData.dataSizeBytes",
-                                "value": 1000000000
-                            },
-                            "goodData.demoTokenEnabled": {
-                                "name": "goodData.demoTokenEnabled",
-                                "value": 1
-                            },
-                            "goodData.prodTokenEnabled": {
-                                "name": "goodData.prodTokenEnabled",
-                                "value": 1
-                            },
-                            "goodData.usersCount": {
-                                "name": "goodData.usersCount",
-                                "value": 30
-                            },
-                            "kbc.adminsCount": {
-                                "name": "kbc.adminsCount",
-                                "value": 10
-                            },
-                            "kbc.extractorsCount": {
-                                "name": "kbc.extractorsCount",
-                                "value": 0
-                            },
-                            "kbc.writersCount": {
-                                "name": "kbc.writersCount",
-                                "value": 0
-                            },
-                            "orchestrations.count": {
-                                "name": "orchestrations.count",
-                                "value": 10
-                            },
-                            "storage.dataSizeBytes": {
-                                "name": "storage.dataSizeBytes",
-                                "value": 50000000000
-                            },
-                            "storage.jobsParallelism": {
-                                "name": "storage.jobsParallelism",
-                                "value": 10
-                            }
-                        },
-                        "metrics": {
-                            "goodData.dataSizeBytes": {
-                                "name": "goodData.dataSizeBytes",
-                                "value": 3589276
-                            },
-                            "goodData.rowsCount": {
-                                "name": "goodData.rowsCount",
-                                "value": 23898
-                            },
-                            "goodData.usersCount": {
-                                "name": "goodData.usersCount",
-                                "value": 0
-                            },
-                            "storage.dataSizeBytes": {
-                                "name": "storage.dataSizeBytes",
-                                "value": 3019882496
-                            },
-                            "storage.rowsCount": {
-                                "name": "storage.rowsCount",
-                                "value": 3316230
-                            }
-                        },
-                        "payAsYouGo": {
-                            "purchasedCredits": 123
-                        }
+                       "components.jobsParallelism": {
+                           "name": "components.jobsParallelism",
+                           "value": 10
+                       },
+                       "goodData.dataSizeBytes": {
+                           "name": "goodData.dataSizeBytes",
+                           "value": 1000000000
+                       },
+                       "goodData.demoTokenEnabled": {
+                           "name": "goodData.demoTokenEnabled",
+                           "value": 1
+                       },
+                       "goodData.prodTokenEnabled": {
+                           "name": "goodData.prodTokenEnabled",
+                           "value": 0
+                       },
+                       "goodData.usersCount": {
+                           "name": "goodData.usersCount",
+                           "value": 30
+                       },
+                       "kbc.adminsCount": {
+                           "name": "kbc.adminsCount",
+                           "value": 10
+                       },
+                       "kbc.extractorsCount": {
+                           "name": "kbc.extractorsCount",
+                           "value": 0
+                       },
+                       "kbc.monthlyProjectPowerLimit": {
+                           "name": "kbc.monthlyProjectPowerLimit",
+                           "value": 50
+                       },
+                       "kbc.writersCount": {
+                           "name": "kbc.writersCount",
+                           "value": 0
+                       },
+                       "orchestrations.count": {
+                           "name": "orchestrations.count",
+                           "value": 10
+                       },
+                       "storage.dataSizeBytes": {
+                           "name": "storage.dataSizeBytes",
+                           "value": 50000000000
+                       },
+                       "storage.jobsParallelism": {
+                           "name": "storage.jobsParallelism",
+                           "value": 10
+                       }
+                    },
+                    "metrics": {
+                       "kbc.adminsCount": {
+                           "name": "kbc.adminsCount",
+                           "value": 2
+                       },
+                       "orchestrations.count": {
+                           "name": "orchestrations.count",
+                           "value": 1
+                       },
+                       "storage.dataSizeBytes": {
+                           "name": "storage.dataSizeBytes",
+                           "value": 112128
+                       },
+                       "storage.rowsCount": {
+                           "name": "storage.rowsCount",
+                           "value": 1036
+                       }
+                    },
+                    "isDisabled": false,
+                    "billedMonthlyPrice": null,
+                    "dataRetentionTimeInDays": 7,
+                    "fileStorageProvider": "aws",
+                    "payAsYouGo": {
+                        "purchasedCredits": 123
+                    }
                 }
             }
 
@@ -645,27 +671,32 @@ This call can be executed by all tokens.
 
 + Response 200 (application/json)
     + Body
-
             {
                 "id": "44",
-                "token": "your_token",
-                "description": "",
                 "created": "2017-02-13T10:27:50+0100",
                 "refreshed": "2017-11-13T16:48:28+0100",
-                "uri": "https://connection-devel.keboola.com/v2/storage/tokens/44",
-                "isMasterToken": false,
-                "canReadAllFileUploads": false,
-                "canPurgeTrash": false,
+                "description": "",
+                "uri": "https:\/\/connection.keboola.com\/v2\/storage\/tokens\/44",
+                "isMasterToken": true,
+                "canManageBuckets": true,
+                "canManageTokens": true,
+                "canReadAllFileUploads": true,
+                "canPurgeTrash": true,
+                "canManageProtectedDefaultBranch": false,
+                "canCreateJobs": false,
                 "expires": null,
                 "isExpired": false,
                 "isDisabled": false,
-                "dailyCapacity": 5,
+                "dailyCapacity": 0,
+                "token": "your_token",
+                "bucketPermissions": {
+                    "in.c-test": "manage",
+                },
                 "creatorToken": {
                     "id": 1,
                     "description": "dev@keboola.com"
                 },
-                "bucketPermissions": [],
-                "componentPermissions": [],
+                "componentAccess": [],
                 "admin": {
                     "id": 124,
                     "name": "John Doe",
@@ -679,77 +710,97 @@ This call can be executed by all tokens.
                 "owner": {
                     "name": "Buckets 5",
                     "id": "58",
+                    "type": "production",
+                    "region": "us-east-1",
+                    "created": "2022-08-18T08:47:07+0200",
+                    "expires": null,
+                    "features": [],
+                    "dataSizeBytes": 112128,
+                    "rowsCount": 1036,
+                    "hasMysql": false,
+                    "hasSynapse": false,
+                    "hasRedshift": false,
+                    "hasSnowflake": true,
+                    "hasExasol": false,
+                    "hasTeradata": false,
+                    "hasBigquery": false,
+                    "defaultBackend": "snowflake",
+                    "hasTryModeOn": "0",
                     "limits": {
-                            "components.jobsParallelism": {
-                                "name": "components.jobsParallelism",
-                                "value": 10
-                            },
-                            "goodData.dataSizeBytes": {
-                                "name": "goodData.dataSizeBytes",
-                                "value": 1000000000
-                            },
-                            "goodData.demoTokenEnabled": {
-                                "name": "goodData.demoTokenEnabled",
-                                "value": 1
-                            },
-                            "goodData.prodTokenEnabled": {
-                                "name": "goodData.prodTokenEnabled",
-                                "value": 1
-                            },
-                            "goodData.usersCount": {
-                                "name": "goodData.usersCount",
-                                "value": 30
-                            },
-                            "kbc.adminsCount": {
-                                "name": "kbc.adminsCount",
-                                "value": 10
-                            },
-                            "kbc.extractorsCount": {
-                                "name": "kbc.extractorsCount",
-                                "value": 0
-                            },
-                            "kbc.writersCount": {
-                                "name": "kbc.writersCount",
-                                "value": 0
-                            },
-                            "orchestrations.count": {
-                                "name": "orchestrations.count",
-                                "value": 10
-                            },
-                            "storage.dataSizeBytes": {
-                                "name": "storage.dataSizeBytes",
-                                "value": 50000000000
-                            },
-                            "storage.jobsParallelism": {
-                                "name": "storage.jobsParallelism",
-                                "value": 10
-                            }
-                        },
-                        "metrics": {
-                            "goodData.dataSizeBytes": {
-                                "name": "goodData.dataSizeBytes",
-                                "value": 3589276
-                            },
-                            "goodData.rowsCount": {
-                                "name": "goodData.rowsCount",
-                                "value": 23898
-                            },
-                            "goodData.usersCount": {
-                                "name": "goodData.usersCount",
-                                "value": 0
-                            },
-                            "storage.dataSizeBytes": {
-                                "name": "storage.dataSizeBytes",
-                                "value": 3019882496
-                            },
-                            "storage.rowsCount": {
-                                "name": "storage.rowsCount",
-                                "value": 3316230
-                            }
-                        },
-                        "payAsYouGo": {
-                            "purchasedCredits": 123
-                        }
+                       "components.jobsParallelism": {
+                           "name": "components.jobsParallelism",
+                           "value": 10
+                       },
+                       "goodData.dataSizeBytes": {
+                           "name": "goodData.dataSizeBytes",
+                           "value": 1000000000
+                       },
+                       "goodData.demoTokenEnabled": {
+                           "name": "goodData.demoTokenEnabled",
+                           "value": 1
+                       },
+                       "goodData.prodTokenEnabled": {
+                           "name": "goodData.prodTokenEnabled",
+                           "value": 0
+                       },
+                       "goodData.usersCount": {
+                           "name": "goodData.usersCount",
+                           "value": 30
+                       },
+                       "kbc.adminsCount": {
+                           "name": "kbc.adminsCount",
+                           "value": 10
+                       },
+                       "kbc.extractorsCount": {
+                           "name": "kbc.extractorsCount",
+                           "value": 0
+                       },
+                       "kbc.monthlyProjectPowerLimit": {
+                           "name": "kbc.monthlyProjectPowerLimit",
+                           "value": 50
+                       },
+                       "kbc.writersCount": {
+                           "name": "kbc.writersCount",
+                           "value": 0
+                       },
+                       "orchestrations.count": {
+                           "name": "orchestrations.count",
+                           "value": 10
+                       },
+                       "storage.dataSizeBytes": {
+                           "name": "storage.dataSizeBytes",
+                           "value": 50000000000
+                       },
+                       "storage.jobsParallelism": {
+                           "name": "storage.jobsParallelism",
+                           "value": 10
+                       }
+                    },
+                    "metrics": {
+                       "kbc.adminsCount": {
+                           "name": "kbc.adminsCount",
+                           "value": 2
+                       },
+                       "orchestrations.count": {
+                           "name": "orchestrations.count",
+                           "value": 1
+                       },
+                       "storage.dataSizeBytes": {
+                           "name": "storage.dataSizeBytes",
+                           "value": 112128
+                       },
+                       "storage.rowsCount": {
+                           "name": "storage.rowsCount",
+                           "value": 1036
+                       }
+                    },
+                    "isDisabled": false,
+                    "billedMonthlyPrice": null,
+                    "dataRetentionTimeInDays": 7,
+                    "fileStorageProvider": "aws",
+                    "payAsYouGo": {
+                        "purchasedCredits": 123
+                    }
                 }
             }
 
