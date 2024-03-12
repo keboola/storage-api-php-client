@@ -3830,13 +3830,14 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
                 }
             }
 
-### Drop table [DELETE /v2/storage/tables/{table_id}/?force={force}]
+### Drop table [DELETE /v2/storage/tables/{table_id}/?force={force}&async={async}]
 Deletes a table from Storage. In default mode, only table having any aliases can be deleted.
 Use the optional `force` parameter to delete its aliases too.
 
 + Parameters
     + table_id (required) - Table Id
     + force (optional, boolean) - Drops the table and its aliases.
+    + async (optional, boolean) - Execute drop table in asynchronous job. Sync operation is deprecated.
 
 + Request
     + Headers
@@ -3844,6 +3845,30 @@ Use the optional `force` parameter to delete its aliases too.
             X-StorageApi-Token: your_token
 
 + Response 204
++ Response 202 (application/json)
+    + Body
+
+            {
+               "id":1189,
+               "status":"waiting",
+               "url":"https:\/\/connection.keboola.com\/v2\/storage\/jobs\/1189",
+               "tableId":"in.c-main.another",
+               "operationName":"tableDrop",
+               "operationParams":{
+                  "force":"true"
+               },
+               "createdTime":"2013-07-08T10:01:03+0200",
+               "startTime":null,
+               "endTime":null,
+               "runId":null,
+               "results":null,
+               "creatorToken":{
+                  "id":"221",
+                  "name":"Master Token"
+               }
+            }
+
+
 
 ## Table Optimize [/v2/storage/tables/{table_id}/optimize]
 
