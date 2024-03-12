@@ -2316,7 +2316,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
         //test length for basetype column
         $baseTypeColumn = array_values(array_filter(
             $this->_client->getTable($sourceTableId)['definition']['columns'],
-            fn($column) => $column['name'] === 'basetype'
+            fn($column) => $column['name'] === 'basetype',
         ));
         $this->assertCount(1, $baseTypeColumn);
         $this->assertSame('basetype', $baseTypeColumn[0]['name']);

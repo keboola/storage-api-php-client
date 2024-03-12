@@ -39,7 +39,7 @@ trait EventTesterUtils
 
         /** @var array $return */
         $return = $this->retryWithCallback(
-            fn() => $client->getEvent($id)
+            fn() => $client->getEvent($id),
         );
         return $return;
     }

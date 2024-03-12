@@ -256,7 +256,7 @@ class BranchStorageTest extends StorageApiTestCase
         // assert tables listing
         $tablesInProd = array_filter(
             $privilegedClient->listTables(),
-            fn(array $table) => $table['bucket']['id'] === $prodTable['bucket']['id'] && $table['id'] === $productionTableId
+            fn(array $table) => $table['bucket']['id'] === $prodTable['bucket']['id'] && $table['id'] === $productionTableId,
         );
         $this->assertBranchEvent($privilegedClient, 'storage.tablesListed', null, null);
         $this->assertCount(1, $tablesInProd);
@@ -265,7 +265,7 @@ class BranchStorageTest extends StorageApiTestCase
         // assert buckets listing
         $bucketsInProd = array_filter(
             $privilegedClient->listBuckets(),
-            fn(array $bucket) => $bucket['id'] === $prodTable['bucket']['id']
+            fn(array $bucket) => $bucket['id'] === $prodTable['bucket']['id'],
         );
         $this->assertBranchEvent($privilegedClient, 'storage.bucketsListed', null, null);
         $this->assertCount(1, $bucketsInProd);
