@@ -62,17 +62,17 @@ class SOXBranchesTest extends StorageApiTestCase
 
         $this->asserBranchCall(
             $canManipulateBranch,
-            fn() => $branches->createBranch($this->generateDescriptionForTestObject() . '_')
+            fn() => $branches->createBranch($this->generateDescriptionForTestObject() . '_'),
         );
 
         $this->asserBranchCall(
             $canManipulateBranch,
-            fn() => $branches->updateBranch($testBranchId, '', 'description')
+            fn() => $branches->updateBranch($testBranchId, '', 'description'),
         );
 
         $this->asserBranchCall(
             $canManipulateBranch,
-            fn() => $branches->deleteBranch($testBranchId)
+            fn() => $branches->deleteBranch($testBranchId),
         );
     }
 
