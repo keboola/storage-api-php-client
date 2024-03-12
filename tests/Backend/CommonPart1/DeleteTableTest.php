@@ -1,39 +1,42 @@
 <?php
-/**
- * Created by JetBrains PhpStorm.
- * User: martinhalamicek
- * Date: 22/05/14
- * Time: 16:38
- * To change this template use File | Settings | File Templates.
- */
 
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Generator;
+use Keboola\Csv\InvalidArgumentException;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
 class DeleteTableTest extends StorageApiTestCase
 {
-
     public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    public function testTableDelete(): void
+    /**
+     * @dataProvider asyncProvider
+     */
+    public function testTableDelete(bool $async): void
     {
         $table1Id = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
         $table2Id = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages_2', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
         $tables = $this->_client->listTables($this->getTestBucketId(self::STAGE_IN));
 
         $this->assertCount(2, $tables);
-        $this->_client->dropTable($table1Id);
+        $this->_client->dropTable($table1Id, ['async' => $async]);
 
         $tables = $this->_client->listTables($this->getTestBucketId(self::STAGE_IN));
         $this->assertCount(1, $tables);
 
         $table = reset($tables);
         $this->assertEquals($table2Id, $table['id']);
+    }
+
+    public function asyncProvider(): Generator
+    {
+        yield 'async = false' => [false];
+        yield 'async = true' => [true];
     }
 }
