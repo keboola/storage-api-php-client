@@ -17,22 +17,9 @@ class WorkspacesLoadTestReadOnly extends ParallelWorkspacesTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $token = $this->_client->verifyToken();
-        if (!in_array('input-mapping-read-only-storage', $token['owner']['features'])) {
-            $this->markTestSkipped(sprintf('Read only mapping is not enabled for project "%s"', $token['owner']['id']));
-        }
-
         $this->linkingClient = $this->getClientForToken(
             STORAGE_API_LINKING_TOKEN,
         );
-
-        $tokenLinking = $this->linkingClient->verifyToken();
-        if (!in_array('input-mapping-read-only-storage', $tokenLinking['owner']['features'])) {
-            $this->markTestSkipped(sprintf(
-                'Read only mapping is not enabled for project "%s"',
-                $tokenLinking['owner']['id'],
-            ));
-        }
     }
 
     /**

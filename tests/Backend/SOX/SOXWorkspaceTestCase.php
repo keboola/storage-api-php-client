@@ -28,16 +28,6 @@ class SOXWorkspaceTestCase extends StorageApiTestCase
         $this->clientProvider = new ClientProvider($this);
         $currentToken = $this->_client->verifyToken();
         self::assertArrayHasKey('owner', $currentToken);
-        if (!in_array($currentToken['owner']['defaultBackend'], [self::BACKEND_BIGQUERY, self::BACKEND_EXASOL], true)) {
-            // check feature only on backend where is not default
-            if (!in_array('input-mapping-read-only-storage', $currentToken['owner']['features'], true)) {
-                self::fail(sprintf(
-                    'Project "%s" id:"%s" is missing feature "input-mapping-read-only-storage"',
-                    $currentToken['owner']['name'],
-                    $currentToken['owner']['id'],
-                ));
-            }
-        }
 
         $this->dropOldTokens();
 

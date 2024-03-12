@@ -848,13 +848,6 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
     {
         $currentToken = $this->_client->verifyToken();
         self::assertArrayHasKey('owner', $currentToken);
-        if (!in_array('input-mapping-read-only-storage', $currentToken['owner']['features'])) {
-            self::fail(sprintf(
-                'Project "%s" id:"%s" is missing feature "input-mapping-read-only-storage"',
-                $currentToken['owner']['name'],
-                $currentToken['owner']['id'],
-            ));
-        }
 
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
