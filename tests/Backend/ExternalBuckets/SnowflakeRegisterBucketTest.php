@@ -656,6 +656,104 @@ SQL,
         $this->assertEquals('view', $view['tableType']);
     }
 
+    public function testAlteredColumnThrowsUserExAndAfterRefreshWillWork(): void
+    {
+        // prepare workspace
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $this->dropBucketIfExists($this->_client, $bucketId, true);
+
+        $ws = new Workspaces($this->_client);
+        // prepare workspace
+        $workspace = $ws->createWorkspace();
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $db->createTable('MY_LITTLE_TABLE_FOR_VIEW', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
+
+        $db->executeQuery(
+            <<<SQL
+CREATE OR REPLACE VIEW MY_LITTLE_VIEW AS SELECT * FROM  MY_LITTLE_TABLE_FOR_VIEW;
+SQL,
+        );
+
+        $idOfBucket = $this->_client->registerBucket(
+            $testBucketName,
+            [$workspace['connection']['database'], $workspace['connection']['schema']],
+            'in',
+            'Iam in workspace',
+            'snowflake',
+            'Iam-your-external-bucket-to-test-alter-table',
+        );
+
+        $bucket = $this->_client->getBucket($idOfBucket);
+        $this->assertTrue($bucket['hasExternalSchema']);
+        $this->assertSame($workspace['connection']['database'], $bucket['databaseName']);
+
+        // check table existence
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(2, $tables);
+        $table = $tables[0];
+        $view = $tables[1];
+
+        // now add new column to table and recreate view, to test preview still works
+        $db->executeQuery(
+            <<<SQL
+ALTER TABLE MY_LITTLE_TABLE_FOR_VIEW ADD COLUMN AGE INTEGER;
+SQL,
+        );
+
+        $db->executeQuery(
+            <<<SQL
+CREATE OR REPLACE VIEW MY_LITTLE_VIEW AS SELECT * FROM  MY_LITTLE_TABLE_FOR_VIEW;
+SQL,
+        );
+
+        $this->assertNotEmpty($this->_client->getTableDataPreview($table['id'], ['format' => 'json']));
+        $this->assertNotEmpty($this->_client->getTableDataPreview($view['id'], ['format' => 'json']));
+
+        $this->_client->refreshBucket($idOfBucket);
+
+        // test after refresh, still works
+        $this->assertNotEmpty($this->_client->getTableDataPreview($table['id'], ['format' => 'json']));
+        $this->assertNotEmpty($this->_client->getTableDataPreview($view['id'], ['format' => 'json']));
+
+        // drop column and recreate view, to test preview ends with user errr
+        $db->executeQuery(
+            <<<SQL
+ALTER TABLE MY_LITTLE_TABLE_FOR_VIEW DROP COLUMN AGE;
+SQL,
+        );
+
+        $db->executeQuery(
+            <<<SQL
+CREATE OR REPLACE VIEW MY_LITTLE_VIEW AS SELECT * FROM  MY_LITTLE_TABLE_FOR_VIEW;
+SQL,
+        );
+
+        try {
+            $this->_client->getTableDataPreview($table['id'], ['format' => 'json']);
+            $this->fail('Should fail');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString('External table might be out of sync. Please update the external bucket to ensure it\'s synchronized, then try again.', $e->getMessage());
+        }
+
+        try {
+            $this->_client->getTableDataPreview($view['id'], ['format' => 'json']);
+            $this->fail('Should fail');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString('External table might be out of sync. Please update the external bucket to ensure it\'s synchronized, then try again.', $e->getMessage());
+        }
+
+        // after refresh should work again
+        $this->_client->refreshBucket($idOfBucket);
+
+        $this->assertNotEmpty($this->_client->getTableDataPreview($table['id'], ['format' => 'json']));
+        $this->assertNotEmpty($this->_client->getTableDataPreview($view['id'], ['format' => 'json']));
+    }
+
     public function testRegisterExternalDB(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration-ext', true);
