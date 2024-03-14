@@ -22,9 +22,6 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $this->initEvents($this->_client);
         $token = $this->_client->verifyToken();
 
-        if (!in_array('input-mapping-read-only-storage', $token['owner']['features'])) {
-            $this->markTestSkipped(sprintf('Read only mapping is not enabled for project "%s"', $token['owner']['id']));
-        }
         if (!in_array('external-buckets', $token['owner']['features'])) {
             $this->markTestSkipped(sprintf('External buckets are not enabled for project "%s"', $token['owner']['id']));
         }
