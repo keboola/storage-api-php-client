@@ -737,14 +737,18 @@ SQL,
             $this->_client->getTableDataPreview($table['id'], ['format' => 'json']);
             $this->fail('Should fail');
         } catch (ClientException $e) {
-            $this->assertStringContainsString('External table might be out of sync. Please update the external bucket to ensure it\'s synchronized, then try again.', $e->getMessage());
+            $this->assertSame(400, $e->getCode());
+            $this->assertSame('storage.backend.externalBucketObjectInvalidIdentifier', $e->getStringCode());
+            $this->assertStringContainsString('External object might be out of sync. Please refresh the external bucket to ensure it\'s synchronized, then try again.', $e->getMessage());
         }
 
         try {
             $this->_client->getTableDataPreview($view['id'], ['format' => 'json']);
             $this->fail('Should fail');
         } catch (ClientException $e) {
-            $this->assertStringContainsString('External table might be out of sync. Please update the external bucket to ensure it\'s synchronized, then try again.', $e->getMessage());
+            $this->assertSame(400, $e->getCode());
+            $this->assertSame('storage.backend.externalBucketObjectInvalidIdentifier', $e->getStringCode());
+            $this->assertStringContainsString('External object might be out of sync. Please refresh the external bucket to ensure it\'s synchronized, then try again.', $e->getMessage());
         }
 
         // after refresh should work again
