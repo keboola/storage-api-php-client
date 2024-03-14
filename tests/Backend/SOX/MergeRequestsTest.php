@@ -369,7 +369,7 @@ class MergeRequestsTest extends StorageApiTestCase
             $reviewerClient->mergeRequestApprove($mrId);
             $this->fail('Reviewer should not be able to approve MR twice');
         } catch (ClientException $e) {
-            $this->assertSame('Operation canot be performed due: This reviewer has already approved this request.', $e->getMessage());
+            $this->assertSame('Operation cannot be performed due: This reviewer has already approved this request.', $e->getMessage());
         }
     }
 
@@ -574,7 +574,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $reviewerClient->mergeRequestRequestReview($mrId);
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Operation canot be performed due: Request creator cannot approve their own request.');
+        $this->expectExceptionMessage('Operation cannot be performed due: Request creator cannot approve their own request.');
         $reviewerClient->mergeRequestApprove($mrId);
     }
 
