@@ -238,6 +238,112 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
     }
 
     /**
+     * @group noSOX
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testAlteredColumnThrowsUserExAndAfterRefreshWillWork(): void
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $this->dropBucketIfExists($this->_client, $bucketId, true);
+
+        // prepare external bucket
+        $path = $this->prepareExternalBucketForRegistration($description);
+
+        $externalCredentials['connection']['backend'] = 'bigquery';
+        $externalCredentials['connection']['credentials'] = $this->getCredentialsArray();
+        $schemaName = $externalCredentials['connection']['schema'] = sha1($description) . '_external_bucket';
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
+
+        $db->createTable('MY_LITTLE_TABLE_FOR_VIEW', ['AMOUNT' => 'INT64', 'DESCRIPTION' => 'STRING']);
+
+        $db->executeQuery(sprintf(
+        /** @lang BigQuery */
+            'CREATE VIEW `%s`.`MY_LITTLE_VIEW` AS SELECT * FROM `%s`.`MY_LITTLE_TABLE_FOR_VIEW`',
+            $schemaName,
+            $schemaName,
+        ));
+
+        $idOfBucket = $this->_client->registerBucket(
+            $testBucketName,
+            $path,
+            'in',
+            'Iam in workspace',
+            'bigquery',
+            'Iam-your-external-bucket-to-test-alter-table',
+        );
+
+        // check table existence
+        $tables = $this->_client->listTables($idOfBucket);
+        $this->assertCount(2, $tables);
+        $table = $tables[0];
+        $view = $tables[1];
+
+        $db->executeQuery(sprintf(
+        /** @lang BigQuery */
+            'ALTER TABLE `%s`.`MY_LITTLE_TABLE_FOR_VIEW` ADD COLUMN AGE INTEGER;',
+            $schemaName,
+        ));
+
+        $db->executeQuery(sprintf(
+        /** @lang BigQuery */
+            'CREATE OR REPLACE VIEW `%s`.`MY_LITTLE_VIEW` AS SELECT * FROM `%s`.`MY_LITTLE_TABLE_FOR_VIEW`',
+            $schemaName,
+            $schemaName,
+        ));
+
+        $this->assertNotEmpty($this->_client->getTableDataPreview($table['id'], ['format' => 'json']));
+        $this->assertNotEmpty($this->_client->getTableDataPreview($view['id'], ['format' => 'json']));
+
+        $this->_client->refreshBucket($idOfBucket);
+
+        // test after refresh, still works
+        $this->assertNotEmpty($this->_client->getTableDataPreview($table['id'], ['format' => 'json']));
+        $this->assertNotEmpty($this->_client->getTableDataPreview($view['id'], ['format' => 'json']));
+
+        // drop column and recreate view, to test preview ends with user err
+        $db->executeQuery(sprintf(
+        /** @lang BigQuery */
+            'ALTER TABLE `%s`.`MY_LITTLE_TABLE_FOR_VIEW`  DROP COLUMN AGE;',
+            $schemaName,
+        ));
+
+        $db->executeQuery(sprintf(
+        /** @lang BigQuery */
+            'CREATE OR REPLACE VIEW `%s`.`MY_LITTLE_VIEW` AS SELECT * FROM `%s`.`MY_LITTLE_TABLE_FOR_VIEW`',
+            $schemaName,
+            $schemaName,
+        ));
+
+        try {
+            $this->_client->getTableDataPreview($table['id'], ['format' => 'json']);
+            $this->fail('Should fail');
+        } catch (ClientException $e) {
+            $this->assertSame(400, $e->getCode());
+            $this->assertSame('storage.backend.externalBucketObjectInvalidIdentifier', $e->getStringCode());
+            $this->assertStringContainsString('External object might be out of sync. Please refresh the external bucket to ensure it\'s synchronized, then try again.', $e->getMessage());
+        }
+
+        try {
+            $this->_client->getTableDataPreview($view['id'], ['format' => 'json']);
+            $this->fail('Should fail');
+        } catch (ClientException $e) {
+            $this->assertSame(400, $e->getCode());
+            $this->assertSame('storage.backend.externalBucketObjectInvalidIdentifier', $e->getStringCode());
+            $this->assertStringContainsString('External object might be out of sync. Please refresh the external bucket to ensure it\'s synchronized, then try again.', $e->getMessage());
+        }
+
+        // after refresh should work again
+        $this->_client->refreshBucket($idOfBucket);
+
+        $this->assertNotEmpty($this->_client->getTableDataPreview($table['id'], ['format' => 'json']));
+        $this->assertNotEmpty($this->_client->getTableDataPreview($view['id'], ['format' => 'json']));
+    }
+
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      */
     public function testRegisterTableWithWrongName(): void
