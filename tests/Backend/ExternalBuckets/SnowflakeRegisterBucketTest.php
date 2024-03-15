@@ -658,7 +658,6 @@ SQL,
 
     public function testAlteredColumnThrowsUserExAndAfterRefreshWillWork(): void
     {
-        // prepare workspace
         $description = $this->generateDescriptionForTestObject();
         $testBucketName = $this->getTestBucketName($description);
         $bucketId = self::STAGE_IN . '.' . $testBucketName;
@@ -666,7 +665,6 @@ SQL,
         $this->dropBucketIfExists($this->_client, $bucketId, true);
 
         $ws = new Workspaces($this->_client);
-        // prepare workspace
         $workspace = $ws->createWorkspace();
 
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -720,7 +718,7 @@ SQL,
         $this->assertNotEmpty($this->_client->getTableDataPreview($table['id'], ['format' => 'json']));
         $this->assertNotEmpty($this->_client->getTableDataPreview($view['id'], ['format' => 'json']));
 
-        // drop column and recreate view, to test preview ends with user errr
+        // drop column and recreate view, to test preview ends with user err
         $db->executeQuery(
             <<<SQL
 ALTER TABLE MY_LITTLE_TABLE_FOR_VIEW DROP COLUMN AGE;
