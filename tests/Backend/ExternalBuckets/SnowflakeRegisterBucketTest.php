@@ -709,14 +709,22 @@ CREATE OR REPLACE VIEW MY_LITTLE_VIEW AS SELECT * FROM  MY_LITTLE_TABLE_FOR_VIEW
 SQL,
         );
 
-        $this->assertSame(['AMOUNT', 'DESCRIPTION'], $this->_client->getTableDataPreview($table['id'], ['format' => 'json'])['columns']);
-        $this->assertSame(['AMOUNT', 'DESCRIPTION'], $this->_client->getTableDataPreview($view['id'], ['format' => 'json'])['columns']);
+        /** @var array $tableDataPreview */
+        $tableDataPreview = $this->_client->getTableDataPreview($table['id'], ['format' => 'json']);
+        /** @var array $viewDataPreview1 */
+        $viewDataPreview1 = $this->_client->getTableDataPreview($view['id'], ['format' => 'json']);
+        $this->assertSame(['AMOUNT', 'DESCRIPTION'], $tableDataPreview['columns']);
+        $this->assertSame(['AMOUNT', 'DESCRIPTION'], $viewDataPreview1['columns']);
 
         $this->_client->refreshBucket($idOfBucket);
 
         // test after refresh, still works
-        $this->assertSame(['AMOUNT', 'DESCRIPTION', 'AGE'], $this->_client->getTableDataPreview($table['id'], ['format' => 'json'])['columns']);
-        $this->assertSame(['AMOUNT', 'DESCRIPTION', 'AGE'], $this->_client->getTableDataPreview($view['id'], ['format' => 'json'])['columns']);
+        /** @var array $tableDataPreview */
+        $tableDataPreview = $this->_client->getTableDataPreview($table['id'], ['format' => 'json']);
+        /** @var array $viewDataPreview1 */
+        $viewDataPreview1 = $this->_client->getTableDataPreview($view['id'], ['format' => 'json']);
+        $this->assertSame(['AMOUNT', 'DESCRIPTION', 'AGE'], $tableDataPreview['columns']);
+        $this->assertSame(['AMOUNT', 'DESCRIPTION', 'AGE'], $viewDataPreview1['columns']);
 
         // drop column and recreate view, to test preview ends with user err
         $db->executeQuery(
@@ -752,8 +760,12 @@ SQL,
         // after refresh should work again
         $this->_client->refreshBucket($idOfBucket);
 
-        $this->assertSame(['AMOUNT', 'DESCRIPTION'], $this->_client->getTableDataPreview($table['id'], ['format' => 'json'])['columns']);
-        $this->assertSame(['AMOUNT', 'DESCRIPTION'], $this->_client->getTableDataPreview($view['id'], ['format' => 'json'])['columns']);
+        /** @var array $tableDataPreview */
+        $tableDataPreview = $this->_client->getTableDataPreview($table['id'], ['format' => 'json']);
+        /** @var array $viewDataPreview1 */
+        $viewDataPreview1 = $this->_client->getTableDataPreview($view['id'], ['format' => 'json']);
+        $this->assertSame(['AMOUNT', 'DESCRIPTION'], $tableDataPreview['columns']);
+        $this->assertSame(['AMOUNT', 'DESCRIPTION'], $viewDataPreview1['columns']);
     }
 
     public function testRegisterExternalDB(): void
