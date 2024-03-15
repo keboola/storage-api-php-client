@@ -709,14 +709,14 @@ CREATE OR REPLACE VIEW MY_LITTLE_VIEW AS SELECT * FROM  MY_LITTLE_TABLE_FOR_VIEW
 SQL,
         );
 
-        $this->assertNotEmpty($this->_client->getTableDataPreview($table['id'], ['format' => 'json']));
-        $this->assertNotEmpty($this->_client->getTableDataPreview($view['id'], ['format' => 'json']));
+        $this->assertSame(['AMOUNT', 'DESCRIPTION'], $this->_client->getTableDataPreview($table['id'], ['format' => 'json'])['columns']);
+        $this->assertSame(['AMOUNT', 'DESCRIPTION'], $this->_client->getTableDataPreview($view['id'], ['format' => 'json'])['columns']);
 
         $this->_client->refreshBucket($idOfBucket);
 
         // test after refresh, still works
-        $this->assertNotEmpty($this->_client->getTableDataPreview($table['id'], ['format' => 'json']));
-        $this->assertNotEmpty($this->_client->getTableDataPreview($view['id'], ['format' => 'json']));
+        $this->assertSame(['AMOUNT', 'DESCRIPTION', 'AGE'], $this->_client->getTableDataPreview($table['id'], ['format' => 'json'])['columns']);
+        $this->assertSame(['AMOUNT', 'DESCRIPTION', 'AGE'], $this->_client->getTableDataPreview($view['id'], ['format' => 'json'])['columns']);
 
         // drop column and recreate view, to test preview ends with user err
         $db->executeQuery(
@@ -752,8 +752,8 @@ SQL,
         // after refresh should work again
         $this->_client->refreshBucket($idOfBucket);
 
-        $this->assertNotEmpty($this->_client->getTableDataPreview($table['id'], ['format' => 'json']));
-        $this->assertNotEmpty($this->_client->getTableDataPreview($view['id'], ['format' => 'json']));
+        $this->assertSame(['AMOUNT', 'DESCRIPTION'], $this->_client->getTableDataPreview($table['id'], ['format' => 'json'])['columns']);
+        $this->assertSame(['AMOUNT', 'DESCRIPTION'], $this->_client->getTableDataPreview($view['id'], ['format' => 'json'])['columns']);
     }
 
     public function testRegisterExternalDB(): void
