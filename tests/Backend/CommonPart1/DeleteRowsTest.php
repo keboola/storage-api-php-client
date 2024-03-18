@@ -88,7 +88,7 @@ class DeleteRowsTest extends StorageApiTestCase
             ]);
             $this->fail('Exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals('storage.tables.validation.invalidFilterValues', $e->getStringCode());
+            $this->assertEquals('validation.failed', $e->getStringCode());
         }
     }
 
