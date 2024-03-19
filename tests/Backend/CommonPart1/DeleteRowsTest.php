@@ -89,7 +89,7 @@ class DeleteRowsTest extends StorageApiTestCase
             $this->fail('Exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertSame('validation.failed', $e->getStringCode());
-            $this->assertSame("Invalid request:\n - whereColumn: \"To use whereColumn specify whereValues\"", $e->getMessage());
+            $this->assertSame("Invalid request:\n - whereColumn: \"To use \"whereColumn\" specify \"whereValues\".\"", $e->getMessage());
         }
     }
 
