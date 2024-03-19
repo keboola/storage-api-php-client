@@ -9,6 +9,7 @@
 
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
@@ -402,6 +403,21 @@ class ImportExportCommonTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertEquals('storage.fileNotUploaded', $e->getStringCode());
         }
+    }
+
+    public function testImportAsNull(): void
+    {
+        $filePath = __DIR__ . '/../../_data/languages.csv';
+        $importFile = new CsvFile($filePath);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'importAsNull', $importFile, ['importAsNull' => ['french']]);
+
+        $data = $this->_client->getTableDataPreview($tableId) ;
+        $data = Client::parseCsv($data);
+
+        $arrayWithFrenchRowOnly = array_values(array_filter($data, fn ($row) => $row['id'] == 24));
+        $this->assertCount(1, $arrayWithFrenchRowOnly);
+        // CSV will not return null, but an empty string - but importantly, not the word "french"
+        $this->assertSame('', $arrayWithFrenchRowOnly[0]['name']);
     }
 
     public function testImportWithoutHeaders(): void
