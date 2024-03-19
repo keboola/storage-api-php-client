@@ -4,6 +4,7 @@ namespace Keboola\Test\Backend\ExternalBuckets;
 
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\TableExporter;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
@@ -716,6 +717,22 @@ SQL,
         $this->assertSame(['AMOUNT', 'DESCRIPTION'], $tableDataPreview['columns']);
         $this->assertSame(['AMOUNT', 'DESCRIPTION'], $viewDataPreview1['columns']);
 
+        $expectationsFileWithTwoCols = __DIR__ . '/../../_data/export/with-two-columns.csv';
+        $expectationsFileWithThreeCols = __DIR__ . '/../../_data/export/with-three-columns.csv';
+        $exporter = new TableExporter($this->_client);
+
+        $exporter->exportTable($table['id'], $this->getExportFilePathForTest('with-two-cols.csv'), []);
+        $this->assertLinesEqualsSorted(
+            file_get_contents($expectationsFileWithTwoCols),
+            file_get_contents($this->getExportFilePathForTest('with-two-cols.csv')),
+        );
+
+        $exporter->exportTable($view['id'], $this->getExportFilePathForTest('with-two-cols.csv'), []);
+        $this->assertLinesEqualsSorted(
+            file_get_contents($expectationsFileWithTwoCols),
+            file_get_contents($this->getExportFilePathForTest('with-two-cols.csv')),
+        );
+
         $this->_client->refreshBucket($idOfBucket);
 
         // test after refresh, still works
@@ -725,6 +742,18 @@ SQL,
         $viewDataPreview1 = $this->_client->getTableDataPreview($view['id'], ['format' => 'json']);
         $this->assertSame(['AMOUNT', 'DESCRIPTION', 'AGE'], $tableDataPreview['columns']);
         $this->assertSame(['AMOUNT', 'DESCRIPTION', 'AGE'], $viewDataPreview1['columns']);
+
+        $exporter->exportTable($table['id'], $this->getExportFilePathForTest('with-three-cols.csv'), []);
+        $this->assertLinesEqualsSorted(
+            file_get_contents($expectationsFileWithThreeCols),
+            file_get_contents($this->getExportFilePathForTest('with-three-cols.csv')),
+        );
+
+        $exporter->exportTable($view['id'], $this->getExportFilePathForTest('with-three-cols.csv'), []);
+        $this->assertLinesEqualsSorted(
+            file_get_contents($expectationsFileWithThreeCols),
+            file_get_contents($this->getExportFilePathForTest('with-three-cols.csv')),
+        );
 
         // drop column and recreate view, to test preview ends with user err
         $db->executeQuery(
@@ -757,6 +786,22 @@ SQL,
             $this->assertStringContainsString('External object might be out of sync. Please refresh the external bucket to ensure it\'s synchronized, then try again.', $e->getMessage());
         }
 
+        try {
+            $exporter->exportTable($table['id'], $this->getExportFilePathForTest('with-three-cols.csv'), []);
+            $this->fail('Should fail');
+        } catch (ClientException $e) {
+            $this->assertSame('storage.backend.externalBucketObjectInvalidIdentifier', $e->getStringCode());
+            $this->assertStringContainsString('External object might be out of sync. Please refresh the external bucket to ensure it\'s synchronized, then try again.', $e->getMessage());
+        }
+
+        try {
+            $exporter->exportTable($table['id'], $this->getExportFilePathForTest('with-three-cols.csv'), []);
+            $this->fail('Should fail');
+        } catch (ClientException $e) {
+            $this->assertSame('storage.backend.externalBucketObjectInvalidIdentifier', $e->getStringCode());
+            $this->assertStringContainsString('External object might be out of sync. Please refresh the external bucket to ensure it\'s synchronized, then try again.', $e->getMessage());
+        }
+
         // after refresh should work again
         $this->_client->refreshBucket($idOfBucket);
 
@@ -766,6 +811,18 @@ SQL,
         $viewDataPreview1 = $this->_client->getTableDataPreview($view['id'], ['format' => 'json']);
         $this->assertSame(['AMOUNT', 'DESCRIPTION'], $tableDataPreview['columns']);
         $this->assertSame(['AMOUNT', 'DESCRIPTION'], $viewDataPreview1['columns']);
+
+        $exporter->exportTable($table['id'], $this->getExportFilePathForTest('with-two-cols.csv'), []);
+        $this->assertLinesEqualsSorted(
+            file_get_contents($expectationsFileWithTwoCols),
+            file_get_contents($this->getExportFilePathForTest('with-two-cols.csv')),
+        );
+
+        $exporter->exportTable($view['id'], $this->getExportFilePathForTest('with-two-cols.csv'), []);
+        $this->assertLinesEqualsSorted(
+            file_get_contents($expectationsFileWithTwoCols),
+            file_get_contents($this->getExportFilePathForTest('with-two-cols.csv')),
+        );
     }
 
     public function testRegisterExternalDB(): void
