@@ -164,7 +164,10 @@ class SimpleAliasTest extends StorageApiTestCase
         }
     }
 
-    public function testTableWithAliasShouldBeForceDeletable(): void
+    /**
+     * @dataProvider tableAsyncProvider
+     */
+    public function testTableWithAliasShouldBeForcedDeleteTable(bool $async): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
@@ -176,13 +179,16 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertCount(1, $this->_client->listTables($this->getTestBucketId()));
         $this->assertCount(3, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
 
-        $this->_client->dropTable($sourceTableId, ['force' => true]);
+        $this->_client->dropTable($sourceTableId, ['force' => true, 'async' => $async]);
 
         $this->assertCount(0, $this->_client->listTables($this->getTestBucketId()));
         $this->assertCount(0, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
     }
 
-    public function testAliasWithAliasesShouldBeForceDeletable(): void
+    /**
+     * @dataProvider tableAsyncProvider
+     */
+    public function testAliasWithAliasesShouldBeForcedDeleteTable(bool $async): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
@@ -195,7 +201,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertCount(1, $this->_client->listTables($this->getTestBucketId()));
         $this->assertCount(4, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
 
-        $this->_client->dropTable($secondAliasTableId, ['force' => true]);
+        $this->_client->dropTable($secondAliasTableId, ['force' => true, 'async' => $async]);
 
         $this->assertCount(1, $this->_client->listTables($this->getTestBucketId()));
         $this->assertCount(2, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
@@ -528,7 +534,10 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertEquals($aliasTable['columns'], $aliasColumns, 'Column should not be added to alias with auto sync disabled');
     }
 
-    public function testTableWithAliasWithoutAutoSyncShouldBeForceDeletable(): void
+    /**
+     * @dataProvider tableAsyncProvider
+     */
+    public function testTableWithAliasWithoutAutoSyncShouldBeForcedDeleteTable(bool $async): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
@@ -544,7 +553,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertCount(1, $this->_client->listTables($this->getTestBucketId()));
         $this->assertCount(1, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
 
-        $this->_client->dropTable($sourceTableId, ['force' => true]);
+        $this->_client->dropTable($sourceTableId, ['force' => true, 'async' => $async]);
 
         $this->assertCount(0, $this->_client->listTables($this->getTestBucketId()));
         $this->assertCount(0, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
