@@ -657,6 +657,41 @@ SQL,
         $this->assertEquals('view', $view['tableType']);
     }
 
+    public function testCreateSnapshotFromExternalBucketIsNotSupported()
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $this->dropBucketIfExists($this->_client, $bucketId, true);
+
+        $ws = new Workspaces($this->_client);
+        $workspace = $ws->createWorkspace();
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $db->createTable('TABLE_FOR_SNAPSHOT', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
+
+        $idOfBucket = $this->_client->registerBucket(
+            $testBucketName,
+            [$workspace['connection']['database'], $workspace['connection']['schema']],
+            'in',
+            'Iam in workspace',
+            'snowflake',
+            'You-cant-create-snapshot-from-me',
+        );
+
+        $tables = $this->_client->listTables($idOfBucket);
+
+        try {
+            $this->_client->createTableSnapshot(reset($tables)['id']);
+        } catch (ClientException $e) {
+            $this->assertSame(400, $e->getCode());
+            $this->assertSame('storage.buckets.snapshotNotSupported', $e->getStringCode());
+            $this->assertSame('Creating snapshots from tables in external buckets is not supported.', $e->getMessage());
+        }
+    }
+
     public function testAlteredColumnThrowsUserExAndAfterRefreshWillWork(): void
     {
         $description = $this->generateDescriptionForTestObject();
