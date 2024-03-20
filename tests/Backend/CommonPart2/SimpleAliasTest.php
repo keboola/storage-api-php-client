@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: martinhalamicek
- * Date: 03/05/16
- * Time: 09:45
- */
+
 namespace Keboola\Test\Backend\CommonPart2;
 
 use Generator;
@@ -607,7 +602,6 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
     }
 
-
     /**
      * Test case when alias is filtered but column with filter is not present in alias
      */
@@ -668,7 +662,6 @@ class SimpleAliasTest extends StorageApiTestCase
         array_shift($parsedData); // remove header
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
     }
-
 
     public function testFilterOnFilteredAlias(): void
     {
@@ -920,7 +913,7 @@ class SimpleAliasTest extends StorageApiTestCase
 
         try {
             $this->_client->createAliasTable($aliasBucketId, $sourceTableId, $aliasName);
-            $this->fail('Create table aliases from Dev/Branch should fail');
+            $this->fail('CREATE TABLE aliases FROM Dev/Branch should fail');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
             $this->assertSame('Creating aliases from Dev/Branch tables is not supported yet.', $e->getMessage());
@@ -994,7 +987,7 @@ class SimpleAliasTest extends StorageApiTestCase
 
         try {
             $this->_client->createAliasTable($destinationBucketId, $sourceTableId, $aliasName);
-            $this->fail('Create table aliases in Dev/Branch bucket should fail');
+            $this->fail('CREATE TABLE aliases IN Dev/Branch bucket should fail');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
             $this->assertSame('Creating aliases in Dev/Branch buckets is not supported yet.', $e->getMessage());
