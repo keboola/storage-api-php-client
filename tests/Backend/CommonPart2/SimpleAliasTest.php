@@ -7,6 +7,7 @@
  */
 namespace Keboola\Test\Backend\CommonPart2;
 
+use Generator;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
@@ -141,17 +142,26 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertArrayEqualsSorted($expectedData, Client::parseCsv(file_get_contents($downloadPath)), 'id');
     }
 
-    public function testTableWithAliasShouldNotBeDeletableWithoutForce(): void
+    /**
+     * @dataProvider tableAsyncProvider
+     */
+    public function testTableWithAliasShouldNotBeDeletableWithoutForce(bool $async): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
 
-        $this->expectException(ClientException::class);
-        $this->expectExceptionCode(400);
-        $this->expectExceptionMessageMatches('/^The table users cannot be deleted because an alias exists./');
-        $this->_client->dropTable($sourceTableId);
+        try {
+            $this->_client->dropTable($sourceTableId, ['async' => $async]);
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString(
+                'The table users cannot be deleted because an alias exists',
+                $e->getMessage(),
+            );
+            $this->assertEquals('storage.tables.cannotDeletedTableWithAliases', $e->getStringCode());
+        }
     }
 
     public function testTableWithAliasShouldBeForceDeletable(): void
@@ -982,5 +992,11 @@ class SimpleAliasTest extends StorageApiTestCase
         }
 
         $this->assertFalse($this->_client->tableExists($aliasTableId));
+    }
+
+    public function tableAsyncProvider(): Generator
+    {
+        yield 'tableDrop async = false' => [false];
+        yield 'tableDrop async = true' => [true];
     }
 }
