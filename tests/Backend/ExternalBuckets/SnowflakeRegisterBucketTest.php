@@ -657,7 +657,7 @@ SQL,
         $this->assertEquals('view', $view['tableType']);
     }
 
-    public function testCreateSnapshotFromExternalBucketIsNotSupported()
+    public function testCreateSnapshotFromExternalBucketIsNotSupported(): void
     {
         $description = $this->generateDescriptionForTestObject();
         $testBucketName = $this->getTestBucketName($description);
@@ -685,6 +685,7 @@ SQL,
 
         try {
             $this->_client->createTableSnapshot(reset($tables)['id']);
+            $this->fail('Should fail');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
             $this->assertSame('storage.buckets.snapshotNotSupported', $e->getStringCode());

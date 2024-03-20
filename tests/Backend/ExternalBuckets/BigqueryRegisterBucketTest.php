@@ -1294,12 +1294,6 @@ SQL,
         } catch (ClientException $e) {
             $this->assertStringContainsString('Cannot query over table', $e->getMessage());
         }
-        try {
-            $testClient->createTableSnapshot($table['id']);
-            $this->fail('Should fail because of requirePartitionFilter');
-        } catch (ClientException $e) {
-            $this->assertStringContainsString('Cannot query over table', $e->getMessage());
-        }
 
         // test that if filter is set exception is not thrown
         $testClient->getTableDataPreview($table['id'], [
