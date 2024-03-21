@@ -240,6 +240,20 @@ class MetadataTest extends StorageApiTestCase
 
         $provider = self::TEST_PROVIDER;
 
+        // test table id with dot
+        try {
+            $metadataApi->postTableMetadata($tableId . '.rubbish', $provider, $testMetadata);
+            $this->fail('Table id with dot should not be allowed');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tables.notFound', $e->getStringCode());
+            $this->assertMatchesRegularExpression(
+                '/The table "test_table\.rubbish" was not found in the bucket'
+                . ' "in.c-API-tests-[a-zA-Z0-9]+" in the project "\d+"/',
+                $e->getMessage(),
+            );
+            $this->assertEquals(404, $e->getCode());
+        }
+
         $metadatas = $metadataApi->postTableMetadata($tableId, $provider, $testMetadata);
 
         $this->assertEquals(2, count($metadatas));
