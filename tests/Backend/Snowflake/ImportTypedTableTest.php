@@ -128,7 +128,6 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
 
         $payload = [
             'name' => 'with-empty',
-            'primaryKeysNames' => [],
             'columns' => [
                 ['name' => 'col', 'definition' => ['type' => 'NUMBER']],
                 ['name' => 'str', 'definition' => ['type' => 'VARCHAR']],
