@@ -723,6 +723,19 @@ class MetadataTest extends StorageApiTestCase
 
         $provider = self::TEST_PROVIDER;
 
+        // test column dot id
+        try {
+            $metadataApi->postColumnMetadata($columnId . '.rubbish', $provider, $testMetadata);
+            $this->fail('Column id with dot should not be allowed');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.columns.notFound', $e->getStringCode());
+            $this->assertMatchesRegularExpression(
+                '/The column "in.c-API-tests-[a-zA-Z0-9]+.test_table.id.rubbish" was not found/',
+                $e->getMessage(),
+            );
+            $this->assertEquals(404, $e->getCode());
+        }
+
         $metadatas = $metadataApi->postColumnMetadata($columnId, $provider, $testMetadata);
 
         $this->assertCount(2, $metadatas);
