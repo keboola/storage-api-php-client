@@ -283,7 +283,6 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
         $tableDefinition = [
             'name' => 'my-new-table-for_data_preview',
-            'primaryKeysNames' => [],
             'columns' => [
                 [
                     'name' => 'id',

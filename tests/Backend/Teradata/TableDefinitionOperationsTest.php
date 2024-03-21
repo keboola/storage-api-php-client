@@ -715,7 +715,6 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
         // create table without primary keys
         $data = [
             'name' => 'my_new_table_no_primary_keys',
-            'primaryKeysNames' => [],
             'columns' => [
                 [
                     'name' => 'id',
