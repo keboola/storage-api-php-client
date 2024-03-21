@@ -155,7 +155,7 @@ class SimpleAliasTest extends StorageApiTestCase
                 'The table users cannot be deleted because an alias exists',
                 $e->getMessage(),
             );
-            $this->assertEquals('storage.tables.cannotDeletedTableWithAliases', $e->getStringCode());
+            $this->assertEquals('tables.cannotDeletedTableWithAliases', $e->getStringCode());
         }
     }
 
