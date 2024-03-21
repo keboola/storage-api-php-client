@@ -84,6 +84,17 @@ class MetadataTest extends StorageApiTestCase
         $testMetadata = [$md, $md2];
 
         $provider = self::TEST_PROVIDER;
+
+        // test bucket id with dot
+        try {
+            $metadatas = $metadataApi->postBucketMetadata($bucketId . '.rubbish', $provider, $testMetadata);
+            $this->fail('Bucket id with dot should not be allowed');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.notFound', $e->getStringCode());
+            $this->assertMatchesRegularExpression('/Bucket in.c-API-tests-[a-zA-Z0-9]+\.rubbish not found/', $e->getMessage());
+            $this->assertEquals(404, $e->getCode());
+        }
+
         $metadatas = $metadataApi->postBucketMetadata($bucketId, $provider, $testMetadata);
 
         $this->assertEquals(2, count($metadatas));
