@@ -242,7 +242,6 @@ class CreateTableTest extends StorageApiTestCase
         }
 
         $definition = self::TABLE_DEFINITION;
-        $definition['primaryKeysNames'] = [];
         $definition['distribution'] = [
             'type' => 'ROUND_ROBIN',
             'distributionColumnsNames' => [],
