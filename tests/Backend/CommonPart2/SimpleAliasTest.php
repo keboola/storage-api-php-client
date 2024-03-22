@@ -1,12 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: martinhalamicek
- * Date: 03/05/16
- * Time: 09:45
- */
+
 namespace Keboola\Test\Backend\CommonPart2;
 
+use Generator;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
@@ -141,20 +137,32 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertArrayEqualsSorted($expectedData, Client::parseCsv(file_get_contents($downloadPath)), 'id');
     }
 
-    public function testTableWithAliasShouldNotBeDeletableWithoutForce(): void
+    /**
+     * @dataProvider tableAsyncProvider
+     */
+    public function testTableWithAliasShouldNotBeDeletableWithoutForce(bool $async): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $this->_client->createAliasTable($this->getTestBucketId(self::STAGE_OUT), $sourceTableId, 'users');
 
-        $this->expectException(ClientException::class);
-        $this->expectExceptionCode(400);
-        $this->expectExceptionMessageMatches('/^The table users cannot be deleted because an alias exists./');
-        $this->_client->dropTable($sourceTableId);
+        try {
+            $this->_client->dropTable($sourceTableId, ['async' => $async]);
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString(
+                'The table users cannot be deleted because an alias exists',
+                $e->getMessage(),
+            );
+            $this->assertEquals('tables.cannotDeletedTableWithAliases', $e->getStringCode());
+        }
     }
 
-    public function testTableWithAliasShouldBeForceDeletable(): void
+    /**
+     * @dataProvider tableAsyncProvider
+     */
+    public function testTableWithAliasShouldBeForcedDeleteTable(bool $async): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
@@ -166,13 +174,16 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertCount(1, $this->_client->listTables($this->getTestBucketId()));
         $this->assertCount(3, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
 
-        $this->_client->dropTable($sourceTableId, ['force' => true]);
+        $this->_client->dropTable($sourceTableId, ['force' => true, 'async' => $async]);
 
         $this->assertCount(0, $this->_client->listTables($this->getTestBucketId()));
         $this->assertCount(0, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
     }
 
-    public function testAliasWithAliasesShouldBeForceDeletable(): void
+    /**
+     * @dataProvider tableAsyncProvider
+     */
+    public function testAliasWithAliasesShouldBeForcedDeleteTable(bool $async): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
@@ -185,7 +196,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertCount(1, $this->_client->listTables($this->getTestBucketId()));
         $this->assertCount(4, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
 
-        $this->_client->dropTable($secondAliasTableId, ['force' => true]);
+        $this->_client->dropTable($secondAliasTableId, ['force' => true, 'async' => $async]);
 
         $this->assertCount(1, $this->_client->listTables($this->getTestBucketId()));
         $this->assertCount(2, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
@@ -518,7 +529,10 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertEquals($aliasTable['columns'], $aliasColumns, 'Column should not be added to alias with auto sync disabled');
     }
 
-    public function testTableWithAliasWithoutAutoSyncShouldBeForceDeletable(): void
+    /**
+     * @dataProvider tableAsyncProvider
+     */
+    public function testTableWithAliasWithoutAutoSyncShouldBeForcedDeleteTable(bool $async): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $sourceTableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
@@ -534,7 +548,7 @@ class SimpleAliasTest extends StorageApiTestCase
         $this->assertCount(1, $this->_client->listTables($this->getTestBucketId()));
         $this->assertCount(1, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
 
-        $this->_client->dropTable($sourceTableId, ['force' => true]);
+        $this->_client->dropTable($sourceTableId, ['force' => true, 'async' => $async]);
 
         $this->assertCount(0, $this->_client->listTables($this->getTestBucketId()));
         $this->assertCount(0, $this->_client->listTables($this->getTestBucketId(self::STAGE_OUT)));
@@ -587,7 +601,6 @@ class SimpleAliasTest extends StorageApiTestCase
         array_shift($parsedData); // remove header
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
     }
-
 
     /**
      * Test case when alias is filtered but column with filter is not present in alias
@@ -649,7 +662,6 @@ class SimpleAliasTest extends StorageApiTestCase
         array_shift($parsedData); // remove header
         $this->assertArrayEqualsSorted($expectedResult, $parsedData, 0);
     }
-
 
     public function testFilterOnFilteredAlias(): void
     {
@@ -901,7 +913,7 @@ class SimpleAliasTest extends StorageApiTestCase
 
         try {
             $this->_client->createAliasTable($aliasBucketId, $sourceTableId, $aliasName);
-            $this->fail('Create table aliases from Dev/Branch should fail');
+            $this->fail('CREATE TABLE aliases FROM Dev/Branch should fail');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
             $this->assertSame('Creating aliases from Dev/Branch tables is not supported yet.', $e->getMessage());
@@ -975,12 +987,18 @@ class SimpleAliasTest extends StorageApiTestCase
 
         try {
             $this->_client->createAliasTable($destinationBucketId, $sourceTableId, $aliasName);
-            $this->fail('Create table aliases in Dev/Branch bucket should fail');
+            $this->fail('CREATE TABLE aliases IN Dev/Branch bucket should fail');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
             $this->assertSame('Creating aliases in Dev/Branch buckets is not supported yet.', $e->getMessage());
         }
 
         $this->assertFalse($this->_client->tableExists($aliasTableId));
+    }
+
+    public function tableAsyncProvider(): Generator
+    {
+        yield 'tableDrop async = false' => [false];
+        yield 'tableDrop async = true' => [true];
     }
 }
