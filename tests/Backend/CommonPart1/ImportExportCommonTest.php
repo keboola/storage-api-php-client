@@ -409,6 +409,18 @@ class ImportExportCommonTest extends StorageApiTestCase
     {
         $filePath = __DIR__ . '/../../_data/languages.csv';
         $importFile = new CsvFile($filePath);
+
+        // test invalid option
+        try {
+            $this->_client->createTableAsync($this->getTestBucketId(), 'importAsNull', $importFile, ['importAsNull' => ['french', '\N']]);
+        } catch (ClientException $e) {
+            $this->assertEquals('validation.failed', $e->getStringCode());
+            $this->assertStringContainsString(
+                'This collection should contain exactly 1 element.',
+                $e->getMessage(),
+            );
+        }
+
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'importAsNull', $importFile, ['importAsNull' => ['french']]);
 
         $data = $this->_client->getTableDataPreview($tableId) ;
