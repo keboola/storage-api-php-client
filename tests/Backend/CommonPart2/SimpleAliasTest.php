@@ -237,6 +237,7 @@ class SimpleAliasTest extends StorageApiTestCase
         // update filter
         /** @var array $aliasTable */
         $aliasTable = $this->_client->setAliasTableFilter($aliasTableId, [
+            'column' => 'city',
             'values' => ['VAN'],
         ]);
 
