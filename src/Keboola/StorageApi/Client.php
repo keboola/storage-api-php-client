@@ -1370,15 +1370,16 @@ class Client
      * Drop a table
      *
      * @param string $tableId
-     * @param array $options - (bool) force
+     * @param array $options - (bool) force, (bool) async (default true)
      * @return mixed|string
      */
-    public function dropTable($tableId, $options = [])
+    public function dropTable($tableId, $options = ['async' => true])
     {
         $url = 'tables/' . $tableId;
 
         $allowedOptions = [
             'force',
+            'async',
         ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));

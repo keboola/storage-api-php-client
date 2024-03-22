@@ -44,7 +44,7 @@
 		"brianium/paratest": "2.*|6.*",
 		"keboola/coding-standard": "^15.0",
 		"keboola/php-csv-db-import": "^6",
-		"keboola/phpunit-retry-annotations": "^0.4",
+		"keboola/phpunit-retry-annotations": "^0.5",
 		"keboola/retry": "^0.5.0",
 		"keboola/table-backend-utils": "^1",
 		"phpcompatibility/php-compatibility": "*",
