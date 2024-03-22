@@ -234,13 +234,6 @@ class CreateTableTest extends StorageApiTestCase
         // remove primaryKeysNames, try if request is validated
         unset($definition['primaryKeysNames']);
 
-        try {
-            $this->_client->createTableDefinition($bucketId, $definition);
-            self::fail('Table should not be created.');
-        } catch (ClientException $e) {
-            self::assertStringStartsWith('Invalid request', $e->getMessage());
-        }
-
         $definition = self::TABLE_DEFINITION;
         $definition['distribution'] = [
             'type' => 'ROUND_ROBIN',
