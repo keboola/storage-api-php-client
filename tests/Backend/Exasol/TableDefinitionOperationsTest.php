@@ -567,7 +567,6 @@ class TableDefinitionOperationsTest extends StorageApiTestCase
 
         $tableDefinition = [
             'name' => 'my-new-table-non-typed',
-            'primaryKeysNames' => [],
             'columns' => [
                 [
                     'name' => 'id',
