@@ -4599,6 +4599,8 @@ into a new table.
 ## Create or List Snapshots [/v2/storage/tables/{table_id}/snapshots]
 
 ### Create Table Snapshot [POST]
+**Snapshot creation is not supported for tables in external buckets.**
+
 Creates a snapshot of the current state of the table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 A table snapshot will contain:
 - Table data,
