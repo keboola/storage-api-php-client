@@ -234,7 +234,6 @@ class CreateTableTest extends StorageApiTestCase
         // remove primaryKeysNames, try if request is validated
         unset($definition['primaryKeysNames']);
 
-        $definition = self::TABLE_DEFINITION;
         $definition['distribution'] = [
             'type' => 'ROUND_ROBIN',
             'distributionColumnsNames' => [],
