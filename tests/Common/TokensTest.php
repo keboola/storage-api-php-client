@@ -131,6 +131,9 @@ class TokensTest extends StorageApiTestCase
         $this->assertArrayHasKey('limits', $owner);
         $this->assertArrayHasKey('metrics', $owner);
         $this->assertArrayHasKey('defaultBackend', $owner);
+        $this->assertArrayHasKey('assignedBackends', $owner);
+        $this->assertIsArray($owner['assignedBackends']);
+        $this->assertContains($owner['defaultBackend'], $owner['assignedBackends']);
 
         $firstLimit = reset($owner['limits']);
         $limitKeys = array_keys($owner['limits']);
@@ -196,6 +199,9 @@ class TokensTest extends StorageApiTestCase
         $this->assertArrayHasKey('limits', $owner);
         $this->assertArrayHasKey('metrics', $owner);
         $this->assertArrayHasKey('defaultBackend', $owner);
+        $this->assertArrayHasKey('assignedBackends', $owner);
+        $this->assertIsArray($owner['assignedBackends']);
+        $this->assertContains($owner['defaultBackend'], $owner['assignedBackends']);
 
         $firstLimit = reset($owner['limits']);
         $limitKeys = array_keys($owner['limits']);
