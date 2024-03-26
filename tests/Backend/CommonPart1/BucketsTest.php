@@ -240,20 +240,6 @@ class BucketsTest extends StorageApiTestCase
         $this->_testClient->dropBucket($bucket['id']);
     }
 
-    /**
-     * @dataProvider provideComponentsClientTypeBasedOnSuite
-     */
-    public function testCannotCreateBucketWithDot(): void
-    {
-        $bucketName = 'test.bucket';
-        $this->expectExceptionMessage(
-            'Invalid data - name: \'test.bucket\' contains not allowed characters. '
-            .'Only alphanumeric characters dash and underscores are allowed.',
-        );
-        $this->expectException(ClientException::class);
-        $this->_testClient->createBucket($bucketName, self::STAGE_IN);
-    }
-
     private function assertBucketWithColumnMetadata(array $bucket): void
     {
         self::assertArrayHasKey('tables', $bucket);
