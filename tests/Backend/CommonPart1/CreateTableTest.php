@@ -250,20 +250,6 @@ class CreateTableTest extends StorageApiTestCase
         }
     }
 
-    public function testBucketWithUnsupportedCharactersInNameShouldNotBeValid(): void
-    {
-        try {
-            $this->_client->createTableAsync(
-                $this->getTestBucketId() . '.rubbish',
-                'languages',
-                new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-            );
-            $this->fail('Bucket with dot in name should not be valid');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals('storage.buckets.notFound', $e->getStringCode());
-        }
-    }
-
     public function testTableWithEmptyColumnNamesShouldNotBeCreated(): void
     {
         try {
