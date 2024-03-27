@@ -4976,11 +4976,6 @@ parameters:
 			path: tests/Common/TokensTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\File\\\\AwsFileTest\\:\\:encryptedData\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/File/AwsFileTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\File\\\\AwsFileTest\\:\\:testFileUpload\\(\\) has parameter \\$filePath with no type specified\\.$#"
 			count: 1
 			path: tests/File/AwsFileTest.php
@@ -5012,16 +5007,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\File\\\\AzureFileTest\\:\\:testFileUpload\\(\\) has parameter \\$filePath with no type specified\\.$#"
-			count: 1
-			path: tests/File/AzureFileTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\File\\\\AzureFileTest\\:\\:uploadData\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/File/AzureFileTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\File\\\\AzureFileTest\\:\\:uploadSlicedData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/File/AzureFileTest.php
 
