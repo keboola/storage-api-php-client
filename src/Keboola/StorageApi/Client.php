@@ -1774,7 +1774,7 @@ class Client
      * @return int - created file id
      * @throws ClientException
      */
-    public function uploadFile($filePath, FileUploadOptions $options, FileUploadTransferOptions $transferOptions = null)
+    public function uploadFile($filePath, FileUploadOptions $options, FileUploadTransferOptions $transferOptions = null, bool $async = true)
     {
         if (!is_readable($filePath)) {
             throw new ClientException('File is not readable: ' . $filePath, null, null, 'fileNotReadable');
@@ -1815,7 +1815,7 @@ class Client
             ->setSizeBytes($sizeBytes)
             ->setFederationToken(true);
 
-        $prepareResult = $this->prepareFileUpload($newOptions);
+        $prepareResult = $this->prepareFileUpload($newOptions, $async);
 
         switch ($prepareResult['provider']) {
             case self::FILE_PROVIDER_AZURE:
@@ -1973,7 +1973,7 @@ class Client
      * @return int created file id
      * @throws ClientException
      */
-    public function uploadSlicedFile(array $slices, FileUploadOptions $options, FileUploadTransferOptions $transferOptions = null)
+    public function uploadSlicedFile(array $slices, FileUploadOptions $options, FileUploadTransferOptions $transferOptions = null, bool $async = true)
     {
         if (!$options->getIsSliced()) {
             throw new ClientException('File is not sliced.');
@@ -2030,7 +2030,7 @@ class Client
             ->setIsSliced(true);
 
         // 1. prepare resource
-        $prepareResult = $this->prepareFileUpload($newOptions);
+        $prepareResult = $this->prepareFileUpload($newOptions, $async);
 
         switch ($prepareResult['provider']) {
             case self::FILE_PROVIDER_AZURE:
@@ -2475,9 +2475,14 @@ class Client
      * @param FileUploadOptions $options
      * @return array file info
      */
-    public function prepareFileUpload(FileUploadOptions $options)
+    public function prepareFileUpload(FileUploadOptions $options, bool $async = true)
     {
-        return $this->apiPostJson('files/prepare', [
+        $url = 'files/prepare';
+        if ($async) {
+            $url .= '?' . http_build_query(['async' => $async]);
+        }
+
+        return $this->apiPostJson($url, [
             'isPublic' => $options->getIsPublic(),
             'isPermanent' => $options->getIsPermanent(),
             'isEncrypted' => $options->getIsEncrypted(),
