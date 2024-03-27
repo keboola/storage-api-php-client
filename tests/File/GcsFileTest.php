@@ -4,6 +4,7 @@ namespace Keboola\Test\File;
 
 use DateTime;
 use DateTimeZone;
+use Generator;
 use GuzzleHttp\Client;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client as StorageApiClient;
@@ -96,9 +97,9 @@ class GcsFileTest extends StorageApiTestCase
     /**
      * @dataProvider uploadData
      */
-    public function testFileUpload(string $devBranchType, string $userRole, string $filePath, FileUploadOptions $options): void
+    public function testFileUpload(string $devBranchType, string $userRole, string $filePath, FileUploadOptions $options, bool $isAsync): void
     {
-        $fileId = $this->_testClient->uploadFile($filePath, $options);
+        $fileId = $this->_testClient->uploadFile($filePath, $options, null, $isAsync);
         $file = $this->_testClient->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
 
         //gcs storage is always encrypted and private. Request params 'isEncrypted' and 'isPublic' is ignored
@@ -197,7 +198,7 @@ class GcsFileTest extends StorageApiTestCase
         $this->_client->getFile($fileId, (new \Keboola\StorageApi\Options\GetFileOptions())->setFederationToken(true));
     }
 
-    public function uploadData(): \Generator
+    public function uploadData(): Generator
     {
         $path = __DIR__ . '/../_data/files.upload.txt';
         $largeFilePath = sys_get_temp_dir() . '/large_abs_upload.txt';
@@ -207,11 +208,6 @@ class GcsFileTest extends StorageApiTestCase
             [
                 $path,
                 (new FileUploadOptions())->setIsPublic(true),
-            ],
-            [
-                $path,
-                (new FileUploadOptions())
-                    ->setIsPublic(true),
             ],
             [
                 $path,
@@ -248,7 +244,17 @@ class GcsFileTest extends StorageApiTestCase
 
         $clientProvider = $this->provideComponentsClientTypeBasedOnSuite();
 
-        return $this->combineProviders($uploadData, $clientProvider);
+        foreach ([true, false] as $async) {
+            $asyncName = $async ? 'async' : 'sync';
+            /**
+             * @var string $testName
+             * @var array<mixed> $data
+             */
+            foreach ($this->combineProviders($uploadData, $clientProvider) as $testName => $data) {
+                $data['isAsync'] = $async;
+                yield sprintf('%s -> %s', $testName, $asyncName) => $data;
+            }
+        }
     }
 
     public function provideComponentsClientTypeBasedOnSuite(): array

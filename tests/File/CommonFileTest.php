@@ -114,9 +114,9 @@ class CommonFileTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     * @dataProvider provideComponentsClientTypeBasedOnSuiteSyncAsync
      */
-    public function testSetTagsFromArrayWithGaps(): void
+    public function testSetTagsFromArrayWithGaps(string $branch, string $role, bool $isAsync): void
     {
         $file = $this->_testClient->prepareFileUpload((new FileUploadOptions())
             ->setFileName('test.json')
@@ -124,7 +124,7 @@ class CommonFileTest extends StorageApiTestCase
             ->setTags([
                 0 => 'neco',
                 12 => 'another',
-            ]));
+            ]), $isAsync);
         $this->assertEquals(['neco', 'another'], $file['tags']);
     }
 
@@ -318,16 +318,16 @@ class CommonFileTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     * @dataProvider provideComponentsClientTypeBasedOnSuiteSyncAsync
      */
-    public function testsDuplicateTagsShouldBeDeduped(): void
+    public function testsDuplicateTagsShouldBeDeduped(string $branch, string $role, bool $isAsync): void
     {
         $uploadOptions = new FileUploadOptions();
         $uploadOptions
             ->setFileName('test.txt')
             ->setFederationToken(true)
             ->setTags(['first', 'first', 'second']);
-        $file = $this->_testClient->prepareFileUpload($uploadOptions);
+        $file = $this->_testClient->prepareFileUpload($uploadOptions, $isAsync);
         $file = $this->_testClient->getFile($file['id']);
         $this->assertEquals(['first', 'second'], $file['tags']);
     }
@@ -355,10 +355,25 @@ class CommonFileTest extends StorageApiTestCase
         );
     }
 
+    public function provideComponentsClientTypeBasedOnSuiteSyncAsync(): Generator
+    {
+        $clientProvider = $this->provideComponentsClientTypeBasedOnSuite();
+
+        $uploadData = [
+            'sync' => [
+                'isAsync' => false,
+            ],
+            'async' => [
+                'isAsync' => true,
+            ],
+        ];
+        return $this->combineProviders($uploadData, $clientProvider);
+    }
+
     /**
-     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     * @dataProvider provideComponentsClientTypeBasedOnSuiteSyncAsync
      */
-    public function testUploadAndDownloadSlicedFile(): void
+    public function testUploadAndDownloadSlicedFile(string $branch, string $role, bool $isAsync): void
     {
         $uploadOptions = (new FileUploadOptions())
             ->setFileName('sliced_testing_file_name')
@@ -369,7 +384,7 @@ class CommonFileTest extends StorageApiTestCase
             __DIR__ . '/../_data/sliced/neco_0001_part_00',
             __DIR__ . '/../_data/sliced/neco_0002_part_00',
         ];
-        $fileId = $this->_testClient->uploadSlicedFile($slices, $uploadOptions);
+        $fileId = $this->_testClient->uploadSlicedFile($slices, $uploadOptions, null, $isAsync);
         $tmpDestinationFolder = __DIR__ . '/../_tmp/slicedUpload/';
         $fs = new Filesystem();
         if (file_exists($tmpDestinationFolder)) {
