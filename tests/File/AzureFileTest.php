@@ -3,11 +3,13 @@
 namespace Keboola\Test\File;
 
 use Exception;
+use Generator;
 use GuzzleHttp\Client;
 use Keboola\StorageApi\ABSUploader;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
+use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\StorageApiTestCase;
 use MicrosoftAzure\Storage\Blob\Models\CommitBlobBlocksOptions;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
@@ -28,9 +30,9 @@ class AzureFileTest extends StorageApiTestCase
     /**
      * @dataProvider uploadData
      */
-    public function testFileUpload($filePath, FileUploadOptions $options): void
+    public function testFileUpload($filePath, FileUploadOptions $options, bool $isAsync): void
     {
-        $fileId = $this->_client->uploadFile($filePath, $options);
+        $fileId = $this->_client->uploadFile($filePath, $options, null, $isAsync);
         $file = $this->_client->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
 
         //azure storage is always encrypted and private. Request params 'isEncrypted' and 'isPublic' is ignored
@@ -66,40 +68,40 @@ class AzureFileTest extends StorageApiTestCase
         $client->get($file['url']);
     }
 
-    public function uploadData()
+    public function provideComponentsClientTypeBasedOnSuite(): array
+    {
+        return (new TestSetupHelper())->provideComponentsClientTypeBasedOnSuite($this);
+    }
+
+    public function uploadData(): Generator
     {
         $path = __DIR__ . '/../_data/files.upload.txt';
         $largeFilePath = sys_get_temp_dir() . '/large_abs_upload.txt';
         $this->generateFile($largeFilePath, 16);
 
-        return [
-            [
+        $uploadData = [
+            'isPublic: true' => [
                 $path,
                 (new FileUploadOptions())->setIsPublic(true),
             ],
-            [
-                $path,
-                (new FileUploadOptions())
-                    ->setIsPublic(true),
-            ],
-            [
+            'isEncrypted: false' => [
                 $path,
                 (new FileUploadOptions())
                     ->setIsEncrypted(false),
             ],
-            [
+            'isEncrypted: true' => [
                 $path,
                 (new FileUploadOptions())
                     ->setIsEncrypted(true),
             ],
-            [
+            'notify: false, compress: false, isPublic:false' => [
                 $path,
                 (new FileUploadOptions())
                     ->setNotify(false)
                     ->setCompress(false)
                     ->setIsPublic(false),
             ],
-            [
+            'isPublic: false, isPermanent: true, tags: \'sapi-import\', \'martin\'' => [
                 $path,
                 (new FileUploadOptions())
                     ->setIsPublic(true)
@@ -114,9 +116,17 @@ class AzureFileTest extends StorageApiTestCase
                     ->setTags(['sapi-import', 'martin']),
             ],
         ];
+
+        foreach ([true, false] as $async) {
+            $asyncName = $async ? 'async' : 'sync';
+            foreach ($uploadData as $testName => $data) {
+                $data['isAsync'] = $async;
+                yield sprintf('%s -> %s', $testName, $asyncName) => $data;
+            }
+        }
     }
 
-    public function uploadSlicedData()
+    public function uploadSlicedData(): Generator
     {
         $part1 = sys_get_temp_dir() . '/slice.csv.part_1';
         $part2 = sys_get_temp_dir() . '/slice.csv.part_2';
@@ -124,14 +134,22 @@ class AzureFileTest extends StorageApiTestCase
         $this->generateFile($part1, 16);
         $this->generateFile($part2, 16);
 
-        return [
-            [
+        $uploadData = [
+            'slice' => [
                 $parts,
                 (new FileUploadOptions())
                     ->setIsSliced(true)
                     ->setFileName('slice.csv'),
             ],
         ];
+
+        foreach ([true, false] as $async) {
+            $asyncName = $async ? 'async' : 'sync';
+            foreach ($uploadData as $testName => $data) {
+                $data['isAsync'] = $async;
+                yield sprintf('%s -> %s', $testName, $asyncName) => $data;
+            }
+        }
     }
 
     public function testReUpload(): void
@@ -182,9 +200,9 @@ class AzureFileTest extends StorageApiTestCase
     /**
      * @dataProvider uploadSlicedData
      */
-    public function testUploadSlicedFile(array $slices, FileUploadOptions $options): void
+    public function testUploadSlicedFile(array $slices, FileUploadOptions $options, bool $isAsync): void
     {
-        $fileId = $this->_client->uploadSlicedFile($slices, $options);
+        $fileId = $this->_client->uploadSlicedFile($slices, $options, null, $isAsync);
         $file = $this->_client->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
 
         $this->assertEquals($options->getIsPublic(), $file['isPublic']);
