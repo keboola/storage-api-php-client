@@ -413,6 +413,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         // test invalid option
         try {
             $this->_client->createTableAsync($this->getTestBucketId(), 'importAsNull', $importFile, ['importAsNull' => ['french', '\N']]);
+            $this->fail('Should have failed');
         } catch (ClientException $e) {
             $this->assertEquals('validation.failed', $e->getStringCode());
             $this->assertStringContainsString(
