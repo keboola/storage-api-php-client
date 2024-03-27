@@ -856,6 +856,11 @@ class Client
      */
     public function createTableAsync($bucketId, $name, CsvFile $csvFile, $options = [])
     {
+        $importAsNull = null;
+        if (isset($options['importAsNull'])) {
+            $importAsNull = $options['importAsNull'];
+        }
+
         $options = [
             'bucketId' => $bucketId,
             'name' => $name,
@@ -868,6 +873,10 @@ class Client
             'columns' => isset($options['columns']) ? $options['columns'] : null,
             'syntheticPrimaryKeyEnabled' => isset($options['syntheticPrimaryKeyEnabled']) ? $options['syntheticPrimaryKeyEnabled'] : null,
         ];
+
+        if ($importAsNull) {
+            $options['importAsNull'] = $importAsNull;
+        }
 
         // upload file
         $fileId = $this->uploadFile(
