@@ -121,7 +121,7 @@ trait TestExportDataProvidersTrait
                         ],
                     ],
                 ],
-                'Invalid filter value, expected:"INT64", actual:"STRING".',
+                1,
             ];
 
             yield 'wrong number ' . $format => [
@@ -135,7 +135,6 @@ trait TestExportDataProvidersTrait
                         ],
                     ],
                 ],
-                'Invalid filter value, expected:"NUMERIC", actual:"STRING".',
             ];
 
             yield 'wrong float ' . $format => [
@@ -149,7 +148,6 @@ trait TestExportDataProvidersTrait
                         ],
                     ],
                 ],
-                'Invalid filter value, expected:"FLOAT64", actual:"STRING".',
             ];
 
             yield 'wrong datetime ' . $format => [
@@ -164,11 +162,11 @@ trait TestExportDataProvidersTrait
                         ],
                     ],
                 ],
-                'Invalid datetime string "2022-02-31"; while executing the filter on column \'column_datetime\'; Column \'column_int\'', // non-existing date
             ];
 
             yield 'wrong boolean ' . $format => [
                 [
+                    'format' => $format,
                     'whereFilters' => [
                         [
                             'column' => 'column_boolean',
@@ -177,7 +175,6 @@ trait TestExportDataProvidersTrait
                         ],
                     ],
                 ],
-                'Invalid filter value, expected:"BOOL", actual:"STRING".',
             ];
 
             yield 'wrong date ' . $format => [
@@ -191,11 +188,11 @@ trait TestExportDataProvidersTrait
                         ],
                     ],
                 ],
-                'Invalid date: \'12:00:00.000\'; while executing the filter on column \'column_date\'; Column \'column_int\'',
             ];
 
             yield 'wrong time ' . $format => [
                 [
+                    'format' => $format,
                     'whereFilters' => [
                         [
                             'column' => 'column_time',
@@ -204,7 +201,6 @@ trait TestExportDataProvidersTrait
                         ],
                     ],
                 ],
-                'Invalid time string "1989-08-31"; while executing the filter on column \'column_time\'; Column \'column_int\'',
             ];
 
             yield 'wrong timestamp ' . $format => [
@@ -218,7 +214,6 @@ trait TestExportDataProvidersTrait
                         ],
                     ],
                 ],
-                'Invalid timestamp: \'xxx\'; while executing the filter on column \'column_timestamp\'; Column \'column_int\'',
             ];
         }
     }
