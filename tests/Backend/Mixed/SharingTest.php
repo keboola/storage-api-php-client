@@ -8,7 +8,6 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
-use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
@@ -16,10 +15,12 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Utils\EventsQueryBuilder;
+use Keboola\Test\Utils\MetadataUtils;
 
 class SharingTest extends StorageApiSharingTestCase
 {
     use WorkspaceConnectionTrait;
+    use MetadataUtils;
 
     public function testOrganizationAdminInTokenVerify(): void
     {
@@ -158,7 +159,7 @@ class SharingTest extends StorageApiSharingTestCase
         // bucket can't be linked with same displayName
         try {
             $linkedBucketId = $client->linkBucket(
-                'organization-project-test'. time(),
+                'organization-project-test' . time(),
                 self::STAGE_IN,
                 $sharedBuckets[0]['project']['id'],
                 $sharedBuckets[0]['id'],
@@ -167,14 +168,14 @@ class SharingTest extends StorageApiSharingTestCase
             );
             $this->fail('bucket can\'t be linked with same displayName');
         } catch (ClientException $e) {
-            $this->assertEquals('The display name "'.$displayName.'" already exists in project.', $e->getMessage());
+            $this->assertEquals('The display name "' . $displayName . '" already exists in project.', $e->getMessage());
             $this->assertEquals(400, $e->getCode());
             $this->assertEquals('storage.buckets.alreadyExists', $e->getStringCode());
         }
 
         try {
             $linkedBucketId = $client->linkBucket(
-                'organization-project-test'. time(),
+                'organization-project-test' . time(),
                 self::STAGE_IN,
                 $sharedBuckets[0]['project']['id'],
                 $sharedBuckets[0]['id'],
@@ -884,7 +885,7 @@ class SharingTest extends StorageApiSharingTestCase
     /**
      * @dataProvider sharingBackendDataWithAsync
      */
-    public function testSyncTableDisplayNameInLinkedBucket(string $backend, bool $isAsync): void
+    public function testSyncTableDisplayNameAndBucketMetadataInLinkedBucket(string $backend, bool $isAsync): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -898,17 +899,82 @@ class SharingTest extends StorageApiSharingTestCase
                 'primaryKey' => 'id',
             ],
         );
-
-        $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
+        $metadataClient = (new Metadata($this->_client));
+        $testMetadata = [
+            [
+                'key' => 'test-key',
+                'value' => 'test-value',
+            ],
+        ];
+        $metadataClient->postBucketMetadata(
+            $bucketId,
+            'test',
+            $testMetadata,
+        );
+        $bucketMetadata = $metadataClient->listBucketMetadata($bucketId);
+        $this->assertCount(1, $bucketMetadata);
+        $this->assertMetadataEquals(
+            $testMetadata[0],
+            $bucketMetadata[0],
+        );
+        $this->_client->shareOrganizationBucket($bucketId, $isAsync);
 
         $this->assertTrue($this->_client->isSharedBucket($bucketId));
 
+        $projectId = $this->_client->verifyToken()['owner']['id'];
         $response = $this->_client2->listSharedBuckets();
-
-        $sharedBucket = reset($response);
+        $filtered = array_values(array_filter(
+            $response,
+            static fn($bucket) => $bucket['id'] === $bucketId && $bucket['project']['id'] === $projectId,
+        ));
+        $this->assertCount(1, $filtered);
+        $sharedBucket = $filtered[0];
 
         $id = $this->_client2->linkBucket('linked-' . time(), 'out', $sharedBucket['project']['id'], $sharedBucket['id'], null, $isAsync);
 
+        //test metadata sync
+        $metadataClient2 = (new Metadata($this->_client2));
+        $linkedBucketMetadata = $metadataClient2->listBucketMetadata($id);
+        $this->assertCount(1, $linkedBucketMetadata);
+        $this->assertMetadataEquals(
+            $testMetadata[0],
+            $linkedBucketMetadata[0],
+        );
+        $testMetadata2 = [
+            [
+                'key' => 'test-key2',
+                'value' => 'test-value2',
+            ],
+        ];
+        // add new source bucket metadata
+        $metadataClient->postBucketMetadata(
+            $bucketId,
+            'test',
+            $testMetadata2,
+        );
+        $bucketMetadata = $metadataClient->listBucketMetadata($bucketId);
+        $this->assertCount(2, $bucketMetadata);
+        $this->assertMetadataEquals(
+            $testMetadata[0],
+            $bucketMetadata[0],
+        );
+        $this->assertMetadataEquals(
+            $testMetadata2[0],
+            $bucketMetadata[1],
+        );
+        // test linked bucket metadata are in sync
+        $linkedBucketMetadata = $metadataClient2->listBucketMetadata($id);
+        $this->assertCount(2, $linkedBucketMetadata);
+        $this->assertMetadataEquals(
+            $testMetadata[0],
+            $linkedBucketMetadata[0],
+        );
+        $this->assertMetadataEquals(
+            $testMetadata2[0],
+            $linkedBucketMetadata[1],
+        );
+
+        // test display name
         $linkedBucket = $this->_client2->getBucket($id);
         $table = $this->_client2->getTable(reset($linkedBucket['tables'])['id']);
 
@@ -962,7 +1028,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
         $bucketId = reset($this->_bucketIds);
 
-        $this->_client->shareBucket($bucketId, ['async'=>$isAsync]);
+        $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
 
         $response = $this->_client2->listSharedBuckets();
         $sharedBucket = reset($response);
@@ -1211,7 +1277,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         foreach ($this->_client->listTables($bucketId) as $table) {
             // column drop
-            $this->_client->deleteTableColumn($table['id'], 'name', ['force' =>  true]);
+            $this->_client->deleteTableColumn($table['id'], 'name', ['force' => true]);
 
             $detail = $this->_client->getTable($table['id']);
             $this->assertEquals(['id'], $detail['columns']);
@@ -1219,7 +1285,7 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertTablesMetadata($bucketId, $linkedBucketId);
 
             // table drop
-            $this->_client->dropTable($table['id'], ['force' =>  true]);
+            $this->_client->dropTable($table['id'], ['force' => true]);
         }
 
         $this->assertCount(0, $this->_client->listTables($bucketId));
@@ -1279,7 +1345,9 @@ class SharingTest extends StorageApiSharingTestCase
 
         // share and unshare second bucket - test that it doesn't break permissions of first linked bucket
         $this->_client->shareBucket($secondBucketId, ['async' => $isAsync]);
-        $sharedBucket2 = array_values(array_filter($this->_client->listSharedBuckets(), function ($bucket) use ($secondBucketId) {
+        $sharedBucket2 = array_values(array_filter($this->_client->listSharedBuckets(), function ($bucket) use (
+            $secondBucketId
+        ) {
             return $bucket['id'] === $secondBucketId;
         }))[0];
         $linked2Id = $this->_client2->linkBucket(
@@ -1390,11 +1458,11 @@ class SharingTest extends StorageApiSharingTestCase
         $backend = null; // force disconnect of same SNFLK connection
         $db = $this->getDbConnection($connection);
 
-        $db->query('create table "test.Languages3" (
-			"Id" integer not null,
-			"Name" varchar not null
+        $db->query('CREATE TABLE "test.Languages3" (
+			"Id" integer NOT NULL,
+			"Name" varchar NOT NULL
 		);');
-        $db->query("insert into \"test.Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
+        $db->query("INSERT INTO \"test.Languages3\" (\"Id\", \"Name\") VALUES (1, 'cz'), (2, 'en');");
 
         try {
             $this->_client2->createTableAsyncDirect($linkedId, [
@@ -1422,7 +1490,7 @@ class SharingTest extends StorageApiSharingTestCase
             'languagesDetails',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
-        $this->_client->shareBucket($sourceBucketId, ['async'=>$isAsync]);
+        $this->_client->shareBucket($sourceBucketId, ['async' => $isAsync]);
 
         $table2Id = $this->_client->createTableAsync(
             $this->getTestBucketId(),
@@ -1751,7 +1819,6 @@ class SharingTest extends StorageApiSharingTestCase
         return (new TokenCreateOptions())
             ->setDescription('Test Token')
             ->setCanManageBuckets($canManageBuckets)
-            ->setExpiresIn(3600)
-        ;
+            ->setExpiresIn(3600);
     }
 }
