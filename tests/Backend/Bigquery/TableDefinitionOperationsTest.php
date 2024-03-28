@@ -996,6 +996,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
         $data = $this->_client->getTableDataPreview($tableId, $params);
         if ($params['format'] === 'json') {
+            /* @phpstan-ignore-next-line */
             $this->assertCount($expectedNumberOfRows, $data['rows']);
         } else {
             // format = rfc returns CSV; header is skipped by default in parseCsv
