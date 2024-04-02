@@ -49,4 +49,4 @@ jobs:
           DRIVER_DOWNLOADS_ACCESS_KEY_ID: ${{ secrets.DRIVER_DOWNLOADS_ACCESS_KEY_ID }}
           DRIVER_DOWNLOADS_SECRET_ACCESS_KEY: ${{ secrets.DRIVER_DOWNLOADS_SECRET_ACCESS_KEY }}
         run: |
-          docker-compose build tests
+          docker compose build tests
