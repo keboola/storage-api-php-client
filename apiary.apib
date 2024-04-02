@@ -6937,6 +6937,8 @@ Deletes a file from storage.
 
 + Parameters
     + file_id (required, number) - File Id
+    + async (optional, boolean) - Prepare file in a background job. Calling the parameter as `async=false` is deprecated.
+
 
 + Request
     + Headers
@@ -6944,7 +6946,40 @@ Deletes a file from storage.
             X-StorageApi-Token: your_token
 
 + Response 204
+    Synchronous call response without content.
 
+
++ Response 202 (application/json)
+    Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+
+           {
+               "id": 11,
+               "status": "waiting",
+               "url": "https://connection.keboola.com/v2/storage/jobs/11",
+               "operationName": "workspaceCreate",
+               "operationParams": {
+                   "fileId": 1,
+                   "branchId": 1
+               },
+               "createdTime": "2013-05-31T16:11:05+0200",
+               "startTime": null,
+               "endTime": null,
+               "runId": null,
+               "results": null,
+               "creatorToken": {
+                   "id": "27978",
+                   "description": "roman.bracinik@keboola.com"
+               },
+               "metrics": {
+                   "inCompressed": false,
+                   "inBytes": 0,
+                   "inBytesUncompressed": 0,
+                   "outCompressed": false,
+                   "outBytes": 0,
+                   "outBytesUncompressed": 0
+               }
+           }
 
 ## Create Tag [/v2/storage/files/{file_id}/tags]
 ### Add Tag [POST]
