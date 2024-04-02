@@ -218,6 +218,8 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
     public function testResponseDefinition(): void
     {
         $tableDetail = $this->_client->getTable($this->tableId);
+        $this->assertEquals(0, $tableDetail['dataSizeBytes']);
+        $this->assertEquals(0, $tableDetail['rowsCount']);
         $this->assertSame([
             'primaryKeysNames' => ['id'],
             'columns' => [
