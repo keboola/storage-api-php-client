@@ -281,9 +281,9 @@ class CommonFileTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     * @dataProvider provideComponentsClientTypeBasedOnSuiteSyncAsync
      */
-    public function testFileDelete(): void
+    public function testFileDelete(string $branch, string $role, bool $isAsync): void
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
         $options = new FileUploadOptions();
@@ -291,7 +291,7 @@ class CommonFileTest extends StorageApiTestCase
         $fileId = $this->_testClient->uploadFile($filePath, $options);
         $file = $this->_testClient->getFile($fileId);
 
-        $this->_testClient->deleteFile($fileId);
+        $this->_testClient->deleteFile($fileId, $isAsync);
 
         try {
             $this->_testClient->getFile($fileId);
@@ -397,7 +397,7 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertFileEquals($slices[1], $donwloadFiles[1]);
         $this->assertFileEquals($slices[2], $donwloadFiles[2]);
 
-        $this->_testClient->deleteFile($fileId);
+        $this->_testClient->deleteFile($fileId, $isAsync);
     }
 
     /**
