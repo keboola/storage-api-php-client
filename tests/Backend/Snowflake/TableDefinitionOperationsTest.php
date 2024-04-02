@@ -60,6 +60,8 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
     public function testResponseDefinition(): void
     {
         $tableDetail = $this->_client->getTable($this->tableId);
+        $this->assertEquals(0, $tableDetail['dataSizeBytes']);
+        $this->assertEquals(0, $tableDetail['rowsCount']);
         $this->assertSame([
             'primaryKeysNames' => ['id'],
             'columns' => [
