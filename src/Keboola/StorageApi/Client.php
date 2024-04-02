@@ -2506,7 +2506,7 @@ class Client
     /**
      * Delete a single file
      */
-    public function deleteFile(int $fileId, bool $async = true):void
+    public function deleteFile(int $fileId, bool $async = true): void
     {
         $url = sprintf('files/%s', $fileId);
         if ($async) {
@@ -2514,7 +2514,6 @@ class Client
         }
         $this->apiDelete($url);
     }
-
 
     /**
      * Get a single file
