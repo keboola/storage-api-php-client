@@ -2505,12 +2505,14 @@ class Client
 
     /**
      * Delete a single file
-     * @param $fileId
-     * @return mixed|string
      */
-    public function deleteFile($fileId)
+    public function deleteFile(int $fileId, bool $async = true):void
     {
-        return $this->apiDelete("files/$fileId");
+        $url = sprintf('files/%s', $fileId);
+        if ($async) {
+            $url .= '?' . http_build_query(['async' => $async]);
+        }
+        $this->apiDelete($url);
     }
 
 
