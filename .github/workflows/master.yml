@@ -18,10 +18,10 @@ jobs:
           DRIVER_DOWNLOADS_ACCESS_KEY_ID: ${{ secrets.DRIVER_DOWNLOADS_ACCESS_KEY_ID }}
           DRIVER_DOWNLOADS_SECRET_ACCESS_KEY: ${{ secrets.DRIVER_DOWNLOADS_SECRET_ACCESS_KEY }}
         run: |
-          docker-compose build tests
+          docker compose build tests
           docker network create connection_api-tests
-          docker-compose run --rm tests php -v
-          docker-compose run --rm tests composer ci
+          docker compose run --rm tests php -v
+          docker compose run --rm tests composer ci
       -
         name: List images
         run: docker images
