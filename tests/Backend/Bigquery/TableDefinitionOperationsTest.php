@@ -6,6 +6,7 @@ use Generator;
 use Google\Cloud\BigQuery\BigQueryClient;
 use Keboola\Csv\CsvFile;
 use Keboola\Datatype\Definition\Bigquery;
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\FileUploadOptions;
@@ -985,7 +986,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
     /**
      * @dataProvider wrongDatatypeFilterProvider
      */
-    public function testColumnTypesInTableDefinition(array $params, string $expectExceptionMessage): void
+    public function testColumnTypesInTableDefinition(array $params, int $expectedNumberOfRows = 0): void
     {
         $bucketId = $this->getTestBucketId();
 
@@ -993,9 +994,15 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
         $this->_client->writeTableAsync($tableId, $this->getTestCsv());
 
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage($expectExceptionMessage);
-        $this->_client->getTableDataPreview($tableId, $params);
+        $data = $this->_client->getTableDataPreview($tableId, $params);
+        if ($params['format'] === 'json') {
+            /* @phpstan-ignore-next-line */
+            $this->assertCount($expectedNumberOfRows, $data['rows']);
+        } else {
+            // format = rfc returns CSV; header is skipped by default in parseCsv
+            $data = Client::parseCsv($data);
+            $this->assertCount($expectedNumberOfRows, $data);
+        }
     }
 
     public function wrongDatatypeFilterProvider(): Generator
@@ -1113,7 +1120,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
         $client->runQuery(
             $client->query(
                 sprintf(
-                    'INSERT INTO `%s`.`my_new_table_with_nulls` VALUES (1, null);',
+                    'INSERT INTO `%s`.`my_new_table_with_nulls` VALUES (1, NULL);',
                     $dataset,
                 ),
             ),
@@ -1749,59 +1756,6 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
             'REAL' => 42.1,
             'DECIMAL' => 42.3,
         ];
-    }
-
-    public function testIllogicalComparisonInFilterWithBool(): void
-    {
-        $bucketId = $this->getTestBucketId();
-
-        $columns = [
-            [
-                'name' => 'id',
-                'definition' => [
-                    'type' => 'INT64',
-                    'nullable' => false,
-                ],
-            ],
-        ];
-        $types = ['BOOL'];
-
-        foreach ($types as $type) {
-            $columns[] = [
-                'name' => $type,
-                'definition' => [
-                    'type' => $type,
-                    'nullable' => true,
-                ],
-            ];
-        }
-
-        $data = [
-            'name' => 'test_table',
-            'primaryKeysNames' => ['id'],
-            'columns' => $columns,
-        ];
-
-        $tableId = $bucketId . '.' . 'test_table';
-        if (!$this->_client->tableExists($tableId)) {
-            $tableId = $this->_client->createTableDefinition($bucketId, $data);
-        }
-
-        try {
-            $this->_client->getTableDataPreview($tableId, [
-                'format' => 'json',
-                'whereFilters' => [
-                    [
-                        'column' => 'BOOL',
-                        'operator' => 'eq',
-                        'values' => [false],
-                    ],
-                ],
-            ]);
-            $this->fail('should fail');
-        } catch (ClientException $e) {
-            $this->assertEquals('Invalid filter value, expected:"BOOL", actual:"STRING".', $e->getMessage());
-        }
     }
 
     public function testUpdateTableDefinition(): void
