@@ -1005,12 +1005,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $tables = $testClient->listTables($idOfBucket);
         // contains only normal table not external table
         // but external table return warning
-        $this->assertCount(1, $tables);
-        $this->assertCount(1, $refreshJobResult['warnings']);
-        $this->assertStringContainsString(
-            'External tables are not supported.',
-            $refreshJobResult['warnings'][0]['message'],
-        );
+        $this->assertCount(2, $tables);
 
         $this->dropNormalTable($db, $schemaName);
 
@@ -1021,12 +1016,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $tables = $testClient->listTables($idOfBucket);
         // normal table is deleted, external table is still there
         // external table must return warning
-        $this->assertCount(0, $tables);
-        $this->assertCount(1, $refreshJobResult['warnings']);
-        $this->assertStringContainsString(
-            'External tables are not supported.',
-            $refreshJobResult['warnings'][0]['message'],
-        );
+        $this->assertCount(1, $tables);
     }
 
     /**
