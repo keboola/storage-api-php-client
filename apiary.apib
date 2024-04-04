@@ -6578,7 +6578,7 @@ And then, upload that manifest file to the key `exp-180/11/files/2014/02/25/1108
 [Developers documentation](https://developers.keboola.com/integrate/storage/api/import-export/#working-with-sliced-files)
 for a more detailed guide.
 
-## Upload File [/v2/storage/files/prepare]
+## Upload File [/v2/storage/files/prepare?async={async}]
 ### Create File Resource [POST]
 This method allows you to upload a file to KBC File Storage. The upload should be done in two steps:
 1. Create a new file resource (use this API call).
@@ -6586,6 +6586,9 @@ This method allows you to upload a file to KBC File Storage. The upload should b
 
 For a more detailed guide on the file upload, see the corresponding part of the
 [Developers documentation](https://developers.keboola.com/integrate/storage/api/import-export/#manually-uploading-a-file).
+
++ Parameters
+    + async (optional, boolean) - Prepare file in a background job. Calling the parameter as `async=false` is deprecated.
 
 + Attributes
     + name (required) - File name
@@ -6732,6 +6735,50 @@ For a more detailed guide on the file upload, see the corresponding part of the
                     "token_type": "Bearer"
                 }
             }
+
++ Response 202 (application/json)
+    Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+
+           {
+               "id": 11,
+               "status": "waiting",
+               "url": "https://connection.keboola.com/v2/storage/jobs/11",
+               "operationName": "workspaceCreate",
+               "operationParams": {
+                   "name": "filePrepare",
+                   "isPermanent": true,
+                   "isSliced": false,
+                   "contentType": "text/csv",
+                   "tags": [
+                       "tag1",
+                       "tag2"
+                   ],
+                   "sizeBytes": 123456,
+                   "isPublic": false,
+                   "notify": true,
+                   "isEncrypted": false,
+                   "federationToken": false,
+                   "branchId": 1
+               },
+               "createdTime": "2013-05-31T16:11:05+0200",
+               "startTime": null,
+               "endTime": null,
+               "runId": null,
+               "results": null,
+               "creatorToken": {
+                   "id": "27978",
+                   "description": "roman.bracinik@keboola.com"
+               },
+               "metrics": {
+                   "inCompressed": false,
+                   "inBytes": 0,
+                   "inBytesUncompressed": 0,
+                   "outCompressed": false,
+                   "outBytes": 0,
+                   "outBytesUncompressed": 0
+               }
+           }
 
 ## Refresh File Credentials [/v2/storage/files/{file_id}/refresh]
 ### Refresh File Credentials [PUT]
@@ -6890,6 +6937,8 @@ Deletes a file from storage.
 
 + Parameters
     + file_id (required, number) - File Id
+    + async (optional, boolean) - Prepare file in a background job. Calling the parameter as `async=false` is deprecated.
+
 
 + Request
     + Headers
@@ -6897,7 +6946,40 @@ Deletes a file from storage.
             X-StorageApi-Token: your_token
 
 + Response 204
+    Synchronous call response without content.
 
+
++ Response 202 (application/json)
+    Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+
+           {
+               "id": 11,
+               "status": "waiting",
+               "url": "https://connection.keboola.com/v2/storage/jobs/11",
+               "operationName": "workspaceCreate",
+               "operationParams": {
+                   "fileId": 1,
+                   "branchId": 1
+               },
+               "createdTime": "2013-05-31T16:11:05+0200",
+               "startTime": null,
+               "endTime": null,
+               "runId": null,
+               "results": null,
+               "creatorToken": {
+                   "id": "27978",
+                   "description": "roman.bracinik@keboola.com"
+               },
+               "metrics": {
+                   "inCompressed": false,
+                   "inBytes": 0,
+                   "inBytesUncompressed": 0,
+                   "outCompressed": false,
+                   "outBytes": 0,
+                   "outBytesUncompressed": 0
+               }
+           }
 
 ## Create Tag [/v2/storage/files/{file_id}/tags]
 ### Add Tag [POST]
