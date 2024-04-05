@@ -355,6 +355,21 @@ class CommonFileTest extends StorageApiTestCase
         );
     }
 
+    public function provideComponentsClientTypeBasedOnSuiteSyncAsync(): Generator
+    {
+        $clientProvider = $this->provideComponentsClientTypeBasedOnSuite();
+
+        $uploadData = [
+            'sync' => [
+                'isAsync' => false,
+            ],
+            'async' => [
+                'isAsync' => true,
+            ],
+        ];
+        return $this->combineProviders($uploadData, $clientProvider);
+    }
+
     /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      */
@@ -382,7 +397,7 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertFileEquals($slices[1], $donwloadFiles[1]);
         $this->assertFileEquals($slices[2], $donwloadFiles[2]);
 
-        $this->_testClient->deleteFile($fileId, $isAsync);
+        $this->_testClient->deleteFile($fileId);
     }
 
     /**
