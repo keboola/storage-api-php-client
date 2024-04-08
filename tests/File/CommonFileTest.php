@@ -114,9 +114,9 @@ class CommonFileTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientTypeBasedOnSuiteSyncAsync
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
      */
-    public function testSetTagsFromArrayWithGaps(string $branch, string $role, bool $isAsync): void
+    public function testSetTagsFromArrayWithGaps(): void
     {
         $file = $this->_testClient->prepareFileUpload((new FileUploadOptions())
             ->setFileName('test.json')
@@ -124,7 +124,7 @@ class CommonFileTest extends StorageApiTestCase
             ->setTags([
                 0 => 'neco',
                 12 => 'another',
-            ]), $isAsync);
+            ]));
         $this->assertEquals(['neco', 'another'], $file['tags']);
     }
 
@@ -318,16 +318,16 @@ class CommonFileTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientTypeBasedOnSuiteSyncAsync
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
      */
-    public function testsDuplicateTagsShouldBeDeduped(string $branch, string $role, bool $isAsync): void
+    public function testsDuplicateTagsShouldBeDeduped(): void
     {
         $uploadOptions = new FileUploadOptions();
         $uploadOptions
             ->setFileName('test.txt')
             ->setFederationToken(true)
             ->setTags(['first', 'first', 'second']);
-        $file = $this->_testClient->prepareFileUpload($uploadOptions, $isAsync);
+        $file = $this->_testClient->prepareFileUpload($uploadOptions);
         $file = $this->_testClient->getFile($file['id']);
         $this->assertEquals(['first', 'second'], $file['tags']);
     }
@@ -371,9 +371,9 @@ class CommonFileTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider provideComponentsClientTypeBasedOnSuiteSyncAsync
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
      */
-    public function testUploadAndDownloadSlicedFile(string $branch, string $role, bool $isAsync): void
+    public function testUploadAndDownloadSlicedFile(): void
     {
         $uploadOptions = (new FileUploadOptions())
             ->setFileName('sliced_testing_file_name')
@@ -384,7 +384,7 @@ class CommonFileTest extends StorageApiTestCase
             __DIR__ . '/../_data/sliced/neco_0001_part_00',
             __DIR__ . '/../_data/sliced/neco_0002_part_00',
         ];
-        $fileId = $this->_testClient->uploadSlicedFile($slices, $uploadOptions, null, $isAsync);
+        $fileId = $this->_testClient->uploadSlicedFile($slices, $uploadOptions);
         $tmpDestinationFolder = __DIR__ . '/../_tmp/slicedUpload/';
         $fs = new Filesystem();
         if (file_exists($tmpDestinationFolder)) {
@@ -397,7 +397,7 @@ class CommonFileTest extends StorageApiTestCase
         $this->assertFileEquals($slices[1], $donwloadFiles[1]);
         $this->assertFileEquals($slices[2], $donwloadFiles[2]);
 
-        $this->_testClient->deleteFile($fileId, $isAsync);
+        $this->_testClient->deleteFile($fileId);
     }
 
     /**
