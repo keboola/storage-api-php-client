@@ -3,7 +3,6 @@
 namespace Keboola\Test\File;
 
 use Aws\S3\S3Client;
-use Generator;
 use GuzzleHttp\Client;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client as StorageApiClient;
@@ -51,14 +50,9 @@ class AwsFileTest extends StorageApiTestCase
     /**
      * @dataProvider uploadData
      */
-    public function testFileUpload(
-        string $devBranchType,
-        string $userRole,
-        $filePath,
-        FileUploadOptions $options,
-        bool $isAsync
-    ): void {
-        $fileId = $this->_testClient->uploadFile($filePath, $options, null, $isAsync);
+    public function testFileUpload(string $devBranchType, string $userRole, $filePath, FileUploadOptions $options): void
+    {
+        $fileId = $this->_testClient->uploadFile($filePath, $options);
         $file = $this->_testClient->getFile($fileId);
 
         $this->assertEquals($options->getIsPublic(), $file['isPublic']);
@@ -132,17 +126,7 @@ class AwsFileTest extends StorageApiTestCase
 
         $clientProvider = $this->provideComponentsClientTypeBasedOnSuite();
 
-        foreach ([true, false] as $async) {
-            $asyncName = $async ? 'async' : 'sync';
-            /**
-             * @var string $testName
-             * @var array<mixed> $data
-             */
-            foreach ($this->combineProviders($uploadData, $clientProvider) as $testName => $data) {
-                $data['isAsync'] = $async;
-                yield sprintf('%s -> %s', $testName, $asyncName) => $data;
-            }
-        }
+        return $this->combineProviders($uploadData, $clientProvider);
     }
 
     public function provideComponentsClientTypeBasedOnSuite(): array
@@ -154,7 +138,7 @@ class AwsFileTest extends StorageApiTestCase
      * @dataProvider encryptedData
      * @param $encrypted
      */
-    public function testFileUploadUsingFederationToken(string $devBranchType, string $userRole, $encrypted, bool $isAsync): void
+    public function testFileUploadUsingFederationToken(string $devBranchType, string $userRole, $encrypted): void
     {
         $pathToFile = __DIR__ . '/../_data/files.upload.txt';
         $options = new FileUploadOptions();
@@ -168,7 +152,7 @@ class AwsFileTest extends StorageApiTestCase
         $uploadParams = $result['uploadParams'];
         $this->assertArrayHasKey('credentials', $uploadParams);
 
-        $fileId = $this->_testClient->uploadFile($pathToFile, $options, null, $isAsync);
+        $fileId = $this->_testClient->uploadFile($pathToFile, $options);
 
         $file = $this->_testClient->getFile($fileId);
 
@@ -197,7 +181,7 @@ class AwsFileTest extends StorageApiTestCase
         }
     }
 
-    public function encryptedData(): Generator
+    public function encryptedData()
     {
         $encryptedData = [
             'encrypted: false' => [false],
@@ -206,17 +190,7 @@ class AwsFileTest extends StorageApiTestCase
 
         $clientProvider = $this->provideComponentsClientTypeBasedOnSuite();
 
-        foreach ([true, false] as $async) {
-            $asyncName = $async ? 'async' : 'sync';
-            /**
-             * @var string $testName
-             * @var array<mixed> $data
-             */
-            foreach ($this->combineProviders($encryptedData, $clientProvider) as $testName => $data) {
-                $data['isAsync'] = $async;
-                yield sprintf('%s -> %s', $testName, $asyncName) => $data;
-            }
-        }
+        return $this->combineProviders($encryptedData, $clientProvider);
     }
 
     /**
