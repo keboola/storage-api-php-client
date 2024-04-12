@@ -9,6 +9,7 @@
 
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
@@ -571,5 +572,51 @@ class ImportExportCommonTest extends StorageApiTestCase
 
         $this->assertEquals(5, $inTable['rowsCount']);
         $this->assertEquals(7, $outTable['rowsCount']);
+    }
+
+    public function testImportTreatValuesAsNull(): void
+    {
+        $this->allowTestForBackendsOnly([
+            self::BACKEND_BIGQUERY,
+            self::BACKEND_SNOWFLAKE,
+        ]);
+
+        $filePath = __DIR__ . '/../../_data/languages.csv';
+        $importFile = new CsvFile($filePath);
+
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'importAsNull', $importFile);
+
+        $data = $this->_client->getTableDataPreview($tableId);
+        $data = Client::parseCsv($data);
+        $arrayWithFrenchRowOnly = array_values(array_filter($data, fn($row) => $row['id'] == 24));
+        $this->assertCount(1, $arrayWithFrenchRowOnly);
+        // table was created with "french" record, next full load will override this record
+        $this->assertSame('french', $arrayWithFrenchRowOnly[0]['name']);
+
+        // test invalid option
+        try {
+            $this->_client->writeTableAsync($tableId, $importFile, ['treatValuesAsNull' => ['french', 'english']]);
+            $this->fail('Should have failed');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tables.validation', $e->getStringCode());
+            $this->assertStringContainsString(
+                'This collection should contain exactly 1 element.',
+                $e->getMessage(),
+            );
+        }
+
+        $this->_client->writeTableAsync(
+            $tableId,
+            $importFile,
+            ['treatValuesAsNull' => ['french']],
+        );
+
+        $data = $this->_client->getTableDataPreview($tableId);
+        $data = Client::parseCsv($data);
+
+        $arrayWithFrenchRowOnly = array_values(array_filter($data, fn($row) => $row['id'] == 24));
+        $this->assertCount(1, $arrayWithFrenchRowOnly);
+        // CSV will not return null, but an empty string - but importantly, not the word "french"
+        $this->assertSame('', $arrayWithFrenchRowOnly[0]['name']);
     }
 }
