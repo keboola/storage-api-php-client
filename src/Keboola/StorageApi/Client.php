@@ -1344,6 +1344,7 @@ class Client
             'data',
             'withoutHeaders',
             'columns',
+            'treatValuesAsNull',
         ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
