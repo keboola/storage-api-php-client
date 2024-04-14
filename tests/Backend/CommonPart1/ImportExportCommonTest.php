@@ -441,6 +441,29 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertNotEmpty($result['totalDataSizeBytes']);
     }
 
+    public function testImportWithOrderedColumnsListWithoutHeaders(): void
+    {
+        $headersCsv = new CsvFile(__DIR__ . '/../../_data/languages-headers.csv');
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', $headersCsv);
+
+        $importedFile = __DIR__ . '/../../_data/languages-without-headers.csv';
+        /** @var array $result */
+        $result = $this->_client->writeTableAsync($tableId, new CsvFile($importedFile), [
+            'columns' => array_reverse($headersCsv->getHeader()),
+            'withoutHeaders' => true,
+        ]);
+        $table = $this->_client->getTable($tableId);
+
+        $this->assertEmpty($result['warnings']);
+        $this->assertEmpty($result['transaction']);
+        $this->assertNotEmpty($table['dataSizeBytes']);
+        $this->assertNotEmpty($result['totalDataSizeBytes']);
+        $this->assertArrayHasKey('columns', $table);
+        $this->assertIsArray($table['columns']);
+        $this->assertEquals('name', reset($table['columns']));
+        $this->assertEquals('id', next($table['columns']));
+    }
+
     public function testTableImportFromString(): void
     {
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages-headers.csv'));
