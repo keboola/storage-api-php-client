@@ -498,7 +498,15 @@ class ImportExportCommonTest extends StorageApiTestCase
                 'id',
             ],
             'incremental' => false,
-            'expectedData' => '"0","- unchecked -"' . PHP_EOL . '"1","english"' . PHP_EOL . '"11","finnish"' . PHP_EOL . '"24","french"' . PHP_EOL . '"26","czech"' . PHP_EOL .  '"id","name"' . PHP_EOL,
+            'expectedData' => <<<END
+
+"0","- unchecked -"
+"1","english"
+"11","finnish"
+"24","french"
+"26","czech"
+"id","name"
+END,
         ];
         yield 'incremental' => [
             'headersFile' => __DIR__ . '/../../_data/languages.csv',
@@ -510,7 +518,17 @@ class ImportExportCommonTest extends StorageApiTestCase
                 'id',
             ],
             'incremental' => true,
-            'expectedData' => '"0","- unchecked -"' . PHP_EOL . '"1","english"' . PHP_EOL . '"11","finnish"' . PHP_EOL . '"24","french"' . PHP_EOL . '"26","czech"' . PHP_EOL . '"27","spanish"' . PHP_EOL . '"28","greek"' . PHP_EOL . '"id","name"' . PHP_EOL,
+            'expectedData' => <<<END
+
+"0","- unchecked -"
+"1","english"
+"11","finnish"
+"24","french"
+"26","czech"
+"27","spanish"
+"28","greek"
+"id","name"
+END,
         ];
         yield 'incremental-to-empty-table' => [
             'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
@@ -523,7 +541,17 @@ class ImportExportCommonTest extends StorageApiTestCase
                 'id',
             ],
             'incremental' => true,
-            'expectedData' => '"0","- unchecked -"' . PHP_EOL . '"1","english"' . PHP_EOL . '"11","finnish"' . PHP_EOL . '"24","french"' . PHP_EOL . '"26","czech"' . PHP_EOL . '"27","spanish"' . PHP_EOL . '"28","greek"' . PHP_EOL . '"id","name"' . PHP_EOL,
+            'expectedData' => <<<END
+
+"0","- unchecked -"
+"1","english"
+"11","finnish"
+"24","french"
+"26","czech"
+"27","spanish"
+"28","greek"
+"id","name"
+END,
         ];
     }
 
