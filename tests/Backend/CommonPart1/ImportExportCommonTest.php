@@ -468,6 +468,10 @@ class ImportExportCommonTest extends StorageApiTestCase
         }
         $table = $this->_client->getTable($tableId);
         $this->assertNotEmpty($table['dataSizeBytes']);
+        $this->assertArrayHasKey('columns', $table);
+        $this->assertIsArray($table['columns']);
+        $this->assertEquals('id', reset($table['columns']));
+        $this->assertEquals('name', next($table['columns']));
 
         // check that table columns aren't reordered
         $this->assertLinesEqualsSorted(
