@@ -441,27 +441,87 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertNotEmpty($result['totalDataSizeBytes']);
     }
 
-    public function testImportWithOrderedColumnsListWithoutHeaders(): void
-    {
-        $headersCsv = new CsvFile(__DIR__ . '/../../_data/languages-headers.csv');
+    /**
+     * @dataProvider tableImportReorderedData
+     */
+    public function testImportWithReorderedColumnsList(
+        string $headersFile,
+        array $importedFiles,
+        array $columns,
+        bool $incremental,
+        string $expectedData
+    ): void {
+        $headersCsv = new CsvFile($headersFile);
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', $headersCsv);
 
-        $importedFile = __DIR__ . '/../../_data/languages-without-headers.csv';
-        /** @var array $result */
-        $result = $this->_client->writeTableAsync($tableId, new CsvFile($importedFile), [
-            'columns' => array_reverse($headersCsv->getHeader()),
-            'withoutHeaders' => true,
-        ]);
+        // import reordered csv file
+        foreach ($importedFiles as $importedFile) {
+            /** @var array $result */
+            $result = $this->_client->writeTableAsync($tableId, new CsvFile($importedFile), [
+                'columns' => $columns,
+                'withoutHeaders' => true,
+                'incremental' => $incremental,
+            ]);
+        }
         $table = $this->_client->getTable($tableId);
 
         $this->assertEmpty($result['warnings']);
         $this->assertEmpty($result['transaction']);
         $this->assertNotEmpty($table['dataSizeBytes']);
         $this->assertNotEmpty($result['totalDataSizeBytes']);
-        $this->assertArrayHasKey('columns', $table);
-        $this->assertIsArray($table['columns']);
-        $this->assertEquals('name', reset($table['columns']));
-        $this->assertEquals('id', next($table['columns']));
+
+        // check that table columns aren't reordered
+        $this->assertLinesEqualsSorted(
+            $expectedData,
+            $this->_client->getTableDataPreview($tableId, [
+                'format' => 'rfc',
+            ]),
+            'imported data comparison',
+        );
+    }
+
+    /**
+     * @return \Generator<string, array{headersFile: string, importedFiles: array<string>, columns: array<string>, incremental: bool, expectedData: string}>
+     */
+    public function tableImportReorderedData(): \Generator
+    {
+        yield 'full' => [
+            __DIR__ . '/../../_data/languages-headers.csv',
+            [
+                __DIR__ . '/../../_data/languages-without-headers-reordered.csv',
+            ],
+            [
+                'name',
+                'id',
+            ],
+            false,
+            '"0","- unchecked -"' . PHP_EOL . '"1","english"' . PHP_EOL . '"11","finnish"' . PHP_EOL . '"24","french"' . PHP_EOL . '"26","czech"' . PHP_EOL .  '"id","name"' . PHP_EOL,
+        ];
+        yield 'incremental' => [
+            __DIR__ . '/../../_data/languages.csv',
+            [
+                __DIR__ . '/../../_data/languages-without-headers-reordered-incremental.csv',
+            ],
+            [
+                'name',
+                'id',
+            ],
+            true,
+            '"0","- unchecked -"' . PHP_EOL . '"1","english"' . PHP_EOL . '"11","finnish"' . PHP_EOL . '"24","french"' . PHP_EOL . '"26","czech"' . PHP_EOL . '"27","spanish"' . PHP_EOL . '"28","greek"' . PHP_EOL . '"id","name"' . PHP_EOL,
+        ];
+        yield 'incremental-to-empty-table' => [
+            __DIR__ . '/../../_data/languages-headers.csv',
+            [
+                __DIR__ . '/../../_data/languages-without-headers-reordered.csv',
+                __DIR__ . '/../../_data/languages-without-headers-reordered-incremental.csv',
+            ],
+            [
+                'name',
+                'id',
+            ],
+            true,
+            '"0","- unchecked -"' . PHP_EOL . '"1","english"' . PHP_EOL . '"11","finnish"' . PHP_EOL . '"24","french"' . PHP_EOL . '"26","czech"' . PHP_EOL . '"27","spanish"' . PHP_EOL . '"28","greek"' . PHP_EOL . '"id","name"' . PHP_EOL,
+        ];
     }
 
     public function testTableImportFromString(): void
