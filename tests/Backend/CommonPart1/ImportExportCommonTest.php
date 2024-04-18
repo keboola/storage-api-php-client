@@ -485,41 +485,41 @@ class ImportExportCommonTest extends StorageApiTestCase
     public function tableImportReorderedData(): \Generator
     {
         yield 'full' => [
-            __DIR__ . '/../../_data/languages-headers.csv',
-            [
+            'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
+            'importedFiles' => [
                 __DIR__ . '/../../_data/languages-without-headers-reordered.csv',
             ],
-            [
+            'columns' => [
                 'name',
                 'id',
             ],
-            false,
-            '"0","- unchecked -"' . PHP_EOL . '"1","english"' . PHP_EOL . '"11","finnish"' . PHP_EOL . '"24","french"' . PHP_EOL . '"26","czech"' . PHP_EOL .  '"id","name"' . PHP_EOL,
+            'incremental' => false,
+            'expectedData' => '"0","- unchecked -"' . PHP_EOL . '"1","english"' . PHP_EOL . '"11","finnish"' . PHP_EOL . '"24","french"' . PHP_EOL . '"26","czech"' . PHP_EOL .  '"id","name"' . PHP_EOL,
         ];
         yield 'incremental' => [
-            __DIR__ . '/../../_data/languages.csv',
-            [
+            'headersFile' => __DIR__ . '/../../_data/languages.csv',
+            'importedFiles' => [
                 __DIR__ . '/../../_data/languages-without-headers-reordered-incremental.csv',
             ],
-            [
+            'columns' => [
                 'name',
                 'id',
             ],
-            true,
-            '"0","- unchecked -"' . PHP_EOL . '"1","english"' . PHP_EOL . '"11","finnish"' . PHP_EOL . '"24","french"' . PHP_EOL . '"26","czech"' . PHP_EOL . '"27","spanish"' . PHP_EOL . '"28","greek"' . PHP_EOL . '"id","name"' . PHP_EOL,
+            'incremental' => true,
+            'expectedData' => '"0","- unchecked -"' . PHP_EOL . '"1","english"' . PHP_EOL . '"11","finnish"' . PHP_EOL . '"24","french"' . PHP_EOL . '"26","czech"' . PHP_EOL . '"27","spanish"' . PHP_EOL . '"28","greek"' . PHP_EOL . '"id","name"' . PHP_EOL,
         ];
         yield 'incremental-to-empty-table' => [
-            __DIR__ . '/../../_data/languages-headers.csv',
-            [
+            'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
+            'importedFiles' => [
                 __DIR__ . '/../../_data/languages-without-headers-reordered.csv',
                 __DIR__ . '/../../_data/languages-without-headers-reordered-incremental.csv',
             ],
-            [
+            'columns' => [
                 'name',
                 'id',
             ],
-            true,
-            '"0","- unchecked -"' . PHP_EOL . '"1","english"' . PHP_EOL . '"11","finnish"' . PHP_EOL . '"24","french"' . PHP_EOL . '"26","czech"' . PHP_EOL . '"27","spanish"' . PHP_EOL . '"28","greek"' . PHP_EOL . '"id","name"' . PHP_EOL,
+            'incremental' => true,
+            'expectedData' => '"0","- unchecked -"' . PHP_EOL . '"1","english"' . PHP_EOL . '"11","finnish"' . PHP_EOL . '"24","french"' . PHP_EOL . '"26","czech"' . PHP_EOL . '"27","spanish"' . PHP_EOL . '"28","greek"' . PHP_EOL . '"id","name"' . PHP_EOL,
         ];
     }
 
