@@ -1017,6 +1017,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         // normal table is deleted, external table is still there
         // external table must return warning
         $this->assertCount(1, $tables);
+        $this->assertSame('bigquery-external-table', $tables[0]['tableType']);
     }
 
     /**
