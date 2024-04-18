@@ -462,13 +462,12 @@ class ImportExportCommonTest extends StorageApiTestCase
                 'withoutHeaders' => true,
                 'incremental' => $incremental,
             ]);
+            $this->assertEmpty($result['warnings']);
+            $this->assertEmpty($result['transaction']);
+            $this->assertNotEmpty($result['totalDataSizeBytes']);
         }
         $table = $this->_client->getTable($tableId);
-
-        $this->assertEmpty($result['warnings']);
-        $this->assertEmpty($result['transaction']);
         $this->assertNotEmpty($table['dataSizeBytes']);
-        $this->assertNotEmpty($result['totalDataSizeBytes']);
 
         // check that table columns aren't reordered
         $this->assertLinesEqualsSorted(
