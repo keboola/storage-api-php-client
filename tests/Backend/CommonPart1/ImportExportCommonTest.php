@@ -450,8 +450,13 @@ class ImportExportCommonTest extends StorageApiTestCase
         array $columns,
         bool $incremental,
         array $expectedColumns,
-        string $expectedData
+        string $expectedData,
+        array $skipBackends = [],
+        string $skipMessage = ''
     ): void {
+        if (!empty($skipBackends)) {
+            $this->skipTestForBackend($skipBackends, $skipMessage);
+        }
         $headersCsv = new CsvFile($headersFile);
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', $headersCsv);
 
@@ -513,6 +518,10 @@ class ImportExportCommonTest extends StorageApiTestCase
 "26","czech","cz"
 "id","name","code"
 END,
+            'skipBackends' => [
+                self::BACKEND_BIGQUERY,
+            ],
+            'skipMessage' => 'Don\'t test new columns on BigQuery.',
         ];
         yield 'full' => [
             'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
