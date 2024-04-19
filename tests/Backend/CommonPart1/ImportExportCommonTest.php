@@ -449,6 +449,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         array $importedFiles,
         array $columns,
         bool $incremental,
+        array $expectedColumns,
         string $expectedData
     ): void {
         $headersCsv = new CsvFile($headersFile);
@@ -470,8 +471,7 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertNotEmpty($table['dataSizeBytes']);
         $this->assertArrayHasKey('columns', $table);
         $this->assertIsArray($table['columns']);
-        $this->assertEquals('id', reset($table['columns']));
-        $this->assertEquals('name', next($table['columns']));
+        $this->assertTrue($expectedColumns === $table['columns']);
 
         // check that table columns aren't reordered
         $this->assertLinesEqualsSorted(
@@ -484,10 +484,36 @@ class ImportExportCommonTest extends StorageApiTestCase
     }
 
     /**
-     * @return \Generator<string, array{headersFile: string, importedFiles: array<string>, columns: array<string>, incremental: bool, expectedData: string}>
+     * @return \Generator<string, array{headersFile: string, importedFiles: array<string>, columns: array<string>, incremental: bool, expectedData: string, expectedColumns: array<string>}>
      */
     public function tableImportReorderedData(): \Generator
     {
+        yield 'new-column' => [
+            'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
+            'importedFiles' => [
+                __DIR__ . '/../../_data/languages-without-headers-reordered-new-column.csv',
+            ],
+            'columns' => [
+                'name',
+                'id',
+                'code',
+            ],
+            'incremental' => false,
+            'expectedColumns' => [
+                'id',
+                'name',
+                'code',
+            ],
+            'expectedData' => <<<END
+
+"0","- unchecked -",""
+"1","english","en"
+"11","finnish","fi"
+"24","french","fr"
+"26","czech","cz"
+"id","name","code"
+END,
+        ];
         yield 'full' => [
             'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
             'importedFiles' => [
@@ -498,6 +524,10 @@ class ImportExportCommonTest extends StorageApiTestCase
                 'id',
             ],
             'incremental' => false,
+            'expectedColumns' => [
+                'id',
+                'name',
+            ],
             'expectedData' => <<<END
 
 "0","- unchecked -"
@@ -518,6 +548,10 @@ END,
                 'id',
             ],
             'incremental' => true,
+            'expectedColumns' => [
+                'id',
+                'name',
+            ],
             'expectedData' => <<<END
 
 "0","- unchecked -"
@@ -541,6 +575,10 @@ END,
                 'id',
             ],
             'incremental' => true,
+            'expectedColumns' => [
+                'id',
+                'name',
+            ],
             'expectedData' => <<<END
 
 "0","- unchecked -"
