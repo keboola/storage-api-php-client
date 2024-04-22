@@ -57,8 +57,14 @@ class DevBranchesTest extends StorageApiTestCase
 
         $this->assertCount(3, $adminDevBranches->listBranches());
 
-        $this->assertSame($branch, $adminDevBranches->getBranch($branch['id']));
-        $this->assertSame($guestBranch, $adminDevBranches->getBranch($guestBranch['id']));
+        $this->assertEqualsCanonicalizing(
+            $branch,
+            $adminDevBranches->getBranch($branch['id']),
+        );
+        $this->assertEqualsCanonicalizing(
+            $guestBranch,
+            $adminDevBranches->getBranch($guestBranch['id']),
+        );
 
         $adminDevBranches->deleteBranch($branch['id']);
         $adminDevBranches->deleteBranch($guestBranch['id']);
@@ -205,7 +211,10 @@ class DevBranchesTest extends StorageApiTestCase
 
         $this->assertCount(3, $branches->listBranches());
 
-        $this->assertSame($branch, $branches->getBranch($branch['id']));
+        $this->assertEqualsCanonicalizing(
+            $branch,
+            $branches->getBranch($branch['id']),
+        );
 
         try {
             $branches->deleteBranch($branch['id']);
