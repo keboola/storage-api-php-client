@@ -441,6 +441,167 @@ class ImportExportCommonTest extends StorageApiTestCase
         $this->assertNotEmpty($result['totalDataSizeBytes']);
     }
 
+    /**
+     * @dataProvider tableImportReorderedData
+     */
+    public function testImportWithReorderedColumnsList(
+        string $headersFile,
+        array $importedFiles,
+        array $columns,
+        bool $incremental,
+        array $expectedColumns,
+        string $expectedData,
+        array $skipBackends = [],
+        string $skipMessage = ''
+    ): void {
+        if (!empty($skipBackends)) {
+            $this->skipTestForBackend($skipBackends, $skipMessage);
+        }
+        $headersCsv = new CsvFile($headersFile);
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', $headersCsv);
+
+        // import reordered csv file
+        foreach ($importedFiles as $importedFile) {
+            /** @var array $result */
+            $result = $this->_client->writeTableAsync($tableId, new CsvFile($importedFile), [
+                'columns' => $columns,
+                'withoutHeaders' => true,
+                'incremental' => $incremental,
+            ]);
+            $this->assertEmpty($result['warnings']);
+            $this->assertEmpty($result['transaction']);
+            $this->assertNotEmpty($result['totalDataSizeBytes']);
+        }
+        $table = $this->_client->getTable($tableId);
+        $this->assertNotEmpty($table['dataSizeBytes']);
+        $this->assertArrayHasKey('columns', $table);
+        $this->assertIsArray($table['columns']);
+        $this->assertTrue($expectedColumns === $table['columns']);
+
+        // check that table columns aren't reordered
+        $this->assertLinesEqualsSorted(
+            $expectedData,
+            $this->_client->getTableDataPreview($tableId, [
+                'format' => 'rfc',
+            ]),
+            'imported data comparison',
+        );
+    }
+
+    /**
+     * @return \Generator<string, array{headersFile: string, importedFiles: array<string>, columns: array<string>, incremental: bool, expectedData: string, expectedColumns: array<string>}>
+     */
+    public function tableImportReorderedData(): \Generator
+    {
+        yield 'new-column' => [
+            'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
+            'importedFiles' => [
+                __DIR__ . '/../../_data/languages-without-headers-reordered-new-column.csv',
+            ],
+            'columns' => [
+                'name',
+                'id',
+                'code',
+            ],
+            'incremental' => false,
+            'expectedColumns' => [
+                'id',
+                'name',
+                'code',
+            ],
+            'expectedData' => <<<END
+
+"0","- unchecked -",""
+"1","english","en"
+"11","finnish","fi"
+"24","french","fr"
+"26","czech","cz"
+"id","name","code"
+END,
+            'skipBackends' => [
+                self::BACKEND_BIGQUERY,
+            ],
+            'skipMessage' => 'Don\'t test new columns on BigQuery.',
+        ];
+        yield 'full' => [
+            'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
+            'importedFiles' => [
+                __DIR__ . '/../../_data/languages-without-headers-reordered.csv',
+            ],
+            'columns' => [
+                'name',
+                'id',
+            ],
+            'incremental' => false,
+            'expectedColumns' => [
+                'id',
+                'name',
+            ],
+            'expectedData' => <<<END
+
+"0","- unchecked -"
+"1","english"
+"11","finnish"
+"24","french"
+"26","czech"
+"id","name"
+END,
+        ];
+        yield 'incremental' => [
+            'headersFile' => __DIR__ . '/../../_data/languages.csv',
+            'importedFiles' => [
+                __DIR__ . '/../../_data/languages-without-headers-reordered-incremental.csv',
+            ],
+            'columns' => [
+                'name',
+                'id',
+            ],
+            'incremental' => true,
+            'expectedColumns' => [
+                'id',
+                'name',
+            ],
+            'expectedData' => <<<END
+
+"0","- unchecked -"
+"1","english"
+"11","finnish"
+"24","french"
+"26","czech"
+"27","spanish"
+"28","greek"
+"id","name"
+END,
+        ];
+        yield 'incremental-to-empty-table' => [
+            'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
+            'importedFiles' => [
+                __DIR__ . '/../../_data/languages-without-headers-reordered.csv',
+                __DIR__ . '/../../_data/languages-without-headers-reordered-incremental.csv',
+            ],
+            'columns' => [
+                'name',
+                'id',
+            ],
+            'incremental' => true,
+            'expectedColumns' => [
+                'id',
+                'name',
+            ],
+            'expectedData' => <<<END
+
+"0","- unchecked -"
+"1","english"
+"11","finnish"
+"24","french"
+"26","czech"
+"27","spanish"
+"28","greek"
+"id","name"
+END,
+        ];
+    }
+
     public function testTableImportFromString(): void
     {
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages-headers.csv'));
