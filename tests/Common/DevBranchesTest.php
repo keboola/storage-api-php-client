@@ -288,7 +288,7 @@ class DevBranchesTest extends StorageApiTestCase
 
         $this->assertCount(2, $branches->listBranches());
 
-        $this->assertSame($branch, $branches->getBranch($branch['id']));
+        $this->assertEqualsCanonicalizing($branch, $branches->getBranch($branch['id']));
 
         try {
             $branches->deleteBranch($branch['id']);
