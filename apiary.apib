@@ -3098,11 +3098,9 @@ Further information can be found in the [Developers Documentation](https://devel
     + escapedBy (optional, string) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
     + columns[] (optional, string) - List of columns present in the CSV file; the first line of the file will not be treated as a header!
     + withoutHeaders (optional, boolean) - Indicates that the CSV file does not have header row. The columns in the CSV file must be in the same order as the columns in the table in storage. Use the 'columns' option to specify the column order.
-    + treatValuesAsNull (optional, array[string]) - (Snowflake and BigQuery only) Array of string values that should be imported as NULL values. The default value is `['']`. Some other common values you might consider are `'\N'` or `'null'`.
+    + treatValuesAsNull (optional, array[string]) - (Snowflake and BigQuery only) Array of string values that should be imported as NULL values. The default value is `['']`. Some other common values you might consider are `'\N'` or `'null'`. **Currently only single value is allowed**, but it still must be sent as array to allow future expansion.
 
         Specific behavior of BigQuery:
-
-        * BigQuery only allows one string value to be interpreted as NULL, so the first value from the array will be used.
 
         * If the treatValuesAsNull[] array is empty in the request, no values will be converted to NULL. Internally, the value "_\_KEBOOLA_IMPORT_AS_NULL_\_+UUID" will be used, e.g. _\_KEBOOLA_IMPORT_AS_NULL_\_4b340550242239.64159797. Such a value is highly unlikely to be present in the data, so no value will be converted to NULL.
 
