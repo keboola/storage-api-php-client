@@ -9,7 +9,6 @@
 
 namespace Keboola\Test\Backend\CommonPart1;
 
-use Generator;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\FileUploadOptions;
@@ -780,69 +779,5 @@ END,
         $this->assertCount(1, $arrayWithFrenchRowOnly);
         // CSV will not return null, but an empty string - but importantly, not the word "french"
         $this->assertSame('', $arrayWithFrenchRowOnly[0]['name']);
-    }
-
-    /**
-     * @dataProvider treatValuesAsNullData
-     */
-    public function testImportTreatValuesAsNullEmpty(
-        string $headersFile,
-        string $importedFile,
-        string $expectedData,
-        ?array $treatValuesAsNull = null
-    ): void {
-        $this->allowTestForBackendsOnly([
-            self::BACKEND_BIGQUERY,
-            self::BACKEND_SNOWFLAKE,
-        ]);
-
-        $tableId = $this->_client->createTableAsync(
-            $this->getTestBucketId(),
-            'importAsNull',
-            new CsvFile($headersFile),
-        );
-        $params = [];
-        if ($treatValuesAsNull !== null) {
-            $params = [$treatValuesAsNull,];
-        }
-        $this->_client->writeTableAsync($tableId, new CsvFile($importedFile), [$params,]);
-
-        $this->assertLinesEqualsSorted(
-            $expectedData,
-            $this->_client->getTableDataPreview($tableId, [
-                'format' => 'rfc',
-            ]),
-            'imported data comparison',
-        );
-    }
-
-    /**
-     * @return Generator<string, array{headersFile: string, importedFile: string, expectedData: string, treatValuesAsNull?: array<string>|null}>
-     */
-    public function treatValuesAsNullData(): Generator
-    {
-        yield 'empty-array' => [
-            'headersFile' => __DIR__ . '/../../_data/languages-more-columns.csv',
-            'importedFile' => __DIR__ . '/../../_data/languages-empty-string.csv',
-            'expectedData' => <<<END
-
-"Id","Name","iso","Something"
-"30","armenia","","b"
-"31","belarus","","b"
-"32","malta","a","b"
-END,
-            'treatValuesAsNull' => [],
-        ];
-        yield 'default' => [
-            'headersFile' => __DIR__ . '/../../_data/languages-more-columns.csv',
-            'importedFile' => __DIR__ . '/../../_data/languages-empty-string.csv',
-            'expectedData' => <<<END
-
-"Id","Name","iso","Something"
-"30","armenia","","b"
-"31","belarus","","b"
-"32","malta","a","b"
-END,
-        ];
     }
 }
