@@ -52,7 +52,7 @@ class ImportTreatValuesAsNullTest extends ParallelWorkspacesTestCase
             return $row;
         }, $data);
 
-        $this->assertTrue($data === $expectedData);
+        $this->assertEqualsCanonicalizing($expectedData, $data);
     }
 
     /**
