@@ -761,7 +761,7 @@ END,
         } catch (ClientException $e) {
             $this->assertEquals('storage.tables.validation', $e->getStringCode());
             $this->assertStringContainsString(
-                'This collection should contain exactly 1 element.',
+                'This collection should contain 1 element or less.',
                 $e->getMessage(),
             );
         }
