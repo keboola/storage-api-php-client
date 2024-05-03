@@ -272,7 +272,7 @@ class Client
         );
     }
 
-    public function webalizeColumnName($columnName)
+    public function webalizeColumnName(?string $columnName)
     {
         return $this->apiPostJson(
             'webalize/column-name',
