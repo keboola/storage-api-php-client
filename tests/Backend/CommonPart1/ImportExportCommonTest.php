@@ -530,6 +530,28 @@ class ImportExportCommonTest extends StorageApiTestCase
 "id","name"
 END,
         ];
+        yield 'ignore-lines-count-5' => [
+            'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
+            'importedFiles' => [
+                __DIR__ . '/../../_data/languages-with-headers-reordered.csv',
+            ],
+            'columns' => [
+                'name',
+                'id',
+            ],
+            'incremental' => false,
+            'withoutHeaders' => null,
+            'ignoredLinesCount' => 5,
+            'expectedColumns' => [
+                'id',
+                'name',
+            ],
+            'expectedData' => <<<END
+
+"24","french"
+"id","name"
+END,
+        ];
         yield 'columns-only' => [
             'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
             'importedFiles' => [
