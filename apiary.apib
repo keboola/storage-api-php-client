@@ -930,6 +930,12 @@ the KBC Component architecture, see the [Developers documentation](https://devel
                 "features": [
                     "disable-sync-import-data"
                 ],
+                "dataTypesConfiguration": {
+                    "dataTypesSupport": "authoritative"
+                },
+                "processorConfiguration": {
+                    "allowedProcessorPosition": "any"
+                },
                 "urlTemplates": {
                     "orchestrationJob": "\/admin\/projects\/&&projectId&&\/orchestrations\/&&orchestrationId&&\/jobs\/&&jobId&&"
                 }
