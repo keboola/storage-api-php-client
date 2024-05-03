@@ -447,9 +447,10 @@ class ImportExportCommonTest extends StorageApiTestCase
     public function testImportWithReorderedColumnsList(
         string $headersFile,
         array $importedFiles,
-        array $columns,
+        ?array $columns,
         bool $incremental,
-        bool $withoutHeaders,
+        ?bool $withoutHeaders,
+        ?int $ignoredLinesCount,
         array $expectedColumns,
         string $expectedData,
         array $skipBackends = [],
@@ -461,14 +462,23 @@ class ImportExportCommonTest extends StorageApiTestCase
         $headersCsv = new CsvFile($headersFile);
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', $headersCsv);
 
+        $requestOptions = [
+            'incremental' => $incremental,
+        ];
+        if (is_array($columns)) {
+            $requestOptions['columns'] = $columns;
+        }
+        if ($withoutHeaders !== null) {
+            $requestOptions['withoutHeaders'] = $withoutHeaders;
+        }
+        if ($ignoredLinesCount !== null) {
+            $requestOptions['ignoredLinesCount'] = $ignoredLinesCount;
+        }
+
         // import reordered csv file
         foreach ($importedFiles as $importedFile) {
             /** @var array $result */
-            $result = $this->_client->writeTableAsync($tableId, new CsvFile($importedFile), [
-                'columns' => $columns,
-                'withoutHeaders' => $withoutHeaders,
-                'incremental' => $incremental,
-            ]);
+            $result = $this->_client->writeTableAsync($tableId, new CsvFile($importedFile), $requestOptions);
             $this->assertEmpty($result['warnings']);
             $this->assertEmpty($result['transaction']);
             $this->assertNotEmpty($result['totalDataSizeBytes']);
@@ -490,11 +500,11 @@ class ImportExportCommonTest extends StorageApiTestCase
     }
 
     /**
-     * @return \Generator<string, array{headersFile: string, importedFiles: array<string>, columns: array<string>, incremental: bool, withoutHeaders: bool, expectedData: string, expectedColumns: array<string>}>
+     * @return \Generator<string, array{headersFile: string, importedFiles: array<string>, columns?: array<string>|null, incremental: bool, withoutHeaders?: bool|null, ignoredLinesCount?: int|null, expectedColumns: array<string>, expectedData: string, skipBackends?: array<string>|null, skipMessage?: string|null}>
      */
     public function tableImportReorderedData(): \Generator
     {
-        yield 'skip-headers' => [
+        yield 'ignore-lines-count' => [
             'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
             'importedFiles' => [
                 __DIR__ . '/../../_data/languages-with-headers-reordered.csv',
@@ -504,7 +514,8 @@ class ImportExportCommonTest extends StorageApiTestCase
                 'id',
             ],
             'incremental' => false,
-            'withoutHeaders' => false,
+            'withoutHeaders' => null,
+            'ignoredLinesCount' => 1,
             'expectedColumns' => [
                 'id',
                 'name',
@@ -519,38 +530,7 @@ class ImportExportCommonTest extends StorageApiTestCase
 "id","name"
 END,
         ];
-        yield 'new-column' => [
-            'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
-            'importedFiles' => [
-                __DIR__ . '/../../_data/languages-without-headers-reordered-new-column.csv',
-            ],
-            'columns' => [
-                'name',
-                'id',
-                'code',
-            ],
-            'incremental' => false,
-            'withoutHeaders' => true,
-            'expectedColumns' => [
-                'id',
-                'name',
-                'code',
-            ],
-            'expectedData' => <<<END
-
-"0","- unchecked -",""
-"1","english","en"
-"11","finnish","fi"
-"24","french","fr"
-"26","czech","cz"
-"id","name","code"
-END,
-            'skipBackends' => [
-                self::BACKEND_BIGQUERY,
-            ],
-            'skipMessage' => 'Don\'t test new columns on BigQuery.',
-        ];
-        yield 'full' => [
+        yield 'columns-only' => [
             'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
             'importedFiles' => [
                 __DIR__ . '/../../_data/languages-without-headers-reordered.csv',
@@ -560,7 +540,8 @@ END,
                 'id',
             ],
             'incremental' => false,
-            'withoutHeaders' => true,
+            'withoutHeaders' => null,
+            'ignoredLinesCount' => null,
             'expectedColumns' => [
                 'id',
                 'name',
@@ -575,7 +556,30 @@ END,
 "id","name"
 END,
         ];
-        yield 'incremental' => [
+        yield 'no-modifiers' => [
+            'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
+            'importedFiles' => [
+                __DIR__ . '/../../_data/languages.csv',
+            ],
+            'columns' => null,
+            'incremental' => false,
+            'withoutHeaders' => null,
+            'ignoredLinesCount' => null,
+            'expectedColumns' => [
+                'id',
+                'name',
+            ],
+            'expectedData' => <<<END
+
+"0","- unchecked -"
+"1","english"
+"11","finnish"
+"24","french"
+"26","czech"
+"id","name"
+END,
+        ];
+        yield 'columns-without-headers-incremental' => [
             'headersFile' => __DIR__ . '/../../_data/languages.csv',
             'importedFiles' => [
                 __DIR__ . '/../../_data/languages-without-headers-reordered-incremental.csv',
@@ -586,6 +590,7 @@ END,
             ],
             'incremental' => true,
             'withoutHeaders' => true,
+            'ignoredLinesCount' => null,
             'expectedColumns' => [
                 'id',
                 'name',
@@ -614,6 +619,7 @@ END,
             ],
             'incremental' => true,
             'withoutHeaders' => true,
+            'ignoredLinesCount' => null,
             'expectedColumns' => [
                 'id',
                 'name',
@@ -629,6 +635,38 @@ END,
 "28","greek"
 "id","name"
 END,
+        ];
+        yield 'add-new-column' => [
+            'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
+            'importedFiles' => [
+                __DIR__ . '/../../_data/languages-without-headers-reordered-new-column.csv',
+            ],
+            'columns' => [
+                'name',
+                'id',
+                'code',
+            ],
+            'incremental' => false,
+            'withoutHeaders' => true,
+            'ignoredLinesCount' => null,
+            'expectedColumns' => [
+                'id',
+                'name',
+                'code',
+            ],
+            'expectedData' => <<<END
+
+"0","- unchecked -",""
+"1","english","en"
+"11","finnish","fi"
+"24","french","fr"
+"26","czech","cz"
+"id","name","code"
+END,
+            'skipBackends' => [
+                self::BACKEND_BIGQUERY,
+            ],
+            'skipMessage' => 'Don\'t test new columns on BigQuery.',
         ];
     }
 
