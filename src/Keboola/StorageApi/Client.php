@@ -19,6 +19,7 @@ use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\Components\SearchComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
+use Keboola\StorageApi\Options\GlobalSearchOptions;
 use Keboola\StorageApi\Options\IndexOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Options\SearchTablesOptions;
@@ -3233,6 +3234,21 @@ class Client
     {
         $result = $this->apiGet('triggers/?' . http_build_query($filter));
         assert(is_array($result));
+        return $result;
+    }
+
+    /**
+     * @return array{all: int, items: array<mixed>, aggregations: array<mixed>}
+     */
+    public function globalSearch(string $query, ?GlobalSearchOptions $params = null): array
+    {
+        $paramsArray = ['query' => $query];
+        if ($params !== null) {
+            $paramsArray = array_merge($paramsArray, $params->toParamsArray());
+        }
+
+        /** @var array{all: int, items: array<mixed>, aggregations: array<mixed>} $result */
+        $result = $this->apiGet('global-search?' . http_build_query($paramsArray));
         return $result;
     }
 
