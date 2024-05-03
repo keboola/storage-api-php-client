@@ -138,6 +138,7 @@ class IndexTest extends StorageApiTestCase
     ): void {
         try {
             $this->_client->webalizeColumnName($input);
+            $this->fail('fail webalize columnName');
         } catch (ClientException $e) {
             $this->assertEquals($expectedErrorMessage, $e->getMessage());
             $this->assertEquals($expectedErrorStringCode, $e->getStringCode());
