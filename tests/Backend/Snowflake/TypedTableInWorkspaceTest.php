@@ -2,7 +2,10 @@
 
 namespace Keboola\Test\Backend\Snowflake;
 
-use Keboola\StorageApi\ClientException;
+use Keboola\Datatype\Definition\Snowflake;
+use Keboola\StorageApi\Workspaces;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 
@@ -80,18 +83,6 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
         $db->query(sprintf("INSERT INTO %s VALUES (1, 'john');", $quotedTableId));
         $db->query(sprintf("INSERT INTO %s VALUES (2, 'does');", $quotedTableId));
 
-// todo: return this https://keboola.atlassian.net/browse/CT-1108
-//        try {
-//            // __temp_ table should be typed
-//            $this->_client->writeTableAsyncDirect($this->tableId, [
-//                'dataWorkspaceId' => $workspace['id'],
-//                'dataTableName' => $tableId,
-//            ]);
-//            $this->fail('Should fail since createTableDefinition method creates table with VARCHAR type with no length');
-//        } catch (ClientException $e) {
-//            $this->assertSame('Table import error: Source destination columns mismatch. "id FLOAT NOT NULL"->"id NUMBER (38,0)"', $e->getMessage());
-//        }
-
         $db->query(sprintf('DROP TABLE %s', $quotedTableId));
         // length of VARCHAR is lower than what is in storage but it still works
         $sql = sprintf(
@@ -168,5 +159,47 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
             'format' => 'json',
         ]);
         self::assertEquals($expected, $data['rows']);
+    }
+
+    public function testCopyLoadOfTypedTable(): void
+    {
+        $workspacesClient = new Workspaces($this->workspaceSapiClient);
+        $workspace = $this->initTestWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
+
+        $backend->dropTableIfExists('Langs');
+        $workspacesClient->loadWorkspaceData($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $this->tableId,
+                    'destination' => 'Langs',
+                ],
+            ],
+            'preserve' => true,
+        ]);
+
+        $columns = $backend->getTableReflection('Langs')->getTableDefinition()->getColumnsDefinitions();
+
+        self::assertCount(2, $columns);
+        $table = $this->workspaceSapiClient->getTable($this->tableId);
+        $this->assertTableColumns($table['definition']['columns'], $columns);
+    }
+
+    private function assertTableColumns(array $columnDefinitionResponse, ColumnCollection $collection): void
+    {
+        self::assertSame(
+            array_map(fn(array $column) => $column['name'], $columnDefinitionResponse),
+            array_map(fn(ColumnInterface $column) => $column->getColumnName(), iterator_to_array($collection)),
+        );
+        /** @var ColumnInterface $column */
+        foreach ($collection as $column) {
+            $columnDefinition = array_shift($columnDefinitionResponse);
+            self::assertEquals($columnDefinition['name'], $column->getColumnName());
+            $definition = $column->getColumnDefinition();
+            assert($definition instanceof Snowflake);
+            self::assertEquals($columnDefinition['definition']['type'], $definition->getType());
+            self::assertEquals($columnDefinition['definition']['nullable'], $definition->isNullable());
+            self::assertEquals($columnDefinition['definition']['length'], $definition->getLength());
+        }
     }
 }
