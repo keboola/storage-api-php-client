@@ -159,19 +159,19 @@ class IndexTest extends StorageApiTestCase
             'oid',
             422,
             'storage.webalize.columnName.invalid',
-            'Filtered value "oid" should be valid. \'oid\' is a system column used by the database for internal purposes.',
+            '"oid" is a system column used by the database for internal purposes.',
         ];
         yield 'naughty string 1' => [
             base64_decode('AQIDBAUGBwgODxAREhMUFRYXGBkaGxwdHh9/'),
             422,
             'storage.webalize.columnName.invalid',
-            'Filtered value "" should be valid. \'\' contains not allowed characters. Only alphanumeric characters dash and underscores are allowed., \'\' is less than 1 characters long',
+            '"" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
         ];
         yield 'only special chars' => [
             '----$$$$-----',
             422,
             'storage.webalize.columnName.invalid',
-            'Filtered value "" should be valid. \'\' contains not allowed characters. Only alphanumeric characters dash and underscores are allowed., \'\' is less than 1 characters long',
+            '"" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
         ];
     }
 }
