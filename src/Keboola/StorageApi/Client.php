@@ -272,6 +272,14 @@ class Client
         );
     }
 
+    public function webalizeColumnName(?string $columnName)
+    {
+        return $this->apiPostJson(
+            'webalize/column-name',
+            ['columnName' => $columnName],
+        );
+    }
+
     /**
      * Get UserAgent name
      *

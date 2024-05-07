@@ -9,6 +9,8 @@
 
 namespace Keboola\Test\Common;
 
+use Generator;
+use Keboola\Filter\Exception\InvalidValueProvidedException;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\IndexOptions;
 use Keboola\Test\StorageApiTestCase;
@@ -95,5 +97,81 @@ class IndexTest extends StorageApiTestCase
             $this->assertEquals('storage.webalize.displayName.invalid', $e->getStringCode());
             $this->assertEquals(422, $e->getCode());
         }
+    }
+
+    /**
+     * @dataProvider validColumnNameData
+     */
+    public function testSuccessfullyWebalizeColumnName(string $input, string $expectedOutput): void
+    {
+        $responseColumnName = $this->_client->webalizeColumnName($input);
+
+        $this->assertSame($expectedOutput, $responseColumnName['columnName']);
+    }
+
+    public function validColumnNameData(): Generator
+    {
+        yield 'currency' => ['currency €', 'currency_EUR'];
+        yield 'diacritic' => ['ěĚšŠčČřŘžŽýÝáÁíÍéÉ', 'eEsScCrRzZyYaAiIeE'];
+        yield 'special chars' => [
+            'lorem &@€\\#˝´˙`˛°˘^ˇ~€||\đĐ[]łŁ}{{@@&##<>*$ß¤×÷¸¨ IPsum',
+            'lorem_EUR_EUR_dD_lL_ss_IPsum',
+        ];
+        yield 'space' => ['muj Bucket', 'muj_Bucket'];
+        yield 'reasonable name with special chars' => ['account € & $', 'account_EUR'];
+        yield 'invalid chars start and end' => ['$$ some name $$', 'some_name'];
+        yield 'leading underscore should be trimmed' => ['_MůjBucketíček', 'MujBucketicek'];
+        yield 'long string should be trimmed' => [
+            'loremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmetloremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmet',
+            'loremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmetloremIps',
+        ];
+    }
+
+    /**
+     * @dataProvider invalidColumnNameData
+     */
+    public function testFailWebalizeColumnName(
+        ?string $input,
+        int $expectedErrorCode,
+        string $expectedErrorStringCode,
+        string $expectedErrorMessage
+    ): void {
+        try {
+            $this->_client->webalizeColumnName($input);
+            $this->fail('fail webalize columnName');
+        } catch (ClientException $e) {
+            $this->assertEquals($expectedErrorMessage, $e->getMessage());
+            $this->assertEquals($expectedErrorStringCode, $e->getStringCode());
+            $this->assertEquals($expectedErrorCode, $e->getCode());
+        }
+    }
+
+    public function invalidColumnNameData(): Generator
+    {
+        yield 'null' => [
+            null,
+            400,
+            'validation.failed',
+            'Invalid request:
+ - columnName: "This value should not be blank."',
+        ];
+        yield 'system column' => [
+            'oid',
+            422,
+            'storage.webalize.columnName.invalid',
+            '"oid" is a system column used by the database for internal purposes.',
+        ];
+        yield 'naughty string 1' => [
+            base64_decode('AQIDBAUGBwgODxAREhMUFRYXGBkaGxwdHh9/'),
+            422,
+            'storage.webalize.columnName.invalid',
+            '"" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+        ];
+        yield 'only special chars' => [
+            '----$$$$-----',
+            422,
+            'storage.webalize.columnName.invalid',
+            '"" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+        ];
     }
 }
