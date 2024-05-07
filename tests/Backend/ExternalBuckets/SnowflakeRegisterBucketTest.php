@@ -10,6 +10,7 @@ use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Utils\EventsQueryBuilder;
+use Keboola\Db\Import\Snowflake\Connection as SnowflakeConnection;
 
 class SnowflakeRegisterBucketTest extends BaseExternalBuckets
 {
@@ -1097,10 +1098,11 @@ SQL,
 
         // workspace which will check data using RO-IM
         $workspaceForChecking = $ws->createWorkspace();
-        $workspaceDbForChecking = WorkspaceBackendFactory::createWorkspaceBackend($workspaceForChecking);
+        /** @var SnowflakeConnection $workspaceDbForChecking */
+        $workspaceDbForChecking = WorkspaceBackendFactory::createWorkspaceBackend($workspaceForChecking)->getDb();
 
         // listing data via RO-IM from both workspaces
-        $dataFromBucket1 = $workspaceDbForChecking->getDb()->fetchAll(
+        $dataFromBucket1 = $workspaceDbForChecking->fetchAll(
             sprintf(
                 'SELECT * FROM %s.%s.%s',
                 SnowflakeQuote::quoteSingleIdentifier($workspace['connection']['database']),
@@ -1108,7 +1110,7 @@ SQL,
                 SnowflakeQuote::quoteSingleIdentifier('test1'),
             ),
         );
-        $dataFromBucket2BeforeDeletion = $workspaceDbForChecking->getDb()->fetchAll(
+        $dataFromBucket2BeforeDeletion = $workspaceDbForChecking->fetchAll(
             sprintf(
                 'SELECT * FROM %s.%s.%s',
                 SnowflakeQuote::quoteSingleIdentifier($workspace2['connection']['database']),
@@ -1125,7 +1127,7 @@ SQL,
         $this->_client->dropBucket($bucket1ID);
 
         // RO role should keep access to existing external bucket (=workspace)
-        $dataFrom2AfterDeletion = $workspaceDbForChecking->getDb()->fetchAll(
+        $dataFrom2AfterDeletion = $workspaceDbForChecking->fetchAll(
             sprintf(
                 'SELECT * FROM %s.%s.%s',
                 SnowflakeQuote::quoteSingleIdentifier($workspace2['connection']['database']),
