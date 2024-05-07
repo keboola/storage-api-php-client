@@ -8882,6 +8882,28 @@ and [buckets](https://keboola.docs.apiary.io/#reference/buckets/manage-bucket/bu
             "displayName": "My-Display-Name"
         }
 
+### Webalize Column Name [POST /v2/storage/webalize/column-name]
+Webalize string which you want to use as the column name for all API calls where the column name is used, for example:
+    + [creating a table](https://keboola.docs.apiary.io/#reference/tables/create-table-definition/create-new-table-definition)
+    + [adding a column](https://keboola.docs.apiary.io/#reference/tables/create-table-column/add-column-to-table)
+
++ Attributes
+    + columnName (required, string)
+
++ Request (application/json)
+
+    + Body
+
+            {
+                "columnName": "My$$Column-Name"
+            }
+
++ Response 200 (application/json)
+
+        {
+            "columnName": "My_Column_Name"
+        }
+
 # Group Development Branches
 
 **EXPERIMENTAL**
