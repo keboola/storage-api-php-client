@@ -6,6 +6,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\TableExporter;
 use Keboola\StorageApi\Workspaces;
+use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Utils\EventsQueryBuilder;
@@ -1001,7 +1002,6 @@ SQL,
         }
     }
 
-
     public function testDropBucketWhenSchemaDoesNotExist(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
@@ -1039,5 +1039,100 @@ SQL,
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Bucket in.test-bucket-registration not found');
         $this->_client->getBucket($idOfBucket);
+    }
+
+    public function testDropExternalBucket(): void
+    {
+        $this->dropBucketIfExists($this->_client, 'in.external_bucket_1', true);
+        $this->dropBucketIfExists($this->_client, 'in.external_bucket_2', true);
+
+        $ws = new Workspaces($this->_client);
+        // prepare workspace
+        $workspace = $ws->createWorkspace();
+        $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
+
+        // add first table to workspace with long name, table should be skipped
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $db->createTable(
+            'test1',
+            [
+                'AMOUNT' => 'INT',
+            ],
+        );
+        $db->executeQuery('INSERT INTO "test1" VALUES (0)');
+
+        // prepare workspace
+        $workspace2 = $ws->createWorkspace();
+        $externalBucketPath2 = [$workspace2['connection']['database'], $workspace2['connection']['schema']];
+
+        // add first table to workspace with long name, table should be skipped
+        $db2 = WorkspaceBackendFactory::createWorkspaceBackend($workspace2);
+
+        $db2->createTable(
+            'test2',
+            [
+                'AMOUNT' => 'INT',
+            ],
+        );
+        $db2->executeQuery('INSERT INTO "test2" VALUES (1)');
+
+        $bucket1ID = $this->_client->registerBucket(
+            'external_bucket_1',
+            $externalBucketPath,
+            'in',
+            'Iam in workspace',
+            'snowflake',
+            'external_bucket_1',
+        );
+
+        $this->_client->registerBucket(
+            'external_bucket_2',
+            $externalBucketPath2,
+            'in',
+            'Iam in workspace',
+            'snowflake',
+            'external_bucket_2',
+        );
+
+        // workspace which will check data using RO-IM
+        $workspaceForChecking = $ws->createWorkspace();
+        $workspaceDbForChecking = WorkspaceBackendFactory::createWorkspaceBackend($workspaceForChecking);
+
+        // listing data via RO-IM from both workspaces
+        $dataFromBucket1 = $workspaceDbForChecking->getDb()->fetchAll(
+            sprintf(
+                'SELECT * FROM %s.%s.%s',
+                SnowflakeQuote::quoteSingleIdentifier($workspace['connection']['database']),
+                SnowflakeQuote::quoteSingleIdentifier($workspace['connection']['schema']),
+                SnowflakeQuote::quoteSingleIdentifier('test1'),
+            ),
+        );
+        $dataFromBucket2BeforeDeletion = $workspaceDbForChecking->getDb()->fetchAll(
+            sprintf(
+                'SELECT * FROM %s.%s.%s',
+                SnowflakeQuote::quoteSingleIdentifier($workspace2['connection']['database']),
+                SnowflakeQuote::quoteSingleIdentifier($workspace2['connection']['schema']),
+                SnowflakeQuote::quoteSingleIdentifier('test2'),
+            ),
+        );
+
+        // asserting expected data
+        $this->assertEquals(['AMOUNT' => '0'], $dataFromBucket1[0]);
+        $this->assertEquals(['AMOUNT' => '1'], $dataFromBucket2BeforeDeletion[0]);
+
+        // dropping the bucket
+        $this->_client->dropBucket($bucket1ID);
+
+        // RO role should keep access to existing external bucket (=workspace)
+        $dataFrom2AfterDeletion = $workspaceDbForChecking->getDb()->fetchAll(
+            sprintf(
+                'SELECT * FROM %s.%s.%s',
+                SnowflakeQuote::quoteSingleIdentifier($workspace2['connection']['database']),
+                SnowflakeQuote::quoteSingleIdentifier($workspace2['connection']['schema']),
+                SnowflakeQuote::quoteSingleIdentifier('test2'),
+            ),
+        );
+        $this->assertEquals($dataFromBucket2BeforeDeletion, $dataFrom2AfterDeletion);
     }
 }
