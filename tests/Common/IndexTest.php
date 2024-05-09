@@ -102,28 +102,36 @@ class IndexTest extends StorageApiTestCase
     /**
      * @dataProvider validColumnNameData
      */
-    public function testSuccessfullyWebalizeColumnName(string $input, string $expectedOutput): void
+    public function testSuccessfullyWebalizeColumnName(array $input, array $expectedOutput): void
     {
-        $responseColumnName = $this->_client->webalizeColumnName($input);
+        $responseColumnNames = $this->_client->webalizeColumnNames($input);
 
-        $this->assertSame($expectedOutput, $responseColumnName['columnName']);
+        $this->assertSame($expectedOutput, $responseColumnNames['columnNames']);
     }
 
     public function validColumnNameData(): Generator
     {
-        yield 'currency' => ['currency €', 'currency_EUR'];
-        yield 'diacritic' => ['ěĚšŠčČřŘžŽýÝáÁíÍéÉ', 'eEsScCrRzZyYaAiIeE'];
-        yield 'special chars' => [
-            'lorem &@€\\#˝´˙`˛°˘^ˇ~€||\đĐ[]łŁ}{{@@&##<>*$ß¤×÷¸¨ IPsum',
-            'lorem_EUR_EUR_dD_lL_ss_IPsum',
-        ];
-        yield 'space' => ['muj Bucket', 'muj_Bucket'];
-        yield 'reasonable name with special chars' => ['account € & $', 'account_EUR'];
-        yield 'invalid chars start and end' => ['$$ some name $$', 'some_name'];
-        yield 'leading underscore should be trimmed' => ['_MůjBucketíček', 'MujBucketicek'];
-        yield 'long string should be trimmed' => [
-            'loremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmetloremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmet',
-            'loremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmetloremIps',
+        yield 'all' => [
+            [
+                'currency €',
+                'ěĚšŠčČřŘžŽýÝáÁíÍéÉ',
+                'lorem &@€\\#˝´˙`˛°˘^ˇ~€||\đĐ[]łŁ}{{@@&##<>*$ß¤×÷¸¨ IPsum',
+                'muj Bucket',
+                'account € & $',
+                '$$ some name $$',
+                '_MůjBucketíček',
+                'loremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmetloremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmet',
+            ],
+            [
+                'currency_EUR',
+                'eEsScCrRzZyYaAiIeE',
+                'lorem_EUR_EUR_dD_lL_ss_IPsum',
+                'muj_Bucket',
+                'account_EUR',
+                'some_name',
+                'MujBucketicek',
+                'loremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmetloremIps',
+            ],
         ];
     }
 
@@ -131,13 +139,13 @@ class IndexTest extends StorageApiTestCase
      * @dataProvider invalidColumnNameData
      */
     public function testFailWebalizeColumnName(
-        ?string $input,
+        array $input,
         int $expectedErrorCode,
         string $expectedErrorStringCode,
         string $expectedErrorMessage
     ): void {
         try {
-            $this->_client->webalizeColumnName($input);
+            $this->_client->webalizeColumnNames($input);
             $this->fail('fail webalize columnName');
         } catch (ClientException $e) {
             $this->assertEquals($expectedErrorMessage, $e->getMessage());
@@ -149,29 +157,32 @@ class IndexTest extends StorageApiTestCase
     public function invalidColumnNameData(): Generator
     {
         yield 'null' => [
-            null,
+            [null],
             400,
             'validation.failed',
             'Invalid request:
- - columnName: "This value should not be blank."',
+ - columnNames[0]: "This value should not be blank."',
         ];
         yield 'system column' => [
-            'oid',
+            ['oid'],
             422,
             'storage.webalize.columnName.invalid',
-            '"oid" is a system column used by the database for internal purposes.',
+            'columnNames[0]: "oid" is a system column used by the database for internal purposes.',
         ];
         yield 'naughty string 1' => [
-            base64_decode('AQIDBAUGBwgODxAREhMUFRYXGBkaGxwdHh9/'),
+            [base64_decode('AQIDBAUGBwgODxAREhMUFRYXGBkaGxwdHh9/')],
             422,
             'storage.webalize.columnName.invalid',
-            '"" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+            'columnNames[0]: "" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
         ];
         yield 'only special chars' => [
-            '----$$$$-----',
+            [
+                'new column',
+                '----$$$$-----',
+            ],
             422,
             'storage.webalize.columnName.invalid',
-            '"" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+            'columnNames[1]: "" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
         ];
     }
 }
