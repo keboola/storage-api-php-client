@@ -552,6 +552,58 @@ END,
 "id","name"
 END,
         ];
+        yield 'ignore-lines-count-without-headers-false' => [
+            'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
+            'importedFiles' => [
+                __DIR__ . '/../../_data/languages-with-headers-reordered.csv',
+            ],
+            'columns' => [
+                'name',
+                'id',
+            ],
+            'incremental' => false,
+            'withoutHeaders' => false,
+            'ignoredLinesCount' => 1,
+            'expectedColumns' => [
+                'id',
+                'name',
+            ],
+            'expectedData' => <<<END
+
+"0","- unchecked -"
+"1","english"
+"11","finnish"
+"24","french"
+"26","czech"
+"id","name"
+END,
+        ];
+        yield 'ignore-lines-count-without-headers-true' => [
+            'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
+            'importedFiles' => [
+                __DIR__ . '/../../_data/languages-with-headers-reordered.csv',
+            ],
+            'columns' => [
+                'name',
+                'id',
+            ],
+            'incremental' => false,
+            'withoutHeaders' => true,
+            'ignoredLinesCount' => 1,
+            'expectedColumns' => [
+                'id',
+                'name',
+            ],
+            'expectedData' => <<<END
+
+"0","- unchecked -"
+"1","english"
+"11","finnish"
+"24","french"
+"26","czech"
+"id","name"
+END,
+        ];
         yield 'columns-only' => [
             'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
             'importedFiles' => [
@@ -563,6 +615,29 @@ END,
             ],
             'incremental' => false,
             'withoutHeaders' => null,
+            'ignoredLinesCount' => null,
+            'expectedColumns' => [
+                'id',
+                'name',
+            ],
+            'expectedData' => <<<END
+
+"0","- unchecked -"
+"1","english"
+"11","finnish"
+"24","french"
+"26","czech"
+"id","name"
+END,
+        ];
+        yield 'without-headers-false-only' => [
+            'headersFile' => __DIR__ . '/../../_data/languages-headers.csv',
+            'importedFiles' => [
+                __DIR__ . '/../../_data/languages.csv',
+            ],
+            'columns' => null,
+            'incremental' => false,
+            'withoutHeaders' => false,
             'ignoredLinesCount' => null,
             'expectedColumns' => [
                 'id',
@@ -612,6 +687,34 @@ END,
             ],
             'incremental' => true,
             'withoutHeaders' => true,
+            'ignoredLinesCount' => null,
+            'expectedColumns' => [
+                'id',
+                'name',
+            ],
+            'expectedData' => <<<END
+
+"0","- unchecked -"
+"1","english"
+"11","finnish"
+"24","french"
+"26","czech"
+"27","spanish"
+"28","greek"
+"id","name"
+END,
+        ];
+        yield 'columns-without-headers-false-incremental' => [
+            'headersFile' => __DIR__ . '/../../_data/languages.csv',
+            'importedFiles' => [
+                __DIR__ . '/../../_data/languages-without-headers-reordered-incremental.csv',
+            ],
+            'columns' => [
+                'name',
+                'id',
+            ],
+            'incremental' => true,
+            'withoutHeaders' => false,
             'ignoredLinesCount' => null,
             'expectedColumns' => [
                 'id',
