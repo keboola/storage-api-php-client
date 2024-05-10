@@ -1436,31 +1436,6 @@ parameters:
 			path: src/Keboola/StorageApi/Exception.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\HandlerStack\\:\\:create\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/HandlerStack.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\HandlerStack\\:\\:create\\(\\) has parameter \\$options with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/HandlerStack.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\HandlerStack\\:\\:createDefaultDecider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/HandlerStack.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\HandlerStack\\:\\:createDefaultDecider\\(\\) has parameter \\$maxRetries with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/HandlerStack.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\HandlerStack\\:\\:createExponentialDelay\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/HandlerStack.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\MaintenanceException\\:\\:__construct\\(\\) has parameter \\$reason with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/MaintenanceException.php

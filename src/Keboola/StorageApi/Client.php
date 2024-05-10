@@ -79,6 +79,8 @@ class Client
 
     private $backoffMaxTries = 11;
 
+    private bool $retryOnMaintenance = true;
+
     private $awsRetries = self::DEFAULT_RETRIES_COUNT;
 
     private $awsDebug = false;
@@ -134,6 +136,7 @@ class Client
      *     - url: (required) Storage API URL
      *     - userAgent: custom user agent
      *     - backoffMaxTries: backoff maximum number of attempts
+     *     - retryOnMaintenance: if client should retry request when server is in maintenance
      *     - awsRetries: number of aws client retries
      *     - logger: instance of Psr\Log\LoggerInterface
      *     - jobPollRetryDelay: callable method which determines wait period for job polling
@@ -158,6 +161,10 @@ class Client
 
         if (isset($config['backoffMaxTries'])) {
             $this->backoffMaxTries = (int) $config['backoffMaxTries'];
+        }
+
+        if (isset($config['retryOnMaintenance'])) {
+            $this->retryOnMaintenance = (bool) $config['retryOnMaintenance'];
         }
 
         if (isset($config['awsRetries'])) {
@@ -188,6 +195,7 @@ class Client
     {
         $handlerStack = HandlerStack::create([
             'backoffMaxTries' => $this->backoffMaxTries,
+            'retryOnMaintenance' => $this->retryOnMaintenance,
             'handler' => $config['handler'] ?? null,
         ]);
 
