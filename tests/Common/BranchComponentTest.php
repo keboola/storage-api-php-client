@@ -188,7 +188,7 @@ class BranchComponentTest extends StorageApiTestCase
             $this->assertSame(1, $searchResult['all']);
             $this->assertSame('configuration', $searchResult['items'][0]['type']);
             $this->assertSame($hashedUpdatedMain1Name, $searchResult['items'][0]['name']);
-            $this->assertSame(true, $searchResult['items'][0]['fullPath']['branch']['isDefault']);
+            $this->assertTrue($searchResult['items'][0]['fullPath']['branch']['isDefault']);
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -205,7 +205,7 @@ class BranchComponentTest extends StorageApiTestCase
             $this->assertSame(1, $searchResult['all']);
             $this->assertSame('configuration', $searchResult['items'][0]['type']);
             $this->assertSame($hashedUpdatedDevBranch1Name, $searchResult['items'][0]['name']);
-            $this->assertSame(false, $searchResult['items'][0]['fullPath']['branch']['isDefault']);
+            $this->assertFalse($searchResult['items'][0]['fullPath']['branch']['isDefault']);
         };
 
         $this->retryWithCallback($apiCall, $assertCallback);

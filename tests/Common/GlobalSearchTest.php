@@ -47,7 +47,7 @@ class GlobalSearchTest extends StorageApiTestCase
         $components->addConfiguration($configuration);
 
         $apiCall = fn() => $this->client->globalSearch($hashedName);
-        $assertCallback = function ($searchResult) use ($hashedName) {
+        $assertCallback = function ($searchResult) {
             $this->assertSame(1, $searchResult['all']);
             $this->assertArrayHasKey('id', $searchResult['items'][0]);
             $this->assertArrayHasKey('type', $searchResult['items'][0]);
@@ -97,7 +97,7 @@ class GlobalSearchTest extends StorageApiTestCase
         );
 
         $apiCall = fn() => $this->client->globalSearch($hashedRowName);
-        $assertCallback = function ($searchResult) use ($hashedRowName) {
+        $assertCallback = function ($searchResult) {
             $this->assertSame(1, $searchResult['all']);
             $this->assertArrayHasKey('id', $searchResult['items'][0]);
             $this->assertArrayHasKey('type', $searchResult['items'][0]);

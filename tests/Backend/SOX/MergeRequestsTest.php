@@ -821,7 +821,7 @@ class MergeRequestsTest extends StorageApiTestCase
 
         // check if config is indexed
         $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigMain1Name);
-        $assertCallback = function ($searchResult) use ($hashedConfigMain1Name) {
+        $assertCallback = function ($searchResult) {
             $this->assertSame(0, $searchResult['all']);
         };
         $this->retryWithCallback($apiCall, $assertCallback);
@@ -943,7 +943,7 @@ class MergeRequestsTest extends StorageApiTestCase
             $this->assertSame('configuration', $searchResult['items'][0]['type']);
             $this->assertSame($hashedConfigUpdatedName, $searchResult['items'][0]['name']);
             // updated in devBranch
-            $this->assertSame(false, $searchResult['items'][0]['fullPath']['branch']['isDefault']);
+            $this->assertFalse($searchResult['items'][0]['fullPath']['branch']['isDefault']);
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -967,14 +967,13 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $mr = $this->developerClient->getMergeRequest($mrId);
 
-
         $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigUpdatedName);
         $assertCallback = function ($searchResult) use ($hashedConfigUpdatedName) {
             $this->assertSame(1, $searchResult['all']);
             $this->assertSame('configuration', $searchResult['items'][0]['type']);
             $this->assertSame($hashedConfigUpdatedName, $searchResult['items'][0]['name']);
             // after merge exist in main branch
-            $this->assertSame(true, $searchResult['items'][0]['fullPath']['branch']['isDefault']);
+            $this->assertTrue($searchResult['items'][0]['fullPath']['branch']['isDefault']);
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 

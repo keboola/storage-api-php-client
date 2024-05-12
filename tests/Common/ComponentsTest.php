@@ -232,11 +232,10 @@ class ComponentsTest extends StorageApiTestCase
         $components->deleteConfiguration($componentId, $configurationId);
 
         $apiCall = fn() => $this->client->globalSearch($hashedName);
-        $assertCallback = function ($searchResult) use ($hashedName) {
+        $assertCallback = function ($searchResult) {
             $this->assertSame(0, $searchResult['all']);
         };
         $this->retryWithCallback($apiCall, $assertCallback);
-
 
         $nameRenewed = 'Main-'.$this->generateDescriptionForTestObject() . '-' . $devBranchType;
         $hashedNameRenewed = sha1($nameRenewed);
@@ -406,7 +405,7 @@ class ComponentsTest extends StorageApiTestCase
         $components->deleteConfiguration($componentId, $configurationId);
 
         $apiCall = fn() => $this->client->globalSearch($hashedName);
-        $assertCallback = function ($searchResult) use ($hashedName) {
+        $assertCallback = function ($searchResult) {
             $this->assertSame(0, $searchResult['all']);
         };
         $this->retryWithCallback($apiCall, $assertCallback);
@@ -1005,7 +1004,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientType
-     * @param string $clientType
+     * @param string $devBranchType
      */
     public function testComponentConfigUpdate(string $devBranchType): void
     {
@@ -2288,7 +2287,7 @@ class ComponentsTest extends StorageApiTestCase
         $components->updateConfigurationRow($updateConfigurationRow);
 
         $apiCall = fn() => $this->client->globalSearch($hashedRowName);
-        $assertCallback = function ($searchResult) use ($hashedRowName) {
+        $assertCallback = function ($searchResult) {
             $this->assertSame(0, $searchResult['all']);
         };
         $this->retryWithCallback($apiCall, $assertCallback);
@@ -2875,7 +2874,7 @@ class ComponentsTest extends StorageApiTestCase
         );
 
         $apiCall = fn() => $this->client->globalSearch($hashedRowName);
-        $assertCallback = function ($searchResult) use ($hashedRowName) {
+        $assertCallback = function ($searchResult) {
             $this->assertSame(0, $searchResult['all']);
         };
         $this->retryWithCallback($apiCall, $assertCallback);
@@ -3741,7 +3740,7 @@ class ComponentsTest extends StorageApiTestCase
         $components->updateConfigurationRow($rowConfig);
 
         $apiCall = fn() => $this->client->globalSearch($hashedRowName);
-        $assertCallback = function ($searchResult) use ($hashedRowName) {
+        $assertCallback = function ($searchResult) {
             $this->assertSame(0, $searchResult['all']);
         };
         $this->retryWithCallback($apiCall, $assertCallback);
