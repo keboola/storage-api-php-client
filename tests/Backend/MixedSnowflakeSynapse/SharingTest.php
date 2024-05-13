@@ -297,7 +297,7 @@ class SharingTest extends StorageApiSharingTestCase
         try {
             $this->_client2->getBucket($unloadBucketId);
             // if bucket exists drop it
-            // @phpstan-ignore: tomasfejfar-phpstan-phpunit.missingFailInTryCatch
+            // @phpstan-ignore tomasfejfar.phpstanPhpunit.missingFailInTryCatch
             $this->_client2->dropBucket($unloadBucketId, ['force' => true]);
         } catch (ClientException $e) {
             $this->assertEquals("Bucket {$unloadBucketId} not found", $e->getMessage());
