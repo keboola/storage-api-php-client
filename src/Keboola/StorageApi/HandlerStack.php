@@ -10,6 +10,7 @@ namespace Keboola\StorageApi;
 use GuzzleHttp\BodySummarizer;
 use GuzzleHttp\HandlerStack as HandlerStackBase;
 use GuzzleHttp\Middleware;
+use GuzzleHttp\Promise\PromiseInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -22,7 +23,14 @@ final class HandlerStack
 {
     private const MAX_HTTP_ERROR_MESSAGE_LENGTH = 1024*1024;
 
-    public static function create($options = [])
+    /**
+     * @param array{
+     *     handler?: callable(RequestInterface, array): PromiseInterface,
+     *     backoffMaxTries?: int,
+     *     retryOnMaintenance?: bool,
+     * } $options
+     */
+    public static function create(array $options = []): HandlerStackBase
     {
         $handlerStack = HandlerStackBase::create($options['handler'] ?? null);
 
@@ -33,22 +41,32 @@ final class HandlerStack
         );
 
         $handlerStack->push(Middleware::retry(
-            self::createDefaultDecider(isset($options['backoffMaxTries']) ? $options['backoffMaxTries'] : 0),
+            self::createDefaultDecider(
+                $options['backoffMaxTries'] ?? 0,
+                $options['retryOnMaintenance'] ?? true,
+            ),
             self::createExponentialDelay(),
         ));
         return $handlerStack;
     }
 
-    private static function createDefaultDecider($maxRetries = 3)
+    private static function createDefaultDecider(int $maxRetries, bool $retryOnMaintenance): callable
     {
         return function (
             $retries,
             RequestInterface $request,
             ResponseInterface $response = null,
             $error = null
-        ) use ($maxRetries) {
+        ) use (
+            $maxRetries,
+            $retryOnMaintenance
+        ) {
             // don't do retry if server returns 501 not implemented
             if ($response && $response->getStatusCode() === 501) {
+                return false;
+            }
+
+            if ($response && $response->getStatusCode() === 503 && !$retryOnMaintenance) {
                 return false;
             }
 
@@ -64,7 +82,7 @@ final class HandlerStack
         };
     }
 
-    private static function createExponentialDelay()
+    private static function createExponentialDelay(): callable
     {
         return function ($retries) {
             return (int) pow(2, $retries - 1) * 1000;
