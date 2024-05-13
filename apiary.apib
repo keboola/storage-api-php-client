@@ -3098,6 +3098,7 @@ Further information can be found in the [Developers Documentation](https://devel
     + escapedBy (optional, string) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either `enclosure` or `escapedBy` parameter, not both.)
     + columns[] (optional, string) - List of columns present in the CSV file; the first line of the file will not be treated as a header!
     + withoutHeaders (optional, boolean) - Indicates that the CSV file does not have header row. The columns in the CSV file must be in the same order as the columns in the table in storage. Use the 'columns' option to specify the column order.
+    + ignoredLinesCount (optional, number) - Number of lines to skip at the beginning of the file. If ignoredLinesCount is specified, the withoutHeaders option will be ignored.
     + treatValuesAsNull (optional, array[string]) - (Snowflake and BigQuery only) Array of string values that should be imported as NULL values. The default value is `['']`. Some other common values you might consider are `'\N'` or `'null'`. **Currently only single value is allowed**, but it still must be sent as array to allow future expansion.
 
 + Request (application/json)

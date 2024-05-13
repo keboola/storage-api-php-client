@@ -257,7 +257,6 @@ class SOXWorkspaceTest extends SOXWorkspaceTestCase
             $tableRef = $backend->getTableReflection('languages');
             self::assertEquals(['id', 'name', '_timestamp'], $tableRef->getColumnsNames());
             self::assertCount(10, $backend->fetchAll('languages'));
-            // @phpstan-ignore: tomasfejfar-phpstan-phpunit.missingFailInTryCatch
             if ($backend instanceof BigqueryWorkspaceBackend) {
                 $this->fail('BigQuery should throw exception');
             }
