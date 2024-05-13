@@ -288,7 +288,7 @@ class BranchStorageTest extends StorageApiTestCase
         $bucketId = 'in.c-' . $testBucketName;
         // cleanup test bucket
         try {
-            // @phpstan-ignore: tomasfejfar-phpstan-phpunit.missingFailInTryCatch
+            // @phpstan-ignore tomasfejfar.phpstanPhpunit.missingFailInTryCatch
             $this->getDefaultBranchStorageApiClient()->dropBucket($bucketId);
         } catch (ClientException $e) {
             if ($e->getCode() !== 404) {
