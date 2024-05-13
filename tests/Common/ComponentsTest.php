@@ -2663,7 +2663,7 @@ class ComponentsTest extends StorageApiTestCase
         $apiCall = fn() => $this->client->globalSearch($hashedRenamedRowName);
         $assertCallback = function ($searchResult) use ($hashedRenamedRowName) {
             $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
+            $this->assertSame('configuration-row', $searchResult['items'][0]['type']);
             $this->assertSame($hashedRenamedRowName, $searchResult['items'][0]['name']);
         };
         $this->retryWithCallback($apiCall, $assertCallback);
