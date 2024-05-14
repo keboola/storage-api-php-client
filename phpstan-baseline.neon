@@ -5275,6 +5275,6 @@ parameters:
 			count: 1
 			path: tests/bootstrap.php
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:webalizeColumnName\\(\\) has no return type specified\\.$#"
+			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:webalizeColumnNames\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
