@@ -87,9 +87,10 @@ class PullTableTest extends StorageApiTestCase
             $description,
             $privilegedClient,
         );
+        $hashedUniqueTableName = sha1('languages-'.$this->generateDescriptionForTestObject());
         $productionTableId = $privilegedClient->createTableAsync(
             $productionBucketId,
-            'languages',
+            $hashedUniqueTableName,
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
         $productionTable = $privilegedClient->getTable($productionTableId);
@@ -119,8 +120,24 @@ class PullTableTest extends StorageApiTestCase
             'token' => STORAGE_API_DEVELOPER_TOKEN,
             'url' => STORAGE_API_URL,
         ]);
+        $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
+        $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('table', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
+
         $this->initEvents($branchClient);
         $newTableId = $branchClient->pullTableToBranch($productionTableId);
+
+        $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
+        $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
+            $this->assertSame(2, $searchResult['all']);
+            $this->assertSame('table', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
 
         // Check events created
         $assertCallback = function ($events) use ($productionBucketId) {
