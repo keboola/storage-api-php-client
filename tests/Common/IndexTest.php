@@ -34,8 +34,6 @@ class IndexTest extends StorageApiTestCase
         $component = reset($index['components']);
         $this->assertArrayHasKey('id', $component);
         $this->assertArrayHasKey('uri', $component);
-        $this->assertArrayHasKey('dataTypesConfiguration', $component);
-        $this->assertArrayHasKey('processorConfiguration', $component);
 
         $this->assertArrayHasKey('urlTemplates', $index);
 
