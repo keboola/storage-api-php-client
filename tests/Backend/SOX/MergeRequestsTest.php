@@ -682,6 +682,106 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertBranchIsDeleted($branchId);
     }
 
+    public function testDeletedRowInBranchIsDeletedInDefaultAfterMerge(): void
+    {
+        // prepare test configs
+        $componentId = 'wr-db';
+        $configMain1 = 'main-1';
+        $configMain2 = 'main-2';
+        $components = new Components($this->getDefaultBranchStorageApiClient());
+
+        $main1 = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configMain1)
+            ->setName('Main')
+            ->setDescription('some desc');
+        $components->addConfiguration($main1);
+
+        $components->addConfigurationRow((new ConfigurationRow($main1))
+            ->setRowId('firstRow')
+            ->setConfiguration(['value' => 1]));
+
+        $components->addConfigurationRow((new ConfigurationRow($main1))
+            ->setRowId('secondRow')
+            ->setConfiguration(['value' => 1]));
+
+        $main2 = (new Configuration())
+            ->setComponentId($componentId)
+            ->setConfigurationId($configMain2)
+            ->setName('Main')
+            ->setDescription('some desc');
+        $components->addConfiguration($main2);
+
+        $components->addConfigurationRow((new ConfigurationRow($main2))
+            ->setRowId('firstRow')
+            ->setConfiguration(['value' => 1]));
+
+        $components->addConfigurationRow((new ConfigurationRow($main2))
+            ->setRowId('secondRow')
+            ->setConfiguration(['value' => 1]));
+
+        // create dev branch and create devBranch component client
+        $defaultBranch = $this->branches->getDefaultBranch();
+        $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
+
+        $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_DEVELOPER_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]));
+
+        // delete config main-1 to test is deleted after merge
+        $devBranchComponents->deleteConfiguration($componentId, $configMain1);
+
+        // delete firstRow in config main-1 in dev branch to test is deleted after merge
+        $devBranchComponents->deleteConfigurationRow($componentId, $configMain2, 'firstRow');
+
+        // create MR, approve it and merge it
+        $mrId = $this->developerClient->createMergeRequest([
+            'branchFromId' => $newBranch['id'],
+            'branchIntoId' => $defaultBranch['id'],
+            'title' => 'Change everything',
+            'description' => 'Fix typo',
+        ]);
+
+        $reviewerClient = $this->getReviewerStorageApiClient();
+        $this->developerClient->mergeRequestRequestReview($mrId);
+
+        $reviewerClient->mergeRequestApprove($mrId);
+        $this->getSecondReviewerStorageApiClient()->mergeRequestApprove($mrId);
+
+        $this->prodManagerClient->mergeMergeRequest($mrId);
+
+        // test is config main-1 deleted in default branch
+        try {
+            $components->getConfiguration($componentId, $configMain1);
+            $this->fail('Config should be deleted in default branch');
+        } catch (ClientException $e) {
+            $this->assertSame('Configuration main-1 not found', $e->getMessage());
+        }
+
+        try {
+            $components->getConfigurationRow($componentId, $configMain1, 'firstRow');
+            $this->fail('Row should be deleted in default branch');
+        } catch (ClientException $e) {
+            $this->assertSame('Configuration main-1 not found', $e->getMessage());
+        }
+
+        try {
+            $components->getConfigurationRow($componentId, $configMain1, 'secondRow');
+            $this->fail('Row should be deleted in default branch');
+        } catch (ClientException $e) {
+            $this->assertSame('Configuration main-1 not found', $e->getMessage());
+        }
+
+        // test is firstRow deleted in config main-2 in default branch
+        try {
+            $components->getConfigurationRow($componentId, $configMain2, 'firstRow');
+            $this->fail('Row should be deleted in default branch');
+        } catch (ClientException $e) {
+            $this->assertSame('Row firstRow not found', $e->getMessage());
+        }
+    }
+
     public function testConfigIsUpdatedInDefaultButBothConfigsAreDeleted(): void
     {
         $componentId = 'wr-db';
