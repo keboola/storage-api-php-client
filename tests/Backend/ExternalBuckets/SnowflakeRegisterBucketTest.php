@@ -866,6 +866,7 @@ SQL,
     public function testRegisterExternalDB(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration-ext', true);
+        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration-ext2', true);
         $this->initEvents($this->_client);
         $runId = $this->setRunId();
         // try same with schema outside of project database.
