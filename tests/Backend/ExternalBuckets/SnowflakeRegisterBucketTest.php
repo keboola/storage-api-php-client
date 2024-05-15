@@ -947,7 +947,7 @@ SQL,
             $db->getDb()->fetchAll(
                 'SELECT COUNT(*) AS CNT FROM "TEST_EXTERNAL_BUCKETS"."TEST_SCHEMA"."TEST_TABLE"',
             );
-            $this->fail('Database should not be authorized');
+            $this->fail('Schema should not be authorized anymore');
         } catch (\RuntimeException $e) {
             // produce WARNING. The error is on Schema level -> so REVOKE was performed on Schema level
             $this->assertMatchesRegularExpression(
