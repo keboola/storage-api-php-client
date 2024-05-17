@@ -866,6 +866,7 @@ SQL,
     public function testRegisterExternalDB(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration-ext', true);
+        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration-ext2', true);
         $this->initEvents($this->_client);
         $runId = $this->setRunId();
         // try same with schema outside of project database.
@@ -896,6 +897,15 @@ SQL,
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        $idOfBucket2 = $this->_client->registerBucket(
+            'test-bucket-registration-ext2',
+            ['TEST_EXTERNAL_BUCKETS', 'TEST_SCHEMA2'],
+            'in',
+            'Iam in other database',
+            'snowflake',
+            'Iam-from-external-db-ext2',
+        );
 
         // check external bucket
         $bucket = $this->_client->getBucket($idOfBucket);
@@ -937,9 +947,29 @@ SQL,
             $db->getDb()->fetchAll(
                 'SELECT COUNT(*) AS CNT FROM "TEST_EXTERNAL_BUCKETS"."TEST_SCHEMA"."TEST_TABLE"',
             );
+            $this->fail('Schema should not be authorized anymore');
+        } catch (\RuntimeException $e) {
+            // produce WARNING. The error is on Schema level -> so REVOKE was performed on Schema level
+            $this->assertMatchesRegularExpression(
+                "/Schema 'TEST_EXTERNAL_BUCKETS.TEST_SCHEMA' does not exist or not authorized/",
+                $e->getMessage(),
+            );
+        }
+        // I can still access other external buckets
+        $rowsCount = $db->getDb()->fetchAll(
+            'SELECT COUNT(*) AS CNT FROM "TEST_EXTERNAL_BUCKETS"."TEST_SCHEMA2"."TEST_TABLE2"',
+        );
+        $this->assertSame((int) $rowsCount, 1);
+
+        $this->_client->dropBucket($idOfBucket2, ['force' => true]);
+
+        try {
+            $db->getDb()->fetchAll(
+                'SELECT COUNT(*) AS CNT FROM "TEST_EXTERNAL_BUCKETS"."TEST_SCHEMA2"."TEST_TABLE2"',
+            );
             $this->fail('Database should not be authorized');
         } catch (\RuntimeException $e) {
-            // produce WARNING
+            // produce WARNING. The error is on DB level -> so REVOKE on DB level has been performed
             $this->assertMatchesRegularExpression(
                 "/Database 'TEST_EXTERNAL_BUCKETS' does not exist or not authorized/",
                 $e->getMessage(),
