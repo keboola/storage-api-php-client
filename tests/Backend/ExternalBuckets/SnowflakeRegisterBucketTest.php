@@ -235,6 +235,8 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $this->assertStringContainsString('GRANT SELECT ON FUTURE TABLES IN SCHEMA', $guide['markdown']);
         $this->assertStringContainsString('GRANT SELECT ON ALL VIEWS IN SCHEMA', $guide['markdown']);
         $this->assertStringContainsString('GRANT SELECT ON FUTURE VIEWS IN SCHEMA', $guide['markdown']);
+        $this->assertStringContainsString('GRANT SELECT ON ALL EXTERNAL TABLES IN SCHEMA', $guide['markdown']);
+        $this->assertStringContainsString('GRANT SELECT ON FUTURE EXTERNAL TABLES IN SCHEMA', $guide['markdown']);
 
         // register workspace as external bucket
         $runId = $this->setRunId();
