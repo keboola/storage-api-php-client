@@ -892,7 +892,7 @@ SQL,
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         $assertCallback = function ($events) {
-            $this->assertCount(1, $events);
+            $this->assertCount(3, $events);
         };
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableCreated')
@@ -915,15 +915,33 @@ SQL,
         $this->assertSame('TEST_EXTERNAL_BUCKETS', $bucket['databaseName']);
 
         $tables = $this->_client->listTables($idOfBucket);
-        $this->assertCount(1, $tables);
-        $this->_client->exportTableAsync($tables[0]['id']);
+        $this->assertCount(3, $tables);
+        $tableResponse = $viewResponse = $externalTable = null;
 
-        $preview = $this->_client->getTableDataPreview($tables[0]['id']);
+        foreach ($tables as $table) {
+            switch ($table['name']) {
+                case 'TEST_TABLE':
+                    $tableResponse = $table;
+                    break;
+                case 'TEST_VIEW':
+                    $viewResponse = $table;
+                    break;
+                case 'TEST_EXTERNAL_TABLE':
+                    $externalTable = $table;
+                    break;
+                default:
+                    throw new \RuntimeException('Unexpected object in external bucket');
+            }
+        }
+        $this->_client->exportTableAsync($tableResponse['id']);
+        $this->assertEquals('snowflake-external-table', $externalTable['tableType']);
+        $this->assertEquals('view', $viewResponse['tableType']);
+        $preview = $this->_client->getTableDataPreview($tableResponse['id']);
         // expect two lines in preview because of the header
         $this->assertCount(2, Client::parseCsv($preview, false));
         $this->_client->refreshBucket($idOfBucket);
         $tables = $this->_client->listTables($idOfBucket);
-        $this->assertCount(1, $tables);
+        $this->assertCount(3, $tables);
 
         // check that workspace user CAN READ from table in external bucket directly
         $ws = new Workspaces($this->_client);
