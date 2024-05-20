@@ -936,9 +936,11 @@ SQL,
         $this->_client->exportTableAsync($tableResponse['id']);
         $this->assertEquals('snowflake-external-table', $externalTable['tableType']);
         $this->assertEquals('view', $viewResponse['tableType']);
-        $preview = $this->_client->getTableDataPreview($tableResponse['id']);
+        $previewTable = $this->_client->getTableDataPreview($tableResponse['id']);
+        $previewView = $this->_client->getTableDataPreview($viewResponse['id']);
         // expect two lines in preview because of the header
-        $this->assertCount(2, Client::parseCsv($preview, false));
+        $this->assertCount(2, Client::parseCsv($previewTable, false));
+        $this->assertCount(2, Client::parseCsv($previewView, false));
         $this->_client->refreshBucket($idOfBucket);
         $tables = $this->_client->listTables($idOfBucket);
         $this->assertCount(3, $tables);
