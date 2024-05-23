@@ -333,5 +333,9 @@
 	<testsuite name="unit">
 		<directory>tests-unit</directory>
 	</testsuite>
+
+	<testsuite name="snowflake-byodb">
+		<file>tests/Backend/ExternalBuckets/SnowflakeBYODBTest.php</file>
+	</testsuite>
 </testsuites>
 </phpunit>
