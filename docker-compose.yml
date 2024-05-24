@@ -35,6 +35,9 @@ services:
       - BQ_DESTINATION_PROJECT_SERVICE_ACC_EMAIL
       - BQ_EXTERNAL_TABLE_GCS_BUCKET
       - BQ_EXTERNAL_BUCKET_REGION
+      - SNOWFLAKE_HOST
+      - SNOWFLAKE_USER
+      - SNOWFLAKE_PASSWORD
   dev: &dev
     <<: *base
     volumes:
