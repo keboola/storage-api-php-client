@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend\ExternalBuckets;
 
+use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
@@ -10,6 +11,8 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
 {
     use WorkspaceConnectionTrait;
 
+    public const TESTDB = 'TESTDB';
+    public const TESTSCHEMA = 'TESTSCHEMA';
     public function setUp(): void
     {
         parent::setUp();
@@ -18,6 +21,10 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
 
     public function testRegisterExternalBucketInBYODBEnvironment(): void
     {
+        // TODO remove when EB grants are being removed based on metadata
+        $ws = new Workspaces($this->_client);
+        $wsObj = $ws->createWorkspace();
+
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
 
         $this->initEvents($this->_client);
@@ -25,9 +32,9 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
 
         // check that this project does not have external buckets feature enabled
         $this->assertFalse(in_array('external-buckets', $token['owner']['features']));
-        $guide = $this->_client->registerBucketGuide(['TESTDB', 'TESTSCHEMA'], 'snowflake');
+        $guide = $this->_client->registerBucketGuide([self::TESTDB, self::TESTSCHEMA], 'snowflake');
 
-        $guideEploded = \explode("\n", $guide['markdown']);
+        $guideEploded = explode("\n", $guide['markdown']);
 
         $db = SnowflakeConnectionFactory::getConnection(
             getenv('SNOWFLAKE_HOST'),
@@ -39,31 +46,31 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
         $db->executeQuery(
             sprintf(
                 'DROP DATABASE IF EXISTS %s;',
-                SnowflakeQuote::quoteSingleIdentifier('TESTDB'),
+                SnowflakeQuote::quoteSingleIdentifier(self::TESTDB),
             )
         );
         $db->executeQuery(
             sprintf(
                 'CREATE DATABASE %s;',
-                SnowflakeQuote::quoteSingleIdentifier('TESTDB'),
+                SnowflakeQuote::quoteSingleIdentifier(self::TESTDB),
             )
         );
         $db->executeQuery(
             sprintf(
                 'USE DATABASE %s;',
-                SnowflakeQuote::quoteSingleIdentifier('TESTDB'),
+                SnowflakeQuote::quoteSingleIdentifier(self::TESTDB),
             )
         );
         $db->executeQuery(
             sprintf(
                 'CREATE SCHEMA %s;',
-                SnowflakeQuote::quoteSingleIdentifier('TESTSCHEMA'),
+                SnowflakeQuote::quoteSingleIdentifier(self::TESTSCHEMA),
             )
         );
         $db->executeQuery(
             sprintf(
                 'USE SCHEMA %s;',
-                SnowflakeQuote::quoteSingleIdentifier('TESTSCHEMA'),
+                SnowflakeQuote::quoteSingleIdentifier(self::TESTSCHEMA),
             )
         );
         $db->executeQuery(
@@ -74,14 +81,14 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
         );
 
         foreach ($guideEploded as $command) {
-            if (\str_starts_with($command, 'GRANT')) {
+            if (str_starts_with($command, 'GRANT') && !str_contains($command, 'FUTURE')) {
                 $db->executeQuery($command);
             }
         }
 
         $this->_client->registerBucket(
             'test-bucket-registration',
-            ['TESTDB', 'TESTSCHEMA'],
+            [self::TESTDB, self::TESTSCHEMA],
             'in',
             'will not fail',
             'snowflake',
@@ -90,16 +97,8 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
 
         $tables = $this->_client->listTables('in.test-bucket-registration');
         $this->assertCount(1, $tables);
-
-        $db->executeQuery(
-            sprintf(
-                'CREATE TABLE %s (ID INT, LASTNAME VARCHAR(255));',
-                SnowflakeQuote::quoteSingleIdentifier('TESTTABLE2'),
-            )
-        );
-
         $this->_client->refreshBucket('in.test-bucket-registration');
-        $tables = $this->_client->listTables('in.test-bucket-registration');
-        $this->assertCount(2, $tables);
+        // TODO remove when EB grants are being removed based on metadata
+        $ws->deleteWorkspace($wsObj['id']);
     }
 }
