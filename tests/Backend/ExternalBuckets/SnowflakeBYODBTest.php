@@ -40,44 +40,44 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
             getenv('SNOWFLAKE_HOST'),
             getenv('SNOWFLAKE_USER'),
             getenv('SNOWFLAKE_PASSWORD'),
-            []
+            [],
         );
 
         $db->executeQuery(
             sprintf(
                 'DROP DATABASE IF EXISTS %s;',
                 SnowflakeQuote::quoteSingleIdentifier(self::TESTDB),
-            )
+            ),
         );
         $db->executeQuery(
             sprintf(
                 'CREATE DATABASE %s;',
                 SnowflakeQuote::quoteSingleIdentifier(self::TESTDB),
-            )
+            ),
         );
         $db->executeQuery(
             sprintf(
                 'USE DATABASE %s;',
                 SnowflakeQuote::quoteSingleIdentifier(self::TESTDB),
-            )
+            ),
         );
         $db->executeQuery(
             sprintf(
                 'CREATE SCHEMA %s;',
                 SnowflakeQuote::quoteSingleIdentifier(self::TESTSCHEMA),
-            )
+            ),
         );
         $db->executeQuery(
             sprintf(
                 'USE SCHEMA %s;',
                 SnowflakeQuote::quoteSingleIdentifier(self::TESTSCHEMA),
-            )
+            ),
         );
         $db->executeQuery(
             sprintf(
                 'CREATE TABLE %s (ID INT, LASTNAME VARCHAR(255));',
                 SnowflakeQuote::quoteSingleIdentifier('TESTTABLE'),
-            )
+            ),
         );
 
         foreach ($guideEploded as $command) {
