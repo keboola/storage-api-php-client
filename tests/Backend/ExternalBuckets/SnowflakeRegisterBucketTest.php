@@ -1040,7 +1040,7 @@ SQL,
             ->setRunId($runId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
-
+        // it should be easily dropped even no WS exists
         $this->_client->dropBucket($idOfBucket, ['force' => true]);
     }
 
