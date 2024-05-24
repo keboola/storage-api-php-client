@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend\ExternalBuckets;
 
+use http\Exception\RuntimeException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
@@ -13,6 +14,7 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
 
     public const TESTDB = 'TESTDB';
     public const TESTSCHEMA = 'TESTSCHEMA';
+
     public function setUp(): void
     {
         parent::setUp();
@@ -35,13 +37,14 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
         $guide = $this->_client->registerBucketGuide([self::TESTDB, self::TESTSCHEMA], 'snowflake');
 
         $guideEploded = explode("\n", $guide['markdown']);
+        $host = getenv('SNOWFLAKE_HOST');
+        assert($host !== false, 'SNOWFLAKE_HOST env var is not set');
+        $user = getenv('SNOWFLAKE_USER');
+        assert($user !== false, 'SNOWFLAKE_USER env var is not set');
+        $pass = getenv('SNOWFLAKE_PASSWORD');
+        assert($pass !== false, 'SNOWFLAKE_PASSWORD env var is not set');
 
-        $db = SnowflakeConnectionFactory::getConnection(
-            getenv('SNOWFLAKE_HOST'),
-            getenv('SNOWFLAKE_USER'),
-            getenv('SNOWFLAKE_PASSWORD'),
-            [],
-        );
+        $db = SnowflakeConnectionFactory::getConnection($host, $user, $pass, []);
 
         $db->executeQuery(
             sprintf(
