@@ -999,6 +999,51 @@ SQL,
         }
     }
 
+
+    public function testRegisterExternalDBWithNoWS(): void
+    {
+        $wsService = new Workspaces($this->_client);
+        $allWorkspacesInThisProject = $wsService->listWorkspaces();
+        foreach ($allWorkspacesInThisProject as $workspace) {
+            $wsService->deleteWorkspace($workspace['id']);
+        }
+
+        $this->dropBucketIfExists($this->_client, 'in.test-bucket-reg-ext-no-ws', true);
+        $this->initEvents($this->_client);
+        $runId = $this->setRunId();
+        // try same with schema outside of project database.
+        // This DB has been created when test project was inited
+        $idOfBucket = $this->_client->registerBucket(
+            'test-bucket-reg-ext-no-ws',
+            ['TEST_EXTERNAL_BUCKETS', 'TEST_SCHEMA'],
+            'in',
+            'Iam in other database',
+            'snowflake',
+            'Iam-from-external-db-ext-no-ws',
+        );
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketCreated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(3, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableCreated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        // it should be easily dropped even no WS exists
+        $this->_client->dropBucket($idOfBucket, ['force' => true]);
+    }
+
     public function testRefreshBucketWhenSchemaDoesNotExist(): void
     {
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
