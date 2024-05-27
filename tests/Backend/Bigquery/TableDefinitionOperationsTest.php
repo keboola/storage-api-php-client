@@ -892,18 +892,46 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
 
     public function testPrimaryKeyOperationsOnTypedTable(): void
     {
-        $this->expectNotToPerformAssertions();
         $this->_client->removeTablePrimaryKey($this->tableId);
         $this->_client->createTablePrimaryKey($this->tableId, ['id']);
         $this->_client->removeTablePrimaryKey($this->tableId);
         // create composite primary key without data
-        $this->_client->createTablePrimaryKey($this->tableId, ['id', 'name']);
-        $this->_client->removeTablePrimaryKey($this->tableId);
+        try {
+            // try to create PK on nullable column
+            $this->_client->createTablePrimaryKey($this->tableId, ['id', 'name']);
+            $this->fail('Should throw exception as "name" is nullable');
+        } catch (ClientException $e) {
+            $this->assertSame('Selected column "name" is nullable', $e->getMessage());
+        }
+
+        // create table with composite PK
+        $bucketId = $this->getTestBucketId();
+        $data = [
+            'name' => 'my_new_table2',
+            'primaryKeysNames' => ['id', 'name'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'name',
+                    'definition' => [
+                        'type' => 'STRING',
+                    ],
+                ],
+            ],
+        ];
+        $tableId = $this->_client->createTableDefinition($bucketId, $data);
+        // remove PK
+        $this->_client->removeTablePrimaryKey($tableId);
         // load data with nulls
-        $this->_client->writeTableAsync($this->tableId, new CsvFile(__DIR__ . '/../../_data/languages.null.csv'));
-        // try to create composite primary key on column with nulls
-        $this->_client->createTablePrimaryKey($this->tableId, ['id', 'name']);
-        // Snowflake supports PK on nulls
+        $this->_client->writeTableAsync($tableId, new CsvFile(__DIR__ . '/../../_data/languages.null.csv'));
+        // try to create composite primary key
+        $this->_client->createTablePrimaryKey($tableId, ['id', 'name']);
     }
 
     public function testCreateSnapshotOnTypedTable(): void
