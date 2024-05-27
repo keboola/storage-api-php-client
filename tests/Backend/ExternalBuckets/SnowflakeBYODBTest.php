@@ -2,8 +2,6 @@
 
 namespace Keboola\Test\Backend\ExternalBuckets;
 
-use http\Exception\RuntimeException;
-use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
@@ -23,10 +21,6 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
 
     public function testRegisterExternalBucketInBYODBEnvironment(): void
     {
-        // TODO remove when EB grants are being removed based on metadata
-        $ws = new Workspaces($this->_client);
-        $wsObj = $ws->createWorkspace();
-
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
 
         $this->initEvents($this->_client);
@@ -101,7 +95,5 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
         $tables = $this->_client->listTables('in.test-bucket-registration');
         $this->assertCount(1, $tables);
         $this->_client->refreshBucket('in.test-bucket-registration');
-        // TODO remove when EB grants are being removed based on metadata
-        $ws->deleteWorkspace($wsObj['id']);
     }
 }
