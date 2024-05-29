@@ -462,6 +462,16 @@ class Client
     }
 
     /**
+     * @return mixed
+     */
+    public function refreshTableInformationInBucket(string $bucketId)
+    {
+        $url = sprintf('buckets/%s/refresh-tables-info', $bucketId);
+
+        return $this->apiPostJson($url);
+    }
+
+    /**
      * Link shared bucket to project
      *
      * @param string $name new bucket name
