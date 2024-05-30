@@ -464,9 +464,9 @@ class Client
     /**
      * @return mixed
      */
-    public function refreshTableInformationInBucket(string $bucketId)
+    public function refreshTableInformationInBucket(int $branchId, string $bucketId)
     {
-        $url = sprintf('buckets/%s/refresh-tables-info', $bucketId);
+        $url = sprintf('branch/%s/buckets/%s/refresh-tables-info', $branchId, $bucketId);
 
         return $this->apiPostJson($url);
     }
