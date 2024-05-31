@@ -209,6 +209,22 @@ abstract class StorageApiTestCase extends ClientTestCase
         }
     }
 
+    protected function initEmptyBucketWithDescription(string $stage, Client $client = null): string
+    {
+        $description = $this->generateDescriptionForTestObject();
+        $bucketName = $this->getTestBucketName($description);
+        $bucketId = $this->initEmptyBucket(
+            $bucketName,
+            $stage,
+            $description,
+            $client,
+        );
+
+        $this->_bucketIds[$stage] = $bucketId;
+
+        return $bucketId;
+    }
+
     /**
      * @param $path
      * @return array
