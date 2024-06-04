@@ -199,7 +199,7 @@ class SharingTest extends StorageApiSharingTestCase
             self::STAGE_IN,
             $sharedBuckets[0]['project']['id'],
             $sharedBuckets[0]['id'],
-            $hashedUniqueTableName
+            $hashedUniqueTableName,
         );
         $selfLinkedBucket = $this->_client->getBucket($selfLinkedBucketId);
         $this->assertEquals($sharedBuckets[0]['id'], $selfLinkedBucket['sourceBucket']['id']);
@@ -325,7 +325,6 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
         };
         $this->retryWithCallback($apiCall, $assertCallback);
-
 
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
