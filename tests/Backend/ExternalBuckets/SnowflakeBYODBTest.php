@@ -5,10 +5,12 @@ namespace Keboola\Test\Backend\ExternalBuckets;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
+use Keboola\Test\Utils\ConnectionUtils;
 
 class SnowflakeBYODBTest extends BaseExternalBuckets
 {
     use WorkspaceConnectionTrait;
+    use ConnectionUtils;
 
     public const TESTDB = 'TESTDB';
     public const TESTSCHEMA = 'TESTSCHEMA';
@@ -30,15 +32,8 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
         $this->assertFalse(in_array('external-buckets', $token['owner']['features']));
         $guide = $this->_client->registerBucketGuide([self::TESTDB, self::TESTSCHEMA], 'snowflake');
 
-        $guideEploded = explode("\n", $guide['markdown']);
-        $host = getenv('SNOWFLAKE_HOST');
-        assert($host !== false, 'SNOWFLAKE_HOST env var is not set');
-        $user = getenv('SNOWFLAKE_USER');
-        assert($user !== false, 'SNOWFLAKE_USER env var is not set');
-        $pass = getenv('SNOWFLAKE_PASSWORD');
-        assert($pass !== false, 'SNOWFLAKE_PASSWORD env var is not set');
-
-        $db = SnowflakeConnectionFactory::getConnection($host, $user, $pass, []);
+        $guideExploded = explode("\n", $guide['markdown']);
+        $db = $this->ensureSnowflakeConnection();
 
         $db->executeQuery(
             sprintf(
@@ -77,7 +72,7 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
             ),
         );
 
-        foreach ($guideEploded as $command) {
+        foreach ($guideExploded as $command) {
             if (str_starts_with($command, 'GRANT') && !str_contains($command, 'FUTURE')) {
                 $db->executeQuery($command);
             }
