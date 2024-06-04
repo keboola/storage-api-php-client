@@ -70,9 +70,8 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
     {
         $this->dropBucketIfExists($this->_client, 'in.bucket-registration-wrong-table-name', true);
 
-        $ws = new Workspaces($this->_client);
         // prepare workspace
-        $workspace = $ws->createWorkspace();
+        $workspace = $this->initTestWorkspace();
         $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
         $externalBucketBackend = 'snowflake';
 
@@ -142,9 +141,8 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
     {
         $this->dropBucketIfExists($this->_client, 'in.bucket-registration-duplicate-table-name', true);
 
-        $ws = new Workspaces($this->_client);
         // prepare workspace
-        $workspace = $ws->createWorkspace();
+        $workspace = $this->initTestWorkspace();
         $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
         $externalBucketBackend = 'snowflake';
 
@@ -223,7 +221,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $ws = new Workspaces($this->_client);
 
         // prepare workspace
-        $workspace = $ws->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
         $externalBucketBackend = 'snowflake';
@@ -476,10 +474,8 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
         $this->initEvents($this->_client);
 
-        $ws = new Workspaces($this->_client);
-
         // prepare workspace
-        $workspace = $ws->createWorkspace([], true);
+        $workspace = $this->initTestWorkspace();
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $db->createTable('TEST', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
         $db->executeQuery('INSERT INTO "TEST" VALUES (1, \'test\')');
@@ -530,9 +526,8 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
         $this->initEvents($this->_client);
 
-        $ws = new Workspaces($this->_client);
         // prepare workspace
-        $workspace = $ws->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -611,9 +606,8 @@ SQL,
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
         $this->initEvents($this->_client);
 
-        $ws = new Workspaces($this->_client);
         // prepare workspace
-        $workspace = $ws->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -669,8 +663,7 @@ SQL,
 
         $this->dropBucketIfExists($this->_client, $bucketId, true);
 
-        $ws = new Workspaces($this->_client);
-        $workspace = $ws->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -705,8 +698,7 @@ SQL,
 
         $this->dropBucketIfExists($this->_client, $bucketId, true);
 
-        $ws = new Workspaces($this->_client);
-        $workspace = $ws->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -946,9 +938,7 @@ SQL,
         $this->assertCount(3, $tables);
 
         // check that workspace user CAN READ from table in external bucket directly
-        $ws = new Workspaces($this->_client);
-
-        $workspace = $ws->createWorkspace();
+        $workspace = $this->initTestWorkspace();
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         assert($db instanceof SnowflakeWorkspaceBackend);
@@ -1002,10 +992,11 @@ SQL,
 
     public function testRegisterExternalDBWithNoWS(): void
     {
-        $wsService = new Workspaces($this->_client);
-        $allWorkspacesInThisProject = $wsService->listWorkspaces();
-        foreach ($allWorkspacesInThisProject as $workspace) {
-            $wsService->deleteWorkspace($workspace['id']);
+        $buckets = $this->_client->listBuckets();
+        foreach ($buckets as $b) {
+            if ($b['hasExternalSchema']) {
+                $this->dropBucketIfExists($this->_client, $b['id'], true);
+            }
         }
 
         $this->dropBucketIfExists($this->_client, 'in.test-bucket-reg-ext-no-ws', true);
@@ -1051,7 +1042,7 @@ SQL,
 
         $ws = new Workspaces($this->_client);
         // prepare workspace
-        $workspace = $ws->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         // register workspace as external bucket including external table
         $runId = $this->setRunId();
@@ -1107,7 +1098,7 @@ SQL,
 
         $ws = new Workspaces($this->_client);
         // prepare workspace
-        $workspace = $ws->createWorkspace();
+        $workspace = $this->initTestWorkspace();
 
         // register workspace as external bucket including external table
         $runId = $this->setRunId();
@@ -1144,9 +1135,8 @@ SQL,
         $this->dropBucketIfExists($this->_client, 'in.external_bucket_1', true);
         $this->dropBucketIfExists($this->_client, 'in.external_bucket_2', true);
 
-        $ws = new Workspaces($this->_client);
         // prepare workspace
-        $workspace = $ws->createWorkspace();
+        $workspace = $this->initTestWorkspace();
         $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
 
         // add first table to workspace with long name, table should be skipped
@@ -1161,7 +1151,7 @@ SQL,
         $db->executeQuery('INSERT INTO "test1" VALUES (0)');
 
         // prepare workspace
-        $workspace2 = $ws->createWorkspace();
+        $workspace2 = $this->initTestWorkspace();
         $externalBucketPath2 = [$workspace2['connection']['database'], $workspace2['connection']['schema']];
 
         // add first table to workspace with long name, table should be skipped
@@ -1194,7 +1184,7 @@ SQL,
         );
 
         // workspace which will check data using RO-IM
-        $workspaceForChecking = $ws->createWorkspace();
+        $workspaceForChecking = $this->initTestWorkspace();
         /** @var SnowflakeConnection $workspaceDbForChecking */
         $workspaceDbForChecking = WorkspaceBackendFactory::createWorkspaceBackend($workspaceForChecking)->getDb();
 
