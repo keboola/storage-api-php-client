@@ -2,11 +2,10 @@
 
 namespace Keboola\Test\Backend\ExternalBuckets;
 
-use Keboola\StorageApi\Client;
-use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\Test\Utils\MetadataUtils;
 
-abstract class BaseExternalBuckets extends StorageApiTestCase
+abstract class BaseExternalBuckets extends ParallelWorkspacesTestCase
 {
     use MetadataUtils;
 
