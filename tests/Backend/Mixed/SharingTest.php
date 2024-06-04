@@ -332,7 +332,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->_client->forceUnlinkBucket($bucketId, $linkedBucketProjectId);
 
         $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
-        $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
+        $assertCallback = function ($searchResult) {
             $this->assertSame(0, $searchResult['all']);
         };
         $this->retryWithCallback($apiCall, $assertCallback);

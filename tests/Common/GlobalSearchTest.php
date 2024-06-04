@@ -209,7 +209,7 @@ class GlobalSearchTest extends StorageApiTestCase
 
         $this->_client->dropBucket($testBucketId, ['force' => true]);
         $apiCall = fn() => $this->client->globalSearch($hashedDisplayName);
-        $assertCallback = function ($searchResult) use ($hashedDisplayName) {
+        $assertCallback = function ($searchResult) {
             $this->assertSame(0, $searchResult['all']);
         };
         $this->retryWithCallback($apiCall, $assertCallback);

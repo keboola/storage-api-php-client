@@ -36,7 +36,7 @@ class DeleteTableTest extends StorageApiTestCase
         $this->_client->dropTable($table1Id, ['async' => $async]);
 
         $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
-        $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
+        $assertCallback = function ($searchResult) {
             $this->assertSame(0, $searchResult['all']);
         };
         $this->retryWithCallback($apiCall, $assertCallback);
