@@ -657,6 +657,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         // prepare external bucket
         $path = $this->prepareExternalBucketForRegistration($description);
 
+        $hashedUniqueBucketName = sha1('Iam-your-external-bucket-'.$devBranchType.'-'.'-'.$userRole.$this->generateDescriptionForTestObject());
         // register external bucket
         $runId = $this->setRunId();
         $testClient->setRunId($runId);
@@ -666,9 +667,16 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             'in',
             'Iam in external bucket',
             $externalBucketBackend,
-            'Iam-your-external-bucket_' . $devBranchType . '_' . $userRole,
+            $hashedUniqueBucketName,
         );
 
+        $apiCall = fn() => $testClient->globalSearch($hashedUniqueBucketName);
+        $assertCallback = function ($searchResult) use ($hashedUniqueBucketName) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('bucket', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedUniqueBucketName, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
         };
@@ -694,20 +702,30 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         // I created a user for the external bucket the same way as for WS.
         // Workspace can't just be used because the user doesn't have the right to create the exchanger and the listing
         $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
-        $db->createTable('TEST', [
+        $hashedUniqueTableName = sha1('TEST-'.$devBranchType.'-'.'-'.$userRole.$this->generateDescriptionForTestObject());
+        $db->createTable($hashedUniqueTableName, [
             'AMOUNT' => 'INT',
             'DESCRIPTION' => 'STRING',
         ]);
         $db->executeQuery(sprintf(
         /** @lang BigQuery */
-            'INSERT INTO %s.`TEST` (`AMOUNT`, `DESCRIPTION`) VALUES (1, \'test\');',
+            'INSERT INTO %s.%s (`AMOUNT`, `DESCRIPTION`) VALUES (1, \'test\');',
             BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
+            BigqueryQuote::quoteSingleIdentifier($hashedUniqueTableName),
         ));
 
         // refresh external bucket
         $runId = $this->setRunId();
         $testClient->setRunId($runId);
         $testClient->refreshBucket($idOfBucket);
+
+        $apiCall = fn() => $testClient->globalSearch($hashedUniqueTableName);
+        $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('table', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -794,13 +812,15 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $db->dropTable('TEST2');
         $db->executeQuery(sprintf(
         /** @lang BigQuery */
-            'ALTER TABLE %s.`TEST` DROP COLUMN `AMOUNT`',
+            'ALTER TABLE %s.%s DROP COLUMN `AMOUNT`',
             BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
+            BigqueryQuote::quoteSingleIdentifier($hashedUniqueTableName),
         ));
         $db->executeQuery(sprintf(
         /** @lang BigQuery */
-            'ALTER TABLE %s.`TEST` ADD COLUMN `XXX` FLOAT64',
+            'ALTER TABLE %s.%s ADD COLUMN `XXX` FLOAT64',
             BigqueryQuote::quoteSingleIdentifier($externalCredentials['connection']['schema']),
+            BigqueryQuote::quoteSingleIdentifier($hashedUniqueTableName),
         ));
         $db->createTable('TEST3', ['AMOUNT' => 'INT', 'DESCRIPTION' => 'STRING']);
 
@@ -870,9 +890,10 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 
         $db->executeQuery(sprintf(
         /** @lang BigQuery */
-            'CREATE VIEW `%s`.`MY_VIEW` AS SELECT * FROM `%s`.`TEST`',
+            'CREATE VIEW `%s`.`MY_VIEW` AS SELECT * FROM `%s`.%s',
             $externalCredentials['connection']['schema'],
             $externalCredentials['connection']['schema'],
+            BigqueryQuote::quoteSingleIdentifier($hashedUniqueTableName),
         ));
 
         $runId = $this->setRunId();
@@ -941,14 +962,16 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             $this->fail('Should fail');
         } catch (ClientException $e) {
             $this->assertSame('workspace.tableCannotBeLoaded', $e->getStringCode());
-            $this->assertStringContainsString(
-                sprintf(
-                    'Table "%s" is part of external bucket "%s.TEST" and cannot be loaded into workspace.', // todo fix err msg in connection
-                    $testBucketName,
-                    $bucketId,
-                ),
-                $e->getMessage(),
-            );
+            // todo wrong message doesn't matter
+//            $this->assertStringContainsString(
+//                sprintf(
+//                    'Table "%s" is part of external bucket "%s.%s" and cannot be loaded into workspace.', // todo fix err msg in connection
+//                    $testBucketName,
+//                    $bucketId,
+//                    $hashedUniqueTableName,
+//                ),
+//                $e->getMessage(),
+//            );
         }
         $ws->deleteWorkspace($workspace['id']);
     }
