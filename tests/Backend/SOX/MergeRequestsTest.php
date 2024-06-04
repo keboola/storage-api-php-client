@@ -688,12 +688,16 @@ class MergeRequestsTest extends StorageApiTestCase
         $componentId = 'wr-db';
         $configMain1 = 'main-1';
         $configMain2 = 'main-2';
+
+        $hashedConfigMain1Name = sha1($configMain1. '-'.$this->generateDescriptionForTestObject());
+        $hashedConfigMain2Name = sha1($configMain2. '-'.$this->generateDescriptionForTestObject());
+
         $components = new Components($this->getDefaultBranchStorageApiClient());
 
         $main1 = (new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId($configMain1)
-            ->setName('Main')
+            ->setName($hashedConfigMain1Name)
             ->setDescription('some desc');
         $components->addConfiguration($main1);
 
@@ -708,7 +712,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $main2 = (new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId($configMain2)
-            ->setName('Main')
+            ->setName($hashedConfigMain2Name)
             ->setDescription('some desc');
         $components->addConfiguration($main2);
 
@@ -720,9 +724,43 @@ class MergeRequestsTest extends StorageApiTestCase
             ->setRowId('secondRow')
             ->setConfiguration(['value' => 1]));
 
+        // check if config is indexed
+        $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigMain1Name);
+        $assertCallback = function ($searchResult) use ($hashedConfigMain1Name) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('configuration', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedConfigMain1Name, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
+
+        $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigMain2Name);
+        $assertCallback = function ($searchResult) use ($hashedConfigMain2Name) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('configuration', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedConfigMain2Name, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
+
         // create dev branch and create devBranch component client
         $defaultBranch = $this->branches->getDefaultBranch();
         $newBranch = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
+
+        // check if config is indexed
+        $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigMain1Name);
+        $assertCallback = function ($searchResult) use ($hashedConfigMain1Name) {
+            $this->assertSame(2, $searchResult['all']);
+            $this->assertSame('configuration', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedConfigMain1Name, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
+
+        $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigMain2Name);
+        $assertCallback = function ($searchResult) use ($hashedConfigMain2Name) {
+            $this->assertSame(2, $searchResult['all']);
+            $this->assertSame('configuration', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedConfigMain2Name, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
 
         $devBranchComponents = new Components($this->getBranchAwareClient($newBranch['id'], [
             'token' => STORAGE_API_DEVELOPER_TOKEN,
@@ -780,6 +818,21 @@ class MergeRequestsTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame('Row firstRow not found', $e->getMessage());
         }
+
+        // check if config is indexed
+        $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigMain1Name);
+        $assertCallback = function ($searchResult) {
+            $this->assertSame(0, $searchResult['all']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
+
+        $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigMain2Name);
+        $assertCallback = function ($searchResult) use ($hashedConfigMain2Name) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('configuration', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedConfigMain2Name, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
     }
 
     public function testConfigIsUpdatedInDefaultButBothConfigsAreDeleted(): void
@@ -859,6 +912,8 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertSame(1, $configInDev['version']);
         $this->assertSame('Copied from default branch configuration "Main" (main-1) version 1', $configInDev['changeDescription']);
 
+        $hashedConfigUpdatedName = sha1('SecondMainUpdated-'.$this->generateDescriptionForTestObject());
+
         // update existing config several times in default branch to check that only one version is added after the merge
         $devBranchComponents->updateConfiguration((new Configuration())
             ->setComponentId($componentId)
@@ -877,10 +932,20 @@ class MergeRequestsTest extends StorageApiTestCase
         $devBranchComponents->updateConfiguration((new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId)
-            ->setName('second main updated')
+            ->setName($hashedConfigUpdatedName)
             ->setDescription('last update desc')
             ->setChangeDescription('last update')
             ->setConfiguration(['main' => 'update again']));
+
+        $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigUpdatedName);
+        $assertCallback = function ($searchResult) use ($hashedConfigUpdatedName) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('configuration', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedConfigUpdatedName, $searchResult['items'][0]['name']);
+            // updated in devBranch
+            $this->assertFalse($searchResult['items'][0]['fullPath']['branch']['isDefault']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
 
         $configState = (new ConfigurationState())
             ->setComponentId($componentId)
@@ -902,12 +967,22 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $mr = $this->developerClient->getMergeRequest($mrId);
 
+        $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigUpdatedName);
+        $assertCallback = function ($searchResult) use ($hashedConfigUpdatedName) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('configuration', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedConfigUpdatedName, $searchResult['items'][0]['name']);
+            // after merge exist in main branch
+            $this->assertTrue($searchResult['items'][0]['fullPath']['branch']['isDefault']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
+
         $lastVIFromChangeLogOfUpdatedConfig = $mr['changeLog']['configurations'][0]['lastVersionIdentifier'];
 
         $configInDefault = $components->getConfiguration($componentId, $configurationId);
         $this->assertSame('update again', $configInDefault['configuration']['main']);
         $this->assertSame(2, $configInDefault['version']);
-        $this->assertSame('second main updated', $configInDefault['name']);
+        $this->assertSame($hashedConfigUpdatedName, $configInDefault['name']);
         $this->assertSame('last update desc', $configInDefault['description']);
         $this->assertSame(['main-state' => 'state'], $configInDefault['state']);
         $this->assertTrue($configInDefault['isDisabled']);
