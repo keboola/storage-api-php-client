@@ -36,7 +36,6 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
                 'backend' => self::BACKEND_SNOWFLAKE,
             ],
         );
-        $wsBackend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $bucketId = $this->initEmptyBucketWithDescription(self::STAGE_IN);
         $bucket = $this->_client->getBucket($bucketId);
