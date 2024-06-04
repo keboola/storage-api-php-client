@@ -336,6 +336,7 @@
 
 	<testsuite name="snowflake-byodb">
 		<file>tests/Backend/ExternalBuckets/SnowflakeBYODBTest.php</file>
+		<file>tests/Backend/ExternalBuckets/SnowflakeBucketsRefreshTablesInformationTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

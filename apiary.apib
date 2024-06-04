@@ -1446,6 +1446,52 @@ Asynchronous call response that creates a new job. To see job detail use [Job De
                 }
             }
 
+### Bucket Tables Information Refresh [POST /v2/storage/buckets/{bucket_id}/refresh-tables-info]
+Refresh tables information in bucket. For **Snowflake** backend only.
+
+
++ Parameters
+    + bucket_id (required) - Bucket Id
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202
+Asynchronous call response that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "bucketRefreshTablesInformation",
+                "operationParams": {
+                    "params": {
+                        "idBucket": 123,
+                    }
+                },
+                "createdTime": "2013-05-31T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
 ### Drop Bucket [DELETE /v2/storage/buckets/{bucket_id}/?force={force}&async={async}]
 Deletes a bucket from the project. In the default mode, only empty buckets can be deleted.
 Use the optional `force` parameter to delete all bucket content too.
@@ -5577,7 +5623,7 @@ Only for BigQuery workspace
 
 # Group Events
 Virtually every interaction of the client (an API call) creates an Event. Apart from that, external events may
-also be added via an API. Events are stored for a limited time. 
+also be added via an API. Events are stored for a limited time.
 You can access all events created on an account.
 
 Events can be filtered by various filters:
