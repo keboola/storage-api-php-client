@@ -462,7 +462,22 @@ class Client
     }
 
     /**
-     * @return mixed
+     * @return array{
+     *      id: int,
+     *      status: string,
+     *      url: string,
+     *      tableId: string|null,
+     *      operationName: string,
+     *      operationParams: array<string, mixed>,
+     *      createdTime: string,
+     *      startTime: string|null,
+     *      endTime: string|null,
+     *      runId: string|null,
+     *      results: array<string, mixed>|null,
+     *      creatorToken: array{id: string, description: string|null},
+     *      metrics: array<string, mixed>,
+     *      error?: array{code: string|null, message: string|null, exceptionId: string|null}
+     *  }
      */
     public function refreshTableInformationInBucket(int $branchId, string $bucketId)
     {
