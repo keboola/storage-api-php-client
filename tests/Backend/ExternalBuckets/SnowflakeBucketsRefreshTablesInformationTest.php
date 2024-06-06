@@ -6,9 +6,7 @@ namespace Keboola\Test\Backend\ExternalBuckets;
 
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
-use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Utils\ConnectionUtils;
-use Throwable;
 
 class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
 {
@@ -19,7 +17,8 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
         $bucketId = $this->initEmptyBucketWithDescription(self::STAGE_IN);
         $bucket = $this->_client->getBucket($bucketId);
 
-        $this->_client->refreshTableInformationInBucket($bucket['idBranch'], $bucketId);
+        $bClient = $this->getBranchAwareDefaultClient($bucket['idBranch']);
+        $bClient->refreshTableInformationInBucket($bucketId);
         $this->assertTrue(true, 'Testing only if requests working.');
 
         $this->dropBucketIfExists($this->_client, $bucketId);
@@ -73,9 +72,11 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
             ),
         );
 
-        $jobInfo = $this->_client->refreshTableInformationInBucket($bucket['idBranch'], $bucketId);
+        $bClient = $this->getBranchAwareDefaultClient($bucket['idBranch']);
 
-        $this->_client->waitForJob($jobInfo['id']);
+        $jobInfo = $bClient->refreshTableInformationInBucket($bucketId);
+
+        $bClient->waitForJob($jobInfo['id']);
 
         $refreshedTable = $this->_client->getTable($tableId);
 
