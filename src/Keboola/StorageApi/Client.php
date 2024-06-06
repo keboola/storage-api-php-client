@@ -479,9 +479,9 @@ class Client
      *      error?: array{code: string|null, message: string|null, exceptionId: string|null}
      *  }
      */
-    public function refreshTableInformationInBucket(int $branchId, string $bucketId)
+    public function refreshTableInformationInBucket(string $bucketId)
     {
-        $url = sprintf('branch/%s/buckets/%s/refresh-tables-info', $branchId, $bucketId);
+        $url = sprintf('buckets/%s/refresh-tables-info', $bucketId);
 
         return $this->apiPostJson($url);
     }
