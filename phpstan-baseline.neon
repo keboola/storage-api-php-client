@@ -2486,11 +2486,6 @@ parameters:
 			path: tests/Backend/Exasol/OrderByTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$filename of function file_get_contents expects string, string\\|false given\\.$#"
-			count: 1
-			path: tests/Backend/Exasol/OrderByTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Exasol\\\\WhereFilterTest\\:\\:getExportedTable\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Exasol/WhereFilterTest.php
@@ -2512,11 +2507,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$csvString of static method Keboola\\\\StorageApi\\\\Client\\:\\:parseCsv\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: tests/Backend/Exasol/WhereFilterTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of function file_get_contents expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/Backend/Exasol/WhereFilterTest.php
 
@@ -3316,11 +3306,6 @@ parameters:
 			path: tests/Backend/Snowflake/OrderByTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$filename of function file_get_contents expects string, string\\|false given\\.$#"
-			count: 1
-			path: tests/Backend/Snowflake/OrderByTest.php
-
-		-
 			message: "#^Cannot access offset 'id' on mixed\\.$#"
 			count: 2
 			path: tests/Backend/Snowflake/TableExportTest.php
@@ -3367,11 +3352,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$csvString of static method Keboola\\\\StorageApi\\\\Client\\:\\:parseCsv\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: tests/Backend/Snowflake/WhereFilterTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of function file_get_contents expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/Backend/Snowflake/WhereFilterTest.php
 
@@ -3436,11 +3416,6 @@ parameters:
 			path: tests/Backend/Synapse/OrderByTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$filename of function file_get_contents expects string, string\\|false given\\.$#"
-			count: 1
-			path: tests/Backend/Synapse/OrderByTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Synapse\\\\WhereFilterTest\\:\\:getExportedTable\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Synapse/WhereFilterTest.php
@@ -3462,11 +3437,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$csvString of static method Keboola\\\\StorageApi\\\\Client\\:\\:parseCsv\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: tests/Backend/Synapse/WhereFilterTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of function file_get_contents expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/Backend/Synapse/WhereFilterTest.php
 
