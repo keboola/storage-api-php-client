@@ -2,8 +2,9 @@ parameters:
     tmpDir: /tmp/tools-cache/.phpstan
     parallel:
         processTimeout: 300.0
-    checkMissingIterableValueType: false
     ignoreErrors:
+        -
+            identifier: missingType.iterableValue
         - '#Constant STORAGE_API_[_A-Z0-9]+ not found.#'
         - '#Constant MANAGE_API_[_A-Z0-9]+ not found.#'
         - '#Constant SUITE_NAME not found.#'
