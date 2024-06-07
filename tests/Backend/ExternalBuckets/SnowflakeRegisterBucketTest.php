@@ -698,7 +698,7 @@ SQL,
 
         $this->dropBucketIfExists($this->_client, $bucketId, true);
 
-        $workspace = $this->initTestWorkspace();
+        $workspace = $this->initTestWorkspace(null, [], true);
 
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
