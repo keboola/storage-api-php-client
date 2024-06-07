@@ -1446,11 +1446,12 @@ Asynchronous call response that creates a new job. To see job detail use [Job De
                 }
             }
 
-### Bucket Tables Information Refresh [POST /v2/storage/buckets/{bucket_id}/refresh-tables-info]
+### Bucket Tables Information Refresh [POST /v2/storage/branch/{branch_id}/buckets/{bucket_id}/refresh-tables-info]
 Refresh tables information in bucket. For **Snowflake** backend only.
 
 
 + Parameters
+    + branch_id (required) - Branch Id
     + bucket_id (required) - Bucket Id
 
 + Request
