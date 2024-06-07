@@ -481,6 +481,10 @@ class Client
      */
     public function refreshTableInformationInBucket(string $bucketId)
     {
+        if (!$this instanceof BranchAwareClient) {
+            throw new ClientException('Refresh tables information in bucket is supported only in dev branch. Use BranchAwareClient instance.');
+        }
+
         $url = sprintf('buckets/%s/refresh-tables-info', $bucketId);
 
         return $this->apiPostJson($url);
