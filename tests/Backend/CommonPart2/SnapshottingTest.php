@@ -70,10 +70,19 @@ class SnapshottingTest extends StorageApiTestCase
         $sourceTable = $this->_client->getTable($sourceTableId);
         $snapshotId = $this->_client->createTableSnapshot($sourceTableId);
 
-        $newTableId = $this->_client->createTableFromSnapshot($this->getTestBucketId(), $snapshotId, 'new-table');
+        $hashedUniqueTableName = sha1('new-table-'.$this->generateDescriptionForTestObject());
+        $newTableId = $this->_client->createTableFromSnapshot($this->getTestBucketId(), $snapshotId, $hashedUniqueTableName);
+
+        $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
+        $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('table', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
         $newTable = $this->_client->getTable($newTableId);
 
-        $this->assertEquals('new-table', $newTable['name']);
+        $this->assertEquals($hashedUniqueTableName, $newTable['name']);
 
         // table metadata validation
         $expectedMetadata = $this->filterIdAndTimestampFromMetadataArray($sourceTable['metadata']);

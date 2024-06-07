@@ -19,12 +19,27 @@ class DeleteTableTest extends StorageApiTestCase
      */
     public function testTableDelete(bool $async): void
     {
-        $table1Id = $this->_client->createTableAsync($this->getTestBucketId(), 'languages', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
+        $hashedUniqueTableName = sha1('languages-'.$this->generateDescriptionForTestObject());
+        $table1Id = $this->_client->createTableAsync($this->getTestBucketId(), $hashedUniqueTableName, new CsvFile(__DIR__ . '/../../_data/languages.csv'));
         $table2Id = $this->_client->createTableAsync($this->getTestBucketId(), 'languages_2', new CsvFile(__DIR__ . '/../../_data/languages.csv'));
+
+        $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
+        $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('table', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
         $tables = $this->_client->listTables($this->getTestBucketId());
 
         $this->assertCount(2, $tables);
         $this->_client->dropTable($table1Id, ['async' => $async]);
+
+        $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
+        $assertCallback = function ($searchResult) {
+            $this->assertSame(0, $searchResult['all']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
 
         $tables = $this->_client->listTables($this->getTestBucketId());
         $this->assertCount(1, $tables);

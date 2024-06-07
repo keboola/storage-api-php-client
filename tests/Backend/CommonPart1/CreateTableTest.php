@@ -61,22 +61,32 @@ class CreateTableTest extends StorageApiTestCase
                 'Test sync actions only on Snowflake',
             );
         }
+
+        $hashedUniqueTableName = sha1($tableName . '-'.$this->generateDescriptionForTestObject());
         $createMethod = $async ? 'createTableAsync' : 'createTable';
         $tableId = $this->_client->{$createMethod}(
             $this->getTestBucketId(self::STAGE_IN),
-            $tableName,
+            $hashedUniqueTableName,
             new CsvFile($createFile),
             $options
         );
         $table = $this->_client->getTable($tableId);
+
+        $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
+        $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('table', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
 
         $this->assertArrayHasKey('displayName', $table['bucket']);
 
         $expectationFileCsv = new CsvFile($expectationFile);
 
         $this->assertEquals($tableId, $table['id']);
-        $this->assertEquals($tableName, $table['name']);
-        $this->assertEquals($tableName, $table['displayName'], 'display name is same as name');
+        $this->assertEquals($hashedUniqueTableName, $table['name']);
+        $this->assertEquals($hashedUniqueTableName, $table['displayName'], 'display name is same as name');
         $this->assertNotEmpty($table['created']);
         $this->assertNotEmpty($table['lastChangeDate']);
         $this->assertNotEmpty($table['lastImportDate']);
@@ -90,17 +100,26 @@ class CreateTableTest extends StorageApiTestCase
             'initial data imported into table',
         );
         $displayName = 'Romanov-display-name';
+        $hashedDisplayNameName = sha1($displayName . '-'.$this->generateDescriptionForTestObject());
         $tableId = $this->_client->updateTable(
             $tableId,
             [
-                'displayName' => $displayName,
+                'displayName' => $hashedDisplayNameName,
             ],
         );
         assert($tableId !== null);
 
+        $apiCall = fn() => $this->_client->globalSearch($hashedDisplayNameName);
+        $assertCallback = function ($searchResult) use ($hashedDisplayNameName) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('table', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedDisplayNameName, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
+
         $table = $this->_client->getTable($tableId);
 
-        $this->assertEquals($displayName, $table['displayName']);
+        $this->assertEquals($hashedDisplayNameName, $table['displayName']);
 
         // rename table to same name it already has should succeed
         $this->_client->updateTable(

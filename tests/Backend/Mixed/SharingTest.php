@@ -192,16 +192,26 @@ class SharingTest extends StorageApiSharingTestCase
             $this->assertEquals('storage.buckets.validation', $e->getStringCode());
         }
 
+        $hashedUniqueTableName = sha1('same-project-link-test-'.$this->generateDescriptionForTestObject());
         // bucket can be linked by the same project
         $selfLinkedBucketId = $this->_client->linkBucket(
             'same-project-link-test',
             self::STAGE_IN,
             $sharedBuckets[0]['project']['id'],
             $sharedBuckets[0]['id'],
+            $hashedUniqueTableName,
         );
         $selfLinkedBucket = $this->_client->getBucket($selfLinkedBucketId);
         $this->assertEquals($sharedBuckets[0]['id'], $selfLinkedBucket['sourceBucket']['id']);
         $this->assertEquals($sharedBuckets[0]['project']['id'], $selfLinkedBucket['sourceBucket']['project']['id']);
+
+        $apiCall = fn() => $client->globalSearch($hashedUniqueTableName);
+        $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('bucket', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
 
         //shared bucket should now list the linked buckets in its details
         $sharedBucket = $this->_client->getBucket($bucketId);
@@ -242,6 +252,14 @@ class SharingTest extends StorageApiSharingTestCase
         $linkedBucketProjectId = $bucket['linkedBy'][0]['project']['id'];
 
         $client->dropBucket($linkedBucketId);
+
+        $apiCall = fn() => $client->globalSearch($hashedUniqueTableName);
+        $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('bucket', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
         try {
             // cannot unlink bucket from nonexistent project
             $this->_client->forceUnlinkBucket($bucketId, 9223372036854775807);
@@ -289,19 +307,35 @@ class SharingTest extends StorageApiSharingTestCase
             );
         }
 
+        $hashedUniqueTableName = sha1('organization-'.$this->generateDescriptionForTestObject());
+
         /** @var string $linkedBucketId */
         $linkedBucketId = $client->linkBucket(
             'organization-project-test',
             self::STAGE_IN,
             $sharedBuckets[0]['project']['id'],
             $sharedBuckets[0]['id'],
-            $displayName,
+            $hashedUniqueTableName,
         );
+
+        $apiCall = fn() => $client->globalSearch($hashedUniqueTableName);
+        $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('bucket', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
 
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
         $this->_client->forceUnlinkBucket($bucketId, $linkedBucketProjectId);
+
+        $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
+        $assertCallback = function ($searchResult) {
+            $this->assertSame(0, $searchResult['all']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -1099,14 +1133,24 @@ class SharingTest extends StorageApiSharingTestCase
 
         $sharedBucket = reset($response);
 
+        $hashedUniqueTableName = sha1('linked-'.$this->generateDescriptionForTestObject());
+
         $linkedBucketId = $this->_client2->linkBucket(
-            'linked-' . time(),
+            $hashedUniqueTableName,
             'in',
             $sharedBucket['project']['id'],
             $sharedBucket['id'],
             null,
             $isAsync,
         );
+
+        $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
+        $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('bucket', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
 
         // validate bucket
         $bucket = $this->_client->getBucket($bucketId);
