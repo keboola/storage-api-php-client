@@ -406,11 +406,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:getJob\\(\\) should return array but returns mixed\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:getKeenReadCredentials\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -793,16 +788,6 @@ parameters:
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:writeTableOptionsPrepare\\(\\) has parameter \\$options with no type specified\\.$#"
 			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Offset 'results' does not exist on array\\|null\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Parameter \\#1 \\$job of method Keboola\\\\StorageApi\\\\Client\\:\\:handleJobError\\(\\) expects array, array\\|null given\\.$#"
-			count: 2
 			path: src/Keboola/StorageApi/Client.php
 
 		-
@@ -2373,16 +2358,6 @@ parameters:
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\CommonPart2\\\\MetricsTest\\:\\:testTableCreateMetrics\\(\\) has parameter \\$expectedMetrics with no type specified\\.$#"
 			count: 1
-			path: tests/Backend/CommonPart2/MetricsTest.php
-
-		-
-			message: "#^Offset 'metrics' does not exist on array\\|null\\.$#"
-			count: 2
-			path: tests/Backend/CommonPart2/MetricsTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$array of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) expects array\\|ArrayAccess, array\\|null given\\.$#"
-			count: 2
 			path: tests/Backend/CommonPart2/MetricsTest.php
 
 		-
