@@ -76,7 +76,10 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
 
         $jobInfo = $bClient->refreshTableInformationInBucket($bucketId);
 
-        $bClient->waitForJob($jobInfo['id']);
+        $jobStatus = $bClient->waitForJob($jobInfo['id']);
+
+        $this->assertNotNull($jobStatus);
+        $this->assertEquals('success', $jobStatus['status']);
 
         $refreshedTable = $this->_client->getTable($tableId);
 

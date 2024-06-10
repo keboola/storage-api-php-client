@@ -3001,7 +3001,7 @@ class Client
 
     /**
      * @param $jobId
-     * @return array|null
+     * @return array{status: string}|null
      */
     public function waitForJob($jobId)
     {
