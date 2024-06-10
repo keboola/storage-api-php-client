@@ -12,6 +12,9 @@ use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Client;
 use Keboola\Csv\CsvFile;
 
+/**
+ * @phpstan-import-type StorageJob from Client
+ */
 class MetricsTest extends StorageApiTestCase
 {
 
@@ -40,6 +43,7 @@ class MetricsTest extends StorageApiTestCase
         );
 
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        /** @var StorageJob $job */
         $job = $this->_client->apiPostJson("buckets/{$bucketId}/tables-async", [
             'name' => 'languages',
             'dataFileId' => $fileId,
@@ -59,6 +63,7 @@ class MetricsTest extends StorageApiTestCase
             $expectedMetrics['inBytesUncompressed'] = 0; // We don't know uncompressed size of file
         }
 
+        $this->assertNotNull($job);
         $this->assertArrayHasKey('metrics', $job);
         $this->assertEquals($expectedMetrics, $job['metrics']);
     }
@@ -79,6 +84,7 @@ class MetricsTest extends StorageApiTestCase
                 ->setCompress(false)
                 ->setTags(['table-import']),
         );
+        /** @var StorageJob $job */
         $job = $this->_client->apiPostJson("tables/{$tableId}/import-async", [
             'dataFileId' => $fileId,
         ], false);
@@ -95,6 +101,7 @@ class MetricsTest extends StorageApiTestCase
             $expectedMetrics['inBytesUncompressed'] = 0; // We don't know uncompressed size of file
         }
 
+        $this->assertNotNull($job);
         $this->assertArrayHasKey('metrics', $job);
         $this->assertEquals($expectedMetrics, $job['metrics']);
     }
@@ -104,9 +111,11 @@ class MetricsTest extends StorageApiTestCase
         $csvFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'languages', $csvFile);
 
+        /** @var StorageJob $job */
         $job = $this->_client->apiPostJson("tables/{$tableId}/export-async", [], false);
         $job = $this->_client->waitForJob($job['id']);
 
+        $this->assertNotNull($job);
         $metrics = $job['metrics'];
         $this->assertEquals(0, $metrics['inBytes']);
         $this->assertEquals(0, $metrics['inBytesUncompressed']);
@@ -119,9 +128,11 @@ class MetricsTest extends StorageApiTestCase
         $previousMetrics = $metrics;
 
         // compress
+        /** @var StorageJob $job */
         $job = $this->_client->apiPostJson("tables/{$tableId}/export-async", ['gzip' => true], false);
         $job = $this->_client->waitForJob($job['id']);
 
+        $this->assertNotNull($job);
         $metrics = $job['metrics'];
         $this->assertEquals(0, $metrics['inBytes']);
         $this->assertEquals(0, $metrics['inBytesUncompressed']);

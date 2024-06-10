@@ -33,6 +33,7 @@ trait EventTesterUtils
      */
     public function createAndWaitForEvent(Event $event, Client $sapiClient = null)
     {
+        // @phpstan-ignore property.notFound
         $client = null !== $sapiClient ? $sapiClient : $this->_client;
 
         $id = $client->createEvent($event);
