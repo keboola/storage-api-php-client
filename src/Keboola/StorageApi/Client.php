@@ -10,7 +10,6 @@ use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Utils;
-use Keboola\StorageApi\Client\ExtraHeadersMiddleware;
 use Keboola\StorageApi\Client\RequestTimeoutMiddleware;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Options\BackendConfiguration;
@@ -39,6 +38,9 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Google\Cloud\Storage\StorageClient as GoogleStorageClient;
 
+/**
+ * @phpstan-type StorageJob array{id: int, status: string, url: string, tableId: ?string, operationName: string, operationParams: array<string, mixed>, createdTime: string, startTime: ?string, endTime: ?string, runId: ?string, results: ?array<string, mixed>, creatorToken: array{id: ?string, description: ?string}, metrics: array{inCompressed: bool, inBytes: int, inBytesUncompressed: int, outCompressed: bool, outBytes: int, outBytesUncompressed: int}, error?: array{code: string, message: string, exceptionId: string, contextParams: ?array<mixed>, uuid: ?string}}
+ */
 class Client
 {
     // Request options
@@ -1528,11 +1530,13 @@ class Client
 
     /**
      * @param $jobId
-     * @return array
+     * @return StorageJob
      */
     public function getJob($jobId)
     {
-        return $this->apiGet('jobs/' . $jobId);
+        /** @var StorageJob $result */
+        $result = $this->apiGet('jobs/' . $jobId);
+        return $result;
     }
 
     public function listJobs($options = [])
@@ -2976,17 +2980,20 @@ class Client
         /** @var array{id: int, results: mixed} $job */
         $job = json_decode((string) $jobCreatedResponse->getBody(), true);
         $job = $this->waitForJob($job['id']);
+        if ($job === null) {
+            throw new ClientException('StorageJob expected');
+        }
         $this->handleJobError($job);
         return $job['results'];
     }
 
     /**
-     * @param array $job
+     * @param StorageJob $job
      * @throws ClientException
      */
     private function handleJobError($job)
     {
-        if ($job['status'] == 'error') {
+        if ($job['status'] == 'error' && array_key_exists('error', $job)) {
             throw new ClientException(
                 $job['error']['message'],
                 null,
@@ -3001,7 +3008,7 @@ class Client
 
     /**
      * @param $jobId
-     * @return array|null
+     * @return StorageJob|null
      */
     public function waitForJob($jobId)
     {
@@ -3033,6 +3040,9 @@ class Client
         $jobResults = [];
         foreach ($jobIds as $jobId) {
             $jobResult = $this->waitForJob($jobId);
+            if ($jobResult === null) {
+                throw new ClientException('StorageJob expected');
+            }
             $this->handleJobError($jobResult);
             $jobResults[] = $jobResult;
         }
