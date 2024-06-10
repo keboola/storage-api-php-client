@@ -23,7 +23,9 @@ class QueueJobsTest extends StorageApiTestCase
         $job = $this->_client->getJob($jobId);
         $this->assertEquals('in.c-API-tests.table1', $job['tableId']);
         $this->assertEquals('tableImport', $job['operationName']);
+        // @phpstan-ignore offsetAccess.nonOffsetAccessible
         $this->assertEquals($fileId, $job['operationParams']['source']['fileId']);
+        // @phpstan-ignore offsetAccess.nonOffsetAccessible
         $this->assertEquals('file', $job['operationParams']['source']['type']);
     }
 
@@ -39,9 +41,13 @@ class QueueJobsTest extends StorageApiTestCase
         $job = $this->_client->getJob($jobId);
         $this->assertEquals('in.c-API-tests.table1', $job['tableId']);
         $this->assertEquals('tableImport', $job['operationName']);
+        // @phpstan-ignore offsetAccess.nonOffsetAccessible
         $this->assertEquals(1000, $job['operationParams']['source']['workspaceId']);
+        // @phpstan-ignore offsetAccess.nonOffsetAccessible
         $this->assertEquals('myTable', $job['operationParams']['source']['tableName']);
+        // @phpstan-ignore offsetAccess.nonOffsetAccessible
         $this->assertEquals('myTable', $job['operationParams']['source']['dataObject']);
+        // @phpstan-ignore offsetAccess.nonOffsetAccessible
         $this->assertEquals('workspace', $job['operationParams']['source']['type']);
     }
 
@@ -97,7 +103,9 @@ class QueueJobsTest extends StorageApiTestCase
         $job = $this->_client->getJob($jobId);
         $this->assertNull($job['tableId']);
         $this->assertEquals('tableCreate', $job['operationName']);
+        // @phpstan-ignore offsetAccess.nonOffsetAccessible
         $this->assertEquals($fileId, $job['operationParams']['source']['fileId']);
+        // @phpstan-ignore offsetAccess.nonOffsetAccessible
         $this->assertEquals('file', $job['operationParams']['source']['type']);
     }
 
@@ -114,9 +122,13 @@ class QueueJobsTest extends StorageApiTestCase
         $job = $this->_client->getJob($jobId);
         $this->assertNull($job['tableId']);
         $this->assertEquals('tableCreate', $job['operationName']);
+        // @phpstan-ignore offsetAccess.nonOffsetAccessible
         $this->assertEquals(1000, $job['operationParams']['source']['workspaceId']);
+        // @phpstan-ignore offsetAccess.nonOffsetAccessible
         $this->assertEquals('myTable', $job['operationParams']['source']['tableName']);
+        // @phpstan-ignore offsetAccess.nonOffsetAccessible
         $this->assertEquals('myTable', $job['operationParams']['source']['dataObject']);
+        // @phpstan-ignore offsetAccess.nonOffsetAccessible
         $this->assertEquals('workspace', $job['operationParams']['source']['type']);
     }
 }

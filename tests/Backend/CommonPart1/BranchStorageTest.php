@@ -89,7 +89,9 @@ class BranchStorageTest extends StorageApiTestCase
         $this->assertStringEndsWith('/v2/storage/jobs/' . $jobDone['id'], $jobDone['url']);
 
         $this->assertMatchesRegularExpression('~\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{4}~', $jobDone['createdTime']);
+        $this->assertIsString($jobDone['startTime']);
         $this->assertMatchesRegularExpression('~\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{4}~', $jobDone['startTime']);
+        $this->assertIsString($jobDone['endTime']);
         $this->assertMatchesRegularExpression('~\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{4}~', $jobDone['endTime']);
 
         $this->assertIsString($jobDone['runId']);
@@ -101,9 +103,13 @@ class BranchStorageTest extends StorageApiTestCase
         $this->assertIsString($jobDone['creatorToken']['description']);
 
         $result = $jobDone['results'];
+        // @phpstan-ignore offsetAccess.notFound
         $this->assertIsInt($result['id']);
+        $this->assertIsString($result['created']);
         $this->assertMatchesRegularExpression('~\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{4}~', $result['created']);
+        // @phpstan-ignore offsetAccess.nonOffsetAccessible
         $this->assertIsInt($result['creatorToken']['id']);
+        // @phpstan-ignore offsetAccess.nonOffsetAccessible
         $this->assertIsString($result['creatorToken']['name']);
 
         unset(
@@ -117,7 +123,9 @@ class BranchStorageTest extends StorageApiTestCase
             $jobDone['creatorToken']['description'],
             $jobDone['results']['id'],
             $jobDone['results']['created'],
+            // @phpstan-ignore offsetAccess.nonOffsetAccessible
             $jobDone['results']['creatorToken']['id'],
+            // @phpstan-ignore offsetAccess.nonOffsetAccessible
             $jobDone['results']['creatorToken']['name'],
         );
         $this->assertEqualsCanonicalizing(
