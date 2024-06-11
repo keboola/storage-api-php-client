@@ -5,6 +5,8 @@ namespace Keboola\Test\Backend\Snowflake;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
+use Keboola\TableBackendUtils\Column\ColumnInterface;
+use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\Test\Backend\Workspaces\Backend\InputMappingConverter;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
@@ -145,7 +147,7 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
 
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
 
         //setup test tables
         $tableId = $this->createTableLanguagesMoreColumns();
@@ -158,11 +160,9 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
                     'columns' => [
                         [
                             'source' => 'Id',
-                            'type' => 'integer',
                         ],
                         [
                             'source' => 'iso',
-                            'type' => 'varchar',
                         ],
                     ],
                 ],
@@ -172,11 +172,9 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
                     'columns' => [
                         [
                             'source' => 'Name',
-                            'type' => 'varchar',
                         ],
                         [
                             'source' => 'Something',
-                            'type' => 'varchar',
                         ],
                     ],
                 ],
@@ -205,13 +203,22 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
         // check that the tables have the appropriate columns
-        $columns = $backend->getTableColumns($backend->toIdentifier('languagesIso'));
-        $this->assertEquals(2, count($columns));
-        $this->assertEquals(0, count(array_diff($columns, $backend->toIdentifier($mappingColumns[0]))));
+        $columns = $backend->getTableColumns('languagesIso');
+        $this->assertCount(2, $columns);
+        $this->assertCount(0, array_diff($columns, $mappingColumns[0]));
 
-        $columns = $backend->getTableColumns($backend->toIdentifier('languagesSomething'));
-        $this->assertEquals(2, count($columns));
-        $this->assertEquals(0, count(array_diff($columns, $backend->toIdentifier($mappingColumns[1]))));
+        $columns = $backend->getTableColumns('languagesSomething');
+        $this->assertCount(2, $columns);
+        $this->assertCount(0, array_diff($columns, $mappingColumns[1]));
+
+        $idColumn = array_filter(
+            iterator_to_array($backend->getTableReflection('languagesIso')->getColumnsDefinitions()),
+            fn(ColumnInterface $c) => $c->getColumnName() === 'Id',
+        );
+        $this->assertCount(1, $idColumn);
+        $idColumn = array_values($idColumn)[0];
+        $this->assertInstanceOf(SnowflakeColumn::class, $idColumn);
+        $this->assertSame('NUMBER', $idColumn->getColumnDefinition()->getType());
 
         // test for invalid columns
         $options = [
@@ -364,7 +371,7 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->assertEquals(2 * ($originalFileLinesCount - 1), $numRows, 'seconds parameter');
     }
 
-    public function testRowsParameter(): void
+    public function testRowsParameterInvalidType(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -380,7 +387,7 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
                     'columns' => [
                         [
                             'source' => 'id',
-                            'type' => 'integer',
+                            'type' => 'some stupidity ignored',
                         ],
                         [
                             'source' => 'name',
@@ -728,5 +735,76 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
                 ],
             ],
         ];
+    }
+
+    public function testFilterOnStupidType(): void
+    {
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+        $workspace = $this->initTestWorkspace();
+        $payload = [
+            'name' => 'stupidTypeFilter',
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INTEGER',
+                    ],
+                ],
+                [
+                    'name' => 'name',
+                    'definition' => [
+                        'type' => 'BINARY',
+                    ],
+                ],
+            ],
+        ];
+        $tableId = $this->_client->createTableDefinition(
+            $this->getTestBucketId(self::STAGE_IN),
+            $payload,
+        );
+
+        // test load without filter works
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'filter-test-1',
+                ],
+            ],
+        ]);
+
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'filter-test',
+                    'whereColumn' => 'name',
+                    'whereValues' => ['PRG'],
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'BINARY',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $options = InputMappingConverter::convertInputColumnsTypesForBackend(
+            $workspace['connection']['backend'],
+            $options,
+        );
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('Trying to filter on a stupid type should fail');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString('load error: Likely datatype conversion:', $e->getMessage());
+            $this->assertSame('workspace.tableLoad', $e->getStringCode());
+        }
     }
 }
