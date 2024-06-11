@@ -6,6 +6,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Metadata;
+use Keboola\StorageApi\Options\GlobalSearchOptions;
 use Keboola\Test\StorageApiTestCase;
 
 class BranchBucketsTest extends StorageApiTestCase
@@ -102,7 +103,26 @@ class BranchBucketsTest extends StorageApiTestCase
         // test there is two test buckets for main branch
         $this->assertCount(2, $this->listTestBucketsForParallelTests());
 
+        // bucket in dev branch is searchable
+        $apiCall1 = fn() => $this->_client->globalSearch($devBucketName1, (new GlobalSearchOptions(null, null, null, null, ['development'])));
+        $assertCallback1 = function ($searchResult) use ($devBucketName1) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertArrayHasKey('id', $searchResult['items'][0]);
+            $this->assertArrayHasKey('type', $searchResult['items'][0]);
+            $this->assertEquals('bucket', $searchResult['items'][0]['type']);
+            $this->assertArrayHasKey('name', $searchResult['items'][0]);
+            $this->assertEquals($devBucketName1, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall1, $assertCallback1);
+
         $devBranchClient->deleteBranch($branch1['id']);
+
+        // bucket in dev branch is no longer searchable
+        $apiCall2 = fn() => $this->_client->globalSearch($devBucketName1, (new GlobalSearchOptions(null, null, null, null, ['development'])));
+        $assertCallback2 = function ($searchResult) {
+            $this->assertSame(0, $searchResult['all']);
+        };
+        $this->retryWithCallback($apiCall2, $assertCallback2);
 
         // bucket for another dev branch must exist
         $this->assertNotEmpty($this->_client->getBucket($devBranchBucketId2));
