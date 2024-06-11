@@ -8,6 +8,7 @@ use Keboola\StorageApi\Components;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
+use Keboola\StorageApi\Options\GlobalSearchOptions;
 use Keboola\Test\StorageApiTestCase;
 
 class BranchAwareClientTest extends StorageApiTestCase
@@ -84,6 +85,17 @@ class BranchAwareClientTest extends StorageApiTestCase
             $components->listComponents(),
             $branchComponents->listComponents(),
         );
+
+        $apiCall1 = fn() => $this->_client->globalSearch('Main', (new GlobalSearchOptions(null, null, null, null, ['production'])));
+        $assertCallback1 = function ($searchResult) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertArrayHasKey('id', $searchResult['items'][0]);
+            $this->assertArrayHasKey('type', $searchResult['items'][0]);
+            $this->assertEquals('transformation', $searchResult['items'][0]['type']);
+            $this->assertArrayHasKey('name', $searchResult['items'][0]);
+            $this->assertStringStartsWith('Main', $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall1, $assertCallback1);
     }
 
     /**
