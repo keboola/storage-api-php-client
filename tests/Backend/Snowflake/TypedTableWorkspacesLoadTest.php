@@ -24,7 +24,8 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
                 [
                     'name' => 'Id',
                     'definition' => [
-                        'type' => 'INTEGER',
+                        'type' => 'NUMBER',
+                        'length' => '5,1',
                     ],
                 ],
                 [
@@ -219,6 +220,7 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $idColumn = array_values($idColumn)[0];
         $this->assertInstanceOf(SnowflakeColumn::class, $idColumn);
         $this->assertSame('NUMBER', $idColumn->getColumnDefinition()->getType());
+        $this->assertSame('5,1', $idColumn->getColumnDefinition()->getLength());
 
         // test for invalid columns
         $options = [
@@ -291,7 +293,6 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-//        $this->assertEquals(2, $backend->countRows("languagesDetails"));
 
         // second load
         $options = [
@@ -331,10 +332,10 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         $tableId = $this->createTableLanguages();
         $importFile = __DIR__ . '/../../_data/languages.csv';
-        $originalFileLinesCount = (int) exec('wc -l <' . escapeshellarg($importFile));
+        $importCsv = new CsvFile($importFile);
+        $originalFileLinesCount = count(iterator_to_array($importCsv));
         sleep(35);
         $startTime = time();
-        $importCsv = new \Keboola\Csv\CsvFile($importFile);
         $this->_client->writeTableAsync($tableId, $importCsv, [
             'incremental' => true,
         ]);
