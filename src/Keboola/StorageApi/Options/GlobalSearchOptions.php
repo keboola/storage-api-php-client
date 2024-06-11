@@ -10,19 +10,21 @@ class GlobalSearchOptions
 
     private ?int $offset;
 
-    private ?string $type;
+    /** @var string[]|null */
+    private ?array $types;
 
     /** @var int[]|null  */
     private ?array $projectIds;
 
     /**
      * @param int[]|null $projectIds
+     * @param string[]|null $types
      */
-    public function __construct(?int $limit = null, ?int $offset = null, ?string $type = null, ?array $projectIds = null)
+    public function __construct(?int $limit = null, ?int $offset = null, ?array $types = null, ?array $projectIds = null)
     {
         $this->limit = $limit;
         $this->offset = $offset;
-        $this->type = $type;
+        $this->types = $types;
         $this->projectIds = $projectIds;
     }
 
@@ -38,8 +40,8 @@ class GlobalSearchOptions
             $params['offset'] = $this->offset;
         }
 
-        if ($this->type !== null) {
-            $params['type'] = $this->type;
+        if ($this->types !== null) {
+            $params['types'] = $this->types;
         }
 
         if ($this->projectIds !== null) {
