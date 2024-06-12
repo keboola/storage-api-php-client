@@ -63,6 +63,8 @@
 		<directory>tests/Backend/CommonPart2</directory>
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/CopyIntoWorkspaceTest.php</exclude>
+		<!-- We do not need to run this test on each file backend -->
+		<exclude>tests/Backend/Snowflake/TypedTableWorkspacesLoadTest.php</exclude>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
@@ -89,6 +91,8 @@
 		<directory>tests/Backend/CommonPart2</directory>
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/CopyIntoWorkspaceTest.php</exclude>
+		<!-- We do not need to run this test on each file backend -->
+		<exclude>tests/Backend/Snowflake/TypedTableWorkspacesLoadTest.php</exclude>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
@@ -138,7 +142,6 @@
 		<directory>tests/Backend/CommonPart2</directory>
 		<exclude>tests/Backend/Snowflake/CloneIntoWorkspaceTest.php</exclude>
 		<exclude>tests/Backend/Snowflake/CopyIntoWorkspaceTest.php</exclude>
-		<exclude>tests/Backend/Snowflake/TypedTableWorkspacesLoadTest.php</exclude>
 		<file>tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php</file>
 		<file>tests/Backend/Workspaces/MetadataFromSnowflakeWorkspaceTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesLoadTest.php</file>
