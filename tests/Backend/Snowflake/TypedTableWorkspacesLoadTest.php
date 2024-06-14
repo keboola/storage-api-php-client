@@ -293,6 +293,7 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
         );
 
         $workspaces->loadWorkspaceData($workspace['id'], $options);
+        $this->assertEquals(2, $backend->countRows('languagesDetails'));
 
         // second load
         $options = [
@@ -339,9 +340,6 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $this->_client->writeTableAsync($tableId, $importCsv, [
             'incremental' => true,
         ]);
-        $this->_client->writeTableAsync($tableId, $importCsv, [
-            'incremental' => true,
-        ]);
 
         $options = [
             'input' => [
@@ -369,7 +367,7 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
         $workspaces->loadWorkspaceData($workspace['id'], $options);
         // ok, the table should only have rows from the 2 most recent loads
         $numRows = $backend->countRows('languages');
-        $this->assertEquals(2 * ($originalFileLinesCount - 1), $numRows, 'seconds parameter');
+        $this->assertEquals($originalFileLinesCount - 1, $numRows, 'seconds parameter');
     }
 
     public function testRowsParameterInvalidType(): void
