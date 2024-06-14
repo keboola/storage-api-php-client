@@ -5094,11 +5094,11 @@ Loads tables from Storage into a Workspace. Not supported for Teradata. BigQuery
                                 + Properties
                                     + source (required, string) - Column name
                                     + destination (optional, string) - Destination column name. If not set, source column name will be used.
-                                    + type (optional, string) - Data type, eg. VARCHAR
-                                    + length (optional, string) - Data type size, where applicable, eg. 255 for VARCHAR or 10,2 for NUMBER
-                                    + nullable (optional, boolean) - Allow NULL values in destination table
+                                    + type (optional, string) - Data type, eg. VARCHAR (ignored for tables with types)
+                                    + length (optional, string) - Data type size, where applicable, eg. 255 for VARCHAR or 10,2 for NUMBER (ignored for tables with types)
+                                    + nullable (optional, boolean) - Allow NULL values in destination table (ignored for tables with types)
                                         Default: true
-                                    + convertEmptyValuesToNull (optional, boolean) - Empty values replaced by NULL
+                                    + convertEmptyValuesToNull (optional, boolean) - Empty values replaced by NULL (ignored for tables with types)
                                         Default: false
                                     + compression (optional, enum[string]) - For Redshift only
                                         + Members
