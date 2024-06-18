@@ -2649,8 +2649,8 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayHasKey('changeDescription', $version);
         $this->assertEquals('Row main-1-1 changed', $version['changeDescription']);
         $this->assertNotEmpty($version['created']);
-//        $this->assertEquals($newToken['id'], $version['creatorToken']['id']);
-//        $this->assertEquals($newToken['description'], $version['creatorToken']['description']);
+        $this->assertEquals($newToken['id'], $version['creatorToken']['id']);
+        $this->assertEquals($newToken['description'], $version['creatorToken']['description']);
 
         $renamedRowName = 'renamed-main-1-1'.$this->generateDescriptionForTestObject() . '-' . $devBranchType;
         $hashedRenamedRowName = sha1($renamedRowName);
