@@ -30,7 +30,7 @@ class BranchBucketsTest extends StorageApiTestCase
         $devBucketName1 = sprintf('Dev-Branch-Bucket-' . sha1($description));
 
         $branchName2 = $this->generateBranchNameForParallelTest('second');
-        $devBucketName2 = sprintf('Second-Dev-Branch-Bucket-' . sha1($description));
+        $devBucketName2 = sprintf('123-Second-Dev-Branch-Bucket-' . sha1($description));
 
         // cleanup
         $this->deleteBranchesByPrefix($devBranchClient, $branchName1);
@@ -47,6 +47,18 @@ class BranchBucketsTest extends StorageApiTestCase
         $this->deleteBranchesByPrefix($devBranchClient, $branchName2);
         $branch2 = $devBranchClient->createBranch($branchName2);
         $devBranchBucketId2 = $this->initEmptyBucket($devBucketName2, Client::STAGE_IN, $description);
+        // init metadata for branch2 bucket
+        $metadata->postBucketMetadata(
+            $devBranchBucketId2,
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => $branch2['id'],
+                ],
+            ],
+        );
+
 
         // init data in non-dev bucket
         // create table and column with the same metadata to test delete dev branch don't delete table in main bucket
@@ -82,17 +94,6 @@ class BranchBucketsTest extends StorageApiTestCase
             new CsvFile($importFile),
         );
 
-        // init metadata for branch2 bucket
-        $metadata->postBucketMetadata(
-            $devBranchBucketId2,
-            $metadataProvider,
-            [
-                [
-                    'key' => $metadataKey,
-                    'value' => $branch2['id'],
-                ],
-            ],
-        );
 
         // test there is buckets for each dev branch
         $this->assertTrue($this->_client->bucketExists($devBranchBucketId1));
