@@ -211,6 +211,14 @@ class TokensTest extends StorageApiTestCase
         $this->assertIsInt($firstLimit['value']);
         $this->assertEquals($firstLimit['name'], $limitKeys[0]);
 
+        $admin = $verifiedToken['admin'];
+        $adminOwner = $verifiedToken['adminOwner'];
+        $this->assertSame($admin['name'], $adminOwner['name']);
+        $this->assertSame($admin['id'], $adminOwner['id']);
+        $this->assertSame($admin['features'], $adminOwner['features']);
+        $this->assertSame($admin['isOrganizationMember'], $adminOwner['isOrganizationMember']);
+        $this->assertSame($admin['role'], $adminOwner['role']);
+
         $tokenFound = false;
         foreach ($this->tokens->listTokens() as $token) {
             if ($token['id'] !== $currentToken['id']) {
@@ -227,6 +235,20 @@ class TokensTest extends StorageApiTestCase
         }
 
         $this->assertTrue($tokenFound);
+    }
+
+    public function testGetTokenFillAdminOwner(): void
+    {
+        $verifiedToken = $this->_client->verifyToken();
+        $currentToken = $this->tokens->getToken($verifiedToken['id']);
+
+        $token1Options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+        $token1 = $this->tokens->createToken($token1Options);
+
+        $token1detail = $this->tokens->getToken($token1['id']);
+
+        $this->assertEquals($currentToken['admin']['id'], $token1detail['adminOwner']['id']);
     }
 
     /**
