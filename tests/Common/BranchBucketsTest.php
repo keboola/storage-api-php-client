@@ -17,6 +17,9 @@ class BranchBucketsTest extends StorageApiTestCase
         $this->initEmptyTestBucketsForParallelTests();
     }
 
+    /**
+     * @group global-search
+     */
     public function testDropAllDevBucketsWhenDropBranch(): void
     {
         $metadataKey = Metadata::BUCKET_METADATA_KEY_ID_BRANCH;
@@ -28,7 +31,7 @@ class BranchBucketsTest extends StorageApiTestCase
         $description = $this->generateDescriptionForTestObject();
 
         $branchName1 = $this->generateBranchNameForParallelTest();
-        $devBucketName1 = sprintf('Dev-Branch-Bucket-' . sha1($description));
+        $devBucketName1 = sprintf('321-Dev-Branch-Bucket-' . sha1($description));
 
         $branchName2 = $this->generateBranchNameForParallelTest('second');
         $devBucketName2 = sprintf('Second-Dev-Branch-Bucket-' . sha1($description));
@@ -44,10 +47,23 @@ class BranchBucketsTest extends StorageApiTestCase
                 'value' => $branch1['id'],
             ],
         ];
+        // init data in branch1 bucket
+        $metadata->postBucketMetadata($devBranchBucketId1, $metadataProvider, $branch1TestMetadata);
 
         $this->deleteBranchesByPrefix($devBranchClient, $branchName2);
         $branch2 = $devBranchClient->createBranch($branchName2);
         $devBranchBucketId2 = $this->initEmptyBucket($devBucketName2, Client::STAGE_IN, $description);
+        // init metadata for branch2 bucket
+        $metadata->postBucketMetadata(
+            $devBranchBucketId2,
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => $branch2['id'],
+                ],
+            ],
+        );
 
         // init data in non-dev bucket
         // create table and column with the same metadata to test delete dev branch don't delete table in main bucket
@@ -74,25 +90,10 @@ class BranchBucketsTest extends StorageApiTestCase
             $branch1TestMetadata,
         );
 
-        // init data in branch1 bucket
-        $metadata->postBucketMetadata($devBranchBucketId1, $metadataProvider, $branch1TestMetadata);
-
         $devBranchTable1 = $this->_client->createTableAsync(
             $devBranchBucketId1,
             'languages',
             new CsvFile($importFile),
-        );
-
-        // init metadata for branch2 bucket
-        $metadata->postBucketMetadata(
-            $devBranchBucketId2,
-            $metadataProvider,
-            [
-                [
-                    'key' => $metadataKey,
-                    'value' => $branch2['id'],
-                ],
-            ],
         );
 
         // test there is buckets for each dev branch
