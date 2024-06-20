@@ -73,8 +73,9 @@ class GlobalSearchTest extends StorageApiTestCase
             $this->assertArrayHasKey('organizationId', $searchResult['items'][0]);
             $this->assertArrayHasKey('projectId', $searchResult['items'][0]);
             $this->assertArrayHasKey('created', $searchResult['items'][0]);
-            $this->assertArrayHasKey('aggregations', $searchResult);
-            $this->assertArrayHasKey('configuration', $searchResult['aggregations']);
+            $this->assertArrayHasKey('byType', $searchResult);
+            $this->assertArrayHasKey('configuration', $searchResult['byType']);
+            $this->assertArrayHasKey('byProject', $searchResult);
         };
         $this->retryWithCallback($apiCall, $assertCallback);
     }
@@ -126,8 +127,9 @@ class GlobalSearchTest extends StorageApiTestCase
             $this->assertArrayHasKey('organizationId', $searchResult['items'][0]);
             $this->assertArrayHasKey('projectId', $searchResult['items'][0]);
             $this->assertArrayHasKey('created', $searchResult['items'][0]);
-            $this->assertArrayHasKey('aggregations', $searchResult);
-            $this->assertArrayHasKey('configuration-row', $searchResult['aggregations']);
+            $this->assertArrayHasKey('byType', $searchResult);
+            $this->assertArrayHasKey('configuration-row', $searchResult['byType']);
+            $this->assertArrayHasKey('byProject', $searchResult);
         };
         $this->retryWithCallback($apiCall, $assertCallback);
     }
@@ -161,8 +163,9 @@ class GlobalSearchTest extends StorageApiTestCase
             $this->assertArrayHasKey('organizationId', $searchResult['items'][0]);
             $this->assertArrayHasKey('projectId', $searchResult['items'][0]);
             $this->assertArrayHasKey('created', $searchResult['items'][0]);
-            $this->assertArrayHasKey('aggregations', $searchResult);
-            $this->assertArrayHasKey('bucket', $searchResult['aggregations']);
+            $this->assertArrayHasKey('byType', $searchResult);
+            $this->assertArrayHasKey('bucket', $searchResult['byType']);
+            $this->assertArrayHasKey('byProject', $searchResult);
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -192,8 +195,9 @@ class GlobalSearchTest extends StorageApiTestCase
             $this->assertArrayHasKey('organizationId', $searchResult['items'][0]);
             $this->assertArrayHasKey('projectId', $searchResult['items'][0]);
             $this->assertArrayHasKey('created', $searchResult['items'][0]);
-            $this->assertArrayHasKey('aggregations', $searchResult);
-            $this->assertArrayHasKey('table', $searchResult['aggregations']);
+            $this->assertArrayHasKey('byType', $searchResult);
+            $this->assertArrayHasKey('table', $searchResult['byType']);
+            $this->assertArrayHasKey('byProject', $searchResult);
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
