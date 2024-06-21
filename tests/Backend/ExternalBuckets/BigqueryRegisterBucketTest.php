@@ -962,10 +962,9 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             $this->fail('Should fail');
         } catch (ClientException $e) {
             $this->assertSame('workspace.tableCannotBeLoaded', $e->getStringCode());
-            // todo wrong message doesn't matter
             $this->assertStringContainsString(
                 sprintf(
-                    'Table "%s" is part of external bucket "%s.%s" and cannot be loaded into workspace.', // todo fix err msg in connection
+                    'Table "%s" is part of external bucket "%s.%s" and cannot be loaded into workspace.',
                     $testBucketName,
                     $bucketId,
                     $hashedUniqueTableName,
