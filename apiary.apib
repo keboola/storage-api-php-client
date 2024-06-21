@@ -8727,16 +8727,19 @@ idComponent and configurationId.
                 }
             ]
 
-## Global search [/v2/storage/global-search?limit={limit}&offset={offset}&type={type}&projectIds={projectIds}]
+## Global search [/v2/storage/global-search?query={query}&limit={limit}&offset={offset}&types={types}&projectIds={projectIds}&branchTypes={branchTypes}&branchIds={branchIds}]
 
 ### Global search [GET]
 Search across names of configuration rows, configurations, tables and buckets.
 
 + Parameters
-    + limit (optional, integer) - Limit numer of results
+    + query (required, string) - search query
+    + limit (optional, integer) - Limit number of results
     + offset (optional, integer) - Pagination offset of results
     + types (optional, array) - Search in specific type: flow, bucket, table, transformation, configuration, configuration-row, workspace and shared-code.
-    + projectIds (optional, array) - Array of integers of project where search performs
+    + projectIds (optional, array) - Array of integers of projects where search performs
+    + branchTypes (optional, string) - Branch type where to search. Possible options: production, development
+    + branchIds (optional, array) - Array of integers of branches where search performs
 
 + Request
     + Headers
