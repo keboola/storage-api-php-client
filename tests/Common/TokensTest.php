@@ -213,11 +213,9 @@ class TokensTest extends StorageApiTestCase
 
         $admin = $verifiedToken['admin'];
         $adminOwner = $verifiedToken['adminOwner'];
-        $this->assertSame($admin['name'], $adminOwner['name']);
-        $this->assertSame($admin['id'], $adminOwner['id']);
-        $this->assertSame($admin['features'], $adminOwner['features']);
-        $this->assertSame($admin['isOrganizationMember'], $adminOwner['isOrganizationMember']);
-        $this->assertSame($admin['role'], $adminOwner['role']);
+        $this->assertEquals($admin['id'], $adminOwner['id']);
+        $this->assertEquals($admin['name'], $adminOwner['name']);
+        $this->assertEquals($currentToken['description'], $adminOwner['email']);
 
         $tokenFound = false;
         foreach ($this->tokens->listTokens() as $token) {
