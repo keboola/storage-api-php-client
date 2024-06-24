@@ -8,6 +8,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
+use Keboola\StorageApi\Options\GlobalSearchOptions;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
@@ -858,6 +859,123 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertCount(1, $sharedTableAlias);
         $sharedTableAlias = $sharedTableAlias[0];
         $this->assertSharedTable($sharedTableAlias, $expectedTableAliasName);
+    }
+
+    public function testGlobalSearchOnSharedBuckets(): void
+    {
+        // PRE clean-up
+        $clients = [
+            $this->_client,
+            $this->_client2,
+            $this->clientAdmin3InOtherOrg,
+        ];
+
+        // drop shared first
+        /** @var Client $client */
+        foreach ($clients as $client) {
+            foreach ($client->listBuckets() as $bucket) {
+                if (!empty($bucket['sourceBucket'])) {
+                    $client->dropBucket($bucket['id']);
+                }
+            }
+        }
+
+        /** @var Client $client */
+        foreach ($clients as $client) {
+            foreach ($client->listBuckets() as $bucket) {
+                $client->dropBucket($bucket['id']);
+            }
+        }
+
+        $project1 = $this->_client->verifyToken()['owner']['id']; //1015
+        $project2 = $this->_client2->verifyToken()['owner']['id']; //1017
+        $project3 = $this->clientAdmin3InOtherOrg->verifyToken()['owner']['id']; //1016
+
+        $bucketName = 'GlobalSearchTestBucket';
+        $bucketNameHash = sha1($bucketName);
+
+        $bucketIds1 = [];
+        $bucketIds2 = [];
+        $bucketIds3 = [];
+
+        foreach ([self::STAGE_OUT, self::STAGE_IN] as $stage) {
+            $bucketIds1[$stage] = $this->_client->createBucket($bucketNameHash, $stage, $this->generateDescriptionForTestObject().'-'.$bucketNameHash);
+            $bucketIds2[$stage] = $this->_client2->createBucket($bucketNameHash, $stage, $this->generateDescriptionForTestObject().'-'.$bucketNameHash);
+            $bucketIds3[$stage] = $this->clientAdmin3InOtherOrg->createBucket($bucketNameHash, $stage, $this->generateDescriptionForTestObject().'-'.$bucketNameHash);
+        }
+
+        foreach ($bucketIds1 as $bucketId) {
+            $this->_client->shareBucketToProjects($bucketId, [$project2]);
+        }
+
+        foreach ($bucketIds1 as $stage => $bucketId) {
+            $this->_client2->linkBucket($bucketNameHash . '-linked-project-1', $stage, $project1, $bucketId);
+        }
+
+        // created 6 buckets 2 in "otherOrg" and 2 shared buckets, 2 buckets from main project and 4 buckets from linked project should be searchable
+        $apiCall = fn() => $this->_client->globalSearch($bucketNameHash);
+        $assertCallback = function ($searchResult) {
+            $this->assertSame(6, $searchResult['all']);
+            $this->assertSame('bucket', $searchResult['items'][0]['type']);
+            $this->assertCount(2, $searchResult['byProject']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
+
+        // created 6 buckets 2 in "otherOrg", 2 buckets from main project and 4 buckets from linked project should be searchable
+        $apiCall2 = fn() => $this->_client2->globalSearch($bucketNameHash, new GlobalSearchOptions(null, null, null, [$project1, $project2]));
+        $assertCallback2 = function ($searchResult) {
+            $this->assertEquals(6, $searchResult['all']);
+            $this->assertSame('bucket', $searchResult['items'][0]['type']);
+            $this->assertCount(2, $searchResult['byProject']);
+        };
+        $this->retryWithCallback($apiCall2, $assertCallback2);
+
+        // created 6 buckets 2 in "otherOrg", 0 buckets should be searchable
+        $apiCall2 = fn() => $this->_client->globalSearch($bucketNameHash, new GlobalSearchOptions(null, null, null, [$project3]));
+        $assertCallback2 = function ($searchResult) {
+            $this->assertEquals(0, $searchResult['all']);
+            // bucket exist in 2 projects in same org - aggregation is correct
+            $this->assertCount(2, $searchResult['byProject']);
+        };
+        $this->retryWithCallback($apiCall2, $assertCallback2);
+
+        // search from other project in same organization > should return same results
+        // created 6 buckets 2 in "otherOrg" and 2 shared buckets, 2 buckets from main project and 4 buckets from linked project should be searchable
+        $apiCall3 = fn() => $this->_client2->globalSearch($bucketNameHash);
+        $assertCallback3 = function ($searchResult) {
+            $this->assertSame(6, $searchResult['all']);
+            $this->assertSame('bucket', $searchResult['items'][0]['type']);
+            $this->assertCount(2, $searchResult['byProject']);
+        };
+        $this->retryWithCallback($apiCall3, $assertCallback3);
+
+        // search from anotherOrg - only buckets in another org should be searchable
+        $apiCall4 = fn() => $this->clientAdmin3InOtherOrg->globalSearch($bucketNameHash);
+        $assertCallback4 = function ($searchResult) {
+            $this->assertSame(2, $searchResult['all']);
+            $this->assertSame('bucket', $searchResult['items'][0]['type']);
+            $this->assertCount(1, $searchResult['byProject']);
+        };
+        $this->retryWithCallback($apiCall4, $assertCallback4);
+
+        // POST clean-up
+
+        // drop shared first
+        /** @var Client $client */
+        foreach ($clients as $client) {
+            foreach ($client->listBuckets() as $bucket) {
+                if (!empty($bucket['sourceBucket'])) {
+                    $client->dropBucket($bucket['id']);
+                }
+            }
+        }
+
+        /** @var Client $client */
+        foreach ($clients as $client) {
+            foreach ($client->listBuckets() as $bucket) {
+                $client->dropBucket($bucket['id']);
+            }
+        }
     }
 
     /**
