@@ -920,7 +920,7 @@ class TokensTest extends StorageApiTestCase
         $this->assertCount($bucketsInitialCount, $buckets);
 
         // create new bucket with master token
-        $this->_client->createBucket($bucketName, 'in', 'testing');
+        $newBucketId = $this->_client->createBucket($bucketName, 'in', 'testing');
 
         // check if new token has access to token
         $buckets = $client->listBuckets();
@@ -931,6 +931,7 @@ class TokensTest extends StorageApiTestCase
         foreach ($token['bucketPermissions'] as $bucketId => $permission) {
             $this->assertEquals(self::BUCKET_PERMISSION_MANAGE, $permission);
         }
+        $client->getBucket($newBucketId);
     }
 
     public function testTokenWithExpiration(): void
@@ -1338,6 +1339,7 @@ class TokensTest extends StorageApiTestCase
         foreach ($token['bucketPermissions'] as $bucketId => $permission) {
             $this->assertEquals('read', $permission);
         }
+        $client->getBucket($newBucketId);
     }
 
 
