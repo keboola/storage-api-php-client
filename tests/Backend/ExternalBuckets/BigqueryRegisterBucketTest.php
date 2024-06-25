@@ -950,6 +950,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
                 $e->getMessage(),
             );
         }
+        $ws->deleteWorkspace($workspace['id']);
     }
 
     /**
@@ -1306,7 +1307,8 @@ SQL,
             ),
         );
 
-        $ws = (new Workspaces($testClient))->createWorkspace();
+        $workspaces = new Workspaces($testClient);
+        $ws = $workspaces->createWorkspace();
         $db = WorkspaceBackendFactory::createWorkspaceBackend($ws);
         $db->executeQuery(sprintf(
             <<<SQL
@@ -1334,6 +1336,8 @@ SQL,
         } catch (ClientException $e) {
             $this->assertStringContainsString('Load error: Cannot query over table', $e->getMessage());
         }
+
+        $workspaces->deleteWorkspace($ws['id']);
     }
 
     /**
