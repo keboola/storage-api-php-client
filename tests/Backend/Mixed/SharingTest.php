@@ -775,13 +775,12 @@ class SharingTest extends StorageApiSharingTestCase
 
     public function testGlobalSearchOnSharedBuckets(): void
     {
-        // PRE clean-up
         $projectMain = $this->_client->verifyToken()['owner']['id'];
         $projectLinking = $this->_client2->verifyToken()['owner']['id'];
 
         $bucketName = 'GlobalSearchTestBucket';
         $bucketNameHash = sha1($bucketName);
-        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE, $bucketNameHash);
         $bucketId = reset($this->_bucketIds);
 
         // test can search bucket created by init
