@@ -282,8 +282,8 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertNotEquals($updatedConfiguration['created'], $resetConfigurationInBranch['created']);
 
         $this->assertSame(1, $resetConfigurationInBranch['version']);
-        $this->assertSame('Copied from default branch configuration "Main updated" (main-1) version 3', $resetConfigurationInBranch['changeDescription']);
-        $this->assertSame('Copied from default branch configuration "Main updated" (main-1) version 3', $resetConfigurationInBranch['currentVersion']['changeDescription']);
+        $this->assertSame(sprintf('Copied from default branch configuration "%s" (main-1) version 3', $hashedUpdatedMain1Name), $resetConfigurationInBranch['changeDescription']);
+        $this->assertSame(sprintf('Copied from default branch configuration "%s" (main-1) version 3', $hashedUpdatedMain1Name), $resetConfigurationInBranch['currentVersion']['changeDescription']);
 
         $this->assertCount(1, $resetConfigurationInBranch['rows']);
         $row = $resetConfigurationInBranch['rows'][0];
