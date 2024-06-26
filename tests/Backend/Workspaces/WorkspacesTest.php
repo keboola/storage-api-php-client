@@ -383,5 +383,9 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $result = $this->_client->apiPostJson($url);
         // check that password is not present in the response for standard SNFLK project
         $this->assertArrayNotHasKey('password', $result['connection']);
+
+        // cleanup
+        $ws = new Workspaces($this->_client);
+        $ws->deleteWorkspace($result['id']);
     }
 }
