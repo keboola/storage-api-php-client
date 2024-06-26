@@ -2643,11 +2643,11 @@ class ComponentsTest extends StorageApiTestCase
             $configurationRow->getComponentConfiguration()->getComponentId(),
             $configurationRow->getComponentConfiguration()->getConfigurationId(),
             $configurationRow->getRowId(),
-            2,
+            3,
         );
 
         $this->assertArrayHasKey('changeDescription', $version);
-        $this->assertEquals('Row main-1-1 changed', $version['changeDescription']);
+        $this->assertEquals('Change description test', $version['changeDescription']);
         $this->assertNotEmpty($version['created']);
         $this->assertEquals($newToken['id'], $version['creatorToken']['id']);
         $this->assertEquals($newToken['description'], $version['creatorToken']['description']);
