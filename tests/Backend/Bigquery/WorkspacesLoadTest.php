@@ -164,6 +164,8 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
         } catch (Throwable $e) {
             $this->assertStringContainsString('Not found', $e->getMessage());
         }
+
+        $workspaces->deleteWorkspace($workspace['id']);
     }
 
     private function assertColumns(Table $table, array $expectedColumns): void

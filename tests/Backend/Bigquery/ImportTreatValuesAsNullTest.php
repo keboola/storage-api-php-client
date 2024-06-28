@@ -53,6 +53,8 @@ class ImportTreatValuesAsNullTest extends ParallelWorkspacesTestCase
         }, $data);
 
         $this->assertEqualsCanonicalizing($expectedData, $data);
+
+        $workspaces->deleteWorkspace($workspace['id']);
     }
 
     /**
