@@ -19,5 +19,6 @@ REVISION
 /cache
 phpunit-retry.xml
 .phpunit.result.cache
+set-env.global-search-mixed.sh
 set-env.global-search-sox.sh
 set-env.global-search.sh
