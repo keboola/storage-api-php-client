@@ -63,6 +63,9 @@ class SnapshottingTest extends StorageApiTestCase
         $this->_client->deleteSnapshot($snapshotId);
     }
 
+    /**
+     * @group global-search
+     */
     public function testCreateTableFromSnapshotWithDifferentName(): void
     {
         $sourceTableId = $this->initTestTable();
