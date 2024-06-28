@@ -199,6 +199,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientType
+     * @group global-search
      */
     public function testComponentConfigRenew(string $devBranchType): void
     {
@@ -352,6 +353,7 @@ class ComponentsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      * @param string $clientType
+     * @group global-search
      */
     public function testComponentConfigRestore($clientType): void
     {
@@ -508,6 +510,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientType
+     * @group global-search
      */
     public function testComponentConfigCreate(string $devBranchType): void
     {
@@ -1005,6 +1008,7 @@ class ComponentsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      * @param string $devBranchType
+     * @group global-search
      */
     public function testComponentConfigUpdate(string $devBranchType): void
     {
@@ -1641,6 +1645,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientType
+     * @group global-search
      */
     public function testComponentConfigsVersionsRollback(string $devBranchType): void
     {
@@ -1747,6 +1752,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientType
+     * @group global-search
      */
     public function testComponentConfigsVersionsCreate(string $devBranchType): void
     {
@@ -2063,6 +2069,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientType
+     * @group global-search
      */
     public function testComponentConfigRowCreate(string $devBranchType): void
     {
@@ -2239,6 +2246,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientType
+     * @group global-search
      */
     public function testComponentConfigRowUpdateName(string $devBranchType): void
     {
@@ -2525,6 +2533,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientType
+     * @group global-search
      */
     public function testComponentConfigRowUpdate(string $devBranchType): void
     {
@@ -2787,6 +2796,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientType
+     * @group global-search
      */
     public function testComponentConfigRowDelete(string $devBranchType): void
     {
@@ -3148,6 +3158,7 @@ class ComponentsTest extends StorageApiTestCase
 
     /**
      * @dataProvider provideComponentsClientType
+     * @group global-search
      */
     public function testComponentConfigRowVersionCreate(string $devBranchType): void
     {
@@ -3703,6 +3714,7 @@ class ComponentsTest extends StorageApiTestCase
      * tests for https://github.com/keboola/connection/issues/977
      *
      * @dataProvider provideComponentsClientType
+     * @group global-search
      */
     public function testRowChangesAfterRowRollback(string $devBranchType): void
     {
