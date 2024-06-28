@@ -35,6 +35,9 @@ class GlobalSearchTest extends StorageApiTestCase
         $this->client = $this->clientProvider->createClientForCurrentTest();
     }
 
+    /**
+     * @group global-search
+     */
     public function testConfigurationResponse(): void
     {
         $name = 'main-'.$this->generateDescriptionForTestObject();
@@ -80,6 +83,9 @@ class GlobalSearchTest extends StorageApiTestCase
         $this->retryWithCallback($apiCall, $assertCallback);
     }
 
+    /**
+     * @group global-search
+     */
     public function testConfigurationRowResponse(): void
     {
         $rowName = 'main-1'.$this->generateDescriptionForTestObject();
@@ -134,6 +140,9 @@ class GlobalSearchTest extends StorageApiTestCase
         $this->retryWithCallback($apiCall, $assertCallback);
     }
 
+    /**
+     * @group global-search
+     */
     public function testBucketTableResponse(): void
     {
         $bucketName = 'main'.$this->generateDescriptionForTestObject();
@@ -222,6 +231,9 @@ class GlobalSearchTest extends StorageApiTestCase
         $this->retryWithCallback($apiCall, $assertCallback);
     }
 
+    /**
+     * @group global-search
+     */
     public function testGlobalSearchTogether(): void
     {
         $configurationName = 'main-'.$this->generateDescriptionForTestObject();
