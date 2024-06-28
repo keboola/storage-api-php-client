@@ -49,6 +49,7 @@ class CreateTableTest extends StorageApiTestCase
 
     /**
      * @dataProvider tableCreateData
+     * @group global-search
      */
     public function testTableCreate(string $tableName, string $createFile, string $expectationFile, bool $async, array $options = []): void
     {
