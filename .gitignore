@@ -22,3 +22,4 @@ phpunit-retry.xml
 set-env.global-search-mixed.sh
 set-env.global-search-sox.sh
 set-env.global-search.sh
+set-env.global-search-bq.sh
