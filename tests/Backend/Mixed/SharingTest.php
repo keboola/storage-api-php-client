@@ -102,7 +102,10 @@ class SharingTest extends StorageApiSharingTestCase
         }
     }
 
-    /** @dataProvider syncAsyncProvider */
+    /**
+     * @dataProvider syncAsyncProvider
+     * @group global-search-mixed
+     */
     public function testOrganizationPublicSharing($isAsync): void
     {
         $this->initEvents($this->_client2);
@@ -773,6 +776,9 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertSharedTable($sharedTableAlias, $expectedTableAliasName);
     }
 
+    /**
+     * @group global-search-mixed
+     */
     public function testGlobalSearchOnSharedBuckets(): void
     {
         $projectMain = $this->_client->verifyToken()['owner']['id'];
@@ -1139,6 +1145,7 @@ class SharingTest extends StorageApiSharingTestCase
     /**
      * @dataProvider sharingBackendDataWithAsync
      * @throws ClientException
+     * @group global-search-mixed
      */
     public function testLinkedBucket(string $backend, bool $isAsync): void
     {
