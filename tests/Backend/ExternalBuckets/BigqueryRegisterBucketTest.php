@@ -599,6 +599,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 
     /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
+     * @group global-search-bq
      */
     public function testRegisterWSAsExternalBucket(string $devBranchType, string $userRole): void
     {
