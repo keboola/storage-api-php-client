@@ -59,6 +59,9 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         ]);
     }
 
+    /**
+     * @group global-search
+     */
     public function testCreateTableFromWorkspace(): void
     {
         // create workspace and source table in workspace

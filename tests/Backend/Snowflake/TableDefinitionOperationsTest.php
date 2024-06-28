@@ -1887,6 +1887,9 @@ EOD,
         }
     }
 
+    /**
+     * @group global-search
+     */
     public function testDataPreviewForTableDefinitionBaseType(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);

@@ -237,6 +237,9 @@ class TimeTravelTest extends StorageApiTestCase
         ], $varcharColumnMetadata[0], ['id', 'timestamp']);
     }
 
+    /**
+     * @group global-search
+     */
     public function testCreateTableFromTimestamp(): void
     {
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
