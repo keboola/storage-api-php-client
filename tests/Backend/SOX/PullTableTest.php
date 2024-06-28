@@ -74,6 +74,9 @@ class PullTableTest extends StorageApiTestCase
         $tokenBranchClient->pullTableToBranch($productionTableId);
     }
 
+    /**
+     * @group global-search-sox
+     */
     public function testPullTableFromDefaultBranch(): void
     {
         $description = $this->generateDescriptionForTestObject();

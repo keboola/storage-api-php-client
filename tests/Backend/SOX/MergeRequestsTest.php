@@ -682,6 +682,9 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertBranchIsDeleted($branchId);
     }
 
+    /**
+     * @group global-search-sox
+     */
     public function testDeletedRowInBranchIsDeletedInDefaultAfterMerge(): void
     {
         // prepare test configs
@@ -890,6 +893,9 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->assertBranchIsDeleted($branchId);
     }
 
+    /**
+     * @group global-search-sox
+     */
     public function testConfigurationUpdatedInBranch(): void
     {
         $defaultBranch = $this->branches->getDefaultBranch();
