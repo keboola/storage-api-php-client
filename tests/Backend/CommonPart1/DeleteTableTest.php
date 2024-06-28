@@ -16,6 +16,7 @@ class DeleteTableTest extends StorageApiTestCase
 
     /**
      * @dataProvider asyncProvider
+     * @group global-search
      */
     public function testTableDelete(bool $async): void
     {

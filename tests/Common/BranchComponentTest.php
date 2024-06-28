@@ -117,6 +117,9 @@ class BranchComponentTest extends StorageApiTestCase
         }
     }
 
+    /**
+     * @group global-search
+     */
     public function testResetToDefault(): void
     {
         $providedToken = $this->_client->verifyToken();
@@ -1184,6 +1187,9 @@ class BranchComponentTest extends StorageApiTestCase
         );
     }
 
+    /**
+     * @group global-search
+     */
     public function testDeleteBranchConfiguration(): void
     {
         // create new configurations in main branch

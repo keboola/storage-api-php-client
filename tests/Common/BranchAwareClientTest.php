@@ -39,6 +39,7 @@ class BranchAwareClientTest extends StorageApiTestCase
      * @dataProvider provideDefaultBranchUsage
      * @param string $defaultBranchUsage
      * @return void
+     * @group global-search
      */
     public function testClientWithDefaultBranch($defaultBranchUsage): void
     {
