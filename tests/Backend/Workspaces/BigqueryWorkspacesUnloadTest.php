@@ -368,5 +368,9 @@ class BigqueryWorkspacesUnloadTest extends ParallelWorkspacesTestCase
         $result = $this->_client->apiPostJson($url);
         // check that credentials are not present in the response for BQ project
         $this->assertArrayNotHasKey('credentials', $result['connection']);
+
+        // cleanup
+        $ws = new Workspaces($this->_client);
+        $ws->deleteWorkspace($result['id']);
     }
 }
