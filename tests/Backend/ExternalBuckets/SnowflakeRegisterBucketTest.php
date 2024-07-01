@@ -17,7 +17,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
     public function setUp(): void
     {
         parent::setUp();
-        $this->initEmptyTestBucketsForParallelTests();
+//        $this->initEmptyTestBucketsForParallelTests();
     }
 
     public function testRegisterBucket(): void
@@ -999,7 +999,6 @@ SQL,
         }
     }
 
-
     public function testRegisterExternalDBWithNoWS(): void
     {
         $wsService = new Workspaces($this->_client);
@@ -1233,5 +1232,41 @@ SQL,
             ),
         );
         $this->assertEquals($dataFromBucket2BeforeDeletion, $dataFrom2AfterDeletion);
+    }
+
+    public function testExternalSharedDatabase()
+    {
+        $guide = $this->_client->registerBucketGuide(['JS_SHARE_LOCAL_LINKED', 'JS_SCHEMA_SHARE'], 'snowflake');
+        $bucketId = $this->_client->registerBucket(
+            'testBucket' . time(),
+            ['JIRKA_LOCAL_LINKED_DB', 'JIRKA_E2E_SCHEMA_SHARE'],
+            'in',
+            'desc',
+            'snowflake',
+            'display' . time()
+        );
+
+        $tables = $this->_client->listTables($bucketId);
+
+        $ws = new Workspaces($this->_client);
+
+        $workspace = $ws->createWorkspace();
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        foreach ($tables as $table) {
+            $data = $this->_client->getTableDataPreview($table['id']);
+            print_r($data);
+
+            $result = $db->getDb()->fetchAll(
+                \sprintf(
+                    'SELECT *  FROM %s.%s.%s',
+                    SnowflakeQuote::quoteSingleIdentifier('JIRKA_LOCAL_LINKED_DB'),
+                    SnowflakeQuote::quoteSingleIdentifier('JIRKA_E2E_SCHEMA_SHARE'),
+                    SnowflakeQuote::quoteSingleIdentifier($table['name']),
+                )
+            );
+            print_r($result);
+        }
     }
 }
