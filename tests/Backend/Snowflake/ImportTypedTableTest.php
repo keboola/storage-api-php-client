@@ -57,13 +57,21 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
         // there are 3 rows 0,24,26
         $this->assertCount(3, $firstLoadData);
         $firstLoadZeroRow = null;
-        $firstLoadOtherRows = [];
+        $firstLoad24Row = null;
+        $firstLoad26Row = null;
         foreach ($firstLoadData as $row) {
             if ($row['id'] === '0') {
                 $firstLoadZeroRow = $row;
                 continue;
             }
-            $firstLoadOtherRows[] = $row;
+            if ($row['id'] === '24') {
+                $firstLoad24Row = $row;
+                continue;
+            }
+            if ($row['id'] === '26') {
+                $firstLoad26Row = $row;
+                continue;
+            }
         }
         $this->assertNotNull($firstLoadZeroRow);
 
@@ -94,13 +102,23 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
         // there are 3 new rows 1,11,25
         $this->assertCount(6, $secondLoadData);
         // there are 3 old rows 24,26 and 0 (0 is also not in incremental load)
-        // 24 and 26 have new timestamps
-        // 0 has old timestamp
+        // 24, 0 has old timestamp
+        // 26 have new timestamp because of changed value
         $secondLoadZeroRow = null;
+        $secondLoad24Row = null;
+        $secondLoad26Row = null;
         $secondLoadOtherRows = [];
         foreach ($secondLoadData as $row) {
             if ($row['id'] === '0') {
                 $secondLoadZeroRow = $row;
+                continue;
+            }
+            if ($row['id'] === '24') {
+                $secondLoad24Row = $row;
+                continue;
+            }
+            if ($row['id'] === '26') {
+                $secondLoad26Row = $row;
                 continue;
             }
             $secondLoadOtherRows[] = $row;
@@ -108,14 +126,16 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
         $this->assertNotNull($secondLoadZeroRow);
         // 0 id row is same including timestamp
         $this->assertSame($firstLoadZeroRow, $secondLoadZeroRow);
+        // 24 id row is same including timestamp it was in both increment and full and value did not changed
+        $this->assertSame($firstLoad24Row, $secondLoad24Row);
+        // 26 id has changed value and timestamp
+        $this->assertNotEquals($firstLoad26Row['_timestamp'], $secondLoad26Row['_timestamp']);
+        $this->assertNotEquals($firstLoad26Row['name'], $secondLoad26Row['name']);
+        // 26 timestamp is same as new rows from second load
+        $this->assertEquals($secondLoad26Row['_timestamp'], $secondLoadOtherRows[0]['_timestamp']);
         foreach ($secondLoadOtherRows as $row) {
-            // compare timestamps in all rows to be same as first row
-            // add delta just for case that all are not imported in same second
+            // all timestamps of other rows are same
             $this->assertEqualsWithDelta($secondLoadOtherRows[0]['_timestamp'], $row['_timestamp'], 1);
-            // compare timestamps in all rows not to be same as first row of first load
-            // this would not be true if table was not typed and timestamp would be update only for columns with changed values
-            // in this case that would be 26 czech->magyar
-            $this->assertNotEquals($firstLoadOtherRows[0]['_timestamp'], $row['_timestamp']);
         }
     }
 
