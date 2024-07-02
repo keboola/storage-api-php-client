@@ -15,6 +15,7 @@ use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationRowVersionsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
+use Keboola\StorageApi\Options\GlobalSearchOptions;
 use Keboola\Test\StorageApiTestCase;
 
 class BranchComponentTest extends StorageApiTestCase
@@ -116,6 +117,9 @@ class BranchComponentTest extends StorageApiTestCase
         }
     }
 
+    /**
+     * @group global-search
+     */
     public function testResetToDefault(): void
     {
         $providedToken = $this->_client->verifyToken();
@@ -126,11 +130,13 @@ class BranchComponentTest extends StorageApiTestCase
         // create new configurations in main branch
         $componentId = 'transformation';
         $configurationId = 'main-1';
+
+        $hashedConfigMain1Name = sha1($configurationId. '-'.$this->generateDescriptionForTestObject());
         $components = new Components($this->_client);
         $configurationOptions = (new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId($configurationId)
-            ->setName('Main 1')
+            ->setName($hashedConfigMain1Name)
             ->setConfiguration(['test' => 'false']);
 
         $components->addConfiguration($configurationOptions);
@@ -146,31 +152,67 @@ class BranchComponentTest extends StorageApiTestCase
         // will fail after consolidate branches
         $this->assertNotContains('isDisabled', $originalConfiguration);
 
+        $apiCall = fn() => $this->_client->globalSearch($hashedConfigMain1Name);
+        $assertCallback = function ($searchResult) use ($hashedConfigMain1Name) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('transformation', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedConfigMain1Name, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
+
         // create dev branch
         $branch = $devBranchClient->createBranch($branchName);
         $branchClient = $this->getBranchAwareDefaultClient($branch['id']);
         $branchComponents = new Components($branchClient);
         $originalConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
 
+        // test is indexed 2x for default and dev branch
+        $apiCall = fn() => $this->_client->globalSearch($hashedConfigMain1Name);
+        $assertCallback = function ($searchResult) use ($hashedConfigMain1Name) {
+            $this->assertSame(2, $searchResult['all']);
+            $this->assertSame('transformation', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedConfigMain1Name, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
         // If create a new branch, config should be the same, also version identifier
         $this->assertEquals(
             $this->withoutKeysChangingInBranch($originalConfiguration),
             $this->withoutKeysChangingInBranch($originalConfigurationInBranch),
         );
 
+        $hashedUpdatedMain1Name = sha1('MainUpdated-'.$this->generateDescriptionForTestObject());
         // update configuration in main branch (version 3)
         $components->updateConfiguration(
             $configurationOptions
-                ->setName('Main updated')
+                ->setName($hashedUpdatedMain1Name)
                 ->setConfiguration(['test' => 'true']),
         );
+        $apiCall = fn() => $this->_client->globalSearch($hashedUpdatedMain1Name);
+        $assertCallback = function ($searchResult) use ($hashedUpdatedMain1Name) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('transformation', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedUpdatedMain1Name, $searchResult['items'][0]['name']);
+            $this->assertTrue($searchResult['items'][0]['fullPath']['branch']['isDefault']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
 
+        $hashedUpdatedDevBranch1Name = sha1('DevUpdated-'.$this->generateDescriptionForTestObject());
         // update configuration in dev branch (version 2)
         $branchComponents->updateConfiguration(
             $configurationOptions
-                ->setName('Main updated in branch')
+                ->setName($hashedUpdatedDevBranch1Name)
                 ->setConfiguration(['test' => 'true in branch']),
         );
+
+        $apiCall = fn() => $this->_client->globalSearch($hashedUpdatedDevBranch1Name);
+        $assertCallback = function ($searchResult) use ($hashedUpdatedDevBranch1Name) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('transformation', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedUpdatedDevBranch1Name, $searchResult['items'][0]['name']);
+            $this->assertFalse($searchResult['items'][0]['fullPath']['branch']['isDefault']);
+        };
+
+        $this->retryWithCallback($apiCall, $assertCallback);
 
         $updatedConfiguration = $components->getConfiguration($componentId, $configurationId);
         $updatedConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
@@ -220,6 +262,14 @@ class BranchComponentTest extends StorageApiTestCase
         // reset to default
         $branchComponents->resetToDefault($componentId, $configurationId);
 
+        $apiCall = fn() => $this->_client->globalSearch($hashedUpdatedMain1Name);
+        $assertCallback = function ($searchResult) use ($hashedUpdatedMain1Name) {
+            $this->assertSame(2, $searchResult['all']);
+            $this->assertSame('transformation', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedUpdatedMain1Name, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
+
         $resetConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
 
         $this->assertSame(1, $resetConfigurationInBranch['version']);
@@ -235,8 +285,8 @@ class BranchComponentTest extends StorageApiTestCase
         $this->assertNotEquals($updatedConfiguration['created'], $resetConfigurationInBranch['created']);
 
         $this->assertSame(1, $resetConfigurationInBranch['version']);
-        $this->assertSame('Copied from default branch configuration "Main updated" (main-1) version 3', $resetConfigurationInBranch['changeDescription']);
-        $this->assertSame('Copied from default branch configuration "Main updated" (main-1) version 3', $resetConfigurationInBranch['currentVersion']['changeDescription']);
+        $this->assertSame(sprintf('Copied from default branch configuration "%s" (main-1) version 3', $hashedUpdatedMain1Name), $resetConfigurationInBranch['changeDescription']);
+        $this->assertSame(sprintf('Copied from default branch configuration "%s" (main-1) version 3', $hashedUpdatedMain1Name), $resetConfigurationInBranch['currentVersion']['changeDescription']);
 
         $this->assertCount(1, $resetConfigurationInBranch['rows']);
         $row = $resetConfigurationInBranch['rows'][0];
@@ -1137,17 +1187,23 @@ class BranchComponentTest extends StorageApiTestCase
         );
     }
 
+    /**
+     * @group global-search
+     */
     public function testDeleteBranchConfiguration(): void
     {
         // create new configurations in main branch
         $componentId = 'transformation';
         $components = new Components($this->_client);
 
+        $configurationName = 'Main 1 - ' . $this->generateDescriptionForTestObject();
+        $configurationHashedName = sha1($configurationName);
+
         $configurationData = ['x' => 'y'];
         $configurationOptions = (new Configuration())
             ->setComponentId($componentId)
             ->setConfigurationId('main-1')
-            ->setName('Main 1')
+            ->setName($configurationHashedName)
             ->setConfiguration($configurationData);
 
         $components->addConfiguration($configurationOptions);
@@ -1172,8 +1228,27 @@ class BranchComponentTest extends StorageApiTestCase
         );
         $this->assertCount(1, $configurations);
 
+        // configuration in dev branch is searchable
+        $apiCall1 = fn() => $this->_client->globalSearch($configurationHashedName, (new GlobalSearchOptions(null, null, null, null, null, [$branch['id']])));
+        $assertCallback1 = function ($searchResult) use ($configurationHashedName) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertArrayHasKey('id', $searchResult['items'][0]);
+            $this->assertArrayHasKey('type', $searchResult['items'][0]);
+            $this->assertEquals('transformation', $searchResult['items'][0]['type']);
+            $this->assertArrayHasKey('name', $searchResult['items'][0]);
+            $this->assertEquals($configurationHashedName, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall1, $assertCallback1);
+
         // delete dev branch configuration
         $branchComponents->deleteConfiguration($componentId, 'main-1');
+
+        // configuration in dev branch is no longer searchable
+        $apiCall2 = fn() => $this->_client->globalSearch($configurationHashedName, (new GlobalSearchOptions(null, null, null, null, null, [$branch['id']])));
+        $assertCallback2 = function ($searchResult) {
+            $this->assertSame(0, $searchResult['all']);
+        };
+        $this->retryWithCallback($apiCall2, $assertCallback2);
 
         $listConfigurationOptions = (new ListComponentConfigurationsOptions())->setComponentId($componentId);
         $configurations = $branchComponents->listComponentConfigurations($listConfigurationOptions);
