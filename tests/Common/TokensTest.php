@@ -560,9 +560,9 @@ class TokensTest extends StorageApiTestCase
 
         $refreshed = new \DateTime($token['refreshed']);
 
-        $this->assertIfTokenIsVisible($token, function () use ($tokenString, $token) {
+        if ($this->isTokenStringVisible($token)) {
             $this->assertNotEquals($tokenString, $token['token']);
-        });
+        }
 
         $this->assertGreaterThan($created->getTimestamp(), $refreshed->getTimestamp());
     }
@@ -1460,9 +1460,9 @@ class TokensTest extends StorageApiTestCase
         $client = $this->getClientForToken($token['token']);
 
         $oldTokenData = $client->verifyToken();
-        $this->assertIfTokenIsVisible($token, function () use ($token, $oldTokenData) {
+        if ($this->isTokenStringVisible($token)) {
             $this->assertTrue($token['token'] === $oldTokenData['token']);
-        });
+        }
         $this->assertSame($token['id'], $oldTokenData['id']);
 
         sleep(2);
@@ -1470,9 +1470,9 @@ class TokensTest extends StorageApiTestCase
         $client->refreshToken();
 
         $newTokenData = $client->verifyToken();
-        $this->assertIfTokenIsVisible($newTokenData, function () use ($token, $newTokenData) {
+        if ($this->isTokenStringVisible($newTokenData)) {
             $this->assertTrue($token['token'] !== $newTokenData['token']);
-        });
+        }
         $this->assertNotSame($oldTokenData['refreshed'], $newTokenData['refreshed']);
         $this->assertSame($token['id'], $newTokenData['id']);
 
@@ -1608,13 +1608,6 @@ class TokensTest extends StorageApiTestCase
             }
         } else {
             return array_key_exists('token', $token);
-        }
-    }
-
-    private function assertIfTokenIsVisible(array $token, callable $assertCallback): void
-    {
-        if ($this->isTokenStringVisible($token)) {
-            $assertCallback();
         }
     }
 }
