@@ -560,7 +560,10 @@ class TokensTest extends StorageApiTestCase
 
         $refreshed = new \DateTime($token['refreshed']);
 
-        $this->assertNotEquals($tokenString, $token['token']);
+        $this->assertIfTokenIsVisible($token, function () use ($tokenString, $token) {
+            $this->assertNotEquals($tokenString, $token['token']);
+        });
+
         $this->assertGreaterThan($created->getTimestamp(), $refreshed->getTimestamp());
     }
 
@@ -1457,7 +1460,9 @@ class TokensTest extends StorageApiTestCase
         $client = $this->getClientForToken($token['token']);
 
         $oldTokenData = $client->verifyToken();
-        $this->assertTrue($token['token'] === $oldTokenData['token']);
+        $this->assertIfTokenIsVisible($token, function () use ($token, $oldTokenData) {
+            $this->assertTrue($token['token'] === $oldTokenData['token']);
+        });
         $this->assertSame($token['id'], $oldTokenData['id']);
 
         sleep(2);
@@ -1465,7 +1470,9 @@ class TokensTest extends StorageApiTestCase
         $client->refreshToken();
 
         $newTokenData = $client->verifyToken();
-        $this->assertTrue($token['token'] !== $newTokenData['token']);
+        $this->assertIfTokenIsVisible($newTokenData, function () use ($token, $newTokenData) {
+            $this->assertTrue($token['token'] !== $newTokenData['token']);
+        });
         $this->assertNotSame($oldTokenData['refreshed'], $newTokenData['refreshed']);
         $this->assertSame($token['id'], $newTokenData['id']);
 
@@ -1576,6 +1583,38 @@ class TokensTest extends StorageApiTestCase
                 // when does not have hide feature token is shown
                 $this->assertArrayHasKey('token', $currentToken);
             }
+        }
+    }
+
+    private function isTokenStringVisible(array $token): bool
+    {
+        if (array_key_exists('owner', $token)) {
+            // master token
+            $owner = $token['owner'];
+            $this->assertArrayHasKey('features', $owner);
+            $features = $owner['features'];
+
+            if (in_array('force-decrypted-token', $features)) {
+                // when force is active must show token in any case
+                return true;
+            } else {
+                if (in_array('hide-decrypted-token', $features)) {
+                    // when has hide feature token is hidden
+                    return false;
+                } else {
+                    // when does not have hide feature token is shown
+                    return true;
+                }
+            }
+        } else {
+            return array_key_exists('token', $token);
+        }
+    }
+
+    private function assertIfTokenIsVisible(array $token, callable $assertCallback): void
+    {
+        if ($this->isTokenStringVisible($token)) {
+            $assertCallback();
         }
     }
 }
