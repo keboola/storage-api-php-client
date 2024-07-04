@@ -1460,7 +1460,7 @@ class TokensTest extends StorageApiTestCase
         $client = $this->getClientForToken($token['token']);
 
         $oldTokenData = $client->verifyToken();
-        if ($this->isTokenStringVisible($token)) {
+        if ($this->isTokenStringVisible($token) && $this->isTokenStringVisible($oldTokenData)) {
             $this->assertTrue($token['token'] === $oldTokenData['token']);
         }
         $this->assertSame($token['id'], $oldTokenData['id']);
@@ -1470,7 +1470,7 @@ class TokensTest extends StorageApiTestCase
         $client->refreshToken();
 
         $newTokenData = $client->verifyToken();
-        if ($this->isTokenStringVisible($newTokenData)) {
+        if ($this->isTokenStringVisible($token) && $this->isTokenStringVisible($newTokenData)) {
             $this->assertTrue($token['token'] !== $newTokenData['token']);
         }
         $this->assertNotSame($oldTokenData['refreshed'], $newTokenData['refreshed']);
