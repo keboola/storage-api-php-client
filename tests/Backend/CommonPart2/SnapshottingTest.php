@@ -73,7 +73,7 @@ class SnapshottingTest extends StorageApiTestCase
         $sourceTable = $this->_client->getTable($sourceTableId);
         $snapshotId = $this->_client->createTableSnapshot($sourceTableId);
 
-        $hashedUniqueTableName = sha1('new-table-'.$this->generateDescriptionForTestObject());
+        $hashedUniqueTableName = sha1(microtime().'-new-table-'.$this->generateDescriptionForTestObject());
         $newTableId = $this->_client->createTableFromSnapshot($this->getTestBucketId(), $snapshotId, $hashedUniqueTableName);
 
         $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);

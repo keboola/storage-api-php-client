@@ -251,7 +251,7 @@ class TimeTravelTest extends StorageApiTestCase
 
         $newTableName = 'new-table-name_' . date('Ymd_His', (int) strtotime($timestamp));
 
-        $hashedUniqueTableName = sha1($newTableName . '-'.$this->generateDescriptionForTestObject());
+        $hashedUniqueTableName = sha1(microtime() . $newTableName . '-'.$this->generateDescriptionForTestObject());
         $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
