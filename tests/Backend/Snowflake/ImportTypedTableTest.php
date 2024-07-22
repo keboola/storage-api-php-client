@@ -282,8 +282,9 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
 
         $payload = [
             'name' => 'exotic',
-            'primaryKeysNames' => [],
+            'primaryKeysNames' => ['id'],
             'columns' => [
+                ['name' => 'id', 'definition' => ['type' => 'INTEGER']],
                 ['name' => 'VARIANT', 'definition' => ['type' => 'VARIANT']],
                 ['name' => 'BINARY', 'definition' => ['type' => 'BINARY']],
                 ['name' => 'VARBINARY', 'definition' => ['type' => 'VARBINARY']],
@@ -307,7 +308,22 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
 
         $this->assertNotEmpty($table['dataSizeBytes']);
         $this->assertEquals($csvFile->getHeader(), $table['columns']);
+        $this->assertExpectedExoticDatatypesPreview($tableId);
 
+        // write same data to table incrementally
+        // this is only to check if it works
+        $this->_client->writeTableAsync(
+            $tableId,
+            $csvFile,
+            [
+                'incremental' => true,
+            ],
+        );
+        $this->assertExpectedExoticDatatypesPreview($tableId);
+    }
+
+    private function assertExpectedExoticDatatypesPreview(string $tableId): void
+    {
         /** @var array $data */
         $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
 
@@ -315,13 +331,18 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             [
                 [
                     [
+                        'columnName' => 'id',
+                        'value' => '1',
+                        'isTruncated' => false,
+                    ],
+                    [
                         'columnName' => 'ARRAY',
-                        'value' => '["[1,2,3,undefined]"]',
+                        'value' => '[1,2,3,undefined]',
                         'isTruncated' => false,
                     ],
                     [
                         'columnName' => 'VARIANT',
-                        'value' => '"3.14"',
+                        'value' => '3.14',
                         'isTruncated' => false,
                     ],
                     [
@@ -443,7 +464,13 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             );
             $this->fail('Should throw ClientException');
         } catch (ClientException $e) {
-            self::assertSame("Load error: An exception occurred while executing a query: String 'martin' cannot be inserted because it's bigger than column size", $e->getMessage());
+            self::assertStringMatchesFormat(<<<EOD
+Load error: An exception occurred while executing a query: User character length limit (1) exceeded by string 'martin'
+  File '%s.users.csv.gz', line 2, character 6
+  Row 1, column ""%s""["name":2]
+  If you would like to continue loading when an error is encountered, use other values such as 'SKIP_FILE' or 'CONTINUE' for the ON_ERROR option. For more information on loading options, please run 'info loading_data' in a SQL client.
+EOD
+                , $e->getMessage());
         }
 
         try {
@@ -457,7 +484,13 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
             );
             $this->fail('Should throw ClientException');
         } catch (ClientException $e) {
-            self::assertSame("Load error: An exception occurred while executing a query: String 'martin' cannot be inserted because it's bigger than column size", $e->getMessage());
+            self::assertStringMatchesFormat(<<<EOD
+Load error: An exception occurred while executing a query: User character length limit (1) exceeded by string 'martin'
+  File '%s.users.csv.gz', line 2, character 6
+  Row 1, column ""%s""["name":2]
+  If you would like to continue loading when an error is encountered, use other values such as 'SKIP_FILE' or 'CONTINUE' for the ON_ERROR option. For more information on loading options, please run 'info loading_data' in a SQL client.
+EOD
+                , $e->getMessage());
         }
     }
 }
