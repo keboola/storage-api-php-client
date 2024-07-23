@@ -57,7 +57,7 @@
 	},
 	"scripts": {
 		"phpcs": "phpcs -n .",
-		"phpcs-compatibility": "phpcs --config-set installed_paths vendor/phpcompatibility/php-compatibility && phpcs --ignore=*vendor/*,*cache/* -n . --standard=PHPCompatibility --runtime-set testVersion 7.4-8.1",
+		"phpcs-compatibility": "phpcs --config-set installed_paths vendor/phpcompatibility/php-compatibility && phpcs --ignore=*vendor/*,*cache/* -n . --standard=PHPCompatibility --runtime-set testVersion 8.1-8.3",
 		"phpcbf": "phpcbf -n .",
 		"phpstan": "phpstan analyse --no-progress --level=max . -c phpstan.neon",
 		"tests": "phpunit --testsuite=unit",
