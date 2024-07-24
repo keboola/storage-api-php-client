@@ -108,6 +108,15 @@ class IndexTest extends StorageApiTestCase
         $this->assertSame($expectedOutput, $responseColumnNames['columnNames']);
     }
 
+    /**
+     * @dataProvider validColumnNameData
+     */
+    public function testSuccessfullyValidateColumnNames(array $input, array $webalizedInput): void
+    {
+        $response = $this->_client->webalizeValidateColumnNames($webalizedInput);
+        $this->assertEmpty($response, 'When empty, everything is validated.');
+    }
+
     public function validColumnNameData(): Generator
     {
         yield 'all' => [

@@ -9007,6 +9007,39 @@ Webalize strings. Do not validate if you can use them in database column names.
             ]
         }
 
+### Webalize - Validate column names [POST /v2/storage/webalize/validate-column-names]
+Validate webalized strings if they can be used as column names. Column names can be used for example:
+- [creating a table](https://keboola.docs.apiary.io/#reference/tables/create-table-definition/create-new-table-definition)
+- [adding a column](https://keboola.docs.apiary.io/#reference/tables/create-table-column/add-column-to-table)
+
++ Attributes
+    + columnNames (required, array[string])
+
++ Request (application/json)
+
+    + Body
+
+            {
+                "columnNames": [
+                    "First$$Column-Name",
+                    "Second Column-Name"
+                ]
+            }
+
++ Response 204
+If all columns are valid
+
++ Response 422
+
+    + Body
+
+        {
+            [
+                ""First$$Column-Name" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.",
+                ""Second Column-Name" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed."
+            ]
+        }
+
 # Group Development Branches
 
 **EXPERIMENTAL**

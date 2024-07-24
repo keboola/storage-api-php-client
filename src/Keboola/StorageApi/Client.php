@@ -290,6 +290,14 @@ class Client
         );
     }
 
+    public function webalizeValidateColumnNames(array $columnNames)
+    {
+        return $this->apiPostJson(
+            'webalize/validate-column-names',
+            ['columnNames' => $columnNames],
+        );
+    }
+
     /**
      * Get UserAgent name
      *
