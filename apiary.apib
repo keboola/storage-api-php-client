@@ -8936,9 +8936,7 @@ and [buckets](https://keboola.docs.apiary.io/#reference/buckets/manage-bucket/bu
         }
 
 ### Webalize Column Names [POST /v2/storage/webalize/column-names]
-Webalize strings which you want to use as the column names for all API calls where the column name is used, for example:
-- [creating a table](https://keboola.docs.apiary.io/#reference/tables/create-table-definition/create-new-table-definition)
-- [adding a column](https://keboola.docs.apiary.io/#reference/tables/create-table-column/add-column-to-table)
+Webalize strings. Do not validate if you can use them in database column names.
 
 + Attributes
     + columnNames (required, array[string])
