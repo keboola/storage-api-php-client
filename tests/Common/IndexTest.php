@@ -10,7 +10,6 @@
 namespace Keboola\Test\Common;
 
 use Generator;
-use Keboola\Filter\Exception\InvalidValueProvidedException;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\IndexOptions;
 use Keboola\Test\StorageApiTestCase;
