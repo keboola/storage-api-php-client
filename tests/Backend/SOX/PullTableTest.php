@@ -336,7 +336,7 @@ class PullTableTest extends StorageApiTestCase
                 $this->assertSame('38,0', $defs[0]->getColumnDefinition()->getLength());
                 break;
             case self::BACKEND_BIGQUERY:
-                $this->assertSame('INT64', $defs[0]->getColumnDefinition()->getType());
+                $this->assertSame('INTEGER', $defs[0]->getColumnDefinition()->getType());
                 $this->assertNull($defs[0]->getColumnDefinition()->getLength());
                 break;
             default:
