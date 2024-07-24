@@ -121,6 +121,9 @@ class IndexTest extends StorageApiTestCase
                 '$$ some name $$',
                 '_MůjBucketíček',
                 'loremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmetloremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmet',
+                'oid',
+                base64_decode('AQIDBAUGBwgODxAREhMUFRYXGBkaGxwdHh9/'),
+                '----$$$$-----',
             ],
             [
                 'currency_EUR',
@@ -131,6 +134,9 @@ class IndexTest extends StorageApiTestCase
                 'some_name',
                 'MujBucketicek',
                 'loremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmetloremIps',
+                'oid',
+                '',
+                '',
             ],
         ];
     }
@@ -162,27 +168,6 @@ class IndexTest extends StorageApiTestCase
             'validation.failed',
             'Invalid request:
  - columnNames[0]: "This value should not be blank."',
-        ];
-        yield 'system column' => [
-            ['oid'],
-            422,
-            'storage.webalize.columnName.invalid',
-            'columnNames[0]: "oid" is a system column used by the database for internal purposes.',
-        ];
-        yield 'naughty string 1' => [
-            [base64_decode('AQIDBAUGBwgODxAREhMUFRYXGBkaGxwdHh9/')],
-            422,
-            'storage.webalize.columnName.invalid',
-            'columnNames[0]: "" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
-        ];
-        yield 'only special chars' => [
-            [
-                'new column',
-                '----$$$$-----',
-            ],
-            422,
-            'storage.webalize.columnName.invalid',
-            'columnNames[1]: "" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
         ];
     }
 }
