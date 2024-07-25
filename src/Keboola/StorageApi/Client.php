@@ -290,10 +290,10 @@ class Client
         );
     }
 
-    public function webalizeValidateColumnNames(array $columnNames)
+    public function validateColumnNames(array $columnNames)
     {
         return $this->apiPostJson(
-            'webalize/validate-column-names',
+            'validate/column-names',
             ['columnNames' => $columnNames],
         );
     }
