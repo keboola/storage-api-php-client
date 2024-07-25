@@ -466,7 +466,7 @@ class ImportTypedTableTest extends ParallelWorkspacesTestCase
         } catch (ClientException $e) {
             self::assertStringMatchesFormat(<<<EOD
 Load error: An exception occurred while executing a query: User character length limit (1) exceeded by string 'martin'
-  File '%s.users.csv.gz', line 2, character 6
+  File '%s', line 2, character 6
   Row 1, column ""%s""["name":2]
   If you would like to continue loading when an error is encountered, use other values such as 'SKIP_FILE' or 'CONTINUE' for the ON_ERROR option. For more information on loading options, please run 'info loading_data' in a SQL client.
 EOD
@@ -486,7 +486,7 @@ EOD
         } catch (ClientException $e) {
             self::assertStringMatchesFormat(<<<EOD
 Load error: An exception occurred while executing a query: User character length limit (1) exceeded by string 'martin'
-  File '%s.users.csv.gz', line 2, character 6
+  File '%s', line 2, character 6
   Row 1, column ""%s""["name":2]
   If you would like to continue loading when an error is encountered, use other values such as 'SKIP_FILE' or 'CONTINUE' for the ON_ERROR option. For more information on loading options, please run 'info loading_data' in a SQL client.
 EOD

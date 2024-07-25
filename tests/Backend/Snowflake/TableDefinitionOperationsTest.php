@@ -1092,8 +1092,13 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 'rowTooLarge',
                 $e->getStringCode(),
             );
-            $this->assertEquals(
-                'Load error: An exception occurred while executing a query: Numeric value \'123132456.1264654\' is out of range',
+            $this->assertStringMatchesFormat(
+                <<<EOD
+Load error: An exception occurred while executing a query: Numeric value '123132456.1264654' is out of range
+  File '%s', line 2, character 6
+  Row 1, column ""%s""["column_decimal":2]
+  If you would like to continue loading when an error is encountered, use other values such as 'SKIP_FILE' or 'CONTINUE' for the ON_ERROR option. For more information on loading options, please run 'info loading_data' in a SQL client.
+EOD,
                 $e->getMessage(),
             );
         }
