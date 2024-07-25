@@ -165,6 +165,89 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->assertCredentialsShouldNotWork($connection);
     }
 
+    public function testQueueWorkspaceCreate(): void
+    {
+        $async = true;
+        $this->initEvents($this->workspaceSapiClient);
+
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+
+        foreach ($this->listTestWorkspaces($this->_client) as $workspace) {
+            $workspaces->deleteWorkspace($workspace['id'], [], true);
+        }
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+        $this->workspaceSapiClient->setRunId($runId);
+
+        $jobId = $workspaces->queueCreateWorkspace([]);
+
+        $job = $this->_client->waitForJob($jobId);
+        $workspace = $job['results'];
+        $resetPasswordResponse = $workspaces->resetWorkspacePassword($workspace['id']);
+        $workspace = Workspaces::addCredentialsToWorkspaceResponse($workspace, $resetPasswordResponse);
+
+        /** @var array $connection */
+        $connection = $workspace['connection'];
+        $this->assertArrayHasKey('region', $connection);
+        $this->assertNotEmpty($connection['region']);
+        $workspaceWithSnowflakeBackend = $connection['backend'] === self::BACKEND_SNOWFLAKE;
+        $workspaceBackend = $connection['backend'];
+
+        $this->assertArrayHasKey('backendSize', $workspace);
+        if ($workspaceWithSnowflakeBackend) {
+            $this->assertNotEmpty($connection['warehouse']);
+            $this->assertSame('small', $workspace['backendSize']);
+        } else {
+            $this->assertNull($workspace['backendSize']);
+        }
+
+        switch ($workspaceBackend) {
+            case self::BACKEND_EXASOL:
+            case self::BACKEND_SNOWFLAKE: // when not specified, default is true (if feature is set = always)
+            case self::BACKEND_BIGQUERY:
+            case self::BACKEND_TERADATA:
+                $this->assertTrue(
+                    $workspace['readOnlyStorageAccess'],
+                    'readOnlyStorageAccess parameter has incorrect value',
+                );
+                break;
+            case self::BACKEND_SYNAPSE:
+            case self::BACKEND_REDSHIFT:
+                $this->assertFalse(
+                    $workspace['readOnlyStorageAccess'],
+                    'readOnlyStorageAccess parameter has incorrect value',
+                );
+                break;
+            default:
+                $this->fail(sprintf('Unexpected workspace backend "%s"', $workspaceBackend));
+        }
+
+        $tokenInfo = $this->_client->verifyToken();
+        $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        if ($workspaceWithSnowflakeBackend) {
+            $db = $backend->getDb();
+            assert($db instanceof Connection);
+            $grants = $db->fetchAll(sprintf('SHOW GRANTS TO ROLE "%s"', $connection['user']));
+            $grantsNames = array_map(function ($grant) {
+                return $grant['privilege'];
+            }, $grants);
+            $this->assertNotContains('CREATE STREAMLIT', $grantsNames);
+            $db = null; // force odbc disconnect
+        }
+        $backend->createTable('mytable', ['amount' => $this->getColumnAmountType($connection['backend'])]);
+
+        $tableNames = $backend->getTables();
+        $backend = null; // force odbc disconnect
+
+        $this->assertArrayHasKey('mytable', array_flip($tableNames));
+
+        $workspaces->deleteWorkspace($workspace['id'], [], true);
+    }
+
     public function testWorkspacePasswordReset(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);

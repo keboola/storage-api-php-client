@@ -28,18 +28,17 @@ class Workspaces
      */
     public function createWorkspace(array $options = [], bool $async = false)
     {
-        $url = 'workspaces';
-        $requestOptions = [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true];
-        if ($async) {
-            $url .= '?' . http_build_query(['async' => $async]);
-            $requestOptions = [];
-        }
-
-        $workspaceResponse = $this->client->apiPostJson($url, $options, true, $requestOptions);
+        $workspaceResponse = $this->internalCreateWorkspace($async, $options, true);
         assert(is_array($workspaceResponse));
 
         $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
         return Workspaces::addCredentialsToWorkspaceResponse($workspaceResponse, $resetPasswordResponse);
+    }
+
+    public function queueCreateWorkspace(array $options = []): int
+    {
+        $job = $this->internalCreateWorkspace(true, $options, false);
+        return (int) $job['id'];
     }
 
     /**
@@ -149,5 +148,17 @@ class Workspaces
                 $secret => $resetPasswordResponse[$secret],
             ],
         ]);
+    }
+
+    private function internalCreateWorkspace(bool $async, array $options, bool $handleAsyncTask): array
+    {
+        $url = 'workspaces';
+        $requestOptions = [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true];
+        if ($async) {
+            $url .= '?' . http_build_query(['async' => $async]);
+            $requestOptions = [];
+        }
+
+        return $this->client->apiPostJson($url, $options, $handleAsyncTask, $requestOptions);
     }
 }
