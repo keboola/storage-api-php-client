@@ -40,7 +40,8 @@ class SharingTestWithTypedTables extends StorageApiSharingTestCase
         $displayName = 'display-name-first';
         $this->_client->updateTable($tableId, ['displayName' => $displayName]);
 
-        $tableDefinition['name'] = 'languages-out';
+        $table2Name = 'languages-out';
+        $tableDefinition['name'] = $table2Name;
         $table2Id = $this->_client->createTableDefinition($bucketId, $tableDefinition);
 
         $metadataApi = new Metadata($this->_client);
@@ -63,6 +64,12 @@ class SharingTestWithTypedTables extends StorageApiSharingTestCase
             $table2Id,
             'languages-alias',
         );
+        // test that table definition is visible in source table of alias
+        $table2 = $this->_client->getTable($table2Id);
+        $alias = $this->_client->getTable($aliasTableId);
+        $this->assertArrayHasKey('definition', $table2);
+        $this->assertArrayHasKey('definition', $alias['sourceTable']);
+        $this->assertSame($table2['definition'], $alias['sourceTable']['definition']);
 
         $this->_client->shareOrganizationBucket($bucketId, true);
 
@@ -91,6 +98,12 @@ class SharingTestWithTypedTables extends StorageApiSharingTestCase
         $this->assertEquals($bucket['description'], $linkedBucket['description']);
 
         $this->assertTablesMetadata($bucketId, $linkedBucketId, true);
+
+        // test that table definition is visible in source table of lined table
+        $table2Linked = $this->_client2->getTable($linkedBucketId . '.' . $table2Name);
+        $this->assertArrayHasKey('definition', $table2);
+        $this->assertArrayHasKey('definition', $table2Linked['sourceTable']);
+        $this->assertSame($table2['definition'], $table2Linked['sourceTable']['definition']);
 
         // new import
         $this->_client->writeTableAsync(

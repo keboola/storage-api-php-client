@@ -3719,6 +3719,52 @@ Obtains information about a table.
                                 "timestamp": "2019-08-14T16:55:34+0200"
                             }
                         ]
+                    },
+                    "definition": {
+                        "primaryKeysNames": [],
+                        "columns": [
+                            {
+                                "name": "visit_id",
+                                "definition": {
+                                    "type": "VARCHAR",
+                                    "nullable": false,
+                                    "length": 16777216
+                                },
+                                "basetype": "STRING",
+                                "canBeFiltered": true,
+                            }
+                        ],
+                        "distribution": {
+                            "type": "ROUND_ROBIN",
+                            "distributionColumnsNames": ["visit_id"]
+                        },
+                        "index": {
+                            "type": "CLUSTERED INDEX",
+                            "indexColumnsNames": ["visit_id"]
+                        },
+                        "timePartitioning": {
+                            "type": "DAY",
+                            "expirationMs": 7776000000,
+                            "field": "visit_id"
+                        },
+                        "rangePartitioning": {
+                            "field": "visit_id",
+                            "range": {
+                                "start": 0,
+                                "end": 1000000,
+                                "interval": 1000
+                            }
+                        },
+                        "clustering": {
+                            "fields" : ["visit_id"]
+                        },
+                        "requirePartitionFilter": false,
+                        "partitions": {
+                            "partitionId": "1234",
+                            "rowsNumber": "10",
+                            "lastModifiedTime": "2022-12-13 00:09:25.604000 UTC",
+                            "storageTier": "ACTIVE"
+                        }
                     }
                 },
                 "aliasColumnsAutoSync": true,

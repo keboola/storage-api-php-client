@@ -244,6 +244,17 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
                 ],
             ],
         ], $tableDetail['definition']);
+
+        $aliasTableId = $this->_client->createAliasTable(
+            $this->getTestBucketId(self::STAGE_IN),
+            $tableDetail['id'],
+            'alias',
+        );
+
+        $alias = $this->_client->getTable($aliasTableId);
+        $this->assertArrayHasKey('definition', $tableDetail);
+        $this->assertArrayHasKey('definition', $alias['sourceTable']);
+        $this->assertSame($tableDetail['definition'], $alias['sourceTable']['definition']);
     }
 
     public function testPrimaryKeys(): void
