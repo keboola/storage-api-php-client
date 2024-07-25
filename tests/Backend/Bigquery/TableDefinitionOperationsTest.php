@@ -42,7 +42,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 [
                     'name' => 'id',
                     'definition' => [
-                        'type' => 'INT64',
+                        'type' => 'INTEGER',
                         'nullable' => false,
                     ],
                 ],
@@ -72,7 +72,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 [
                     'name' => 'id',
                     'definition' => [
-                        'type' => 'INT64',
+                        'type' => 'INTEGER',
                         'nullable' => false,
                     ],
                 ],
@@ -301,7 +301,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
                 [
                     'name' => 'id',
                     'definition' => [
-                        'type' => 'INT64',
+                        'type' => 'INTEGER',
                         'nullable' => false,
                     ],
                 ],
