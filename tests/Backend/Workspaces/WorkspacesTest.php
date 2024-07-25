@@ -165,6 +165,44 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->assertCredentialsShouldNotWork($connection);
     }
 
+    public function testQueueWorkspaceCreate(): void
+    {
+        $this->initEvents($this->workspaceSapiClient);
+
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+
+        foreach ($this->listTestWorkspaces($this->_client) as $workspace) {
+            $workspaces->deleteWorkspace($workspace['id'], [], true);
+        }
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+        $this->workspaceSapiClient->setRunId($runId);
+
+        $jobId = $workspaces->queueCreateWorkspace([]);
+
+        $job = $this->_client->waitForJob($jobId);
+        $this->assertNotNull($job);
+        $workspace = $job['results'];
+        $this->assertIsArray($workspace);
+        $this->assertArrayHasKey('id', $workspace);
+        $this->assertIsInt($workspace['id']);
+        $resetPasswordResponse = $workspaces->resetWorkspacePassword($workspace['id']);
+        $workspace = Workspaces::addCredentialsToWorkspaceResponse($workspace, $resetPasswordResponse);
+
+        /** @var array $connection */
+        $connection = $workspace['connection'];
+        $this->assertArrayHasKey('region', $connection);
+        $this->assertNotEmpty($connection['region']);
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->createTable('mytable', ['amount' => $this->getColumnAmountType($connection['backend'])]);
+        $tableNames = $backend->getTables();
+        $backend = null; // force odbc disconnect
+        $this->assertArrayHasKey('mytable', array_flip($tableNames));
+        $workspaces->deleteWorkspace($workspace['id'], [], true);
+    }
+
     public function testWorkspacePasswordReset(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
