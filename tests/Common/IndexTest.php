@@ -108,15 +108,6 @@ class IndexTest extends StorageApiTestCase
         $this->assertSame($expectedOutput, $responseColumnNames['columnNames']);
     }
 
-    /**
-     * @dataProvider validColumnNameData
-     */
-    public function testSuccessfullyValidateColumnNames(array $input, array $webalizedInput): void
-    {
-        $response = $this->_client->webalizeValidateColumnNames($webalizedInput);
-        $this->assertEmpty($response, 'When empty, everything is validated.');
-    }
-
     public function validColumnNameData(): Generator
     {
         yield 'all' => [
@@ -145,6 +136,64 @@ class IndexTest extends StorageApiTestCase
                 'oid',
                 '',
                 '',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider validWebalizedColumnNameData
+     */
+    public function testSuccessfullyValidateColumnNames(array $webalizedInput): void
+    {
+        $response = $this->_client->validateColumnNames($webalizedInput);
+        $this->assertEmpty($response, 'When empty, everything is validated.');
+    }
+
+    public function validWebalizedColumnNameData(): Generator
+    {
+        yield 'all' => [
+            [
+                'currency_EUR',
+                'eEsScCrRzZyYaAiIeE',
+                'lorem_EUR_EUR_dD_lL_ss_IPsum',
+                'muj_Bucket',
+                'account_EUR',
+                'some_name',
+                'MujBucketicek',
+                'loremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmetloremIps',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider invalidWebalizedColumnNameData
+     */
+    public function testInvalidColumnNames(array $columnNames): void
+    {
+        try {
+            $this->_client->validateColumnNames($columnNames);
+            $this->fail('Invalid columns should fail');
+        } catch (ClientException $exception) {
+            $expectedErrorMessages = [];
+            foreach ($columnNames as $columnName) {
+                $expectedErrorMessages[] = "\"{$columnName}\" is a system column used by the database for internal purposes.";
+            }
+            $errorMessages = $exception->getContextParams();
+            $this->assertEquals($expectedErrorMessages, $errorMessages);
+        }
+    }
+
+    public function invalidWebalizedColumnNameData(): Generator
+    {
+        yield 'all' => [
+            [
+                'oid',
+                'tableoid',
+                'xmin',
+                'cmin',
+                'xmax',
+                'cmax',
+                'ctid',
             ],
         ];
     }

@@ -5225,6 +5225,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:webalizeValidateColumnNames\\(\\) has no return type specified\\.$#"
+			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:validateColumnNames\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
