@@ -13,6 +13,7 @@ use Generator;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\IndexOptions;
 use Keboola\Test\StorageApiTestCase;
+use const PHP_EOL;
 
 class IndexTest extends StorageApiTestCase
 {
@@ -174,12 +175,20 @@ class IndexTest extends StorageApiTestCase
             $this->_client->validateColumnNames($columnNames);
             $this->fail('Invalid columns should fail');
         } catch (ClientException $exception) {
+            $expectedMessages = [];
             $expectedErrorMessages = [];
-            foreach ($columnNames as $columnName) {
-                $expectedErrorMessages[] = "\"{$columnName}\" is a system column used by the database for internal purposes.";
+            foreach ($columnNames as $key => $columnName) {
+                $key = sprintf('columnNames[%d]', $key);
+                $msg = sprintf('"%s" is a system column used by the database for internal purposes.', $columnName);
+                $expectedMessages[] = sprintf(' - %s: "%s"', $key, $msg);
+                $expectedErrorMessages[] = [
+                    'key' => $key,
+                    'message' => $msg,
+                ];
             }
-            $errorMessages = $exception->getContextParams();
-            $this->assertEquals($expectedErrorMessages, $errorMessages);
+            $expectedMessage = 'Invalid request:' . PHP_EOL . implode(PHP_EOL, $expectedMessages);
+            $this->assertEquals($expectedMessage, $exception->getMessage());
+            $this->assertEquals($expectedErrorMessages, $exception->getContextParams()['errors']);
         }
     }
 
