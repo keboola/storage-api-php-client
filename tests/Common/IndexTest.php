@@ -141,7 +141,7 @@ class IndexTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider validWebalizedColumnNameData
+     * @dataProvider validColumnNameDataForValidation
      */
     public function testSuccessfullyValidateColumnNames(array $webalizedInput): void
     {
@@ -149,7 +149,7 @@ class IndexTest extends StorageApiTestCase
         $this->assertEmpty($response, 'When empty, everything is validated.');
     }
 
-    public function validWebalizedColumnNameData(): Generator
+    public function validColumnNameDataForValidation(): Generator
     {
         yield 'all' => [
             [
@@ -166,7 +166,7 @@ class IndexTest extends StorageApiTestCase
     }
 
     /**
-     * @dataProvider invalidWebalizedColumnNameData
+     * @dataProvider invalidColumnNameDataForValidation
      */
     public function testInvalidColumnNames(array $columnNames): void
     {
@@ -183,7 +183,7 @@ class IndexTest extends StorageApiTestCase
         }
     }
 
-    public function invalidWebalizedColumnNameData(): Generator
+    public function invalidColumnNameDataForValidation(): Generator
     {
         yield 'all' => [
             [
