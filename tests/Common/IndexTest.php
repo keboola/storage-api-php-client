@@ -169,7 +169,7 @@ class IndexTest extends StorageApiTestCase
     /**
      * @dataProvider invalidColumnNameDataForValidation
      */
-    public function testInvalidColumnNames(array $columnNames): void
+    public function testInvalidColumnNames(array $columnNames, array $validationErrorMessages): void
     {
         try {
             $this->_client->validateColumnNames($columnNames);
@@ -177,13 +177,12 @@ class IndexTest extends StorageApiTestCase
         } catch (ClientException $exception) {
             $expectedMessages = [];
             $expectedErrorMessages = [];
-            foreach ($columnNames as $key => $columnName) {
-                $key = sprintf('columnNames[%d]', $key);
-                $msg = sprintf('"%s" is a system column used by the database for internal purposes.', $columnName);
-                $expectedMessages[] = sprintf(' - %s: "%s"', $key, $msg);
+            foreach ($validationErrorMessages as $key => $errorMessage) {
+                $keyName = sprintf('columnNames[%d]', $key);
+                $expectedMessages[] = sprintf(' - %s: "%s"', $keyName, $errorMessage);
                 $expectedErrorMessages[] = [
-                    'key' => $key,
-                    'message' => $msg,
+                    'key' => $keyName,
+                    'message' => $errorMessage,
                 ];
             }
             $expectedMessage = 'Invalid request:' . PHP_EOL . implode(PHP_EOL, $expectedMessages);
@@ -203,6 +202,35 @@ class IndexTest extends StorageApiTestCase
                 'xmax',
                 'cmax',
                 'ctid',
+                'currency €',
+                'ěĚšŠčČřŘžŽýÝáÁíÍéÉ',
+                'lorem &@€\\#˝´˙`˛°˘^ˇ~€||\đĐ[]łŁ}{{@@&##<>*$ß¤×÷¸¨ IPsum',
+                'muj Bucket',
+                'account € & $',
+                '$$ some name $$',
+                '_MůjBucketíček',
+                'loremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmetloremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmet',
+                base64_decode('AQIDBAUGBwgODxAREhMUFRYXGBkaGxwdHh9/'),
+                '----$$$$-----',
+            ],
+            [
+                '"oid" is a system column used by the database for internal purposes.',
+                '"tableoid" is a system column used by the database for internal purposes.',
+                '"xmin" is a system column used by the database for internal purposes.',
+                '"cmin" is a system column used by the database for internal purposes.',
+                '"xmax" is a system column used by the database for internal purposes.',
+                '"cmax" is a system column used by the database for internal purposes.',
+                '"ctid" is a system column used by the database for internal purposes.',
+                '"currency €" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+                '"ěĚšŠčČřŘžŽýÝáÁíÍéÉ" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+                '"lorem &@€\#˝´˙`˛°˘^ˇ~€||\đĐ[]łŁ}{{@@&##<>*$ß¤×÷¸¨ IPsum" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+                '"muj Bucket" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+                '"account € & $" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+                '"$$ some name $$" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+                '"_MůjBucketíček" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+                'Column name cannot be longer than 64 characters.',
+                '"'.base64_decode('AQIDBAUGBwgODxAREhMUFRYXGBkaGxwdHh9/').'" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+                '"----$$$$-----" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
             ],
         ];
     }
