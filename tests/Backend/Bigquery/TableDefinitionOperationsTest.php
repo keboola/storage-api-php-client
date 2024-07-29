@@ -2062,6 +2062,14 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
 
     public function failedOperationsProvider(): Generator
     {
+        yield 'set as required' => [
+            'decrease_precision',
+            [
+                'nullable' => false,
+            ],
+            'Invalid request:
+ - nullable: "BigQuery column cannot be set as required"',
+        ];
         yield 'decrease_length' => [
             'decrease_length',
             [
