@@ -82,6 +82,20 @@ class Workspaces
 
     /**
      * @param int $id
+     * @return int jobId
+     */
+    public function queueDeleteWorkspace($id)
+    {
+        $url = sprintf('workspaces/%s', $id);
+        $url .= '?' . http_build_query(['async' => true]);
+        $job = $this->client->apiDelete($url, false);
+        assert(is_array($job));
+        assert(array_key_exists('id', $job));
+        return (int) $job['id'];
+    }
+
+    /**
+     * @param int $id
      * @param array $options input[mappings] (required), preserve (optional)
      * @return void
      */

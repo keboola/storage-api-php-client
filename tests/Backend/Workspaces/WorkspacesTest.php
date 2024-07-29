@@ -365,6 +365,38 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         }
     }
 
+    public function testQueueDropWorkspace(): void
+    {
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+
+        foreach ($this->listTestWorkspaces($this->_client) as $workspace) {
+            $workspaces->deleteWorkspace($workspace['id'], [], true);
+        }
+
+        $runId = $this->_client->generateRunId();
+        $this->workspaceSapiClient->setRunId($runId);
+
+        $workspace = $workspaces->createWorkspace([], true);
+        $connection = $workspace['connection'];
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $backend->createTable('mytable', ['amount' => $this->getColumnAmountType($connection['backend'])]);
+
+        if ($backend instanceof TeradataWorkspaceBackend) {
+            // Teradata: cannot drop workspace if user is logged in
+            $backend->disconnect();
+        }
+
+        // always async
+        $jobId = $workspaces->queueDeleteWorkspace($workspace['id']);
+
+        $job = $this->_client->waitForJob($jobId);
+        assert($job !== null);
+        $this->assertEquals('workspaceDrop', $job['operationName']);
+    }
+
+
     /**
      * @dataProvider dropOptions
      */
