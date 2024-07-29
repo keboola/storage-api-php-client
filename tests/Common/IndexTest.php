@@ -13,6 +13,7 @@ use Generator;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\IndexOptions;
 use Keboola\Test\StorageApiTestCase;
+use const PHP_EOL;
 
 class IndexTest extends StorageApiTestCase
 {
@@ -136,6 +137,100 @@ class IndexTest extends StorageApiTestCase
                 'oid',
                 '',
                 '',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider validColumnNameDataForValidation
+     */
+    public function testSuccessfullyValidateColumnNames(array $webalizedInput): void
+    {
+        $response = $this->_client->validateColumnNames($webalizedInput);
+        $this->assertEmpty($response, 'When empty, everything is validated.');
+    }
+
+    public function validColumnNameDataForValidation(): Generator
+    {
+        yield 'all' => [
+            [
+                'currency_EUR',
+                'eEsScCrRzZyYaAiIeE',
+                'lorem_EUR_EUR_dD_lL_ss_IPsum',
+                'muj_Bucket',
+                'account_EUR',
+                'some_name',
+                'MujBucketicek',
+                'loremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmetloremIps',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider invalidColumnNameDataForValidation
+     */
+    public function testInvalidColumnNames(array $columnNames, array $validationErrorMessages): void
+    {
+        try {
+            $this->_client->validateColumnNames($columnNames);
+            $this->fail('Invalid columns should fail');
+        } catch (ClientException $exception) {
+            $expectedMessages = [];
+            $expectedErrorMessages = [];
+            foreach ($validationErrorMessages as $key => $errorMessage) {
+                $keyName = sprintf('columnNames[%d]', $key);
+                $expectedMessages[] = sprintf(' - %s: "%s"', $keyName, $errorMessage);
+                $expectedErrorMessages[] = [
+                    'key' => $keyName,
+                    'message' => $errorMessage,
+                ];
+            }
+            $expectedMessage = 'Invalid request:' . PHP_EOL . implode(PHP_EOL, $expectedMessages);
+            $this->assertEquals($expectedMessage, $exception->getMessage());
+            $this->assertEquals($expectedErrorMessages, $exception->getContextParams()['errors']);
+        }
+    }
+
+    public function invalidColumnNameDataForValidation(): Generator
+    {
+        yield 'all' => [
+            [
+                'oid',
+                'tableoid',
+                'xmin',
+                'cmin',
+                'xmax',
+                'cmax',
+                'ctid',
+                'currency €',
+                'ěĚšŠčČřŘžŽýÝáÁíÍéÉ',
+                'lorem &@€\\#˝´˙`˛°˘^ˇ~€||\đĐ[]łŁ}{{@@&##<>*$ß¤×÷¸¨ IPsum',
+                'muj Bucket',
+                'account € & $',
+                '$$ some name $$',
+                '_MůjBucketíček',
+                'loremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmetloremIpsumDolorSitAmetWhateverNextLoremIpsumDolorSitAmet',
+                base64_decode('AQIDBAUGBwgODxAREhMUFRYXGBkaGxwdHh9/'),
+                '----$$$$-----',
+            ],
+            [
+                '"oid" is a system column used by the database for internal purposes.',
+                '"tableoid" is a system column used by the database for internal purposes.',
+                '"xmin" is a system column used by the database for internal purposes.',
+                '"cmin" is a system column used by the database for internal purposes.',
+                '"xmax" is a system column used by the database for internal purposes.',
+                '"cmax" is a system column used by the database for internal purposes.',
+                '"ctid" is a system column used by the database for internal purposes.',
+                '"currency €" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+                '"ěĚšŠčČřŘžŽýÝáÁíÍéÉ" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+                '"lorem &@€\#˝´˙`˛°˘^ˇ~€||\đĐ[]łŁ}{{@@&##<>*$ß¤×÷¸¨ IPsum" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+                '"muj Bucket" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+                '"account € & $" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+                '"$$ some name $$" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+                '"_MůjBucketíček" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+                'Column name cannot be longer than 64 characters.',
+                '"'.base64_decode('AQIDBAUGBwgODxAREhMUFRYXGBkaGxwdHh9/').'" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
+                '"----$$$$-----" contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
             ],
         ];
     }

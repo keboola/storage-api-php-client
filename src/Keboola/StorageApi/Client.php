@@ -290,6 +290,14 @@ class Client
         );
     }
 
+    public function validateColumnNames(array $columnNames)
+    {
+        return $this->apiPostJson(
+            'validate/column-names',
+            ['columnNames' => $columnNames],
+        );
+    }
+
     /**
      * Get UserAgent name
      *
