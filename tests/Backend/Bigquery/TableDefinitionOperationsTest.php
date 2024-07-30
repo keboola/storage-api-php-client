@@ -1881,7 +1881,6 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                 'nullable' => false,
             ],
         );
-        $tableDetail = $this->_client->getTable($tableId);
         // nullable -> nullable
         $this->_client->updateTableColumnDefinition(
             $tableId,
@@ -1890,7 +1889,6 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                 'nullable' => true,
             ],
         );
-        $tableDetail = $this->_client->getTable($tableId);
         //add nullable
         $this->_client->updateTableColumnDefinition(
             $tableId,
@@ -1942,7 +1940,6 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                 'basetype' => 'NUMERIC',
                 'canBeFiltered' => true,
             ],
-            //drop nullable - won't have any affect because in BQ nullable->required is not possible
             [
                 'name' => 'longint_nullable',
                 'definition' => [
