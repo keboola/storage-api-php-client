@@ -1889,7 +1889,8 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                 'nullable' => true,
             ],
         );
-        //add nullable
+        // add nullable
+        // - actual change which is allowed. Drop nullable is not allowed -> testInvalidUpdateTableDefinition
         $this->_client->updateTableColumnDefinition(
             $tableId,
             'longint_non_nullable',
