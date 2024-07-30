@@ -2871,7 +2871,7 @@ class Client
      */
     public function apiDelete($url, bool $handleAsyncTask = true)
     {
-        return $this->request('DELETE', $url, [], null, $handleAsyncTask);
+        return $this->request('DELETE', $url, handleAsyncTask: $handleAsyncTask);
     }
 
     /**
