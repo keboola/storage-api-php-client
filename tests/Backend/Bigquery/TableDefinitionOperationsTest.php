@@ -1824,7 +1824,7 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                         'length' => '12,1',
                     ],
                 ],
-                //drop nullable
+                // nullable
                 [
                     'name' => 'longint_nullable',
                     'definition' => [
@@ -1873,20 +1873,30 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                 'default' => null,
             ],
         );
+        // required -> required
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'longint_non_nullable',
+            [
+                'nullable' => false,
+            ],
+        );
+        $tableDetail = $this->_client->getTable($tableId);
+        // nullable -> nullable
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'longint_nullable',
+            [
+                'nullable' => true,
+            ],
+        );
+        $tableDetail = $this->_client->getTable($tableId);
         //add nullable
         $this->_client->updateTableColumnDefinition(
             $tableId,
             'longint_non_nullable',
             [
                 'nullable' => true,
-            ],
-        );
-        //drop nullable
-        $this->_client->updateTableColumnDefinition(
-            $tableId,
-            'longint_nullable',
-            [
-                'nullable' => false,
             ],
         );
         //increase length of text column
