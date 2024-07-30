@@ -1824,7 +1824,7 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                         'length' => '12,1',
                     ],
                 ],
-                //drop nullable
+                // nullable
                 [
                     'name' => 'longint_nullable',
                     'definition' => [
@@ -1873,20 +1873,29 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                 'default' => null,
             ],
         );
-        //add nullable
+        // required -> required
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'longint_non_nullable',
+            [
+                'nullable' => false,
+            ],
+        );
+        // nullable -> nullable
+        $this->_client->updateTableColumnDefinition(
+            $tableId,
+            'longint_nullable',
+            [
+                'nullable' => true,
+            ],
+        );
+        // add nullable
+        // - actual change which is allowed. Drop nullable is not allowed -> testInvalidUpdateTableDefinition
         $this->_client->updateTableColumnDefinition(
             $tableId,
             'longint_non_nullable',
             [
                 'nullable' => true,
-            ],
-        );
-        //drop nullable
-        $this->_client->updateTableColumnDefinition(
-            $tableId,
-            'longint_nullable',
-            [
-                'nullable' => false,
             ],
         );
         //increase length of text column
@@ -1932,7 +1941,6 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                 'basetype' => 'NUMERIC',
                 'canBeFiltered' => true,
             ],
-            //drop nullable - won't have any affect because in BQ nullable->required is not possible
             [
                 'name' => 'longint_nullable',
                 'definition' => [
@@ -2062,6 +2070,14 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
 
     public function failedOperationsProvider(): Generator
     {
+        yield 'set as required' => [
+            'decrease_precision',
+            [
+                'nullable' => false,
+            ],
+            'Invalid request:
+ - nullable: "BigQuery column cannot be set as required"',
+        ];
         yield 'decrease_length' => [
             'decrease_length',
             [

@@ -2602,7 +2602,7 @@ Supported alterations:
 
 + Attributes
     + length (string) - optional, supports numeric value for all columns (e.g. `12`) and complex length for numeric columns (e.g. `12,2`)
-    + nullable (boolean) - optional
+    + nullable (boolean) - optional, on BigQuery operation "set as required" (nullable=true -> nullable=false) is not allowed
     + default (string) - optional, default value for column, null unsets default value
 
 + Request (application/json)
