@@ -2866,11 +2866,12 @@ class Client
 
     /**
      * @param string $url
+     * @param bool $handleAsyncTask
      * @return mixed|string
      */
-    public function apiDelete($url)
+    public function apiDelete($url, bool $handleAsyncTask = true)
     {
-        return $this->request('DELETE', $url);
+        return $this->request('DELETE', $url, handleAsyncTask: $handleAsyncTask);
     }
 
     /**
