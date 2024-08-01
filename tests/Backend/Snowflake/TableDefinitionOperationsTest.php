@@ -1827,6 +1827,16 @@ EOD,
                 'basetype' => 'STRING',
                 'canBeFiltered' => false,
             ],
+            [
+                'name' => 'vector',
+                'definition' => [
+                    'type' => 'VECTOR',
+                    'nullable' => true,
+                    'length' => 'INT, 3',
+                ],
+                'basetype' => 'STRING',
+                'canBeFiltered' => false,
+            ],
         ], $table['definition']['columns']);
 
         $this->_client->writeTableAsyncDirect($tableId, [
@@ -2839,6 +2849,11 @@ EOD,
                     'isTruncated' => false,
                 ],
                 [
+                    'columnName' => 'vector',
+                    'value' => '[1,2,3]',
+                    'isTruncated' => false,
+                ],
+                [
                     'columnName' => 'variant',
                     'value' => '3.14',
                     'isTruncated' => false,
@@ -2870,7 +2885,7 @@ EOD,
     private function getTableDefinitionExoticDatatypes(): array
     {
         return [
-            'name' => 'my-new-table-for_data_preview',
+            'name' => 'my-new-table-for_data_preview'.md5(strtotime('NOW')),
             'primaryKeysNames' => [],
             'columns' => [
                 [
@@ -2884,6 +2899,13 @@ EOD,
                     'name' => 'array',
                     'definition' => [
                         'type' => 'ARRAY',
+                    ],
+                ],
+                [
+                    'name' => 'vector',
+                    'definition' => [
+                        'type' => 'VECTOR',
+                        'length' => 'INT,3',
                     ],
                 ],
                 [
@@ -2937,6 +2959,7 @@ EOD,
             new ColumnCollection([
                 new SnowflakeColumn('id', new Snowflake('INT')),
                 new SnowflakeColumn('array', new Snowflake('ARRAY')),
+                new SnowflakeColumn('vector', new Snowflake('VECTOR', ['length' => 'INT,3'])),
                 new SnowflakeColumn('variant', new Snowflake('VARIANT')),
                 new SnowflakeColumn('object', new Snowflake('OBJECT')),
                 new SnowflakeColumn('binary', new Snowflake('BINARY')),
@@ -2948,8 +2971,8 @@ EOD,
         $backend->executeQuery(sprintf(
         /** @lang Snowflake */
             '
-INSERT INTO "%s"."test_exotic_datatypes" ("id", "array", "variant", "object", "binary", "geography", "geometry") 
-SELECT 2, ARRAY_CONSTRUCT(1, 2, 3, NULL), TO_VARIANT(\'3.14\'), OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT), TO_CHAR(\'123abc\'), \'POINT(-122.35 37.55)\', \'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))\'; 
+INSERT INTO "%s"."test_exotic_datatypes" ("id", "array", "vector", "variant", "object", "binary", "geography", "geometry") 
+SELECT 2, ARRAY_CONSTRUCT(1, 2, 3, NULL), [1,2,3]::VECTOR(INT,3), TO_VARIANT(\'3.14\'), OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT), TO_CHAR(\'123abc\'), \'POINT(-122.35 37.55)\', \'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))\'; 
 ;',
             $workspace['connection']['schema'],
         ));
