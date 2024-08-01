@@ -1772,6 +1772,16 @@ EOD,
                 'canBeFiltered' => false,
             ],
             [
+                'name' => 'vector',
+                'definition' => [
+                    'type' => 'VECTOR',
+                    'nullable' => true,
+                    'length' => 'INT,3',
+                ],
+                'basetype' => 'STRING',
+                'canBeFiltered' => false,
+            ],
+            [
                 'name' => 'binary',
                 'definition' => [
                     'type' => 'BINARY',
@@ -2887,6 +2897,13 @@ EOD,
                     ],
                 ],
                 [
+                    'name' => 'vector',
+                    'definition' => [
+                        'type' => 'VECTOR',
+                        'length' => 'INT,3',
+                    ],
+                ],
+                [
                     'name' => 'variant',
                     'definition' => [
                         'type' => 'VARIANT',
@@ -2937,6 +2954,7 @@ EOD,
             new ColumnCollection([
                 new SnowflakeColumn('id', new Snowflake('INT')),
                 new SnowflakeColumn('array', new Snowflake('ARRAY')),
+                new SnowflakeColumn('vector', new Snowflake('VECTOR', ['length' => 'INT,3'])),
                 new SnowflakeColumn('variant', new Snowflake('VARIANT')),
                 new SnowflakeColumn('object', new Snowflake('OBJECT')),
                 new SnowflakeColumn('binary', new Snowflake('BINARY')),
@@ -2948,8 +2966,8 @@ EOD,
         $backend->executeQuery(sprintf(
         /** @lang Snowflake */
             '
-INSERT INTO "%s"."test_exotic_datatypes" ("id", "array", "variant", "object", "binary", "geography", "geometry") 
-SELECT 2, ARRAY_CONSTRUCT(1, 2, 3, NULL), TO_VARIANT(\'3.14\'), OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT), TO_CHAR(\'123abc\'), \'POINT(-122.35 37.55)\', \'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))\'; 
+INSERT INTO "%s"."test_exotic_datatypes" ("id", "array", "vector", "variant", "object", "binary", "geography", "geometry") 
+SELECT 2, ARRAY_CONSTRUCT(1, 2, 3, NULL), [1,2,3]::VECTOR(INT,3), TO_VARIANT(\'3.14\'), OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT), TO_CHAR(\'123abc\'), \'POINT(-122.35 37.55)\', \'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))\'; 
 ;',
             $workspace['connection']['schema'],
         ));
