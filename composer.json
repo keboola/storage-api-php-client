@@ -1,6 +1,6 @@
 {
 	"name": "keboola/storage-api-client",
-	"description": "Keboola Storage API PHP CLient",
+	"description": "Keboola Storage API PHP Client",
 	"homepage": "http://keboola.com",
 	"license": "MIT",
 	"config": {
