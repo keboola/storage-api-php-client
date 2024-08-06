@@ -25,6 +25,11 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
     /** @var Client */
     protected $shareClient;
 
+    /**
+     * @var Client
+     */
+    protected $linkingClient;
+
     public function setUp(): void
     {
         parent::setUp();
