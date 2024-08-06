@@ -90,5 +90,12 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
         $tables = $this->_client->listTables('in.test-bucket-registration');
         $this->assertCount(1, $tables);
         $this->_client->refreshBucket('in.test-bucket-registration');
+
+        $db->executeQuery(
+            sprintf(
+                'DROP DATABASE %s;',
+                SnowflakeQuote::quoteSingleIdentifier(self::TESTDB),
+            ),
+        );
     }
 }
