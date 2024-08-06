@@ -551,8 +551,9 @@ abstract class StorageApiTestCase extends ClientTestCase
     /**
      * @param Client $client
      * @param string $testBucketId
+     * @param bool $async
      */
-    public function forceUnshareBucketIfExists($client, $testBucketId, $async = false)
+    public function forceUnshareBucketIfExists($client, $testBucketId, $async = false): void
     {
         if ($client->bucketExists($testBucketId) && $client->isSharedBucket($testBucketId)) {
             $bucket = $client->getBucket($testBucketId);
