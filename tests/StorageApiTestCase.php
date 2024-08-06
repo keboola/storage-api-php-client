@@ -548,6 +548,31 @@ abstract class StorageApiTestCase extends ClientTestCase
         }
     }
 
+    /**
+     * @param Client $client
+     * @param string $testBucketId
+     */
+    public function forceUnshareBucketIfExists($client, $testBucketId, $async = false)
+    {
+        if ($client->bucketExists($testBucketId) && $client->isSharedBucket($testBucketId)) {
+            $bucket = $client->getBucket($testBucketId);
+            if (array_key_exists('linkedBy', $bucket)) {
+                foreach ($bucket['linkedBy'] as $linkedBucket) {
+                    try {
+                        $client->forceUnlinkBucket(
+                            $bucket['id'],
+                            $linkedBucket['project']['id'],
+                            ['async' => $async],
+                        );
+                    } catch (\Keboola\StorageApi\ClientException $e) {
+                        $this->throwExceptionIfNotDeleted($e);
+                    }
+                }
+            }
+            $client->unshareBucket($bucket['id'], $async);
+        }
+    }
+
     protected function findLastEvent(Client $client, array $filter)
     {
         $this->createAndWaitForEvent(
