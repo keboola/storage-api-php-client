@@ -44,12 +44,10 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
 
     public function testShareExternalBucket(): void
     {
-        $STAGE = 'in';
-        $BUCKET_NAME = 'test-bucket-ext-share';
+        $stage = 'in';
+        $bucketName = 'test-bucket-ext-share';
 
-        $this->dropBucketIfExists($this->_client, $STAGE.'.'.$BUCKET_NAME, true);
-
-        $this->initEvents($this->_client);
+        $this->dropBucketIfExists($this->_client, $stage.'.'.$bucketName, true);
 
         $guide = $this->_client->registerBucketGuide([self::EXTERNAL_DB, self::EXTERNAL_SCHEMA], 'snowflake');
 
@@ -103,30 +101,29 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
             }
         }
 
-        $this->_client->registerBucket(
-            $BUCKET_NAME,
+        $registeredBucketId = $this->_client->registerBucket(
+            $bucketName,
             [self::EXTERNAL_DB, self::EXTERNAL_SCHEMA],
-            $STAGE,
+            $stage,
             'will not fail',
             'snowflake',
-            $BUCKET_NAME,
+            $bucketName,
         );
 
-        $tables = $this->_client->listTables($STAGE.'.'.$BUCKET_NAME);
+        $tables = $this->_client->listTables($stage.'.'.$bucketName);
         $this->assertCount(1, $tables);
-        $bucket = $this->_client->refreshBucket($STAGE.'.'.$BUCKET_NAME);
 
         $shareToken = $this->linkingClient->verifyToken();
         $targetProjectId = $shareToken['owner']['id'];
 
-        $this->shareClient->shareBucketToProjects($bucket['id'], [$targetProjectId]);
+        $this->shareClient->shareBucketToProjects($registeredBucketId, [$targetProjectId]);
 
-        $sharedBucket = $this->_client->getBucket($bucket['id']);
+        $sharedBucket = $this->_client->getBucket($registeredBucketId);
         $this->assertEquals('specific-projects', $sharedBucket['sharing']);
         $this->assertEquals($targetProjectId, $sharedBucket['sharingParameters']['projects'][0]['id']);
 
-        $this->shareClient->unshareBucket($bucket['id']);
-        $unsharedBucket = $this->_client->getBucket($bucket['id']);
+        $this->shareClient->unshareBucket($registeredBucketId);
+        $unsharedBucket = $this->_client->getBucket($registeredBucketId);
         $this->assertNull($unsharedBucket['sharing']);
 
         $db->executeQuery(
@@ -139,12 +136,10 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
 
     public function testShareWorkspaceBucket(): void
     {
-        $STAGE = 'in';
-        $BUCKET_NAME = 'test-bucket-workspace-share';
+        $stage = 'in';
+        $bucketName = 'test-bucket-workspace-share';
 
-        $this->dropBucketIfExists($this->_client, $STAGE.'.'.$BUCKET_NAME, true);
-
-        $this->initEvents($this->_client);
+        $this->dropBucketIfExists($this->_client, $stage.'.'.$bucketName, true);
 
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace([], true);
@@ -152,30 +147,29 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
 
         $backend->createTable('WORKSPACE_TABLE', ['id' => 'INT', 'description' => 'STRING']);
 
-        $this->_client->registerBucket(
-            $BUCKET_NAME,
+        $registeredBucketId = $this->_client->registerBucket(
+            $bucketName,
             [$workspace['connection']['database'], $workspace['connection']['schema']],
-            $STAGE,
+            $stage,
             'I\'am in workspace',
             'snowflake',
-            $BUCKET_NAME,
+            $bucketName,
         );
 
-        $tables = $this->_client->listTables($STAGE.'.'.$BUCKET_NAME);
+        $tables = $this->_client->listTables($stage.'.'.$bucketName);
         $this->assertCount(1, $tables);
-        $bucket = $this->_client->refreshBucket($STAGE.'.'.$BUCKET_NAME);
 
         $shareToken = $this->linkingClient->verifyToken();
         $targetProjectId = $shareToken['owner']['id'];
 
-        $this->shareClient->shareBucketToProjects($bucket['id'], [$targetProjectId]);
+        $this->shareClient->shareBucketToProjects($registeredBucketId, [$targetProjectId]);
 
-        $sharedBucket = $this->_client->getBucket($bucket['id']);
+        $sharedBucket = $this->_client->getBucket($registeredBucketId);
         $this->assertEquals('specific-projects', $sharedBucket['sharing']);
         $this->assertEquals($targetProjectId, $sharedBucket['sharingParameters']['projects'][0]['id']);
 
-        $this->shareClient->unshareBucket($bucket['id']);
-        $unsharedBucket = $this->_client->getBucket($bucket['id']);
+        $this->shareClient->unshareBucket($registeredBucketId);
+        $unsharedBucket = $this->_client->getBucket($registeredBucketId);
         $this->assertNull($unsharedBucket['sharing']);
 
         $workspaces->deleteWorkspace($workspace['id']);
