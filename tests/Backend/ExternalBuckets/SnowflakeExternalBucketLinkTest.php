@@ -11,6 +11,7 @@ use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Utils\ConnectionUtils;
+use Throwable;
 use const STORAGE_API_LINKING_TOKEN;
 use const STORAGE_API_SHARE_TOKEN;
 
@@ -43,7 +44,7 @@ class SnowflakeExternalBucketLinkTest extends BaseExternalBuckets
         );
     }
 
-    public function testShareExternalBucket(): void
+    public function testLinkExternalBucket(): void
     {
         $stage = 'in';
         $bucketName = 'test-bucket-ext-link';
@@ -158,7 +159,44 @@ EXPECTED,
             $dataPreview,
         );
 
+        $linkingWorkspaces = new Workspaces($this->linkingClient);
+        $linkingWorkspace = $linkingWorkspaces->createWorkspace([], true);
+        $linkingBackend = WorkspaceBackendFactory::createWorkspaceBackend($linkingWorkspace);
+
+        /** @var \Keboola\Db\Import\Snowflake\Connection $linkingSnowflakeDb */
+        $linkingSnowflakeDb = $linkingBackend->getDb();
+
+        $result = $linkingSnowflakeDb->fetchAll(sprintf(
+            'SELECT * FROM %s.%s.%s',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_SCHEMA),
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE),
+        ));
+        $this->assertEquals(
+            [
+                [
+                    'ID' => 1,
+                    'LASTNAME' => 'Novák',
+                ],
+            ],
+            $result,
+        );
+
         $this->linkingClient->dropBucket($linkedBucketId, ['force' => true]);
+
+        try {
+            $linkingSnowflakeDb->fetchAll(sprintf(
+                'SELECT * FROM %s.%s.%s',
+                SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
+                SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_SCHEMA),
+                SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE),
+            ));
+            $this->fail('Select should fail.');
+        } catch (Throwable $e) {
+            $this->assertEquals("odbc_prepare(): SQL error: SQL compilation error:
+Database '".self::EXTERNAL_DB."' does not exist or not authorized., SQL state 02000 in SQLPrepare", $e->getMessage());
+        }
+
         // LINKING END
 
         $this->shareClient->unshareBucket($registeredBucketId);
@@ -173,23 +211,24 @@ EXPECTED,
         );
     }
 
-    public function testShareWorkspaceBucket(): void
+    public function testLinkWorkspaceBucket(): void
     {
         $stage = 'in';
         $bucketName = 'test-bucket-ext-link';
+        $workspaceTableName = 'WORKSPACE_TABLE';
 
         $this->forceUnshareBucketIfExists($this->shareClient, $stage . '.' . $bucketName, true);
         $this->dropBucketIfExists($this->_client, $stage.'.'.$bucketName, true);
 
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace([], true);
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $workspaceBackend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $backend->createTable('WORKSPACE_TABLE', ['ID' => 'INT', 'LASTNAME' => 'VARCHAR(255)']);
-        $backend->executeQuery(
+        $workspaceBackend->createTable('WORKSPACE_TABLE', ['ID' => 'INT', 'LASTNAME' => 'VARCHAR(255)']);
+        $workspaceBackend->executeQuery(
             sprintf(
                 'INSERT INTO %s (ID, LASTNAME) VALUES (1, %s)',
-                SnowflakeQuote::quoteSingleIdentifier('WORKSPACE_TABLE'),
+                SnowflakeQuote::quoteSingleIdentifier($workspaceTableName),
                 SnowflakeQuote::quote('Novák'),
             ),
         );
@@ -236,7 +275,44 @@ EXPECTED,
             $dataPreview,
         );
 
+        $linkingWorkspaces = new Workspaces($this->linkingClient);
+        $linkingWorkspace = $linkingWorkspaces->createWorkspace([], true);
+        $linkingBackend = WorkspaceBackendFactory::createWorkspaceBackend($linkingWorkspace);
+
+        /** @var \Keboola\Db\Import\Snowflake\Connection $linkingSnowflakeDb */
+        $linkingSnowflakeDb = $linkingBackend->getDb();
+
+        $result = $linkingSnowflakeDb->fetchAll(sprintf(
+            'SELECT * FROM %s.%s.%s',
+            SnowflakeQuote::quoteSingleIdentifier($workspace['connection']['database']),
+            SnowflakeQuote::quoteSingleIdentifier($workspace['name']),
+            SnowflakeQuote::quoteSingleIdentifier($workspaceTableName),
+        ));
+        $this->assertEquals(
+            [
+                [
+                    'ID' => 1,
+                    'LASTNAME' => 'Novák',
+                ],
+            ],
+            $result,
+        );
+
         $this->linkingClient->dropBucket($linkedBucketId, ['force' => true]);
+
+        try {
+            $linkingSnowflakeDb->fetchAll(sprintf(
+                'SELECT * FROM %s.%s.%s',
+                SnowflakeQuote::quoteSingleIdentifier($workspace['connection']['database']),
+                SnowflakeQuote::quoteSingleIdentifier($workspace['name']),
+                SnowflakeQuote::quoteSingleIdentifier($workspaceTableName),
+            ));
+            $this->fail('Select should fail.');
+        } catch (Throwable $e) {
+            $this->assertEquals("odbc_prepare(): SQL error: SQL compilation error:
+Database '".$workspace['connection']['database']."' does not exist or not authorized., SQL state 02000 in SQLPrepare", $e->getMessage());
+        }
+
         // LINKING END
 
         $this->shareClient->unshareBucket($registeredBucketId);
