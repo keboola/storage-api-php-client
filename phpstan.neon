@@ -6,7 +6,6 @@ parameters:
         -
             identifier: missingType.iterableValue
         - '#Constant STORAGE_API_[_A-Z0-9]+ not found.#'
-        - '#Used constant STORAGE_API_LINKING_TOKEN not found.#'
         - '#Constant MANAGE_API_[_A-Z0-9]+ not found.#'
         - '#Constant SUITE_NAME not found.#'
         - '#Constant TRAVIS_BUILD_ID not found.#'
