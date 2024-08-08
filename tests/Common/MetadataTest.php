@@ -84,6 +84,17 @@ class MetadataTest extends StorageApiTestCase
         $testMetadata = [$md, $md2];
 
         $provider = self::TEST_PROVIDER;
+
+        // test bucket id with dot
+        try {
+            $metadatas = $metadataApi->postBucketMetadata($bucketId . '.rubbish', $provider, $testMetadata);
+            $this->fail('Bucket id with dot should not be allowed');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.buckets.notFound', $e->getStringCode());
+            $this->assertMatchesRegularExpression('/Bucket in.c-API-tests-[a-zA-Z0-9]+\.rubbish not found/', $e->getMessage());
+            $this->assertEquals(404, $e->getCode());
+        }
+
         $metadatas = $metadataApi->postBucketMetadata($bucketId, $provider, $testMetadata);
 
         $this->assertEquals(2, count($metadatas));
@@ -228,6 +239,20 @@ class MetadataTest extends StorageApiTestCase
         $testMetadata = [$md, $md2];
 
         $provider = self::TEST_PROVIDER;
+
+        // test table id with dot
+        try {
+            $metadataApi->postTableMetadata($tableId . '.rubbish', $provider, $testMetadata);
+            $this->fail('Table id with dot should not be allowed');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.tables.notFound', $e->getStringCode());
+            $this->assertMatchesRegularExpression(
+                '/The table "test_table\.rubbish" was not found in the bucket'
+                . ' "in.c-API-tests-[a-zA-Z0-9]+" in the project "\d+"/',
+                $e->getMessage(),
+            );
+            $this->assertEquals(404, $e->getCode());
+        }
 
         $metadatas = $metadataApi->postTableMetadata($tableId, $provider, $testMetadata);
 
@@ -697,6 +722,19 @@ class MetadataTest extends StorageApiTestCase
         $testMetadata = [$md, $md2];
 
         $provider = self::TEST_PROVIDER;
+
+        // test column dot id
+        try {
+            $metadataApi->postColumnMetadata($columnId . '.rubbish', $provider, $testMetadata);
+            $this->fail('Column id with dot should not be allowed');
+        } catch (ClientException $e) {
+            $this->assertEquals('storage.columns.notFound', $e->getStringCode());
+            $this->assertMatchesRegularExpression(
+                '/The column "in.c-API-tests-[a-zA-Z0-9]+.test_table.id.rubbish" was not found/',
+                $e->getMessage(),
+            );
+            $this->assertEquals(404, $e->getCode());
+        }
 
         $metadatas = $metadataApi->postColumnMetadata($columnId, $provider, $testMetadata);
 
