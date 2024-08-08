@@ -6,6 +6,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Metadata;
+use Keboola\StorageApi\Options\GlobalSearchOptions;
 use Keboola\Test\StorageApiTestCase;
 
 class BranchBucketsTest extends StorageApiTestCase
@@ -16,6 +17,9 @@ class BranchBucketsTest extends StorageApiTestCase
         $this->initEmptyTestBucketsForParallelTests();
     }
 
+    /**
+     * @group global-search
+     */
     public function testDropAllDevBucketsWhenDropBranch(): void
     {
         $metadataKey = Metadata::BUCKET_METADATA_KEY_ID_BRANCH;
@@ -27,7 +31,7 @@ class BranchBucketsTest extends StorageApiTestCase
         $description = $this->generateDescriptionForTestObject();
 
         $branchName1 = $this->generateBranchNameForParallelTest();
-        $devBucketName1 = sprintf('Dev-Branch-Bucket-' . sha1($description));
+        $devBucketName1 = sprintf('321-Dev-Branch-Bucket-' . sha1($description));
 
         $branchName2 = $this->generateBranchNameForParallelTest('second');
         $devBucketName2 = sprintf('Second-Dev-Branch-Bucket-' . sha1($description));
@@ -43,10 +47,23 @@ class BranchBucketsTest extends StorageApiTestCase
                 'value' => $branch1['id'],
             ],
         ];
+        // init data in branch1 bucket
+        $metadata->postBucketMetadata($devBranchBucketId1, $metadataProvider, $branch1TestMetadata);
 
         $this->deleteBranchesByPrefix($devBranchClient, $branchName2);
         $branch2 = $devBranchClient->createBranch($branchName2);
         $devBranchBucketId2 = $this->initEmptyBucket($devBucketName2, Client::STAGE_IN, $description);
+        // init metadata for branch2 bucket
+        $metadata->postBucketMetadata(
+            $devBranchBucketId2,
+            $metadataProvider,
+            [
+                [
+                    'key' => $metadataKey,
+                    'value' => $branch2['id'],
+                ],
+            ],
+        );
 
         // init data in non-dev bucket
         // create table and column with the same metadata to test delete dev branch don't delete table in main bucket
@@ -73,25 +90,10 @@ class BranchBucketsTest extends StorageApiTestCase
             $branch1TestMetadata,
         );
 
-        // init data in branch1 bucket
-        $metadata->postBucketMetadata($devBranchBucketId1, $metadataProvider, $branch1TestMetadata);
-
         $devBranchTable1 = $this->_client->createTableAsync(
             $devBranchBucketId1,
             'languages',
             new CsvFile($importFile),
-        );
-
-        // init metadata for branch2 bucket
-        $metadata->postBucketMetadata(
-            $devBranchBucketId2,
-            $metadataProvider,
-            [
-                [
-                    'key' => $metadataKey,
-                    'value' => $branch2['id'],
-                ],
-            ],
         );
 
         // test there is buckets for each dev branch
@@ -102,7 +104,26 @@ class BranchBucketsTest extends StorageApiTestCase
         // test there is two test buckets for main branch
         $this->assertCount(2, $this->listTestBucketsForParallelTests());
 
+        // bucket in dev branch is searchable
+        $apiCall1 = fn() => $this->_client->globalSearch($devBucketName1, (new GlobalSearchOptions(null, null, null, null, ['development'])));
+        $assertCallback1 = function ($searchResult) use ($devBucketName1) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertArrayHasKey('id', $searchResult['items'][0]);
+            $this->assertArrayHasKey('type', $searchResult['items'][0]);
+            $this->assertEquals('bucket', $searchResult['items'][0]['type']);
+            $this->assertArrayHasKey('name', $searchResult['items'][0]);
+            $this->assertEquals($devBucketName1, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall1, $assertCallback1);
+
         $devBranchClient->deleteBranch($branch1['id']);
+
+        // bucket in dev branch is no longer searchable
+        $apiCall2 = fn() => $this->_client->globalSearch($devBucketName1, (new GlobalSearchOptions(null, null, null, null, ['development'])));
+        $assertCallback2 = function ($searchResult) {
+            $this->assertSame(0, $searchResult['all']);
+        };
+        $this->retryWithCallback($apiCall2, $assertCallback2);
 
         // bucket for another dev branch must exist
         $this->assertNotEmpty($this->_client->getBucket($devBranchBucketId2));
