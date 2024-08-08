@@ -2,7 +2,9 @@
 
 namespace Keboola\Test\Backend\Snowflake;
 
+use Generator;
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
@@ -404,6 +406,93 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         $numrows = $backend->countRows('languages');
         $this->assertEquals(2, $numrows, 'rows parameter');
+    }
+
+    /**
+     * @dataProvider sinceDataProvider
+     */
+    public function testWorkspaceLoadFilterByChanged(?string $changedSince, ?string $changedUntil, int $expectedResult): void
+    {
+        // initial import
+        $tableId = $this->createTableUsers();
+        $timesOfRun = [];
+        $timesOfRun['tableCreated'] = time();
+        // first import
+        $this->_client->writeTableAsync(
+            $tableId,
+            new CsvFile(__DIR__ . '/../../_data/users.csv'),
+            [
+                'incremental' => true,
+            ],
+        );
+        $timesOfRun['fistImportTime'] = time();
+
+        // second import
+        $this->_client->writeTableAsync(
+            $tableId,
+            new CsvFile(__DIR__ . '/../../_data/users.csv'),
+            [
+                'incremental' => true,
+            ],
+        );
+        $timesOfRun['secondImportTime'] = time();
+
+        $options = [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'filter-test',
+                    'changedSince' => $timesOfRun[$changedSince] ?? null,
+                    'changedUntil' => $timesOfRun[$changedUntil] ?? null,
+                ],
+            ],
+        ];
+
+        $data = $this->_client->getTableDataPreview($tableId);
+        $this->assertEquals(15, count(Client::parseCsv($data)));
+
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+        $workspace = $this->initTestWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $workspaces->loadWorkspaceData($workspace['id'], $options);
+
+        $data = $backend->fetchAll('filter-test');
+
+        $this->assertCount($expectedResult, $data);
+    }
+
+    public function sinceDataProvider(): Generator
+    {
+        yield 'since: tableCreated; until: null' => [
+            'changedSince' => 'tableCreated',
+            'changedUntil' => null,
+            'expectedResult' => 10,
+        ];
+
+        yield 'since: tableCreated; until: fistImportTime' => [
+            'changedSince' => 'tableCreated',
+            'changedUntil' => 'fistImportTime',
+            'expectedResult' => 5,
+        ];
+
+        yield 'since: null; until: fistImportTime' => [
+            'changedSince' => null,
+            'changedUntil' => 'fistImportTime',
+            'expectedResult' => 10,
+        ];
+
+        yield 'since: fistImportTime; until: secondImportTime' => [
+            'changedSince' => 'fistImportTime',
+            'changedUntil' => 'secondImportTime',
+            'expectedResult' => 5,
+        ];
+
+        yield 'all' => [
+            'changedSince' => null,
+            'changedUntil' => null,
+            'expectedResult' => 15,
+        ];
     }
 
     /**
