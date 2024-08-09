@@ -51,6 +51,8 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
         $this->forceUnshareBucketIfExists($this->shareClient, $stage . '.' . $bucketName, true);
         $this->dropBucketIfExists($this->_client, $stage.'.'.$bucketName, true);
 
+        $this->initEvents($this->_client);
+
         $guide = $this->_client->registerBucketGuide([self::EXTERNAL_DB, self::EXTERNAL_SCHEMA], 'snowflake');
 
         $guideExploded = explode("\n", $guide['markdown']);
@@ -200,7 +202,29 @@ EXPECTED,
             }
         }
 
+        $expectedEventsBeforeRefresh = 4;
+        $this->assertEventsCallback(
+            $this->_client,
+            function ($events) use ($expectedEventsBeforeRefresh) {
+                $this->assertCount($expectedEventsBeforeRefresh, $events);
+            },
+            20,
+        );
+
         $this->_client->refreshBucket($registeredBucketId);
+
+        $expectedRefreshEvents = 3;
+        $this->assertEventsCallback(
+            $this->_client,
+            function ($events) use ($expectedEventsBeforeRefresh, $expectedRefreshEvents) {
+                $this->assertCount($expectedEventsBeforeRefresh + $expectedRefreshEvents, $events);
+                $expectedEvents = ['storage.tableColumnsUpdated', 'storage.tableCreated', 'storage.bucketRefreshed'];
+                for ($i = 0; $i < $expectedRefreshEvents; $i++) {
+                    $this->assertSame($expectedEvents[$i], $events[$i]['event']);
+                }
+            },
+            20,
+        );
 
         $linkingTables = $this->linkingClient->listTables($linkedBucketId);
         $this->assertCount(2, $linkingTables);
