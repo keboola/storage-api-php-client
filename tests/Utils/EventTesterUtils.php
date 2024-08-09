@@ -64,12 +64,12 @@ trait EventTesterUtils
         }
     }
 
-    public function assertEventsCallback(Client $client, callable $callback): array
+    public function assertEventsCallback(Client $client, callable $callback, int $limit = 1): array
     {
-        return (array) $this->retryWithCallback(function () use ($client) {
+        return (array) $this->retryWithCallback(function () use ($client, $limit) {
             return $client->listEvents([
                 'sinceId' => $this->lastEventId,
-                'limit' => 1,
+                'limit' => $limit,
                 'q' => sprintf('token.id:%s', $this->tokenId),
             ]);
         }, $callback);
