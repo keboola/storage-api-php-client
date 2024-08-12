@@ -24,12 +24,16 @@ class TimeTravelTest extends StorageApiTestCase
 
     public function testCreateTypedTableFromTimestamp(): void
     {
-        $this->skipTestForBackend(
-            [
-                self::BACKEND_SNOWFLAKE,
-            ],
-            'Snowflake doesn\'t support time travel from typed table.',
-        );
+        $tokenData = $this->_client->verifyToken();
+        $defaultBackend = $tokenData['owner']['defaultBackend'];
+
+        if ($defaultBackend === self::BACKEND_SNOWFLAKE) {
+            $columnFloat = 'FLOAT';
+            $columnBoolean = 'BOOLEAN';
+        } else {
+            $columnFloat = 'FLOAT64';
+            $columnBoolean = 'BOOL';
+        }
 
         $sourceTable = 'languages_' . date('Ymd_His');
         $tableDefinition = [
@@ -53,13 +57,13 @@ class TimeTravelTest extends StorageApiTestCase
                 [
                     'name' => 'column_float',
                     'definition' => [
-                        'type' => 'FLOAT64',
+                        'type' => $columnFloat,
                     ],
                 ],
                 [
                     'name' => 'column_boolean',
                     'definition' => [
-                        'type' => 'BOOL',
+                        'type' => $columnBoolean,
                     ],
                 ],
                 [
@@ -180,24 +184,40 @@ class TimeTravelTest extends StorageApiTestCase
         $timestampColumnMetadata = $metadataClient->listColumnMetadata("{$replicaTableId}.column_timestamp");
         $varcharColumnMetadata = $metadataClient->listColumnMetadata("{$replicaTableId}.column_varchar");
 
+        if ($defaultBackend === self::BACKEND_SNOWFLAKE) {
+            $columnInteger = 'NUMBER';
+            $columnNumeric = 'NUMBER';
+            $columnFloat = 'FLOAT';
+            $columnBoolean = 'BOOLEAN';
+            $columnTimestamp = 'TIMESTAMP_NTZ';
+            $columnString = 'VARCHAR';
+        } else {
+            $columnInteger = 'INTEGER';
+            $columnNumeric = 'NUMERIC';
+            $columnFloat = 'FLOAT64';
+            $columnBoolean = 'BOOL';
+            $columnTimestamp = 'TIMESTAMP';
+            $columnString = 'STRING';
+        }
+
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.type',
-            'value' => 'INTEGER',
+            'value' => $columnInteger,
             'provider' => 'storage',
         ], $idColumnMetadata[0], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.type',
-            'value' => 'NUMERIC',
+            'value' => $columnNumeric,
             'provider' => 'storage',
         ], $decimalColumnMetadata[0], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.type',
-            'value' => 'FLOAT64',
+            'value' => $columnFloat,
             'provider' => 'storage',
         ], $floatColumnMetadata[0], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.type',
-            'value' => 'BOOL',
+            'value' => $columnBoolean,
             'provider' => 'storage',
         ], $booleanColumnMetadata[0], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
@@ -207,12 +227,12 @@ class TimeTravelTest extends StorageApiTestCase
         ], $dateColumnMetadata[0], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.type',
-            'value' => 'TIMESTAMP',
+            'value' => $columnTimestamp,
             'provider' => 'storage',
         ], $timestampColumnMetadata[0], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.type',
-            'value' => 'STRING',
+            'value' => $columnString,
             'provider' => 'storage',
         ], $varcharColumnMetadata[0], ['id', 'timestamp']);
     }
