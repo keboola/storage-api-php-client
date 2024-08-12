@@ -424,7 +424,7 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
                         'source' => $tableId,
                         'destination' => 'filter-test',
                     ],
-                    $changed
+                    $changed,
                 ),
             ],
         ];
@@ -440,11 +440,11 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
     public function wrongChangedDataProvider(): Generator
     {
         yield 'wrong changedSince' => [
-            ['changedSince' => 'roman',]
+            ['changedSince' => 'roman'],
         ];
 
         yield 'wrong changedUntil' => [
-            ['changedUntil' => 'roman',]
+            ['changedUntil' => 'roman'],
         ];
     }
 
