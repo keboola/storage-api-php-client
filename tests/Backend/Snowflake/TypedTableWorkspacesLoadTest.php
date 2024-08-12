@@ -409,6 +409,46 @@ class TypedTableWorkspacesLoadTest extends ParallelWorkspacesTestCase
     }
 
     /**
+     * @dataProvider wrongChangedDataProvider
+     */
+    public function testWorkspaceLoadFilterByChangedWithWrongValues(array $changed): void
+    {
+        $tableId = $this->createTableUsers();
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+        $workspace = $this->initTestWorkspace();
+
+        $options = [
+            'input' => [
+                array_merge(
+                    [
+                        'source' => $tableId,
+                        'destination' => 'filter-test',
+                    ],
+                    $changed
+                ),
+            ],
+        ];
+
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->fail('Trying to filter with wrong values should fail');
+        } catch (ClientException $e) {
+            $this->assertStringContainsString(sprintf('Invalid "%s" parameter', array_keys($changed)[0]), $e->getMessage());
+        }
+    }
+
+    public function wrongChangedDataProvider(): Generator
+    {
+        yield 'wrong changedSince' => [
+            ['changedSince' => 'roman',]
+        ];
+
+        yield 'wrong changedUntil' => [
+            ['changedUntil' => 'roman',]
+        ];
+    }
+
+    /**
      * @dataProvider sinceDataProvider
      */
     public function testWorkspaceLoadFilterByChanged(?string $changedSince, ?string $changedUntil, int $expectedResult): void
