@@ -177,6 +177,25 @@ EXPECTED,
 
         $this->_client->refreshBucket($registeredBucketId);
 
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableColumnsUpdated')
+            ->setObjectId($linkedBucketId . '.' . self::EXTERNAL_TABLE)
+            ->setTokenId($this->tokenId)
+        ;
+        $this->assertEventWithRetries($this->linkingClient, $assertCallback, $query);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableCreated')
+            ->setObjectId($linkedBucketId . '.' . self::EXTERNAL_TABLE_2)
+            ->setTokenId($this->tokenId)
+        ;
+        $this->assertEventWithRetries($this->linkingClient, $assertCallback, $query);
 
         $linkingTables = $this->linkingClient->listTables($linkedBucketId);
         $this->assertCount(2, $linkingTables);
