@@ -11,6 +11,7 @@ use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Utils\ConnectionUtils;
+use Keboola\Test\Utils\EventsQueryBuilder;
 use Throwable;
 
 class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
@@ -117,10 +118,7 @@ EXPECTED,
             $dataPreview,
         );
 
-        $linkingWorkspaces = new Workspaces($this->linkingClient);
-        $linkingWorkspace = $linkingWorkspaces->createWorkspace([], true);
-        $linkingBackend = WorkspaceBackendFactory::createWorkspaceBackend($linkingWorkspace);
-
+        // test RO works
         /** @var \Keboola\Db\Import\Snowflake\Connection $linkingSnowflakeDb */
         $linkingSnowflakeDb = $linkingBackend->getDb();
 
