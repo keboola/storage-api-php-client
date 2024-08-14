@@ -330,6 +330,14 @@ EXPECTED,
         $this->linkingClient->dropBucket($linkedBucketId, ['force' => true]);
 
         try {
+            $this->linkingClient->getTableDataPreview($linkingTable['id']);
+            $this->fail('Select should fail.');
+        } catch (Throwable $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertStringContainsString('The table "EXT_TABLE" was not found in the bucket "in.c-LINKED_BUCKET" in the project', $e->getMessage());
+        }
+
+        try {
             $linkingSnowflakeDb->fetchAll(sprintf(
                 'SELECT * FROM %s.%s.%s',
                 SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
