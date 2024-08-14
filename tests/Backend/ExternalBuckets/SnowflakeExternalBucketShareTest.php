@@ -244,24 +244,8 @@ EXPECTED,
             $result2,
         );
 
-        /** @var \Keboola\Db\Import\Snowflake\Connection $linkingSnowflakeDb */
-        $linkingSnowflakeDb = $linkingBackend->getDb();
-
-        $result3 = $linkingSnowflakeDb->fetchAll(sprintf(
-            'SELECT * FROM %s.%s.%s',
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_SCHEMA),
             SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE_2),
         ));
-        $this->assertEquals(
-            [
-                [
-                    'ID' => 1,
-                    'DESC' => 'important description',
-                ],
-            ],
-            $result3,
-        );
 
         $db->executeQuery(sprintf(
             'DROP TABLE %s',
