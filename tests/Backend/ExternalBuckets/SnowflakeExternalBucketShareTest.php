@@ -76,6 +76,26 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
         $this->assertEquals('specific-projects', $sharedBucket['sharing']);
         $this->assertEquals($targetProjectId, $sharedBucket['sharingParameters']['projects'][0]['id']);
 
+        $linkingWorkspaces = new Workspaces($this->linkingClient);
+        $linkingWorkspace = $linkingWorkspaces->createWorkspace([], true);
+        $linkingBackend = WorkspaceBackendFactory::createWorkspaceBackend($linkingWorkspace);
+
+        /** @var \Keboola\Db\Import\Snowflake\Connection $linkingSnowflakeDb */
+        $linkingSnowflakeDb = $linkingBackend->getDb();
+
+        // check before link is not work via RO
+        try {
+            $linkingSnowflakeDb->fetchAll(sprintf(
+                'SELECT * FROM %s.%s.%s',
+                SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
+                SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_SCHEMA),
+                SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE),
+            ));
+            $this->fail('Select should fail.');
+        } catch (Throwable $e) {
+            $this->assertStringContainsString('Database \'EXT_DB\' does not exist or not authorized., SQL state 02000 in SQLPrepare', $e->getMessage());
+        }
+
         // LINKING START
 
         $token = $this->_client->verifyToken();
