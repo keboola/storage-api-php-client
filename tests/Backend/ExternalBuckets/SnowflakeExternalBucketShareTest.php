@@ -23,13 +23,9 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
     private const EXTERNAL_TABLE = 'EXT_TABLE';
     private const EXTERNAL_TABLE_2 = 'EXT_TABLE_2';
 
-    /** @var Client */
-    protected $shareClient;
+    protected Client $shareClient;
 
-    /**
-     * @var Client
-     */
-    protected $linkingClient;
+    protected Client $linkingClient;
 
     public function setUp(): void
     {
