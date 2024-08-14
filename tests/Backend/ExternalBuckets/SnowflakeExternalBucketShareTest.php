@@ -38,6 +38,11 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
         $this->linkingClient = $this->getClientForToken(
             STORAGE_API_LINKING_TOKEN,
         );
+
+        $tokenData = $this->shareClient->verifyToken();
+        if ($tokenData['organization']['id'] !== $this->linkingClient->verifyToken()['organization']['id']) {
+            throw new \Exception('STORAGE_API_LINKING_TOKEN is not in the same organization as STORAGE_API_TOKEN');
+        }
     }
 
     public function testExternalSchemaAsSharedBucket(): void
