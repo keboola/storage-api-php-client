@@ -48,55 +48,12 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
         $this->dropBucketIfExists($this->_client, $stage.'.'.$bucketName, true);
 
         $this->initEvents($this->_client);
-
         $guide = $this->_client->registerBucketGuide([self::EXTERNAL_DB, self::EXTERNAL_SCHEMA], 'snowflake');
 
         $guideExploded = explode("\n", $guide['markdown']);
         $db = $this->ensureSnowflakeConnection();
 
-        $db->executeQuery(sprintf(
-            'DROP DATABASE IF EXISTS %s;',
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
-        ));
-        $db->executeQuery(sprintf(
-            'CREATE DATABASE %s;',
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
-        ));
-        $db->executeQuery(sprintf(
-            'USE DATABASE %s;',
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
-        ));
-        $db->executeQuery(sprintf(
-            'CREATE SCHEMA %s;',
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_SCHEMA),
-        ));
-        $db->executeQuery(sprintf(
-            'USE SCHEMA %s;',
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_SCHEMA),
-        ));
-        $db->executeQuery(sprintf(
-            'CREATE TABLE %s (ID INT, LASTNAME VARCHAR(255));',
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE),
-        ));
-        $db->executeQuery(sprintf(
-            'USE WAREHOUSE %s',
-            SnowflakeQuote::quoteSingleIdentifier('DEV'),
-        ));
-        $db->executeQuery(sprintf(
-            'INSERT INTO %s (ID, LASTNAME) VALUES (1, %s)',
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE),
-            SnowflakeQuote::quote('Novák'),
-        ));
-
-        foreach ($guideExploded as $command) {
-            if (str_starts_with($command, 'GRANT') && !str_contains($command, 'FUTURE')) {
-                try {
-                    $db->executeQuery($command);
-                } catch (Exception $e) {
-                    $this->fail($e->getMessage() . ': ' . $command);
-                }
-            }
-        }
+        $this->prepareExternalFirstTable($db, $guideExploded);
 
         $registeredBucketId = $this->_client->registerBucket(
             $bucketName,
@@ -584,5 +541,52 @@ Database '".$workspace['connection']['database']."' does not exist or not author
         $this->assertNull($unsharedBucket['sharing']);
 
         $workspaces->deleteWorkspace($workspace['id']);
+    }
+
+    private function prepareExternalFirstTable(\Doctrine\DBAL\Connection $db, array $guideExploded): void
+    {
+        $db->executeQuery(sprintf(
+            'DROP DATABASE IF EXISTS %s;',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
+        ));
+        $db->executeQuery(sprintf(
+            'CREATE DATABASE %s;',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
+        ));
+        $db->executeQuery(sprintf(
+            'USE DATABASE %s;',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
+        ));
+        $db->executeQuery(sprintf(
+            'CREATE SCHEMA %s;',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_SCHEMA),
+        ));
+        $db->executeQuery(sprintf(
+            'USE SCHEMA %s;',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_SCHEMA),
+        ));
+        $db->executeQuery(sprintf(
+            'CREATE TABLE %s (ID INT, LASTNAME VARCHAR(255));',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE),
+        ));
+        $db->executeQuery(sprintf(
+            'USE WAREHOUSE %s',
+            SnowflakeQuote::quoteSingleIdentifier('DEV'),
+        ));
+        $db->executeQuery(sprintf(
+            'INSERT INTO %s (ID, LASTNAME) VALUES (1, %s)',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE),
+            SnowflakeQuote::quote('Novák'),
+        ));
+
+        foreach ($guideExploded as $command) {
+            if (str_starts_with($command, 'GRANT') && !str_contains($command, 'FUTURE')) {
+                try {
+                    $db->executeQuery($command);
+                } catch (Exception $e) {
+                    $this->fail($e->getMessage() . ': ' . $command);
+                }
+            }
+        }
     }
 }
