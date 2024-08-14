@@ -244,12 +244,14 @@ EXPECTED,
             $result2,
         );
 
+        $db->executeQuery(sprintf(
+            'DROP TABLE %s',
             SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE_2),
         ));
 
         $db->executeQuery(sprintf(
-            'DROP TABLE %s',
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE_2),
+            'ALTER TABLE %s DROP COLUMN GENDER;',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE),
         ));
 
         try {
@@ -267,6 +269,61 @@ Object 'EXT_DB.EXT_SCHEMA.EXT_TABLE_2' does not exist or not authorized., SQL st
                 $e->getMessage(),
             );
         }
+
+        $this->_client->refreshBucket($registeredBucketId);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableDeleted')
+            ->setObjectId($linkedBucketId . '.' . self::EXTERNAL_TABLE_2)
+            ->setTokenId($this->tokenId)
+        ;
+        $this->assertEventWithRetries($this->linkingClient, $assertCallback, $query);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(2, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableColumnsUpdated')
+            ->setObjectId($linkedBucketId . '.' . self::EXTERNAL_TABLE)
+            ->setTokenId($this->tokenId)
+        ;
+        $this->assertEventWithRetries($this->linkingClient, $assertCallback, $query);
+
+        $linkingTables = $this->linkingClient->listTables($linkedBucketId);
+        $this->assertCount(1, $linkingTables);
+
+        $dataPreview = $this->linkingClient->getTableDataPreview($linkingTable['id']);
+        $this->assertEquals(
+            <<<EXPECTED
+"ID","LASTNAME"
+"1","Novák"
+
+EXPECTED,
+            $dataPreview,
+        );
+
+        // test RO works
+        /** @var \Keboola\Db\Import\Snowflake\Connection $linkingSnowflakeDb */
+        $linkingSnowflakeDb = $linkingBackend->getDb();
+
+        $result = $linkingSnowflakeDb->fetchAll(sprintf(
+            'SELECT * FROM %s.%s.%s',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_SCHEMA),
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE),
+        ));
+        $this->assertEquals(
+            [
+                [
+                    'ID' => 1,
+                    'LASTNAME' => 'Novák',
+                ],
+            ],
+            $result,
+        );
 
         // REFRESH END
 
