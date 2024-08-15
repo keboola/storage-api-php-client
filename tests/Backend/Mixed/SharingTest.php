@@ -28,6 +28,94 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertTrue($token['admin']['isOrganizationMember']);
     }
 
+    public function testTableManipulationEventsInLinkedBucket(): void
+    {
+        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
+        $bucketId = reset($this->_bucketIds);
+
+        $this->initEvents($this->_client);
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        // crate 1. table in source bucket
+        $tableId = $this->_client->createTableAsync(
+            $bucketId,
+            'test',
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv'),
+        );
+
+        // event is created in source project
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableCreated')
+            ->setTokenId($this->tokenId)
+            ->setObjectId($tableId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        /** @var array $response */
+        $response = $this->_client->shareBucket($bucketId, [
+            'sharing' => 'organization-project',
+            'async' => true,
+        ]);
+
+        // link bucket
+        $displayName = 'linked-displayName';
+        $sharedBuckets = $this->_client2->listSharedBuckets();
+        $linkedBucketId = $this->_client2->linkBucket(
+            'organization-project-test',
+            self::STAGE_IN,
+            $sharedBuckets[0]['project']['id'],
+            $sharedBuckets[0]['id'],
+            $displayName,
+        );
+
+        // create new table in shared bucket
+        $tableId = $this->_client->createTableAsync(
+            $bucketId,
+            'test-after-link',
+            new CsvFile(__DIR__ . '/../../_data/numbers.csv'),
+        );
+
+        // validate event exist in source project
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableCreated')
+            ->setObjectId($tableId)
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
+        // validate the event exist in dest project
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableCreated')
+            ->setObjectId($linkedBucketId.'.test-after-link')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client2, $assertCallback, $query);
+
+        // add columns
+        $this->_client->addTableColumn($tableId, 'test');
+
+        // validate is event in dest project
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableColumnAdded')
+            ->setObjectId($linkedBucketId.'.test-after-link')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client2, $assertCallback, $query);
+    }
+
     /**
      * @dataProvider invalidSharingTypeData
      */
