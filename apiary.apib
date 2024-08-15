@@ -3557,9 +3557,8 @@ will show information about the created file and caching:
             + rfc - According to [RFC](http://www.ietf.org/rfc/rfc4180.txt).
             + json
         + Default: rfc
-    + changedSince (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
-    + changedUntil (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
-        Examples: `-2 days`, `1360138863`, `2013-02-12T15:19:21+00:00`
+    + changedSince (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp.
+    + changedUntil (optional) - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp.
     + columns (optional) - Comma separated list of columns to export; by default all columns are exported.
     + whereColumn (optional) - **Deprecated** (use whereFilters instead). ~~Column for exporting only matching rows; see more in the rows filtering section.~~
     + whereValues[] (optional) - **Deprecated** (use whereFilters instead). ~~Values for exporting only matching rows; see more in the rows filtering section.~~
@@ -5139,10 +5138,10 @@ Loads tables from Storage into a Workspace. Not supported for Teradata. BigQuery
                     + rows (optional, number) - Limits the number of returned rows
                     + days (optional, number) - `DEPRECATED will be removed in the future.` Return rows created or updated in the last X days.
                     + seconds (optional, number) - Returns rows created or updated in the last X seconds.
-                    + changedSince (optional) - Currently only supported for Snowflake - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
+                    + changedSince (optional) - Currently only supported for Snowflake - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp.
                         **If the `days` or `seconds` parameter is set, this value is ignored.**
-                    + changedUntil (optional) - Currently only supported for snowflake - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php).
-                        **If the `days` or `seconds` parameter is set, this vallue are ignored.** Examples: `-2 days`, `1360138863`, `2013-02-12T15:19:21+00:00`
+                    + changedUntil (optional) - Currently only supported for snowflake - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp.
+                        **If the `days` or `seconds` parameter is set, this vallue are ignored.**
                     + columns[] (optional, array) - Array of column definition; by default all columns are exported.
                         + Items
                             + (object)
@@ -5274,6 +5273,10 @@ Loads tables from Storage into a Workspace in [Development Branch](#reference/de
                     + rows (optional, number) - Limits the number of returned rows
                     + days (optional, number) - `DEPRECATED will be removed in the future.` Return rows created or updated in the last X days.
                     + seconds (optional, number) - Returns rows created or updated in the last X seconds.
+                    + changedSince (optional) - Currently only supported for Snowflake - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp.
+                        **If the `days` or `seconds` parameter is set, this value is ignored.**
+                    + changedUntil (optional) - Currently only supported for snowflake - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp.
+                        **If the `days` or `seconds` parameter is set, this vallue are ignored.**
                     + columns[] (optional, array) - Array of column definition; by default all columns are exported.
                         + Items
                             + (object)
