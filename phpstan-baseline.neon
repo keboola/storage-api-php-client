@@ -2511,6 +2511,11 @@ parameters:
 			path: tests/Backend/Export/ExportParamsTest.php
 
 		-
+			message: "#^Unreachable statement \\- code above always terminates\\.$#"
+			count: 1
+			path: tests/Backend/ExternalBuckets/SnowflakeBucketsRefreshTablesInformationTest.php
+
+		-
 			message: "#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: tests/Backend/FileWorkspace/Backend/Abs.php
