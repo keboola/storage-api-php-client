@@ -462,12 +462,34 @@ class Client
     }
 
     /**
-     * @return mixed
+     * @return array{
+     *     id: string,
+     *     uri: string,
+     *     name: string,
+     *     stage: string,
+     *     tables: string,
+     *     backend: string,
+     *     created: string,
+     *     sharing: ?string,
+     *     idBranch: int,
+     *     warnings: array<array{message: string}>,
+     *     rowsCount: int,
+     *     isReadOnly: bool,
+     *     description: string,
+     *     displayName: string,
+     *     databaseName: string,
+     *     dataSizeBytes: int,
+     *     isMaintenance: bool,
+     *     lastChangeDate: string,
+     *     hasExternalSchema: bool,
+     * }
      */
     public function refreshBucket(string $bucketId)
     {
         $url = 'buckets/' . $bucketId . '/refresh';
 
+        // Method Keboola\StorageApi\Client::refreshBucket() should return array{id: string, uri: string, name: string, stage: string, tables: string, backend: string, created: string, sharing: string|null, ...} but returns mixed.
+        // @phpstan-ignore-next-line
         return $this->apiPutJson($url);
     }
 
