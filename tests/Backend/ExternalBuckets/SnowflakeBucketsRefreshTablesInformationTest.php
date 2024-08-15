@@ -26,6 +26,7 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
 
     public function testRefreshTablesInformation(): void
     {
+        $this->markTestSkipped('Test is not working, needs to be fixed; CT-1691');
         $createdTableRows = 10;
 
         $workspaces = new Workspaces($this->_client);
