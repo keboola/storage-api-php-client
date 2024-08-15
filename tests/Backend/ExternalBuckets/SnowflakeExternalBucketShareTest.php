@@ -11,6 +11,7 @@ use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Utils\ConnectionUtils;
+use Keboola\Test\Utils\EventsQueryBuilder;
 use Throwable;
 
 class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
@@ -23,13 +24,9 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
     private const EXTERNAL_TABLE = 'EXT_TABLE';
     private const EXTERNAL_TABLE_2 = 'EXT_TABLE_2';
 
-    /** @var Client */
-    protected $shareClient;
+    protected Client $shareClient;
 
-    /**
-     * @var Client
-     */
-    protected $linkingClient;
+    protected Client $linkingClient;
 
     public function setUp(): void
     {
@@ -41,6 +38,11 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
         $this->linkingClient = $this->getClientForToken(
             STORAGE_API_LINKING_TOKEN,
         );
+
+        $tokenData = $this->shareClient->verifyToken();
+        if ($tokenData['organization']['id'] !== $this->linkingClient->verifyToken()['organization']['id']) {
+            throw new \Exception('STORAGE_API_LINKING_TOKEN is not in the same organization as STORAGE_API_TOKEN');
+        }
     }
 
     public function testExternalSchemaAsSharedBucket(): void
@@ -52,55 +54,12 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
         $this->dropBucketIfExists($this->_client, $stage.'.'.$bucketName, true);
 
         $this->initEvents($this->_client);
-
         $guide = $this->_client->registerBucketGuide([self::EXTERNAL_DB, self::EXTERNAL_SCHEMA], 'snowflake');
 
         $guideExploded = explode("\n", $guide['markdown']);
         $db = $this->ensureSnowflakeConnection();
 
-        $db->executeQuery(sprintf(
-            'DROP DATABASE IF EXISTS %s;',
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
-        ));
-        $db->executeQuery(sprintf(
-            'CREATE DATABASE %s;',
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
-        ));
-        $db->executeQuery(sprintf(
-            'USE DATABASE %s;',
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
-        ));
-        $db->executeQuery(sprintf(
-            'CREATE SCHEMA %s;',
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_SCHEMA),
-        ));
-        $db->executeQuery(sprintf(
-            'USE SCHEMA %s;',
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_SCHEMA),
-        ));
-        $db->executeQuery(sprintf(
-            'CREATE TABLE %s (ID INT, LASTNAME VARCHAR(255));',
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE),
-        ));
-        $db->executeQuery(sprintf(
-            'USE WAREHOUSE %s',
-            SnowflakeQuote::quoteSingleIdentifier('DEV'),
-        ));
-        $db->executeQuery(sprintf(
-            'INSERT INTO %s (ID, LASTNAME) VALUES (1, %s)',
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE),
-            SnowflakeQuote::quote('Novák'),
-        ));
-
-        foreach ($guideExploded as $command) {
-            if (str_starts_with($command, 'GRANT') && !str_contains($command, 'FUTURE')) {
-                try {
-                    $db->executeQuery($command);
-                } catch (Exception $e) {
-                    $this->fail($e->getMessage() . ': ' . $command);
-                }
-            }
-        }
+        $this->prepareExternalFirstTable($db, $guideExploded);
 
         $registeredBucketId = $this->_client->registerBucket(
             $bucketName,
@@ -123,6 +82,26 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
         $this->assertEquals('specific-projects', $sharedBucket['sharing']);
         $this->assertEquals($targetProjectId, $sharedBucket['sharingParameters']['projects'][0]['id']);
 
+        $linkingWorkspaces = new Workspaces($this->linkingClient);
+        $linkingWorkspace = $linkingWorkspaces->createWorkspace([], true);
+        $linkingBackend = WorkspaceBackendFactory::createWorkspaceBackend($linkingWorkspace);
+
+        /** @var \Keboola\Db\Import\Snowflake\Connection $linkingSnowflakeDb */
+        $linkingSnowflakeDb = $linkingBackend->getDb();
+
+        // check before link is not work via RO
+        try {
+            $linkingSnowflakeDb->fetchAll(sprintf(
+                'SELECT * FROM %s.%s.%s',
+                SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
+                SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_SCHEMA),
+                SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE),
+            ));
+            $this->fail('Select should fail.');
+        } catch (Throwable $e) {
+            $this->assertStringContainsString('Database \'EXT_DB\' does not exist or not authorized., SQL state 02000 in SQLPrepare', $e->getMessage());
+        }
+
         // LINKING START
 
         $token = $this->_client->verifyToken();
@@ -144,10 +123,7 @@ EXPECTED,
             $dataPreview,
         );
 
-        $linkingWorkspaces = new Workspaces($this->linkingClient);
-        $linkingWorkspace = $linkingWorkspaces->createWorkspace([], true);
-        $linkingBackend = WorkspaceBackendFactory::createWorkspaceBackend($linkingWorkspace);
-
+        // test RO works
         /** @var \Keboola\Db\Import\Snowflake\Connection $linkingSnowflakeDb */
         $linkingSnowflakeDb = $linkingBackend->getDb();
 
@@ -202,29 +178,27 @@ EXPECTED,
             }
         }
 
-        $expectedEventsBeforeRefresh = 4;
-        $this->assertEventsCallback(
-            $this->_client,
-            function ($events) use ($expectedEventsBeforeRefresh) {
-                $this->assertCount($expectedEventsBeforeRefresh, $events);
-            },
-            20,
-        );
-
         $this->_client->refreshBucket($registeredBucketId);
 
-        $expectedRefreshEvents = 3;
-        $this->assertEventsCallback(
-            $this->_client,
-            function ($events) use ($expectedEventsBeforeRefresh, $expectedRefreshEvents) {
-                $this->assertCount($expectedEventsBeforeRefresh + $expectedRefreshEvents, $events);
-                $expectedEvents = ['storage.tableColumnsUpdated', 'storage.tableCreated', 'storage.bucketRefreshed'];
-                for ($i = 0; $i < $expectedRefreshEvents; $i++) {
-                    $this->assertSame($expectedEvents[$i], $events[$i]['event']);
-                }
-            },
-            20,
-        );
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableColumnsUpdated')
+            ->setObjectId($linkedBucketId . '.' . self::EXTERNAL_TABLE)
+            ->setTokenId($this->tokenId)
+        ;
+        $this->assertEventWithRetries($this->linkingClient, $assertCallback, $query);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableCreated')
+            ->setObjectId($linkedBucketId . '.' . self::EXTERNAL_TABLE_2)
+            ->setTokenId($this->tokenId)
+        ;
+        $this->assertEventWithRetries($this->linkingClient, $assertCallback, $query);
 
         $linkingTables = $this->linkingClient->listTables($linkedBucketId);
         $this->assertCount(2, $linkingTables);
@@ -273,28 +247,14 @@ EXPECTED,
             $result2,
         );
 
-        /** @var \Keboola\Db\Import\Snowflake\Connection $linkingSnowflakeDb */
-        $linkingSnowflakeDb = $linkingBackend->getDb();
-
-        $result3 = $linkingSnowflakeDb->fetchAll(sprintf(
-            'SELECT * FROM %s.%s.%s',
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_SCHEMA),
-            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE_2),
-        ));
-        $this->assertEquals(
-            [
-                [
-                    'ID' => 1,
-                    'DESC' => 'important description',
-                ],
-            ],
-            $result3,
-        );
-
         $db->executeQuery(sprintf(
             'DROP TABLE %s',
             SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE_2),
+        ));
+
+        $db->executeQuery(sprintf(
+            'ALTER TABLE %s DROP COLUMN GENDER;',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE),
         ));
 
         try {
@@ -313,9 +273,72 @@ Object 'EXT_DB.EXT_SCHEMA.EXT_TABLE_2' does not exist or not authorized., SQL st
             );
         }
 
+        $this->_client->refreshBucket($registeredBucketId);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableDeleted')
+            ->setObjectId($linkedBucketId . '.' . self::EXTERNAL_TABLE_2)
+            ->setTokenId($this->tokenId)
+        ;
+        $this->assertEventWithRetries($this->linkingClient, $assertCallback, $query);
+
+        $assertCallback = function ($events) {
+            $this->assertCount(2, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableColumnsUpdated')
+            ->setObjectId($linkedBucketId . '.' . self::EXTERNAL_TABLE)
+            ->setTokenId($this->tokenId)
+        ;
+        $this->assertEventWithRetries($this->linkingClient, $assertCallback, $query);
+
+        $linkingTables = $this->linkingClient->listTables($linkedBucketId);
+        $this->assertCount(1, $linkingTables);
+
+        $dataPreview = $this->linkingClient->getTableDataPreview($linkingTable['id']);
+        $this->assertEquals(
+            <<<EXPECTED
+"ID","LASTNAME"
+"1","Novák"
+
+EXPECTED,
+            $dataPreview,
+        );
+
+        // test RO works
+        /** @var \Keboola\Db\Import\Snowflake\Connection $linkingSnowflakeDb */
+        $linkingSnowflakeDb = $linkingBackend->getDb();
+
+        $result = $linkingSnowflakeDb->fetchAll(sprintf(
+            'SELECT * FROM %s.%s.%s',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_SCHEMA),
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE),
+        ));
+        $this->assertEquals(
+            [
+                [
+                    'ID' => 1,
+                    'LASTNAME' => 'Novák',
+                ],
+            ],
+            $result,
+        );
+
         // REFRESH END
 
         $this->linkingClient->dropBucket($linkedBucketId, ['force' => true]);
+
+        try {
+            $this->linkingClient->getTableDataPreview($linkingTable['id']);
+            $this->fail('Select should fail.');
+        } catch (Throwable $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertStringContainsString('The table "EXT_TABLE" was not found in the bucket "in.c-LINKED_BUCKET" in the project', $e->getMessage());
+        }
 
         try {
             $linkingSnowflakeDb->fetchAll(sprintf(
@@ -588,5 +611,52 @@ Database '".$workspace['connection']['database']."' does not exist or not author
         $this->assertNull($unsharedBucket['sharing']);
 
         $workspaces->deleteWorkspace($workspace['id']);
+    }
+
+    private function prepareExternalFirstTable(\Doctrine\DBAL\Connection $db, array $guideExploded): void
+    {
+        $db->executeQuery(sprintf(
+            'DROP DATABASE IF EXISTS %s;',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
+        ));
+        $db->executeQuery(sprintf(
+            'CREATE DATABASE %s;',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
+        ));
+        $db->executeQuery(sprintf(
+            'USE DATABASE %s;',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_DB),
+        ));
+        $db->executeQuery(sprintf(
+            'CREATE SCHEMA %s;',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_SCHEMA),
+        ));
+        $db->executeQuery(sprintf(
+            'USE SCHEMA %s;',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_SCHEMA),
+        ));
+        $db->executeQuery(sprintf(
+            'CREATE TABLE %s (ID INT, LASTNAME VARCHAR(255));',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE),
+        ));
+        $db->executeQuery(sprintf(
+            'USE WAREHOUSE %s',
+            SnowflakeQuote::quoteSingleIdentifier('DEV'),
+        ));
+        $db->executeQuery(sprintf(
+            'INSERT INTO %s (ID, LASTNAME) VALUES (1, %s)',
+            SnowflakeQuote::quoteSingleIdentifier(self::EXTERNAL_TABLE),
+            SnowflakeQuote::quote('Novák'),
+        ));
+
+        foreach ($guideExploded as $command) {
+            if (str_starts_with($command, 'GRANT') && !str_contains($command, 'FUTURE')) {
+                try {
+                    $db->executeQuery($command);
+                } catch (Exception $e) {
+                    $this->fail($e->getMessage() . ': ' . $command);
+                }
+            }
+        }
     }
 }
