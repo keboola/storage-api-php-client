@@ -183,7 +183,7 @@ abstract class StorageApiTestCase extends ClientTestCase
             });
             foreach (array_reverse($tables) as $table) {
                 try {
-                    $client->dropTable($table['id']);
+                    $client->dropTable($table['id'], ['force' => true]);
                 } catch (\Keboola\StorageApi\ClientException $e) {
                     $this->throwExceptionIfNotDeleted($e);
                 }
