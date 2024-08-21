@@ -12,15 +12,14 @@ use Google\Cloud\BigQuery\AnalyticsHub\V1\Listing\BigQueryDatasetSource;
 use Google\Cloud\BigQuery\BigQueryClient;
 use Google\Cloud\Iam\V1\Binding;
 use Google\Cloud\Storage\StorageClient;
-use GuzzleHttp\Client;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\TableExporter;
 use Keboola\StorageApi\Workspaces;
+use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientWrapper;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
-use Keboola\Test\Backend\Workspaces\Backend\BigQueryClientHandler;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\ClientProvider\ClientProvider;
@@ -1474,14 +1473,12 @@ SQL,
      */
     public function getBigQueryClient(array $externalCredentials): BigQueryClient
     {
-        $handler = new BigQueryClientHandler(new Client());
-
-        $bqClient = new BigQueryClient([
+        return new BigQueryClientWrapper([
             'keyFile' => $externalCredentials,
-            'httpHandler' => $handler,
+            'requestTimeout' => 120,
+            'retries' => 20,
             'location' => $this->region,
         ]);
-        return $bqClient;
     }
 
     private function createExternalTable(WorkspaceBackend $db, string $schemaName): void

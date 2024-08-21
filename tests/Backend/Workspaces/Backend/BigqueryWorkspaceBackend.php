@@ -4,11 +4,13 @@ namespace Keboola\Test\Backend\Workspaces\Backend;
 
 use Google\Cloud\BigQuery\BigQueryClient;
 use Google\Cloud\BigQuery\Dataset;
-use GuzzleHttp\Client;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\StorageApi\Exception;
+use Keboola\StorageDriver\BigQuery\Client\BigQuery\Retry;
+use Keboola\StorageDriver\BigQuery\CredentialsHelper;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientWrapper;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Schema\Bigquery\BigquerySchemaReflection;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
@@ -27,11 +29,10 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
      */
     public function __construct(array $workspace)
     {
-        $handler = new BigQueryClientHandler(new Client());
-
-        $bqClient = new BigQueryClient([
+        $bqClient = new BigQueryClientWrapper([
             'keyFile' => $workspace['connection']['credentials'],
-            'httpHandler' => $handler,
+            'requestTimeout' => 120,
+            'retries' => 20,
         ]);
 
         assert($bqClient instanceof BigQueryClient);
