@@ -751,7 +751,17 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
+			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:validateColumnNames\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Keboola/StorageApi/Client.php
+
+		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:waitForJob\\(\\) has parameter \\$jobId with no type specified\\.$#"
+			count: 1
+			path: src/Keboola/StorageApi/Client.php
+
+		-
+			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:webalizeColumnNames\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
 
@@ -2509,11 +2519,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$string of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringStartsWith\\(\\) expects string, mixed given\\.$#"
 			count: 1
 			path: tests/Backend/Export/ExportParamsTest.php
-
-		-
-			message: "#^Unreachable statement \\- code above always terminates\\.$#"
-			count: 1
-			path: tests/Backend/ExternalBuckets/SnowflakeBucketsRefreshTablesInformationTest.php
 
 		-
 			message: "#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#"
@@ -5224,12 +5229,3 @@ parameters:
 			message: "#^Parameter \\#1 \\$filename of function file_get_contents expects string, string\\|false given\\.$#"
 			count: 1
 			path: tests/bootstrap.php
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:webalizeColumnNames\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:validateColumnNames\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
