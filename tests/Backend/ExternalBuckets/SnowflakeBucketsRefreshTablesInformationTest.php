@@ -26,7 +26,6 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
 
     public function testRefreshTablesInformation(): void
     {
-        $this->markTestSkipped('Test is not working, needs to be fixed; CT-1691');
         $createdTableRows = 10;
 
         $workspaces = new Workspaces($this->_client);
@@ -41,6 +40,7 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
         $bucket = $this->_client->getBucket($bucketId);
 
         $tableId = $this->createTableWithRandomData('refresh-tables-information-test-table', $createdTableRows, 2);
+        $aliasId = $this->_client->createAliasTable($bucketId, $tableId, 'alias');
         $table = $this->_client->getTable($tableId);
 
         $rowsCount = $table['rowsCount'];
@@ -55,6 +55,13 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
                 'GRANT ROLE %s TO USER %s;',
                 SnowflakeQuote::quoteSingleIdentifier($workspace['connection']['database']),
                 SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
+            ),
+        );
+
+        $db->executeQuery(
+            sprintf(
+                'USE ROLE %s;',
+                SnowflakeQuote::quoteSingleIdentifier($workspace['connection']['database']),
             ),
         );
 
@@ -81,7 +88,7 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
 
         $db->executeQuery(
             sprintf(
-                'INSERT INTO %s ("col_1","col_2") VALUES (\'testvalue 1\', \'testvalue 2\')',
+                'INSERT INTO %s ("col_1","col_2") VALUES (\'testvalue 1\', \'testvalue 2\'),(\'testvalue 1\', \'testvalue 2\')',
                 SnowflakeQuote::quoteSingleIdentifier($table['name']),
             ),
         );
@@ -91,14 +98,24 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
         $bClient->refreshTableInformationInBucket($bucketId);
 
         $refreshedTable = $this->_client->getTable($tableId);
+        $refreshedTableAlias = $this->_client->getTable($aliasId);
 
-        $this->assertEquals($rowsCount + 1, $refreshedTable['rowsCount']);
+        $this->assertEquals($rowsCount + 2, $refreshedTable['rowsCount']);
+        $this->assertEquals($refreshedTable['rowsCount'], $refreshedTableAlias['rowsCount']);
         // TODO: check dataSizeBytes did not change but rowsCount did
 //        $this->assertNotEquals($dataSizeBytes, $refreshedTable['dataSizeBytes']);
+//        $this->assertNotEquals($refreshedTable['dataSizeBytes'], $refreshedTableAlias['dataSizeBytes']);
 
-        $this->_client->dropTable($tableId);
+        $this->_client->dropTable($tableId, ['force' => true]);
         $this->_client->dropBucket($bucketId);
         $workspaces->deleteWorkspace($workspace['id']);
+
+        $db->executeQuery(
+            sprintf(
+                'USE ROLE %s;',
+                SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
+            ),
+        );
 
         $db->executeQuery(
             sprintf(
