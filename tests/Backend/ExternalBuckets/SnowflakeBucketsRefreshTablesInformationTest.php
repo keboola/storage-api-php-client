@@ -26,7 +26,7 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
 
     public function testRefreshTablesInformation(): void
     {
-        $this->markTestSkipped('Test is not working, needs to be fixed; CT-1691');
+        //$this->markTestSkipped('Test is not working, needs to be fixed; CT-1691');
         $createdTableRows = 10;
 
         $workspaces = new Workspaces($this->_client);
@@ -56,6 +56,13 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
                 'GRANT ROLE %s TO USER %s;',
                 SnowflakeQuote::quoteSingleIdentifier($workspace['connection']['database']),
                 SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
+            ),
+        );
+
+        $db->executeQuery(
+            sprintf(
+                'USE ROLE %s;',
+                SnowflakeQuote::quoteSingleIdentifier($workspace['connection']['database']),
             ),
         );
 
@@ -103,6 +110,13 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
         $this->_client->dropTable($tableId, ['force' => true]);
         $this->_client->dropBucket($bucketId);
         $workspaces->deleteWorkspace($workspace['id']);
+
+        $db->executeQuery(
+            sprintf(
+                'USE ROLE %s;',
+                SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
+            ),
+        );
 
         $db->executeQuery(
             sprintf(
