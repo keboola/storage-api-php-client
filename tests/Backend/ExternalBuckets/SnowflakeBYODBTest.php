@@ -12,8 +12,10 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
     use WorkspaceConnectionTrait;
     use ConnectionUtils;
 
-    public const TESTDB = 'TESTDB';
-    public const TESTSCHEMA = 'TESTSCHEMA';
+    public const TEST_DB = 'TEST_DB';
+    public const TEST_SCHEMA = 'TEST_SCHEMA';
+    public const TEST_TABLE = 'TEST_TABLE';
+    public const TEST_VIEW = 'TEST_VIEW';
 
     public function setUp(): void
     {
@@ -23,14 +25,15 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
 
     public function testRegisterExternalBucketInBYODBEnvironment(): void
     {
-        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
+        $bucketId = 'in.test-bucket-registration';
+        $this->dropBucketIfExists($this->_client, $bucketId, true);
 
         $this->initEvents($this->_client);
         $token = $this->_client->verifyToken();
 
         // check that this project does not have external buckets feature enabled
         $this->assertFalse(in_array('external-buckets', $token['owner']['features']));
-        $guide = $this->_client->registerBucketGuide([self::TESTDB, self::TESTSCHEMA], 'snowflake');
+        $guide = $this->_client->registerBucketGuide([self::TEST_DB, self::TEST_SCHEMA], 'snowflake');
 
         $guideExploded = explode("\n", $guide['markdown']);
         $db = $this->ensureSnowflakeConnection();
@@ -38,37 +41,37 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
         $db->executeQuery(
             sprintf(
                 'DROP DATABASE IF EXISTS %s;',
-                SnowflakeQuote::quoteSingleIdentifier(self::TESTDB),
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_DB),
             ),
         );
         $db->executeQuery(
             sprintf(
                 'CREATE DATABASE %s;',
-                SnowflakeQuote::quoteSingleIdentifier(self::TESTDB),
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_DB),
             ),
         );
         $db->executeQuery(
             sprintf(
                 'USE DATABASE %s;',
-                SnowflakeQuote::quoteSingleIdentifier(self::TESTDB),
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_DB),
             ),
         );
         $db->executeQuery(
             sprintf(
                 'CREATE SCHEMA %s;',
-                SnowflakeQuote::quoteSingleIdentifier(self::TESTSCHEMA),
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
             ),
         );
         $db->executeQuery(
             sprintf(
                 'USE SCHEMA %s;',
-                SnowflakeQuote::quoteSingleIdentifier(self::TESTSCHEMA),
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
             ),
         );
         $db->executeQuery(
             sprintf(
                 'CREATE TABLE %s (ID INT, LASTNAME VARCHAR(255));',
-                SnowflakeQuote::quoteSingleIdentifier('TESTTABLE'),
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_TABLE),
             ),
         );
 
@@ -80,21 +83,32 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
 
         $this->_client->registerBucket(
             'test-bucket-registration',
-            [self::TESTDB, self::TESTSCHEMA],
+            [self::TEST_DB, self::TEST_SCHEMA],
             'in',
             'will not fail',
             'snowflake',
             'test-bucket-registration',
         );
 
-        $tables = $this->_client->listTables('in.test-bucket-registration');
+        $tables = $this->_client->listTables($bucketId);
+        $this->assertCount(2, $tables);
+
+        $db->executeQuery(
+            sprintf(
+                'DROP VIEW %s;',
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_VIEW),
+            ),
+        );
+
+        $this->_client->refreshBucket($bucketId);
+
+        $tables = $this->_client->listTables($bucketId);
         $this->assertCount(1, $tables);
-        $this->_client->refreshBucket('in.test-bucket-registration');
 
         $db->executeQuery(
             sprintf(
                 'DROP DATABASE %s;',
-                SnowflakeQuote::quoteSingleIdentifier(self::TESTDB),
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_DB),
             ),
         );
     }
