@@ -75,6 +75,14 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
             ),
         );
 
+        $db->executeQuery(
+            sprintf(
+                'CREATE VIEW %s AS SELECT * FROM %s;',
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_VIEW),
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_TABLE),
+            ),
+        );
+
         foreach ($guideExploded as $command) {
             if (str_starts_with($command, 'GRANT') && !str_contains($command, 'FUTURE')) {
                 $db->executeQuery($command);
@@ -105,6 +113,7 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
         $tables = $this->_client->listTables($bucketId);
         $this->assertCount(1, $tables);
 
+        $this->_client->dropBucket($bucketId);
         $db->executeQuery(
             sprintf(
                 'DROP DATABASE %s;',
