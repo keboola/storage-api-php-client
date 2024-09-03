@@ -4371,14 +4371,10 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
         + Default: eq
     + whereFilters[] (optional)
         + column (required) - column which should be matched
-        + operator (required, enum[string]) - operator for value comparison
+        + operator (optional, enum[string]) - operator for value comparison
             + Members
                 + eq - Equals - can be used with multiple values
                 + ne - Not equals  - case be used with multiple values
-                + gt - Greater than - Not supported for Redshift
-                + ge - Greater than or equals - Not supported for Redshift
-                + lt - Less than - Not supported for Redshift
-                + le - Less than or equals  - Not supported for Redshift
             + Default: eq
         + values[] (required, array) - array of variables to compare
         + dataType (optional, enum[string]) - Not supported for Redshift - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type. BigQuery supports all listed types and converts them to BigQuery equivalent in the background

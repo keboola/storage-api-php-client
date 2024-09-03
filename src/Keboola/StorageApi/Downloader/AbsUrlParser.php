@@ -2,6 +2,8 @@
 
 namespace Keboola\StorageApi\Downloader;
 
+use InvalidArgumentException;
+
 final class AbsUrlParser
 {
     /**
@@ -11,7 +13,7 @@ final class AbsUrlParser
     public static function parseAbsUrl($url)
     {
         $matched = [];
-        preg_match(
+        if (preg_match(
             '/^(https|azure):\/\/'
             . '(.*?)' // account
             . '\.blob\.core\.windows\.net\/'
@@ -20,9 +22,12 @@ final class AbsUrlParser
             . '(.*)$/', // filepath
             $url,
             $matched,
-        );
-        list($full, $protocol, $account, $container, $file) = $matched;
+        ) === 1 && count($matched) === 5) {
+            [$full, $protocol, $account, $container, $file] = $matched;
+            return [$protocol, $account, $container, $file];
+        }
 
-        return [$protocol, $account, $container, $file];
+        // Handle the case where the match is not successful
+        throw new InvalidArgumentException('The provided URL does not match the expected format.');
     }
 }
