@@ -237,6 +237,9 @@ class TimeTravelTest extends StorageApiTestCase
         ], $varcharColumnMetadata[0], ['id', 'timestamp']);
     }
 
+    /**
+     * @group global-search
+     */
     public function testCreateTableFromTimestamp(): void
     {
         $importFile = new CsvFile(__DIR__ . '/../../_data/languages.csv');
@@ -268,16 +271,25 @@ class TimeTravelTest extends StorageApiTestCase
 
         $newTableName = 'new-table-name_' . date('Ymd_His', (int) strtotime($timestamp));
 
+        $hashedUniqueTableName = sha1($newTableName . '-'.$this->generateDescriptionForTestObject());
         $replicaTableId = $this->_client->createTableFromSourceTableAtTimestamp(
             $this->getTestBucketId(self::STAGE_OUT),
             $sourceTableId,
             $timestamp,
-            $newTableName,
+            $hashedUniqueTableName,
         );
+
+        $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
+        $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('table', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
 
         $replicaTable = $this->_client->getTable($replicaTableId);
 
-        $this->assertEquals($newTableName, $replicaTable['name']);
+        $this->assertEquals($hashedUniqueTableName, $replicaTable['name']);
         if ($this->getDefaultBackend($this->_client) === self::BACKEND_BIGQUERY) {
             $this->assertEquals([], $replicaTable['primaryKey']);
         } else {

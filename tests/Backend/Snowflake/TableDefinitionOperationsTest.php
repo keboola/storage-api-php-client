@@ -1887,12 +1887,17 @@ EOD,
         }
     }
 
+    /**
+     * @group global-search
+     */
     public function testDataPreviewForTableDefinitionBaseType(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
 
+        $hashedUniqueTableName = sha1('my-new-table-for_data_preview-'.$this->generateDescriptionForTestObject());
+
         $tableDefinition = [
-            'name' => 'my-new-table-for_data_preview',
+            'name' => $hashedUniqueTableName,
             'primaryKeysNames' => [],
             'columns' => [
                 [
@@ -1949,6 +1954,14 @@ EOD,
         );
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
+        $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('table', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
 
         $this->_client->writeTableAsync($tableId, $csvFile);
 
