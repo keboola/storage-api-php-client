@@ -8745,6 +8745,66 @@ idComponent and configurationId.
                 }
             ]
 
+## Global search [/v2/storage/global-search?query={query}&limit={limit}&offset={offset}&types={types}&projectIds={projectIds}&branchTypes={branchTypes}&branchIds={branchIds}]
+
+### Global search [GET]
+Search across names of configuration rows, configurations, tables and buckets.
+
++ Parameters
+    + query (required, string) - search query
+    + limit (optional, integer) - Limit number of results
+    + offset (optional, integer) - Pagination offset of results
+    + types (optional, array) - Search in specific type: flow, bucket, table, transformation, configuration, configuration-row, workspace and shared-code.
+    + projectIds (optional, array) - Array of integers of projects where search performs
+    + branchTypes (optional, string) - Branch type where to search. Possible options: production, development
+    + branchIds (optional, array) - Array of integers of branches where search performs
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "all": 1,
+                "items": [
+                    {
+                        "id": 1,
+                        "type": "configuration",
+                        "name": "Configuration Name",
+                        "fullPath": {
+                            "project": {
+                                "id": 10,
+                                "name": "Project name"
+                            },
+                            "branch": {
+                                "id": 20,
+                                "name": "Branch name",
+                                "isDefault": true,
+                                "isNative": true
+                            },
+                            "component": {
+                                "id": "component-id",
+                                "name": "Component name"
+                            }
+                        },
+                        "componentId": "component-id",
+                        "organizationId": 30,
+                        "projectId": 10,
+                        "created": "2024-06-20T10:50:40:30+02:00"
+                    },
+                ],
+                "byType": {
+                    "total": 1,
+                    "configuration": 1
+                },
+                "byProject": {
+                    "10": "Project name"
+                },
+            }
+
 # Group Stats
 ## RunId [/v2/storage/stats?runId={runId}]
 ### Stats detail [GET]

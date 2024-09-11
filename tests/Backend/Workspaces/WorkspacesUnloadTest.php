@@ -59,6 +59,9 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
         ]);
     }
 
+    /**
+     * @group global-search
+     */
     public function testCreateTableFromWorkspace(): void
     {
         // create workspace and source table in workspace
@@ -78,12 +81,22 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 		);');
         $db->query("insert into \"test_Languages3\" (\"Id\", \"Name\") values (1, 'cz'), (2, 'en');");
 
+        $hashedUniqueTableName = sha1('languages3-'.$this->generateDescriptionForTestObject());
+
         // create table from workspace
         $tableId = $this->_client->createTableAsyncDirect($this->getTestBucketId(), [
-            'name' => 'languages3',
+            'name' => $hashedUniqueTableName,
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => 'test_Languages3',
         ]);
+
+        $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
+        $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
+            $this->assertSame(1, $searchResult['all']);
+            $this->assertSame('table', $searchResult['items'][0]['type']);
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
 
         $expected = [
             ($connection['backend'] === parent::BACKEND_REDSHIFT) ? '"id","name"' : '"Id","Name"',
