@@ -218,9 +218,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedName);
         $assertCallback = function ($searchResult) use ($hashedName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -234,7 +234,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedName);
         $assertCallback = function ($searchResult) {
-            $this->assertSame(0, $searchResult['all']);
+            $this->assertSame(0, $searchResult['all'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -250,9 +250,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedNameRenewed);
         $assertCallback = function ($searchResult) use ($hashedNameRenewed) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedNameRenewed, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedNameRenewed, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -382,9 +382,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedName);
         $assertCallback = function ($searchResult) use ($hashedName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -408,7 +408,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedName);
         $assertCallback = function ($searchResult) {
-            $this->assertSame(0, $searchResult['all']);
+            $this->assertSame(0, $searchResult['all'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -425,9 +425,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedName);
         $assertCallback = function ($searchResult) use ($hashedName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -535,9 +535,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedName);
         $assertCallback = function ($searchResult) use ($hashedName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -1026,9 +1026,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedName);
         $assertCallback = function ($searchResult) use ($hashedName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -1044,9 +1044,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedNewName);
         $assertCallback = function ($searchResult) use ($hashedNewName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedNewName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedNewName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -1663,9 +1663,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedName);
         $assertCallback = function ($searchResult) use ($hashedName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -1706,9 +1706,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($newHashedName);
         $assertCallback = function ($searchResult) use ($newHashedName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($newHashedName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($newHashedName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -1719,9 +1719,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedName);
         $assertCallback = function ($searchResult) use ($hashedName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -1796,9 +1796,9 @@ class ComponentsTest extends StorageApiTestCase
         $result = $components->createConfigurationFromVersion($config->getComponentId(), $config->getConfigurationId(), 4, $hashedName);
         $apiCall = fn() => $this->_client->globalSearch($hashedName);
         $assertCallback = function ($searchResult) use ($hashedName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
         $this->assertArrayHasKey('id', $result);
@@ -2102,9 +2102,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedRowName);
         $assertCallback = function ($searchResult) use ($hashedRowName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration-row', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedRowName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration-row', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedRowName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
 
         $this->retryWithCallback($apiCall, $assertCallback);
@@ -2278,9 +2278,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedRowName);
         $assertCallback = function ($searchResult) use ($hashedRowName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration-row', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedRowName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration-row', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedRowName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -2296,15 +2296,15 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedRowName);
         $assertCallback = function ($searchResult) {
-            $this->assertSame(0, $searchResult['all']);
+            $this->assertSame(0, $searchResult['all'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
         $apiCall = fn() => $this->_client->globalSearch($hashedUpdatedRowName);
         $assertCallback = function ($searchResult) use ($hashedUpdatedRowName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration-row', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedUpdatedRowName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration-row', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedUpdatedRowName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -2569,9 +2569,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedRowName);
         $assertCallback = function ($searchResult) use ($hashedRowName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration-row', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedRowName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration-row', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedRowName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -2671,9 +2671,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedRenamedRowName);
         $assertCallback = function ($searchResult) use ($hashedRenamedRowName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration-row', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedRenamedRowName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration-row', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedRenamedRowName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -2836,9 +2836,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedRowName);
         $assertCallback = function ($searchResult) use ($hashedRowName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration-row', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedRowName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration-row', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedRowName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -2885,7 +2885,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedRowName);
         $assertCallback = function ($searchResult) {
-            $this->assertSame(0, $searchResult['all']);
+            $this->assertSame(0, $searchResult['all'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -3195,9 +3195,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedRowName);
         $assertCallback = function ($searchResult) use ($hashedRowName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration-row', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedRowName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration-row', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedRowName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -3211,9 +3211,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedRowName);
         $assertCallback = function ($searchResult) use ($hashedRowName) {
-            $this->assertSame(2, $searchResult['all']);
-            $this->assertSame('configuration-row', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedRowName, $searchResult['items'][0]['name']);
+            $this->assertSame(2, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration-row', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedRowName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -3244,9 +3244,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedRowName);
         $assertCallback = function ($searchResult) use ($hashedRowName) {
-            $this->assertSame(3, $searchResult['all']);
-            $this->assertSame('configuration-row', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedRowName, $searchResult['items'][0]['name']);
+            $this->assertSame(3, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration-row', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedRowName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -3737,9 +3737,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedRowName);
         $assertCallback = function ($searchResult) use ($hashedRowName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration-row', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedRowName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration-row', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedRowName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -3753,7 +3753,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedRowName);
         $assertCallback = function ($searchResult) {
-            $this->assertSame(0, $searchResult['all']);
+            $this->assertSame(0, $searchResult['all'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -3766,9 +3766,9 @@ class ComponentsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedRowName);
         $assertCallback = function ($searchResult) use ($hashedRowName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration-row', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedRowName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration-row', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedRowName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 

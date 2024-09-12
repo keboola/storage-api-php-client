@@ -92,9 +92,9 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
         $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('table', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('table', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 

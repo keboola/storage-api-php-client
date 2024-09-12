@@ -55,30 +55,30 @@ class GlobalSearchTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->client->globalSearch($hashedName);
         $assertCallback = function ($searchResult) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]);
-            $this->assertArrayHasKey('type', $searchResult['items'][0]);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]);
-            $this->assertArrayHasKey('fullPath', $searchResult['items'][0]);
-            $this->assertArrayHasKey('project', $searchResult['items'][0]['fullPath']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['project']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['project']);
-            $this->assertArrayHasKey('branch', $searchResult['items'][0]['fullPath']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['branch']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['branch']);
-            $this->assertArrayHasKey('isDefault', $searchResult['items'][0]['fullPath']['branch']);
-            $this->assertArrayHasKey('isNative', $searchResult['items'][0]['fullPath']['branch']);
-            $this->assertArrayHasKey('component', $searchResult['items'][0]['fullPath']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['component']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['component']);
-            $this->assertArrayHasKey('componentId', $searchResult['items'][0]);
-            $this->assertArrayHasKey('organizationId', $searchResult['items'][0]);
-            $this->assertArrayHasKey('projectId', $searchResult['items'][0]);
-            $this->assertArrayHasKey('created', $searchResult['items'][0]);
-            $this->assertArrayHasKey('byType', $searchResult);
-            $this->assertArrayHasKey('configuration', $searchResult['byType']);
-            $this->assertArrayHasKey('byProject', $searchResult);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('type', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('fullPath', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('project', $searchResult['items'][0]['fullPath'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['project'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['project'], 'GlobalSearch');
+            $this->assertArrayHasKey('branch', $searchResult['items'][0]['fullPath'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['branch'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['branch'], 'GlobalSearch');
+            $this->assertArrayHasKey('isDefault', $searchResult['items'][0]['fullPath']['branch'], 'GlobalSearch');
+            $this->assertArrayHasKey('isNative', $searchResult['items'][0]['fullPath']['branch'], 'GlobalSearch');
+            $this->assertArrayHasKey('component', $searchResult['items'][0]['fullPath'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['component'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['component'], 'GlobalSearch');
+            $this->assertArrayHasKey('componentId', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('organizationId', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('projectId', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('created', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('byType', $searchResult, 'GlobalSearch');
+            $this->assertArrayHasKey('configuration', $searchResult['byType'], 'GlobalSearch');
+            $this->assertArrayHasKey('byProject', $searchResult, 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
     }
@@ -109,33 +109,33 @@ class GlobalSearchTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->client->globalSearch($hashedRowName);
         $assertCallback = function ($searchResult) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]);
-            $this->assertArrayHasKey('type', $searchResult['items'][0]);
-            $this->assertSame('configuration-row', $searchResult['items'][0]['type']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]);
-            $this->assertArrayHasKey('fullPath', $searchResult['items'][0]);
-            $this->assertArrayHasKey('project', $searchResult['items'][0]['fullPath']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['project']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['project']);
-            $this->assertArrayHasKey('branch', $searchResult['items'][0]['fullPath']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['branch']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['branch']);
-            $this->assertArrayHasKey('isDefault', $searchResult['items'][0]['fullPath']['branch']);
-            $this->assertArrayHasKey('isNative', $searchResult['items'][0]['fullPath']['branch']);
-            $this->assertArrayHasKey('component', $searchResult['items'][0]['fullPath']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['component']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['component']);
-            $this->assertArrayHasKey('configuration', $searchResult['items'][0]['fullPath']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['configuration']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['configuration']);
-            $this->assertArrayHasKey('componentId', $searchResult['items'][0]);
-            $this->assertArrayHasKey('organizationId', $searchResult['items'][0]);
-            $this->assertArrayHasKey('projectId', $searchResult['items'][0]);
-            $this->assertArrayHasKey('created', $searchResult['items'][0]);
-            $this->assertArrayHasKey('byType', $searchResult);
-            $this->assertArrayHasKey('configuration-row', $searchResult['byType']);
-            $this->assertArrayHasKey('byProject', $searchResult);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('type', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertSame('configuration-row', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('fullPath', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('project', $searchResult['items'][0]['fullPath'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['project'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['project'], 'GlobalSearch');
+            $this->assertArrayHasKey('branch', $searchResult['items'][0]['fullPath'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['branch'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['branch'], 'GlobalSearch');
+            $this->assertArrayHasKey('isDefault', $searchResult['items'][0]['fullPath']['branch'], 'GlobalSearch');
+            $this->assertArrayHasKey('isNative', $searchResult['items'][0]['fullPath']['branch'], 'GlobalSearch');
+            $this->assertArrayHasKey('component', $searchResult['items'][0]['fullPath'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['component'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['component'], 'GlobalSearch');
+            $this->assertArrayHasKey('configuration', $searchResult['items'][0]['fullPath'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['configuration'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['configuration'], 'GlobalSearch');
+            $this->assertArrayHasKey('componentId', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('organizationId', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('projectId', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('created', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('byType', $searchResult, 'GlobalSearch');
+            $this->assertArrayHasKey('configuration-row', $searchResult['byType'], 'GlobalSearch');
+            $this->assertArrayHasKey('byProject', $searchResult, 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
     }
@@ -154,27 +154,27 @@ class GlobalSearchTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->client->globalSearch($hashedBucketName);
         $assertCallback = function ($searchResult) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]);
-            $this->assertArrayHasKey('type', $searchResult['items'][0]);
-            $this->assertSame('bucket', $searchResult['items'][0]['type']);
-            $this->assertArrayHasKey('uri', $searchResult['items'][0]);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]);
-            $this->assertArrayHasKey('fullPath', $searchResult['items'][0]);
-            $this->assertArrayHasKey('project', $searchResult['items'][0]['fullPath']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['project']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['project']);
-            $this->assertArrayHasKey('branch', $searchResult['items'][0]['fullPath']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['branch']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['branch']);
-            $this->assertArrayHasKey('isDefault', $searchResult['items'][0]['fullPath']['branch']);
-            $this->assertArrayHasKey('isNative', $searchResult['items'][0]['fullPath']['branch']);
-            $this->assertArrayHasKey('organizationId', $searchResult['items'][0]);
-            $this->assertArrayHasKey('projectId', $searchResult['items'][0]);
-            $this->assertArrayHasKey('created', $searchResult['items'][0]);
-            $this->assertArrayHasKey('byType', $searchResult);
-            $this->assertArrayHasKey('bucket', $searchResult['byType']);
-            $this->assertArrayHasKey('byProject', $searchResult);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('type', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertSame('bucket', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertArrayHasKey('uri', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('fullPath', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('project', $searchResult['items'][0]['fullPath'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['project'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['project'], 'GlobalSearch');
+            $this->assertArrayHasKey('branch', $searchResult['items'][0]['fullPath'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['branch'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['branch'], 'GlobalSearch');
+            $this->assertArrayHasKey('isDefault', $searchResult['items'][0]['fullPath']['branch'], 'GlobalSearch');
+            $this->assertArrayHasKey('isNative', $searchResult['items'][0]['fullPath']['branch'], 'GlobalSearch');
+            $this->assertArrayHasKey('organizationId', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('projectId', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('created', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('byType', $searchResult, 'GlobalSearch');
+            $this->assertArrayHasKey('bucket', $searchResult['byType'], 'GlobalSearch');
+            $this->assertArrayHasKey('byProject', $searchResult, 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -183,30 +183,30 @@ class GlobalSearchTest extends StorageApiTestCase
         $this->_client->createTableAsync($testBucketId, $hashedTableName, new CsvFile(__DIR__ . '/../_data/languages.csv'));
         $apiCall = fn() => $this->client->globalSearch($hashedTableName);
         $assertCallback = function ($searchResult) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]);
-            $this->assertArrayHasKey('type', $searchResult['items'][0]);
-            $this->assertSame('table', $searchResult['items'][0]['type']);
-            $this->assertArrayHasKey('uri', $searchResult['items'][0]);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]);
-            $this->assertArrayHasKey('fullPath', $searchResult['items'][0]);
-            $this->assertArrayHasKey('project', $searchResult['items'][0]['fullPath']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['project']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['project']);
-            $this->assertArrayHasKey('branch', $searchResult['items'][0]['fullPath']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['branch']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['branch']);
-            $this->assertArrayHasKey('isDefault', $searchResult['items'][0]['fullPath']['branch']);
-            $this->assertArrayHasKey('isNative', $searchResult['items'][0]['fullPath']['branch']);
-            $this->assertArrayHasKey('bucket', $searchResult['items'][0]['fullPath']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['bucket']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['bucket']);
-            $this->assertArrayHasKey('organizationId', $searchResult['items'][0]);
-            $this->assertArrayHasKey('projectId', $searchResult['items'][0]);
-            $this->assertArrayHasKey('created', $searchResult['items'][0]);
-            $this->assertArrayHasKey('byType', $searchResult);
-            $this->assertArrayHasKey('table', $searchResult['byType']);
-            $this->assertArrayHasKey('byProject', $searchResult);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('type', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertSame('table', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertArrayHasKey('uri', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('fullPath', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('project', $searchResult['items'][0]['fullPath'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['project'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['project'], 'GlobalSearch');
+            $this->assertArrayHasKey('branch', $searchResult['items'][0]['fullPath'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['branch'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['branch'], 'GlobalSearch');
+            $this->assertArrayHasKey('isDefault', $searchResult['items'][0]['fullPath']['branch'], 'GlobalSearch');
+            $this->assertArrayHasKey('isNative', $searchResult['items'][0]['fullPath']['branch'], 'GlobalSearch');
+            $this->assertArrayHasKey('bucket', $searchResult['items'][0]['fullPath'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0]['fullPath']['bucket'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0]['fullPath']['bucket'], 'GlobalSearch');
+            $this->assertArrayHasKey('organizationId', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('projectId', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('created', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('byType', $searchResult, 'GlobalSearch');
+            $this->assertArrayHasKey('table', $searchResult['byType'], 'GlobalSearch');
+            $this->assertArrayHasKey('byProject', $searchResult, 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -217,16 +217,16 @@ class GlobalSearchTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->client->globalSearch($hashedDisplayName);
         $assertCallback = function ($searchResult) use ($hashedDisplayName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('bucket', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedDisplayName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('bucket', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedDisplayName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
         $this->_client->dropBucket($testBucketId, ['force' => true]);
         $apiCall = fn() => $this->client->globalSearch($hashedDisplayName);
         $assertCallback = function ($searchResult) {
-            $this->assertSame(0, $searchResult['all']);
+            $this->assertSame(0, $searchResult['all'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
     }
@@ -290,45 +290,45 @@ class GlobalSearchTest extends StorageApiTestCase
 
         $apiCall1 = fn() => $this->client->globalSearch($configurationHashedName);
         $assertCallback1 = function ($searchResult) use ($configurationHashedName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]);
-            $this->assertArrayHasKey('type', $searchResult['items'][0]);
-            $this->assertEquals('configuration', $searchResult['items'][0]['type']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]);
-            $this->assertEquals($searchResult['items'][0]['name'], $configurationHashedName);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('type', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertEquals('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertEquals($searchResult['items'][0]['name'], $configurationHashedName, 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall1, $assertCallback1);
 
         $apiCall2 = fn() => $this->client->globalSearch($configurationHashedName2);
         $assertCallback2 = function ($searchResult) use ($configurationHashedName2) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]);
-            $this->assertArrayHasKey('type', $searchResult['items'][0]);
-            $this->assertEquals('configuration', $searchResult['items'][0]['type']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]);
-            $this->assertStringStartsWith($configurationHashedName2, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('type', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertEquals('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertStringStartsWith($configurationHashedName2, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall2, $assertCallback2);
 
         $apiCall3 = fn() => $this->client->globalSearch($hashedBucketName1);
         $assertCallback3 = function ($searchResult) use ($hashedBucketName1) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]);
-            $this->assertArrayHasKey('type', $searchResult['items'][0]);
-            $this->assertEquals('bucket', $searchResult['items'][0]['type']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]);
-            $this->assertStringStartsWith($hashedBucketName1, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('type', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertEquals('bucket', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertStringStartsWith($hashedBucketName1, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall3, $assertCallback3);
 
         $apiCall4 = fn() => $this->client->globalSearch($hashedTableName1);
         $assertCallback4 = function ($searchResult) use ($hashedTableName1) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]);
-            $this->assertArrayHasKey('type', $searchResult['items'][0]);
-            $this->assertEquals('table', $searchResult['items'][0]['type']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]);
-            $this->assertStringStartsWith($hashedTableName1, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('type', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertEquals('table', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertStringStartsWith($hashedTableName1, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall4, $assertCallback4);
     }

@@ -730,17 +730,17 @@ class MergeRequestsTest extends StorageApiTestCase
         // check if config is indexed
         $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigMain1Name);
         $assertCallback = function ($searchResult) use ($hashedConfigMain1Name) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedConfigMain1Name, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedConfigMain1Name, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
         $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigMain2Name);
         $assertCallback = function ($searchResult) use ($hashedConfigMain2Name) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedConfigMain2Name, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedConfigMain2Name, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -751,17 +751,17 @@ class MergeRequestsTest extends StorageApiTestCase
         // check if config is indexed
         $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigMain1Name);
         $assertCallback = function ($searchResult) use ($hashedConfigMain1Name) {
-            $this->assertSame(2, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedConfigMain1Name, $searchResult['items'][0]['name']);
+            $this->assertSame(2, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedConfigMain1Name, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
         $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigMain2Name);
         $assertCallback = function ($searchResult) use ($hashedConfigMain2Name) {
-            $this->assertSame(2, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedConfigMain2Name, $searchResult['items'][0]['name']);
+            $this->assertSame(2, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedConfigMain2Name, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -825,15 +825,15 @@ class MergeRequestsTest extends StorageApiTestCase
         // check if config is indexed
         $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigMain1Name);
         $assertCallback = function ($searchResult) {
-            $this->assertSame(0, $searchResult['all']);
+            $this->assertSame(0, $searchResult['all'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
         $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigMain2Name);
         $assertCallback = function ($searchResult) use ($hashedConfigMain2Name) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedConfigMain2Name, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedConfigMain2Name, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
     }
@@ -945,11 +945,11 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigUpdatedName);
         $assertCallback = function ($searchResult) use ($hashedConfigUpdatedName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedConfigUpdatedName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedConfigUpdatedName, $searchResult['items'][0]['name'], 'GlobalSearch');
             // updated in devBranch
-            $this->assertFalse($searchResult['items'][0]['fullPath']['branch']['isDefault']);
+            $this->assertFalse($searchResult['items'][0]['fullPath']['branch']['isDefault'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -975,11 +975,11 @@ class MergeRequestsTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->getDefaultBranchStorageApiClient()->globalSearch($hashedConfigUpdatedName);
         $assertCallback = function ($searchResult) use ($hashedConfigUpdatedName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('configuration', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedConfigUpdatedName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('configuration', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedConfigUpdatedName, $searchResult['items'][0]['name'], 'GlobalSearch');
             // after merge exist in main branch
-            $this->assertTrue($searchResult['items'][0]['fullPath']['branch']['isDefault']);
+            $this->assertTrue($searchResult['items'][0]['fullPath']['branch']['isDefault'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 

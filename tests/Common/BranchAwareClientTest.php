@@ -90,12 +90,12 @@ class BranchAwareClientTest extends StorageApiTestCase
 
         $apiCall1 = fn() => $this->_client->globalSearch($hashedUniqueBucketName, (new GlobalSearchOptions(null, null, null, null, ['production'])));
         $assertCallback1 = function ($searchResult) use ($hashedUniqueBucketName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]);
-            $this->assertArrayHasKey('type', $searchResult['items'][0]);
-            $this->assertEquals('transformation', $searchResult['items'][0]['type']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]);
-            $this->assertStringStartsWith($hashedUniqueBucketName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('type', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertEquals('transformation', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertStringStartsWith($hashedUniqueBucketName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall1, $assertCallback1);
     }

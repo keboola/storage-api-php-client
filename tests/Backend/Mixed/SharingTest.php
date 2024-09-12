@@ -299,9 +299,9 @@ class SharingTest extends StorageApiSharingTestCase
 
         $apiCall = fn() => $client->globalSearch($hashedUniqueTableName);
         $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('bucket', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('bucket', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -347,9 +347,9 @@ class SharingTest extends StorageApiSharingTestCase
 
         $apiCall = fn() => $client->globalSearch($hashedUniqueTableName);
         $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('bucket', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('bucket', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
         try {
@@ -412,9 +412,9 @@ class SharingTest extends StorageApiSharingTestCase
 
         $apiCall = fn() => $client->globalSearch($hashedUniqueTableName);
         $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('bucket', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('bucket', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -425,7 +425,7 @@ class SharingTest extends StorageApiSharingTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
         $assertCallback = function ($searchResult) {
-            $this->assertSame(0, $searchResult['all']);
+            $this->assertSame(0, $searchResult['all'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -881,17 +881,17 @@ class SharingTest extends StorageApiSharingTestCase
         // this buckets should be found only in main project
         $apiCall = fn() => $this->_client->globalSearch($bucketNameHash);
         $assertCallback = function ($searchResult) {
-            $this->assertSame(2, $searchResult['all']);
-            $this->assertSame('bucket', $searchResult['items'][0]['type']);
-            $this->assertCount(1, $searchResult['byProject']);
+            $this->assertSame(2, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('bucket', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertCount(1, $searchResult['byProject'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
         // test can't find bucket in linking project
         $apiCall = fn() => $this->_client->globalSearch($bucketNameHash, new GlobalSearchOptions(null, null, null, [$projectLinking]));
         $assertCallback = function ($searchResult) {
-            $this->assertSame(0, $searchResult['all']);
-            $this->assertCount(1, $searchResult['byProject']); // this is bucket in main project
+            $this->assertSame(0, $searchResult['all'], 'GlobalSearch');
+            $this->assertCount(1, $searchResult['byProject'], 'GlobalSearch'); // this is bucket in main project
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -902,26 +902,26 @@ class SharingTest extends StorageApiSharingTestCase
         // test can find bucket in both projects
         $apiCall = fn() => $this->_client->globalSearch($bucketNameHash);
         $assertCallback = function ($searchResult) {
-            $this->assertSame(3, $searchResult['all']);
-            $this->assertSame('bucket', $searchResult['items'][0]['type']);
-            $this->assertCount(2, $searchResult['byProject']);
+            $this->assertSame(3, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('bucket', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertCount(2, $searchResult['byProject'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
         // test linked bucket can be found in linking project
         $apiCall = fn() => $this->_client->globalSearch($bucketNameHash, new GlobalSearchOptions(null, null, null, [$projectLinking]));
         $assertCallback = function ($searchResult) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('bucket', $searchResult['items'][0]['type']);
-            $this->assertCount(2, $searchResult['byProject']);// this is count in both projects
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('bucket', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertCount(2, $searchResult['byProject'], 'GlobalSearch');// this is count in both projects
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
         // in project in other organization can't find nothing
         $apiCallOtherOrg = fn() => $this->clientAdmin3InOtherOrg->globalSearch($bucketNameHash);
         $assertCallback4 = function ($searchResult) {
-            $this->assertSame(0, $searchResult['all']);
-            $this->assertCount(0, $searchResult['byProject']);
+            $this->assertSame(0, $searchResult['all'], 'GlobalSearch');
+            $this->assertCount(0, $searchResult['byProject'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCallOtherOrg, $assertCallback4);
     }
@@ -1301,9 +1301,9 @@ class SharingTest extends StorageApiSharingTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
         $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('bucket', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('bucket', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
