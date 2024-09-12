@@ -154,9 +154,9 @@ class BranchComponentTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedConfigMain1Name);
         $assertCallback = function ($searchResult) use ($hashedConfigMain1Name) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('transformation', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedConfigMain1Name, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('transformation', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedConfigMain1Name, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -169,9 +169,9 @@ class BranchComponentTest extends StorageApiTestCase
         // test is indexed 2x for default and dev branch
         $apiCall = fn() => $this->_client->globalSearch($hashedConfigMain1Name);
         $assertCallback = function ($searchResult) use ($hashedConfigMain1Name) {
-            $this->assertSame(2, $searchResult['all']);
-            $this->assertSame('transformation', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedConfigMain1Name, $searchResult['items'][0]['name']);
+            $this->assertSame(2, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('transformation', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedConfigMain1Name, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
         // If create a new branch, config should be the same, also version identifier
@@ -189,10 +189,10 @@ class BranchComponentTest extends StorageApiTestCase
         );
         $apiCall = fn() => $this->_client->globalSearch($hashedUpdatedMain1Name);
         $assertCallback = function ($searchResult) use ($hashedUpdatedMain1Name) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('transformation', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedUpdatedMain1Name, $searchResult['items'][0]['name']);
-            $this->assertTrue($searchResult['items'][0]['fullPath']['branch']['isDefault']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('transformation', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedUpdatedMain1Name, $searchResult['items'][0]['name'], 'GlobalSearch');
+            $this->assertTrue($searchResult['items'][0]['fullPath']['branch']['isDefault'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -206,10 +206,10 @@ class BranchComponentTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedUpdatedDevBranch1Name);
         $assertCallback = function ($searchResult) use ($hashedUpdatedDevBranch1Name) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('transformation', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedUpdatedDevBranch1Name, $searchResult['items'][0]['name']);
-            $this->assertFalse($searchResult['items'][0]['fullPath']['branch']['isDefault']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('transformation', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedUpdatedDevBranch1Name, $searchResult['items'][0]['name'], 'GlobalSearch');
+            $this->assertFalse($searchResult['items'][0]['fullPath']['branch']['isDefault'], 'GlobalSearch');
         };
 
         $this->retryWithCallback($apiCall, $assertCallback);
@@ -264,9 +264,9 @@ class BranchComponentTest extends StorageApiTestCase
 
         $apiCall = fn() => $this->_client->globalSearch($hashedUpdatedMain1Name);
         $assertCallback = function ($searchResult) use ($hashedUpdatedMain1Name) {
-            $this->assertSame(2, $searchResult['all']);
-            $this->assertSame('transformation', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedUpdatedMain1Name, $searchResult['items'][0]['name']);
+            $this->assertSame(2, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('transformation', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedUpdatedMain1Name, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -1231,12 +1231,12 @@ class BranchComponentTest extends StorageApiTestCase
         // configuration in dev branch is searchable
         $apiCall1 = fn() => $this->_client->globalSearch($configurationHashedName, (new GlobalSearchOptions(null, null, null, null, null, [$branch['id']])));
         $assertCallback1 = function ($searchResult) use ($configurationHashedName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]);
-            $this->assertArrayHasKey('type', $searchResult['items'][0]);
-            $this->assertEquals('transformation', $searchResult['items'][0]['type']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]);
-            $this->assertEquals($configurationHashedName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('type', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertEquals('transformation', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertEquals($configurationHashedName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall1, $assertCallback1);
 
@@ -1246,7 +1246,7 @@ class BranchComponentTest extends StorageApiTestCase
         // configuration in dev branch is no longer searchable
         $apiCall2 = fn() => $this->_client->globalSearch($configurationHashedName, (new GlobalSearchOptions(null, null, null, null, null, [$branch['id']])));
         $assertCallback2 = function ($searchResult) {
-            $this->assertSame(0, $searchResult['all']);
+            $this->assertSame(0, $searchResult['all'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall2, $assertCallback2);
 

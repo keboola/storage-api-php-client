@@ -107,12 +107,12 @@ class BranchBucketsTest extends StorageApiTestCase
         // bucket in dev branch is searchable
         $apiCall1 = fn() => $this->_client->globalSearch($devBucketName1, (new GlobalSearchOptions(null, null, null, null, ['development'])));
         $assertCallback1 = function ($searchResult) use ($devBucketName1) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertArrayHasKey('id', $searchResult['items'][0]);
-            $this->assertArrayHasKey('type', $searchResult['items'][0]);
-            $this->assertEquals('bucket', $searchResult['items'][0]['type']);
-            $this->assertArrayHasKey('name', $searchResult['items'][0]);
-            $this->assertEquals($devBucketName1, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertArrayHasKey('id', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertArrayHasKey('type', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertEquals('bucket', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertArrayHasKey('name', $searchResult['items'][0], 'GlobalSearch');
+            $this->assertEquals($devBucketName1, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall1, $assertCallback1);
 
@@ -121,7 +121,7 @@ class BranchBucketsTest extends StorageApiTestCase
         // bucket in dev branch is no longer searchable
         $apiCall2 = fn() => $this->_client->globalSearch($devBucketName1, (new GlobalSearchOptions(null, null, null, null, ['development'])));
         $assertCallback2 = function ($searchResult) {
-            $this->assertSame(0, $searchResult['all']);
+            $this->assertSame(0, $searchResult['all'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall2, $assertCallback2);
 

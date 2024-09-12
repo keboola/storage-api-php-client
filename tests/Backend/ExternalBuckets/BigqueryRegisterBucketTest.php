@@ -672,9 +672,9 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 
         $apiCall = fn() => $testClient->globalSearch($hashedUniqueBucketName);
         $assertCallback = function ($searchResult) use ($hashedUniqueBucketName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('bucket', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedUniqueBucketName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('bucket', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedUniqueBucketName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
         $assertCallback = function ($events) {
@@ -721,9 +721,9 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 
         $apiCall = fn() => $testClient->globalSearch($hashedUniqueTableName);
         $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
-            $this->assertSame(1, $searchResult['all']);
-            $this->assertSame('table', $searchResult['items'][0]['type']);
-            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name']);
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame('table', $searchResult['items'][0]['type'], 'GlobalSearch');
+            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
         $this->retryWithCallback($apiCall, $assertCallback);
 
@@ -1370,7 +1370,7 @@ SQL,
         $externalCredentials = $this->getCredentialsArray();
         $externalProjectStringId = $externalCredentials['project_id'];
 
-        // get last 63 chars becauase the displayName has limit
+        // get last 63 chars because the displayName has limit
         $dataExchangeId = substr(
             sha1($description) . str_replace('-', '_', $externalProjectStringId),
             -63,
