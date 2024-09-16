@@ -406,24 +406,24 @@ class CommonFileTest extends StorageApiTestCase
     public function testTagging(): void
     {
         $filePath = __DIR__ . '/../_data/files.upload.txt';
-        $initialTags = ['gooddata', 'image'];
+        $initialTags = ['gooddata', 'image/tag/tag1/'];
         $fileId = $this->_testClient->uploadFile($filePath, (new FileUploadOptions())->setFederationToken(true)->setTags($initialTags));
 
         $file = $this->_testClient->getFile($fileId);
         $this->assertEquals($initialTags, $file['tags']);
 
-        $this->_testClient->deleteFileTag($fileId, 'gooddata');
+        $this->_testClient->deleteFileTag($fileId, 'image/tag/tag1/');
 
         $file = $this->_testClient->getFile($fileId);
-        $this->assertEquals(['image'], $file['tags']);
-
-        $this->_testClient->addFileTag($fileId, 'new');
-        $file = $this->_testClient->getFile($fileId);
-        $this->assertEquals(['image', 'new'], $file['tags']);
+        $this->assertEquals(['gooddata'], $file['tags']);
 
         $this->_testClient->addFileTag($fileId, 'new');
         $file = $this->_testClient->getFile($fileId);
-        $this->assertEquals(['image', 'new'], $file['tags'], 'duplicate tag add is ignored');
+        $this->assertEquals(['gooddata', 'new'], $file['tags']);
+
+        $this->_testClient->addFileTag($fileId, 'new');
+        $file = $this->_testClient->getFile($fileId);
+        $this->assertEquals(['gooddata', 'new'], $file['tags'], 'duplicate tag add is ignored');
     }
 
     /** @dataProvider invalidIdDataProvider */
