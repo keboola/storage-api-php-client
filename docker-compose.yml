@@ -38,6 +38,7 @@ services:
       - SNOWFLAKE_HOST
       - SNOWFLAKE_USER
       - SNOWFLAKE_PASSWORD
+      - SNOWFLAKE_DB_PREFIX
   dev: &dev
     <<: *base
     volumes:
