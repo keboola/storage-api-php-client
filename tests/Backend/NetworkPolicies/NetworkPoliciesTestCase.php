@@ -74,7 +74,7 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
         $db->executeQuery(sprintf(
             'CREATE OR REPLACE NETWORK POLICY %s ALLOWED_NETWORK_RULE_LIST = (%s)',
             $db->quoteIdentifier($networkPolicyName),
-            $db->quote($networkRuleName),
+            $db->quoteIdentifier($networkRuleName),
         ));
     }
 
@@ -82,6 +82,7 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
     {
         $db = $this->ensureSnowflakeConnection();
 
+        /** @var array<array{value: string}> $networkPolicies */
         $networkPolicies = $db->fetchAllAssociative(sprintf(
             'DESCRIBE NETWORK POLICY %s',
             $db->quoteIdentifier($networkPolicyName),
@@ -113,6 +114,7 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
         } while ($retryCount < 10);
 
         foreach ($networkPolicies as $networkPolicy) {
+            /** @var array<array{fullyQualifiedRuleName: string}> $values */
             $values = json_decode($networkPolicy['value'], true);
             foreach ($values as $value) {
                 $db->executeQuery(sprintf(
@@ -143,7 +145,7 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
         );
     }
 
-    protected function assertNetworkPolicyNotExists(string $networkPolicyName)
+    protected function assertNetworkPolicyNotExists(string $networkPolicyName): void
     {
         $this->assertFalse(
             $this->networkPolicyExists($networkPolicyName),
@@ -155,6 +157,7 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
     {
         $db = $this->ensureSnowflakeConnection();
 
+        /** @var array<array{granted_by: string}> $userGrants */
         $userGrants = $db->fetchAllAssociative(sprintf(
             'SHOW GRANTS ON USER %s',
             $db->quoteIdentifier($username),
@@ -162,8 +165,9 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
 
         $ownerRole = $userGrants[0]['granted_by'];
 
-        $currentRoleRow = $db->fetchAllAssociative('SELECT CURRENT_ROLE()');
-        $currentRoleName = $currentRoleRow[0]['CURRENT_ROLE()'];
+        /** @var array<array{'CURRENT_ROLE': string}> $currentRoleRow */
+        $currentRoleRow = $db->fetchAllAssociative('SELECT CURRENT_ROLE() AS CURRENT_ROLE');
+        $currentRoleName = $currentRoleRow[0]['CURRENT_ROLE'];
 
         $db->executeQuery(sprintf(
             'GRANT ROLE %s TO ROLE %s',
@@ -186,27 +190,21 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
             $db->quoteIdentifier($currentRoleName),
         ));
 
-//        $db->executeQuery(sprintf(
-//            'REVOKE ROLE %s FROM ROLE %s',
-//            $db->quoteIdentifier($ownerRole),
-//            $db->quoteIdentifier($currentRoleName),
-//        ));
-
         return ($networkPolicy[0]['value'] ?? null) === $networkPolicyName;
     }
 
-    protected function assertHaveNetworkPolicyEnabled(string $username, string $networkPolicyName, ?string $ownerRole = null): void
+    protected function assertHaveNetworkPolicyEnabled(string $username, string $networkPolicyName): void
     {
         $this->assertTrue(
-            $this->haveNetworkPolicyEnabled($username, $networkPolicyName, $ownerRole),
+            $this->haveNetworkPolicyEnabled($username, $networkPolicyName),
             'User DON\'T have network policy enabled.',
         );
     }
 
-    protected function assertDontHaveNetworkPolicyEnabled(string $username, string $networkPolicyName, ?string $ownerRole = null): void
+    protected function assertDontHaveNetworkPolicyEnabled(string $username, string $networkPolicyName): void
     {
         $this->assertFalse(
-            $this->haveNetworkPolicyEnabled($username, $networkPolicyName, $ownerRole),
+            $this->haveNetworkPolicyEnabled($username, $networkPolicyName),
             'User HAVE network policy enabled.',
         );
     }
@@ -224,7 +222,7 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
         $db->executeQuery(sprintf(
             'CREATE OR REPLACE NETWORK RULE %s TYPE = IPV4 VALUE_LIST = (%s)',
             $db->quoteIdentifier($name),
-            $db->quote($ip),
+            $db->quoteIdentifier($ip),
         ));
     }
 }
