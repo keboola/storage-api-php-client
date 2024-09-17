@@ -4902,6 +4902,11 @@ Creates a new workspace and return its credentials.
             + small
             + medium
             + large
+    + networkPolicy: system (optional, enum[string]) - Network policy applied to workspace user when created.
+            + Members
+                + system
+                + user
+
 + Request (application/json)
     + Headers
 
@@ -4973,6 +4978,10 @@ Creates a new workspace for [Development Branch](#reference/development-branches
             + small
             + medium
             + large
+    + networkPolicy: system (optional, enum[string]) - Network policy applied to workspace user when created.
+            + Members
+                + system
+                + user
 
 + Request (application/json)
     + Headers
@@ -8463,6 +8472,10 @@ Creates a new workspace for an existing configuration in [Development Branch](#r
             + small
             + medium
             + large
+    + networkPolicy: system (optional, enum[string]) - Network policy applied to workspace user when created.
+        + Members
+            + system
+            + user
 
 + Request (application/json)
     + Headers
