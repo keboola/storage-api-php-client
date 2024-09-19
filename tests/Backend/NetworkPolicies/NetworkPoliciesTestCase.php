@@ -23,12 +23,6 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
         return $dbPrefix;
     }
 
-    protected function useDatabase(string $database): void
-    {
-        $db = $this->ensureSnowflakeConnection();
-        $db->executeQuery(sprintf('USE DATABASE %s;', $database));
-    }
-
     /**
      * Keep in sync with \Keboola\Connection\Storage\Service\Backend\NameGenerator\SnowflakeObjectNameGenerator::defaultNetworkPolicyName
      */
@@ -66,13 +60,14 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
     protected function createNetworkPolicyForIp(string $ip, string $database, string $networkPolicyName): void
     {
         $db = $this->ensureSnowflakeConnection();
-        $this->useDatabase($database);
 
         $networkRuleName = $this->defaultNetworkRuleName();
         $this->createNetworkRuleWithIp($database, $networkRuleName, $ip);
 
         $db->executeQuery(sprintf(
-            'CREATE OR REPLACE NETWORK POLICY %s ALLOWED_NETWORK_RULE_LIST = (%s)',
+            'CREATE OR REPLACE NETWORK POLICY %s.%s.%s ALLOWED_NETWORK_RULE_LIST = (%s)',
+            $database,
+            'PUBLIC',
             $db->quoteIdentifier($networkPolicyName),
             $db->quoteIdentifier($networkRuleName),
         ));
@@ -228,11 +223,12 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
 
     protected function createNetworkRuleWithIp(string $database, string $name, string $ip): void
     {
-        $this->useDatabase($database);
         $db = $this->ensureSnowflakeConnection();
 
         $db->executeQuery(sprintf(
-            'CREATE OR REPLACE NETWORK RULE %s TYPE = IPV4 VALUE_LIST = (%s)',
+            'CREATE OR REPLACE NETWORK RULE %s.%s.%s TYPE = IPV4 VALUE_LIST = (%s)',
+            $database,
+            'PUBLIC',
             $db->quoteIdentifier($name),
             $db->quoteIdentifier($ip),
         ));
