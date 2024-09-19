@@ -216,7 +216,10 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
 
     protected function defaultNetworkRuleName(): string
     {
-        return 'KEBOOLA_INTERNAL.NETWORK_RULES.ALLOW_SYSTEM_IPS';
+        return strtoupper(sprintf(
+            '%s_INTERNAL.NETWORK_RULES.ALLOW_SYSTEM_IPS',
+            rtrim($this->getDBPrefix(), '_'),
+        ));
     }
 
     protected function createNetworkRuleWithIp(string $name, string $ip): void
