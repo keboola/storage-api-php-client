@@ -169,11 +169,23 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
         $currentRoleRow = $db->fetchAllAssociative('SELECT CURRENT_ROLE() AS CURRENT_ROLE');
         $currentRoleName = $currentRoleRow[0]['CURRENT_ROLE'];
 
-        $db->executeQuery(sprintf(
-            'GRANT ROLE %s TO ROLE %s',
-            $db->quoteIdentifier($ownerRole),
-            $db->quoteIdentifier($this->getSnowflakeUser()),
-        ));
+        try {
+            $db->executeQuery(sprintf(
+                'GRANT ROLE %s TO ROLE %s',
+                $db->quoteIdentifier($ownerRole),
+                $db->quoteIdentifier($this->getSnowflakeUser()),
+            ));
+        } catch (DriverException $ex) {
+            $this->fail(
+                sprintf(
+                    'Fail to grant: GRANT ROLE %s TO ROLE %s. %s',
+                    $db->quoteIdentifier($ownerRole),
+                    $db->quoteIdentifier($this->getSnowflakeUser()),
+                    $ex->getMessage(),
+                ),
+            );
+        }
+
         $db->executeQuery(sprintf(
             'USE ROLE %s',
             $db->quoteIdentifier($ownerRole),
