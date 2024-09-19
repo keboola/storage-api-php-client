@@ -46,28 +46,26 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
         ));
     }
 
-    protected function createNetworkPolicyWithMyPublicIp(string $database, string $networkPolicyName): void
+    protected function createNetworkPolicyWithMyPublicIp(string $networkPolicyName): void
     {
         $ip = $this->getMyPublicIp();
-        $this->createNetworkPolicyForIp($ip, $database, $networkPolicyName);
+        $this->createNetworkPolicyForIp($ip, $networkPolicyName);
     }
 
-    protected function createNetworkPolicyWithPrivateIp(string $database, string $networkPolicyName): void
+    protected function createNetworkPolicyWithPrivateIp(string $networkPolicyName): void
     {
-        $this->createNetworkPolicyForIp('10.0.0.1', $database, $networkPolicyName);
+        $this->createNetworkPolicyForIp('10.0.0.1', $networkPolicyName);
     }
 
-    protected function createNetworkPolicyForIp(string $ip, string $database, string $networkPolicyName): void
+    protected function createNetworkPolicyForIp(string $ip, string $networkPolicyName): void
     {
         $db = $this->ensureSnowflakeConnection();
 
         $networkRuleName = $this->defaultNetworkRuleName();
-        $this->createNetworkRuleWithIp($database, $networkRuleName, $ip);
+        $this->createNetworkRuleWithIp($networkRuleName, $ip);
 
         $db->executeQuery(sprintf(
-            'CREATE OR REPLACE NETWORK POLICY %s.%s.%s ALLOWED_NETWORK_RULE_LIST = (%s)',
-            $database,
-            'PUBLIC',
+            'CREATE OR REPLACE NETWORK POLICY %s ALLOWED_NETWORK_RULE_LIST = (%s)',
             $db->quoteIdentifier($networkPolicyName),
             $db->quoteIdentifier($networkRuleName),
         ));
@@ -218,17 +216,15 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
 
     protected function defaultNetworkRuleName(): string
     {
-        return 'ALLOW_SYSTEM_IPS';
+        return 'KEBOOLA_INTERNAL.NETWORK_RULES.ALLOW_SYSTEM_IPS';
     }
 
-    protected function createNetworkRuleWithIp(string $database, string $name, string $ip): void
+    protected function createNetworkRuleWithIp(string $name, string $ip): void
     {
         $db = $this->ensureSnowflakeConnection();
 
         $db->executeQuery(sprintf(
-            'CREATE OR REPLACE NETWORK RULE %s.%s.%s TYPE = IPV4 VALUE_LIST = (%s)',
-            $database,
-            'PUBLIC',
+            'CREATE OR REPLACE NETWORK RULE %s TYPE = IPV4 VALUE_LIST = (%s)',
             $db->quoteIdentifier($name),
             $db->quoteIdentifier($ip),
         ));
