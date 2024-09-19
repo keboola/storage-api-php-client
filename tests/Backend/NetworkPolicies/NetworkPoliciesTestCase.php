@@ -224,9 +224,9 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
         $db = $this->ensureSnowflakeConnection();
 
         $db->executeQuery(sprintf(
-            'CREATE OR REPLACE NETWORK RULE %s TYPE = IPV4 VALUE_LIST = (%s)',
+            'CREATE OR REPLACE NETWORK RULE %s TYPE = IPV4 VALUE_LIST = ("%s")',
             $db->quoteIdentifier($name),
-            $db->quoteIdentifier($ip),
+            $ip,
         ));
     }
 }
