@@ -10,7 +10,7 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class SnowflakeNetworkPoliciesTest extends NetworkPoliciesTestCase
 {
-    public function testAccessWithoutSystemNetworkPolicy(): void
+    public function testAccessWithoutNetworkPolicy(): void
     {
         $verifiedToken = $this->_client->verifyToken();
 
