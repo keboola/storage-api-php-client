@@ -12,13 +12,15 @@ class SnowflakeNetworkPoliciesTest extends NetworkPoliciesTestCase
 {
     public function testAccessWithoutSystemNetworkPolicy(): void
     {
-        $systemNetworkPolicyName = $this->defaultNetworkPolicyName();
-        $this->assertNetworkPolicyNotExists($systemNetworkPolicyName);
+        $verifiedToken = $this->_client->verifyToken();
+
+        $organizationNetworkPolicy = $this->organizationNetworkPolicyName($verifiedToken['organization']['id']);
+        $this->assertNetworkPolicyNotExists($organizationNetworkPolicy);
 
         $workspaces = new Workspaces($this->_client);
         $workspace = $workspaces->createWorkspace(['backend' => 'snowflake'], true);
 
-        $this->assertDontHaveNetworkPolicyEnabled($workspace['connection']['user'], $systemNetworkPolicyName);
+        $this->assertDontHaveNetworkPolicyEnabled($workspace['connection']['user'], $organizationNetworkPolicy);
 
         $workspaceBackend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
@@ -26,9 +28,9 @@ class SnowflakeNetworkPoliciesTest extends NetworkPoliciesTestCase
         $workspaceBackend->createTable('NP_TEST_TABLE', ['ID' => 'INT', 'LASTNAME' => 'VARCHAR(255)']);
         $workspaceBackend->dropTable('NP_TEST_TABLE');
 
-        $workspace2 = $workspaces->createWorkspace(['backend' => 'snowflake', 'networkPolicy' => 'system'], true);
+        $workspace2 = $workspaces->createWorkspace(['backend' => 'snowflake', 'networkPolicy' => 'user'], true);
 
-        $this->assertDontHaveNetworkPolicyEnabled($workspace2['connection']['user'], $systemNetworkPolicyName);
+        $this->assertDontHaveNetworkPolicyEnabled($workspace2['connection']['user'], $organizationNetworkPolicy);
 
         $workspace2Backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace2);
 
@@ -44,10 +46,16 @@ class SnowflakeNetworkPoliciesTest extends NetworkPoliciesTestCase
     {
         $systemNetworkPolicyName = $this->defaultNetworkPolicyName();
 
-        if ($this->networkPolicyExists($systemNetworkPolicyName)) {
-            $this->dropNetworkPolicy($systemNetworkPolicyName);
+        if (!$this->networkPolicyExists($systemNetworkPolicyName)) {
+            $this->createNetworkPolicy($systemNetworkPolicyName);
         }
-        $this->createNetworkPolicyWithMyPublicIp($systemNetworkPolicyName);
+
+        $this->assertNetworkPolicyExists($systemNetworkPolicyName);
+
+        $testNetworkRuleName = $this->defaultTestsNetworkRuleName();
+        $this->createNetworkRuleWithIp($testNetworkRuleName, $this->getMyPublicIp());
+
+        $this->addNetworkRuleToNetworkPolicy($testNetworkRuleName, $systemNetworkPolicyName);
 
         $workspaces = new Workspaces($this->_client);
         $workspace1 = $workspaces->createWorkspace(['backend' => 'snowflake'], true);
@@ -73,17 +81,24 @@ class SnowflakeNetworkPoliciesTest extends NetworkPoliciesTestCase
         $workspaces->deleteWorkspace($workspace1['id']);
         $workspaces->deleteWorkspace($workspace2['id']);
 
-        $this->dropNetworkPolicy($systemNetworkPolicyName);
+        $this->removeNetworkRuleFromNetworkPolicy($testNetworkRuleName, $systemNetworkPolicyName);
+        $this->dropNetworkRule($testNetworkRuleName);
     }
 
     public function testAccessWithPrivateIpInNetworkPolicy(): void
     {
         $systemNetworkPolicyName = $this->defaultNetworkPolicyName();
 
-        if ($this->networkPolicyExists($systemNetworkPolicyName)) {
-            $this->dropNetworkPolicy($systemNetworkPolicyName);
+        if (!$this->networkPolicyExists($systemNetworkPolicyName)) {
+            $this->createNetworkPolicy($systemNetworkPolicyName);
         }
-        $this->createNetworkPolicyWithPrivateIp($systemNetworkPolicyName);
+
+        $this->assertNetworkPolicyExists($systemNetworkPolicyName);
+
+        $testNetworkRuleName = $this->defaultTestsNetworkRuleName();
+        $this->createNetworkRuleWithIp($testNetworkRuleName, '10.0.0.1');
+
+        $this->addNetworkRuleToNetworkPolicy($testNetworkRuleName, $systemNetworkPolicyName);
 
         $workspaces = new Workspaces($this->_client);
         $workspace1 = $workspaces->createWorkspace(['backend' => 'snowflake'], true);
@@ -113,6 +128,7 @@ class SnowflakeNetworkPoliciesTest extends NetworkPoliciesTestCase
         $workspaces->deleteWorkspace($workspace1['id']);
         $workspaces->deleteWorkspace($workspace2['id']);
 
-        $this->dropNetworkPolicy($systemNetworkPolicyName);
+        $this->removeNetworkRuleFromNetworkPolicy($testNetworkRuleName, $systemNetworkPolicyName);
+        $this->dropNetworkRule($testNetworkRuleName);
     }
 }
