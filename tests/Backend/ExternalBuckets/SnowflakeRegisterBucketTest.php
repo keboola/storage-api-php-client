@@ -1234,4 +1234,26 @@ SQL,
         );
         $this->assertEquals($dataFromBucket2BeforeDeletion, $dataFrom2AfterDeletion);
     }
+
+
+    public function testRegisterSharedDatabaseExternalBucket(): void
+    {
+        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
+        $this->initEvents($this->_client);
+
+        $ws = new Workspaces($this->_client);
+
+        // prepare workspace
+        $workspace = $ws->createWorkspace();
+
+        $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
+        $externalBucketBackend = 'snowflake';
+        $guide = $this->_client->registerBucketGuide(
+            path: $externalBucketPath,
+            backend: $externalBucketBackend,
+            isSnowflakeSharedDatabase: true,
+        );
+        $this->assertArrayHasKey('markdown', $guide);
+        $this->assertStringContainsString('GRANT IMPORTED PRIVILEGES ON DATABASE', $guide['markdown']);
+    }
 }
