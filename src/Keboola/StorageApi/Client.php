@@ -446,10 +446,12 @@ class Client
      */
     public function registerBucketGuide(
         array $path,
-        ?string $backend = null
-    ) {
+        ?string $backend = null,
+        bool $isSnowflakeSharedDatabase = false,
+    ): array {
         $data = [
             'path' => $path,
+            'isSnowflakeSharedDatabase' => $isSnowflakeSharedDatabase,
         ];
 
         if ($backend !== null) {
