@@ -185,7 +185,7 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
     {
         $this->assertTrue(
             $this->haveNetworkPolicyEnabled($username, $networkPolicyName),
-            'User DON\'T have network policy enabled.',
+            sprintf('User "%s" DON\'T have network policy "%s" enabled.', $username, $networkPolicyName),
         );
     }
 
@@ -193,7 +193,7 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
     {
         $this->assertFalse(
             $this->haveNetworkPolicyEnabled($username, $networkPolicyName),
-            'User HAVE network policy enabled.',
+            sprintf('User "%s" HAVE network policy "%s" enabled.', $username, $networkPolicyName),
         );
     }
 
