@@ -24,6 +24,12 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
         return $dbPrefix;
     }
 
+    private function useRoleAccountAdmin(): void
+    {
+        $db = $this->ensureSnowflakeConnection();
+        $db->executeQuery('USE ROLE ACCOUNTADMIN');
+    }
+
     /**
      * Keep in sync with \Keboola\Connection\Storage\Service\Backend\NameGenerator\SnowflakeObjectNameGenerator::defaultNetworkPolicyName
      */
@@ -61,6 +67,7 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
     protected function createNetworkPolicy(string $networkPolicyName): void
     {
         $db = $this->ensureSnowflakeConnection();
+        $this->useRoleAccountAdmin();
 
         $db->executeQuery(sprintf(
             'CREATE OR REPLACE NETWORK POLICY %s',
@@ -71,6 +78,7 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
     protected function createNetworkPolicyForIp(string $ip, string $networkPolicyName): void
     {
         $db = $this->ensureSnowflakeConnection();
+        $this->useRoleAccountAdmin();
 
         $networkRuleName = $this->defaultNetworkRuleName();
         $this->createNetworkRuleWithIp($networkRuleName, $ip);
@@ -85,6 +93,7 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
     protected function dropNetworkPolicy(string $networkPolicyName): void
     {
         $db = $this->ensureSnowflakeConnection();
+        $this->useRoleAccountAdmin();
 
         /** @var array<array{value: string}> $networkPolicies */
         $networkPolicies = $db->fetchAllAssociative(sprintf(
@@ -132,6 +141,7 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
     protected function networkPolicyExists(string $networkPolicyName): bool
     {
         $db = $this->ensureSnowflakeConnection();
+        $this->useRoleAccountAdmin();
 
         try {
             $db->fetchAllAssociative(sprintf('DESCRIBE NETWORK POLICY %s;', $networkPolicyName));
@@ -160,51 +170,13 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
     protected function haveNetworkPolicyEnabled(string $username, string $networkPolicyName): bool
     {
         $db = $this->ensureSnowflakeConnection();
-
-        /** @var array<array{granted_by: string}> $userGrants */
-        $userGrants = $db->fetchAllAssociative(sprintf(
-            'SHOW GRANTS ON USER %s',
-            $db->quoteIdentifier($username),
-        ));
-
-        $ownerRole = $userGrants[0]['granted_by'];
-
-        /** @var array<array{'CURRENT_ROLE': string}> $currentRoleRow */
-        $currentRoleRow = $db->fetchAllAssociative('SELECT CURRENT_ROLE() AS CURRENT_ROLE');
-        $currentRoleName = $currentRoleRow[0]['CURRENT_ROLE'];
-
-        try {
-            $db->executeQuery(sprintf(
-                'GRANT ROLE %s TO ROLE %s',
-                $db->quoteIdentifier($ownerRole),
-                $db->quoteIdentifier($this->getSnowflakeUser()),
-            ));
-        } catch (DriverException $ex) {
-            $this->fail(
-                sprintf(
-                    'Fail to grant: GRANT ROLE %s TO ROLE %s. %s',
-                    $db->quoteIdentifier($ownerRole),
-                    $db->quoteIdentifier($this->getSnowflakeUser()),
-                    $ex->getMessage(),
-                ),
-            );
-        }
-
-        $db->executeQuery(sprintf(
-            'USE ROLE %s',
-            $db->quoteIdentifier($ownerRole),
-        ));
+        $this->useRoleAccountAdmin();
 
         $sql = sprintf(
             'SHOW PARAMETERS LIKE \'network_policy\' IN USER %s',
             $db->quoteIdentifier($username),
         );
         $networkPolicy = $db->fetchAllAssociative($sql);
-
-        $db->executeQuery(sprintf(
-            'USE ROLE %s',
-            $db->quoteIdentifier($currentRoleName),
-        ));
 
         return ($networkPolicy[0]['value'] ?? null) === $networkPolicyName;
     }
@@ -245,6 +217,7 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
     protected function createNetworkRuleWithIp(string $networkRuleName, string $ip): void
     {
         $db = $this->ensureSnowflakeConnection();
+        $this->useRoleAccountAdmin();
 
         $explodedName = explode('.', $networkRuleName, 3);
         if (count($explodedName) === 3) {
@@ -272,6 +245,7 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
     protected function dropNetworkRule(string $networkRuleName): void
     {
         $db = $this->ensureSnowflakeConnection();
+        $this->useRoleAccountAdmin();
 
         $db->executeQuery(sprintf(
             'DROP NETWORK RULE IF EXISTS %s',
@@ -282,6 +256,7 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
     protected function addNetworkRuleToNetworkPolicy(string $networkRuleName, string $networkPolicyName): void
     {
         $db = $this->ensureSnowflakeConnection();
+        $this->useRoleAccountAdmin();
 
         $db->executeQuery(sprintf(
             "ALTER NETWORK POLICY %s ADD ALLOWED_NETWORK_RULE_LIST = ('%s')",
@@ -293,6 +268,7 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
     protected function removeNetworkRuleFromNetworkPolicy(string $networkRuleName, string $networkPolicyName): void
     {
         $db = $this->ensureSnowflakeConnection();
+        $this->useRoleAccountAdmin();
 
         $db->executeQuery(sprintf(
             "ALTER NETWORK POLICY %s REMOVE ALLOWED_NETWORK_RULE_LIST = ('%s')",

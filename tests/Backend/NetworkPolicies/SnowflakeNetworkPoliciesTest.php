@@ -120,7 +120,7 @@ class SnowflakeNetworkPoliciesTest extends NetworkPoliciesTestCase
             $this->fail('This should fail on "not allowed access to Snowflake"');
         } catch (Exception $exception) {
             $this->assertTrue(
-                str_contains('is not allowed to access Snowflake', $exception->getMessage()),
+                str_contains($exception->getMessage(), 'is not allowed to access Snowflake'),
                 sprintf('User %s have still access to Snowflake', $workspace2['connection']['user']),
             );
         }
