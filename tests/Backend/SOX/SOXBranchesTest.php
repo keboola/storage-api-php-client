@@ -113,14 +113,14 @@ class SOXBranchesTest extends StorageApiTestCase
         $developerBranches->deleteBranch($testBranchId);
     }
 
-    public function testProdManagerCanRegisterExternal()
+    public function testProdManagerCanRegisterExternal(): void
     {
         $privilegedClient = $this->getDefaultBranchStorageApiClient();
         $guide = $privilegedClient->registerBucketGuide(['TEST', 'SCHEMA'], 'snowflake');
         $this->assertStringContainsString('GRANT USAGE ON DATABASE', $guide['markdown']);
     }
 
-    public function testDevelopersAndReviewersCannotRegisterExternalBucket()
+    public function testDevelopersAndReviewersCannotRegisterExternalBucket(): void
     {
         $developerClient = $this->getDeveloperStorageApiClient();
         $reviewerClient = $this->getReviewerStorageApiClient();
