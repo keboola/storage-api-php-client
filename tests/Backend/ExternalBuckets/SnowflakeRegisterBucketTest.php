@@ -1238,7 +1238,7 @@ SQL,
         $this->assertEquals($dataFromBucket2BeforeDeletion, $dataFrom2AfterDeletion);
     }
 
-    public function testGuideInBranch()
+    public function testGuideInBranch(): void
     {
         $guide = $this->_client->registerBucketGuide([self::EXTERNAL_DB, self::EXTERNAL_SCHEMA], 'snowflake');
         $this->assertStringContainsString('GRANT USAGE ON DATABASE', $guide['markdown']);
@@ -1256,6 +1256,7 @@ SQL,
         try {
             $branchAwareClient = $this->getBranchAwareDefaultClient($newBranch['id']);
             $branchAwareClient->registerBucketGuide(['DB', 'SCHEMA'], 'snowflake');
+            $this->fail('Should fail');
         } catch (ClientException $e) {
             $this->assertEquals('This endpoint is available in the default branch only.', $e->getMessage());
         }
