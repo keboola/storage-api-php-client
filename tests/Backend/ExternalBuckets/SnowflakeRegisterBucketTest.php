@@ -4,6 +4,7 @@ namespace Keboola\Test\Backend\ExternalBuckets;
 
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\TableExporter;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
@@ -18,6 +19,8 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
+
+        $this->cleanupTestBranches($this->_client);
     }
 
     public function testRegisterBucket(): void
@@ -1235,6 +1238,28 @@ SQL,
         $this->assertEquals($dataFromBucket2BeforeDeletion, $dataFrom2AfterDeletion);
     }
 
+    public function testGuideInBranch()
+    {
+        $guide = $this->_client->registerBucketGuide([self::EXTERNAL_DB, self::EXTERNAL_SCHEMA], 'snowflake');
+        $this->assertStringContainsString('GRANT USAGE ON DATABASE', $guide['markdown']);
+        $bucketId = $this->initEmptyBucketWithDescription(self::STAGE_IN);
+        $bucket = $this->_client->getBucket($bucketId);
+        $mainBranchId = $bucket['idBranch'];
+        $branchAwareClient = $this->getBranchAwareDefaultClient($mainBranchId);
+        // cal with main branch
+        $guide = $branchAwareClient->registerBucketGuide([self::EXTERNAL_DB, self::EXTERNAL_SCHEMA], 'snowflake');
+        $this->assertStringContainsString('GRANT USAGE ON DATABASE', $guide['markdown']);
+
+        // cal with dev branch
+        $branchesClient = new DevBranches($this->_client);
+        $newBranch = $branchesClient->createBranch($this->generateDescriptionForTestObject());
+        try {
+            $branchAwareClient = $this->getBranchAwareDefaultClient($newBranch['id']);
+            $branchAwareClient->registerBucketGuide(['DB', 'SCHEMA'], 'snowflake');
+        } catch (ClientException $e) {
+            $this->assertEquals('This endpoint is available in the default branch only.', $e->getMessage());
+        }
+    }
 
     public function testRegisterSharedDatabaseExternalBucket(): void
     {
