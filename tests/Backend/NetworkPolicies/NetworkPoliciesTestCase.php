@@ -276,37 +276,4 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
             $networkRuleName,
         ));
     }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $db = $this->ensureSnowflakeConnection();
-        /** @var array<array{name: string}> $networkPolicies */
-        $networkPolicies = $db->fetchAllAssociative('SHOW NETWORK POLICIES');
-        foreach ($networkPolicies as $networkPolicy) {
-            if ($networkPolicy['name'] !== $this->defaultNetworkPolicyName()) {
-                continue;
-            }
-            /** @var array<array{name: string, value: string}> $describedNetworkPolicy */
-            $describedNetworkPolicy = $db->fetchAllAssociative(sprintf('DESCRIBE NETWORK POLICY "%s"', $networkPolicy['name']));
-            foreach ($describedNetworkPolicy as $describedRow) {
-                if ($describedRow['name'] !== 'ALLOWED_NETWORK_RULE_LIST') {
-                    continue;
-                }
-
-                /** @var array<array{fullyQualifiedRuleName: string}> $jsonRules */
-                $jsonRules = json_decode($describedRow['value'], true);
-                foreach ($jsonRules as $jsonRule) {
-                    $ruleName = $jsonRule['fullyQualifiedRuleName'];
-                    if ($ruleName === $this->defaultNetworkRuleName()) {
-                        continue;
-                    }
-
-                    $this->removeNetworkRuleFromNetworkPolicy($ruleName, $networkPolicy['name']);
-                    $this->dropNetworkRule($ruleName);
-                }
-            }
-        }
-    }
 }
