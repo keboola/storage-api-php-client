@@ -14,8 +14,6 @@ use Google\Cloud\Iam\V1\Binding;
 use Google\Cloud\Storage\StorageClient;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\Options\TokenAbstractOptions;
-use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\TableExporter;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientWrapper;
@@ -99,10 +97,10 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
      */
     public function testNotExistListingToRegister(): void
     {
-        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
+        $this->dropBucketIfExists($this->_testClient, 'in.test-bucket-registration', true);
 
         try {
-            $this->_client->registerBucket(
+            $this->_testClient->registerBucket(
                 'test-bucket-registration',
                 ['132', 'us', 'non_exist', 'non_exist'],
                 'in',
@@ -112,11 +110,15 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             );
             $this->fail('should fail');
         } catch (ClientException $e) {
-            $this->assertSame('storage.dbObjectNotFound', $e->getStringCode());
-            $this->assertStringContainsString(
-                'Failed to register external bucket "test-bucket-registration" permission denied for subscribe listing "projects/132/locations/us/dataExchanges/non_exist/listings/non_exist"',
-                $e->getMessage(),
-            );
+            if ($this->_testClient instanceof BranchAwareClient) {
+                $this->assertSame('Cannot register bucket in dev branch', $e->getMessage());
+            } else {
+                $this->assertSame('storage.dbObjectNotFound', $e->getStringCode());
+                $this->assertStringContainsString(
+                    'Failed to register external bucket "test-bucket-registration" permission denied for subscribe listing "projects/132/locations/us/dataExchanges/non_exist/listings/non_exist"',
+                    $e->getMessage(),
+                );
+            }
         }
     }
 
@@ -153,16 +155,20 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             );
             $this->fail('Should have thrown');
         } catch (ClientException $e) {
-            $this->assertSame('storage.analyticHubObjectNotFound', $e->getStringCode());
-            $this->assertStringContainsString(
-                sprintf(
-                    'Failed to find listing: projects/%s/locations/%s/dataExchanges/%s/listings/non-exist',
-                    $path[0],
-                    $path[1],
-                    $path[2],
-                ),
-                $e->getMessage(),
-            );
+            if ($this->_testClient instanceof BranchAwareClient) {
+                $this->assertSame('Cannot register bucket in dev branch', $e->getMessage());
+            } else {
+                $this->assertSame('storage.analyticHubObjectNotFound', $e->getStringCode());
+                $this->assertStringContainsString(
+                    sprintf(
+                        'Failed to find listing: projects/%s/locations/%s/dataExchanges/%s/listings/non-exist',
+                        $path[0],
+                        $path[1],
+                        $path[2],
+                    ),
+                    $e->getMessage(),
+                );
+            }
         }
     }
 
@@ -173,11 +179,15 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
     public function testRegisterGuideShouldFailWithDifferentBackend(): void
     {
         try {
-            $this->_client->registerBucketGuide(['test', 'test'], 'snowflake');
+            $this->_testClient->registerBucketGuide(['test', 'test'], 'snowflake');
             $this->fail('should fail');
         } catch (ClientException $e) {
-            $this->assertSame('storage.backendNotAllowed', $e->getStringCode());
-            $this->assertStringContainsString('Backend "snowflake" is not assigned to the project.', $e->getMessage());
+            if ($this->_testClient instanceof BranchAwareClient) {
+                $this->assertSame('This endpoint is available in the default branch only.', $e->getMessage());
+            } else {
+                $this->assertSame('storage.backendNotAllowed', $e->getStringCode());
+                $this->assertStringContainsString('Backend "snowflake" is not assigned to the project.', $e->getMessage());
+            }
         }
     }
 
@@ -191,12 +201,16 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $testBucketName = $this->getTestBucketName($description);
         $bucketId = self::STAGE_IN . '.' . $testBucketName;
 
-        $this->dropBucketIfExists($this->_client, $bucketId, true);
+        $this->dropBucketIfExists($this->_testClient, $bucketId, true);
 
         // prepare external bucket
         $path = $this->prepareExternalBucketForRegistration($description);
         $externalBucketBackend = 'bigquery';
         $testClient = $this->_testClient;
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('Cannot register bucket in dev branch');
+        }
         $idOfBucket = $testClient->registerBucket(
             $testBucketName,
             $path,
@@ -215,21 +229,21 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 
         // bucket shouldn't be deleted and exception should be thrown
         try {
-            $this->_client->refreshBucket($idOfBucket);
+            $this->_testClient->refreshBucket($idOfBucket);
             $this->fail('should fail');
         } catch (ClientException $e) {
             $this->assertStringContainsString('doesn\'t exist or missing privileges to read from it.', $e->getMessage());
         }
 
         // test bucket still exists
-        $bucket = $this->_client->getBucket($idOfBucket);
+        $bucket = $this->_testClient->getBucket($idOfBucket);
         $this->assertNotEmpty($bucket);
 
-        $this->_client->dropBucket($idOfBucket);
+        $this->_testClient->dropBucket($idOfBucket);
 
         // test bucket is deleted
         try {
-            $this->_client->getBucket($idOfBucket);
+            $this->_testClient->getBucket($idOfBucket);
             $this->fail('should fail');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
@@ -247,7 +261,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $testBucketName = $this->getTestBucketName($description);
         $bucketId = self::STAGE_IN . '.' . $testBucketName;
 
-        $this->dropBucketIfExists($this->_client, $bucketId, true);
+        $this->dropBucketIfExists($this->_testClient, $bucketId, true);
 
         // prepare external bucket
         $path = $this->prepareExternalBucketForRegistration($description);
@@ -266,8 +280,11 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             $schemaName,
             $schemaName,
         ));
-
-        $idOfBucket = $this->_client->registerBucket(
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('Cannot register bucket in dev branch');
+        }
+        $idOfBucket = $this->_testClient->registerBucket(
             $testBucketName,
             $path,
             'in',
@@ -277,7 +294,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         );
 
         // check table existence
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $this->_testClient->listTables($idOfBucket);
         $this->assertCount(2, $tables);
         $table = $tables[0];
         $view = $tables[1];
@@ -296,15 +313,15 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         ));
 
         /** @var array $tableDataPreview */
-        $tableDataPreview = $this->_client->getTableDataPreview($table['id'], ['format' => 'json']);
+        $tableDataPreview = $this->_testClient->getTableDataPreview($table['id'], ['format' => 'json']);
         /** @var array $viewDataPreview1 */
-        $viewDataPreview1 = $this->_client->getTableDataPreview($view['id'], ['format' => 'json']);
+        $viewDataPreview1 = $this->_testClient->getTableDataPreview($view['id'], ['format' => 'json']);
         $this->assertSame(['AMOUNT', 'DESCRIPTION'], $tableDataPreview['columns']);
         $this->assertSame(['AMOUNT', 'DESCRIPTION'], $viewDataPreview1['columns']);
 
         $expectationsFileWithTwoCols = __DIR__ . '/../../_data/export/with-two-columns.csv';
         $expectationsFileWithThreeCols = __DIR__ . '/../../_data/export/with-three-columns.csv';
-        $exporter = new TableExporter($this->_client);
+        $exporter = new TableExporter($this->_testClient);
 
         $exporter->exportTable($table['id'], $this->getExportFilePathForTest('table-with-two-cols.csv'), []);
         $this->assertLinesEqualsSorted(
@@ -318,13 +335,13 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             file_get_contents($this->getExportFilePathForTest('view-with-two-cols.csv')),
         );
 
-        $this->_client->refreshBucket($idOfBucket);
+        $this->_testClient->refreshBucket($idOfBucket);
 
         // test after refresh, still works
         /** @var array $tableDataPreview */
-        $tableDataPreview = $this->_client->getTableDataPreview($table['id'], ['format' => 'json']);
+        $tableDataPreview = $this->_testClient->getTableDataPreview($table['id'], ['format' => 'json']);
         /** @var array $viewDataPreview1 */
-        $viewDataPreview1 = $this->_client->getTableDataPreview($view['id'], ['format' => 'json']);
+        $viewDataPreview1 = $this->_testClient->getTableDataPreview($view['id'], ['format' => 'json']);
         $this->assertSame(['AMOUNT', 'DESCRIPTION', 'AGE'], $tableDataPreview['columns']);
         $this->assertSame(['AMOUNT', 'DESCRIPTION', 'AGE'], $viewDataPreview1['columns']);
 
@@ -355,7 +372,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         ));
 
         try {
-            $this->_client->getTableDataPreview($table['id'], ['format' => 'json']);
+            $this->_testClient->getTableDataPreview($table['id'], ['format' => 'json']);
             $this->fail('Should fail');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
@@ -364,7 +381,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         }
 
         try {
-            $this->_client->getTableDataPreview($view['id'], ['format' => 'json']);
+            $this->_testClient->getTableDataPreview($view['id'], ['format' => 'json']);
             $this->fail('Should fail');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
@@ -389,12 +406,12 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         }
 
         // after refresh should work again
-        $this->_client->refreshBucket($idOfBucket);
+        $this->_testClient->refreshBucket($idOfBucket);
 
         /** @var array $tableDataPreview */
-        $tableDataPreview = $this->_client->getTableDataPreview($table['id'], ['format' => 'json']);
+        $tableDataPreview = $this->_testClient->getTableDataPreview($table['id'], ['format' => 'json']);
         /** @var array $viewDataPreview1 */
-        $viewDataPreview1 = $this->_client->getTableDataPreview($view['id'], ['format' => 'json']);
+        $viewDataPreview1 = $this->_testClient->getTableDataPreview($view['id'], ['format' => 'json']);
         $this->assertSame(['AMOUNT', 'DESCRIPTION'], $tableDataPreview['columns']);
         $this->assertSame(['AMOUNT', 'DESCRIPTION'], $viewDataPreview1['columns']);
 
@@ -420,7 +437,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $testBucketName = $this->getTestBucketName($description);
         $bucketId = self::STAGE_IN . '.' . $testBucketName;
 
-        $this->dropBucketIfExists($this->_client, $bucketId, true);
+        $this->dropBucketIfExists($this->_testClient, $bucketId, true);
 
         $externalBucketBackend = 'bigquery';
 
@@ -449,7 +466,10 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
                 'DESCRIPTION' => 'STRING',
             ],
         );
-
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('Cannot register bucket in dev branch');
+        }
         // Api endpoint return warning, but client method return only bucket id
         // I added warning message to logs
         $idOfBucket = $testClient->registerBucket(
@@ -514,11 +534,15 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
      */
     public function testRegisterTablesWithDuplicateNameWithDifferentCase(): void
     {
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->markTestSkipped('Other user than PM cannot register external buckets. This is tested in self::testRegisterWSAsExternalBucket.');
+        }
+
         $description = $this->generateDescriptionForTestObject();
         $testBucketName = $this->getTestBucketName($description);
         $bucketId = self::STAGE_IN . '.' . $testBucketName;
 
-        $this->dropBucketIfExists($this->_client, $bucketId, true);
+        $this->dropBucketIfExists($this->_testClient, $bucketId, true);
 
         $externalBucketBackend = 'bigquery';
 
@@ -607,7 +631,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $testBucketName = $this->getTestBucketName($description);
         $bucketId = self::STAGE_IN . '.' . $testBucketName;
 
-        $this->dropBucketIfExists($this->_client, $bucketId, true);
+        $this->dropBucketIfExists($this->_testClient, $bucketId, true);
 
         $externalBucketBackend = 'bigquery';
 
@@ -657,7 +681,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         // prepare external bucket
         $path = $this->prepareExternalBucketForRegistration($description);
 
-        $hashedUniqueBucketName = sha1('Iam-your-external-bucket-'.$devBranchType.'-'.'-'.$userRole.$this->generateDescriptionForTestObject());
+        $hashedUniqueBucketName = sha1('Iam-your-external-bucket-' . $devBranchType . '-' . '-' . $userRole . $this->generateDescriptionForTestObject());
         // register external bucket
         $runId = $this->setRunId();
         $testClient->setRunId($runId);
@@ -702,7 +726,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         // I created a user for the external bucket the same way as for WS.
         // Workspace can't just be used because the user doesn't have the right to create the exchanger and the listing
         $db = WorkspaceBackendFactory::createWorkspaceBackend($externalCredentials);
-        $hashedUniqueTableName = sha1('TEST-'.$devBranchType.'-'.'-'.$userRole.$this->generateDescriptionForTestObject());
+        $hashedUniqueTableName = sha1('TEST-' . $devBranchType . '-' . '-' . $userRole . $this->generateDescriptionForTestObject());
         $db->createTable($hashedUniqueTableName, [
             'AMOUNT' => 'INT',
             'DESCRIPTION' => 'STRING',
@@ -988,7 +1012,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             $this->markTestSkipped('Other user than PM cannot register external buckets. This is tested in self::testRegisterWSAsExternalBucket.');
         }
 
-        $this->dropBucketIfExists($this->_client, $bucketId, true);
+        $this->dropBucketIfExists($this->_testClient, $bucketId, true);
         $this->initEvents($testClient);
 
         // prepare external bucket
@@ -1060,7 +1084,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             $this->markTestSkipped('Other user than PM cannot register external buckets. This is tested in self::testRegisterWSAsExternalBucket.');
         }
 
-        $this->dropBucketIfExists($this->_client, $bucketId, true);
+        $this->dropBucketIfExists($this->_testClient, $bucketId, true);
         $this->initEvents($testClient);
 
         // prepare external bucket
@@ -1138,8 +1162,12 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         if ($this->_testClient instanceof BranchAwareClient) {
             $this->markTestSkipped('Other user than PM cannot register external buckets. This is tested in self::testRegisterWSAsExternalBucket.');
         }
+//        $hasProjectProtectedDefaultBranch = in_array($userRole, ['reviewer', 'developer', 'production-manager']);
+//        if ($hasProjectProtectedDefaultBranch) {
+//            $this->markTestSkipped('Users in sox cant create token.');
+//        }
 
-        $this->dropBucketIfExists($this->_client, $bucketId, true);
+        $this->dropBucketIfExists($this->_testClient, $bucketId, true);
         $this->initEvents($testClient);
 
         // prepare external bucket
@@ -1169,17 +1197,15 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $this->assertCount(1, $tables);
 
         $tableIdFromExternalBucket = $tables[0]['id'];
-        $options = (new TokenCreateOptions())
-            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
-        $newToken = $this->tokens->createToken($options);
+        $token = $this->getDefaultClient()->verifyToken();
 
         // create trigger on table in external bucket should fail
         try {
-            $this->_client->createTrigger([
+            $this->getDefaultClient()->createTrigger([
                 'component' => 'orchestrator',
                 'configurationId' => 123,
                 'coolDownPeriodMinutes' => 1,
-                'runWithTokenId' => $newToken['id'],
+                'runWithTokenId' => $token['id'],
                 'tableIds' => [
                     $tableIdFromExternalBucket,
                 ],
@@ -1196,11 +1222,11 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $normalTableInStorage = $this->createTableWithRandomData('normal-table-1');
 
         // create normal trigger
-        $trigger = $this->_client->createTrigger([
+        $trigger = $this->getDefaultClient()->createTrigger([
             'component' => 'orchestrator',
             'configurationId' => 123,
             'coolDownPeriodMinutes' => 1,
-            'runWithTokenId' => $newToken['id'],
+            'runWithTokenId' => $token['id'],
             'tableIds' => [
                 $normalTableInStorage,
             ],
@@ -1208,7 +1234,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 
         // update existing trigger should also fail
         try {
-            $this->_client->updateTrigger($trigger['id'], ['tableIds' => [$tableIdFromExternalBucket]]);
+            $this->getDefaultClient()->updateTrigger($trigger['id'], ['tableIds' => [$tableIdFromExternalBucket]]);
             $this->fail('should fail');
         } catch (ClientException $e) {
             $this->assertEquals('storage.triggers.triggerOnTableFromExternalBucket', $e->getStringCode());
@@ -1250,7 +1276,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             $this->markTestSkipped('Other user than PM cannot register external buckets. This is tested in self::testRegisterWSAsExternalBucket.');
         }
 
-        $this->dropBucketIfExists($this->_client, $bucketId, true);
+        $this->dropBucketIfExists($this->_testClient, $bucketId, true);
         $this->initEvents($testClient);
 
         // prepare external bucket
@@ -1558,5 +1584,25 @@ SQL,
             'DROP TABLE %s.normalTable;',
             BigqueryQuote::quoteSingleIdentifier($schemaName),
         ));
+    }
+
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testGuideInBranch(string $devBranchType, string $userRole): void
+    {
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('This endpoint is available in the default branch only.');
+        }
+        $guide = $this->_testClient->registerBucketGuide([self::EXTERNAL_DB, self::EXTERNAL_SCHEMA], 'bigquery');
+        $this->assertStringContainsString('Go to your GCP project', $guide['markdown']);
+        $bucketId = $this->initEmptyBucketWithDescription(self::STAGE_IN);
+        $bucket = $this->_testClient->getBucket($bucketId);
+        $mainBranchId = $bucket['idBranch'];
+        $branchAwareClient = $this->getBranchAwareDefaultClient($mainBranchId);
+        // cal with main branch
+        $guide = $branchAwareClient->registerBucketGuide([self::EXTERNAL_DB, self::EXTERNAL_SCHEMA], 'bigquery');
+        $this->assertStringContainsString('Go to your GCP project', $guide['markdown']);
     }
 }
