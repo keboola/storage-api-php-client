@@ -68,7 +68,7 @@ class SnowflakeNetworkPoliciesTest extends NetworkPoliciesTestCase
         $workspace1Backend->createTable('NP_TEST_TABLE', ['ID' => 'INT', 'LASTNAME' => 'VARCHAR(255)']);
         $workspace1Backend->dropTable('NP_TEST_TABLE');
 
-        $workspace2 = $workspaces->createWorkspace(['backend' => 'snowflake', 'networkPolicy' => 'system'], false);
+        $workspace2 = $workspaces->createWorkspace(['backend' => 'snowflake', 'networkPolicy' => 'system'], true);
 
         $this->assertHaveNetworkPolicyEnabled($workspace2['connection']['user'], $systemNetworkPolicyName);
 
@@ -111,7 +111,7 @@ class SnowflakeNetworkPoliciesTest extends NetworkPoliciesTestCase
         $workspace1Backend->createTable('NP_TEST_TABLE', ['ID' => 'INT', 'LASTNAME' => 'VARCHAR(255)']);
         $workspace1Backend->dropTable('NP_TEST_TABLE');
 
-        $workspace2 = $workspaces->createWorkspace(['backend' => 'snowflake', 'networkPolicy' => 'system'], false);
+        $workspace2 = $workspaces->createWorkspace(['backend' => 'snowflake', 'networkPolicy' => 'system'], true);
 
         $this->assertHaveNetworkPolicyEnabled($workspace2['connection']['user'], $systemNetworkPolicyName);
 
