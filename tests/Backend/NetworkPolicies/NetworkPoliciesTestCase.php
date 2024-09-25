@@ -172,11 +172,50 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
         $db = $this->ensureSnowflakeConnection();
         $this->useRoleAccountAdmin();
 
+        /** @var array<array{granted_by: string}> $userGrants */
+        $userGrants = $db->fetchAllAssociative(sprintf(
+            'SHOW GRANTS ON USER %s',
+            $db->quoteIdentifier($username),
+        ));
+
+        $ownerRole = $userGrants[0]['granted_by'];
+
+        /** @var array<array{'CURRENT_ROLE': string}> $currentRoleRow */
+        $currentRoleRow = $db->fetchAllAssociative('SELECT CURRENT_ROLE() AS CURRENT_ROLE');
+        $currentRoleName = $currentRoleRow[0]['CURRENT_ROLE'];
+
+        try {
+            $db->executeQuery(sprintf(
+                'GRANT ROLE %s TO ROLE %s',
+                $db->quoteIdentifier($ownerRole),
+                $db->quoteIdentifier($this->getSnowflakeUser()),
+            ));
+        } catch (DriverException $ex) {
+            $this->fail(
+                sprintf(
+                    'Fail to grant: GRANT ROLE %s TO ROLE %s. %s',
+                    $db->quoteIdentifier($ownerRole),
+                    $db->quoteIdentifier($this->getSnowflakeUser()),
+                    $ex->getMessage(),
+                ),
+            );
+        }
+
+        $db->executeQuery(sprintf(
+            'USE ROLE %s',
+            $db->quoteIdentifier($ownerRole),
+        ));
+
         $sql = sprintf(
             'SHOW PARAMETERS LIKE \'network_policy\' IN USER %s',
             $db->quoteIdentifier($username),
         );
         $networkPolicy = $db->fetchAllAssociative($sql);
+
+        $db->executeQuery(sprintf(
+            'USE ROLE %s',
+            $db->quoteIdentifier($currentRoleName),
+        ));
 
         return ($networkPolicy[0]['value'] ?? null) === $networkPolicyName;
     }
