@@ -312,6 +312,7 @@
 		<file>tests/Backend/SOX/MergeRequestsTest.php</file>
 		<file>tests/File/CommonFileTest.php</file>
 		<file>tests/Backend/SOX/ShareTest.php</file>
+		<file>tests/Backend/ExternalBuckets/SnowflakeRegisterBucketTest.php</file>
 	</testsuite>
 	<testsuite name="paratest-sox-bigquery">
 		<directory>tests/Backend/SOX</directory>
