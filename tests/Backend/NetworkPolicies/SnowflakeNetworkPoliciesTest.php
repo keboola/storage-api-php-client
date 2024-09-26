@@ -10,9 +10,15 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class SnowflakeNetworkPoliciesTest extends NetworkPoliciesTestCase
 {
+    private const FEATURE_SNOWFLAKE_NETWORK_POLICY_PROJECT = 'snowflake-network-policy-project';
+
     public function testAccessWithoutNetworkPolicy(): void
     {
         $verifiedToken = $this->_client->verifyToken();
+
+        if (!in_array(self::FEATURE_SNOWFLAKE_NETWORK_POLICY_PROJECT, $verifiedToken['owner']['features'])) {
+            $this->fail(sprintf('Network policies are not enabled for project "%s"', $verifiedToken['owner']['id']));
+        }
 
         $organizationNetworkPolicy = $this->organizationNetworkPolicyName($verifiedToken['organization']['id']);
         $this->assertNetworkPolicyNotExists($organizationNetworkPolicy);
@@ -44,6 +50,12 @@ class SnowflakeNetworkPoliciesTest extends NetworkPoliciesTestCase
 
     public function testAccessWithSystemNetworkPolicy(): void
     {
+        $verifiedToken = $this->_client->verifyToken();
+
+        if (!in_array(self::FEATURE_SNOWFLAKE_NETWORK_POLICY_PROJECT, $verifiedToken['owner']['features'])) {
+            $this->fail(sprintf('Network policies are not enabled for project "%s"', $verifiedToken['owner']['id']));
+        }
+
         $systemNetworkPolicyName = $this->defaultNetworkPolicyName();
 
         if (!$this->networkPolicyExists($systemNetworkPolicyName)) {
@@ -87,6 +99,12 @@ class SnowflakeNetworkPoliciesTest extends NetworkPoliciesTestCase
 
     public function testAccessWithPrivateIpInNetworkPolicy(): void
     {
+        $verifiedToken = $this->_client->verifyToken();
+
+        if (!in_array(self::FEATURE_SNOWFLAKE_NETWORK_POLICY_PROJECT, $verifiedToken['owner']['features'])) {
+            $this->fail(sprintf('Network policies are not enabled for project "%s"', $verifiedToken['owner']['id']));
+        }
+
         $systemNetworkPolicyName = $this->defaultNetworkPolicyName();
 
         if (!$this->networkPolicyExists($systemNetworkPolicyName)) {
