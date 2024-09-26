@@ -5,12 +5,9 @@ declare(strict_types=1);
 namespace Keboola\Test\Backend\NetworkPolicies;
 
 use Doctrine\DBAL\Exception\DriverException;
-use Keboola\StorageDriver\Shared\Utils\StringUtils;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\ConnectionUtils;
 use Keboola\Test\Utils\IpUtils;
-use Ramsey\Uuid\Nonstandard\Uuid;
-use Throwable;
 
 class NetworkPoliciesTestCase extends StorageApiTestCase
 {
@@ -53,16 +50,6 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
         ));
     }
 
-    protected function createNetworkPolicyWithMyPublicIp(string $networkPolicyName): void
-    {
-        $ip = $this->getMyPublicIp();
-        $this->createNetworkPolicyForIp($ip, $networkPolicyName);
-    }
-
-    protected function createNetworkPolicyWithPrivateIp(string $networkPolicyName): void
-    {
-        $this->createNetworkPolicyForIp('10.0.0.1', $networkPolicyName);
-    }
 
     protected function createNetworkPolicy(string $networkPolicyName): void
     {
