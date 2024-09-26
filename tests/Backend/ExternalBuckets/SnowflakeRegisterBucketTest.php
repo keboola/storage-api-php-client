@@ -2,45 +2,58 @@
 
 namespace Keboola\Test\Backend\ExternalBuckets;
 
+use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\TableExporter;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Keboola\Test\ClientProvider\ClientProvider;
+use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Db\Import\Snowflake\Connection as SnowflakeConnection;
 
 class SnowflakeRegisterBucketTest extends BaseExternalBuckets
 {
+    protected \Keboola\StorageApi\Client $_testClient;
+
     public function setUp(): void
     {
         parent::setUp();
+        [$devBranchType, $userRole] = $this->getProvidedData();
+        $clientProvider = new ClientProvider($this);
+        [$this->_client, $this->_testClient] = (new TestSetupHelper())->setUpForProtectedDevBranch(
+            $clientProvider,
+            $devBranchType,
+            $userRole,
+        );
+
         $this->initEmptyTestBucketsForParallelTests();
 
-        $this->cleanupTestBranches($this->_client);
-    }
-
-    public function testRegisterBucket(): void
-    {
-        $this->initEvents($this->_client);
-        $token = $this->_client->verifyToken();
+        $this->initEvents($this->_testClient);
+        $token = $this->_testClient->verifyToken();
 
         if (!in_array('external-buckets', $token['owner']['features'])) {
             $this->markTestSkipped(sprintf('External buckets are not enabled for project "%s"', $token['owner']['id']));
         }
         $this->allowTestForBackendsOnly([self::BACKEND_SNOWFLAKE], 'Backend has to support external buckets');
-        $this->expectNotToPerformAssertions();
     }
 
+    public function provideComponentsClientTypeBasedOnSuite(): array
+    {
+        return (new TestSetupHelper())->provideComponentsClientTypeBasedOnSuite($this);
+    }
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testInvalidDBToRegister(): void
     {
-        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
+        $this->dropBucketIfExists($this->_testClient, 'in.test-bucket-registration', true);
 
         try {
-            $this->_client->registerBucket(
+            $this->_testClient->registerBucket(
                 'test-bucket-registration',
                 ['non-existing-database', 'non-existing-schema'],
                 'in',
@@ -50,30 +63,42 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             );
             $this->fail('should fail');
         } catch (ClientException $e) {
-            $this->assertSame('storage.dbObjectNotFound', $e->getStringCode());
-            $this->assertStringContainsString(
-                'doesn\'t exist or project user is missing privileges to read from it.',
-                $e->getMessage(),
-            );
+            if ($this->_testClient instanceof BranchAwareClient) {
+                $this->assertSame('Cannot register bucket in dev branch', $e->getMessage());
+            } else {
+                $this->assertSame('storage.dbObjectNotFound', $e->getStringCode());
+                $this->assertStringContainsString(
+                    'doesn\'t exist or project user is missing privileges to read from it.',
+                    $e->getMessage(),
+                );
+            }
         }
     }
-
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testRegisterGuideShouldFailWithDifferentBackend(): void
     {
         try {
-            $this->_client->registerBucketGuide(['test', 'test'], 'bigquery');
+            $this->_testClient->registerBucketGuide(['test', 'test'], 'bigquery');
             $this->fail('should fail');
         } catch (ClientException $e) {
-            $this->assertSame('storage.backendNotAllowed', $e->getStringCode());
-            $this->assertStringContainsString('Backend "bigquery" is not assigned to the project.', $e->getMessage());
+            if ($this->_testClient instanceof BranchAwareClient) {
+                $this->assertSame('This endpoint is available in the default branch only.', $e->getMessage());
+            } else {
+                $this->assertSame('storage.backendNotAllowed', $e->getStringCode());
+                $this->assertStringContainsString('Backend "bigquery" is not assigned to the project.', $e->getMessage());
+            }
         }
     }
-
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testRegisterTableWithWrongName(): void
     {
-        $this->dropBucketIfExists($this->_client, 'in.bucket-registration-wrong-table-name', true);
+        $this->dropBucketIfExists($this->_testClient, 'in.bucket-registration-wrong-table-name', true);
 
-        $ws = new Workspaces($this->_client);
+        $ws = new Workspaces($this->_testClient);
         // prepare workspace
         $workspace = $ws->createWorkspace();
         $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
@@ -91,10 +116,13 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
                 'DESCRIPTION' => 'STRING',
             ],
         );
-
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('Cannot register bucket in dev branch');
+        }
         // Api endpoint return warning, but client method return only bucket id
         // I added warning message to logs
-        $idOfBucket = $this->_client->registerBucket(
+        $idOfBucket = $this->_testClient->registerBucket(
             'bucket-registration-wrong-table-name',
             $externalBucketPath,
             'in',
@@ -104,12 +132,12 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         );
 
         // only table with long name is there and is skipped
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $this->_testClient->listTables($idOfBucket);
         $this->assertCount(0, $tables);
 
-        $refreshJobResult = $this->_client->refreshBucket($idOfBucket);
+        $refreshJobResult = $this->_testClient->refreshBucket($idOfBucket);
         assert(is_array($refreshJobResult));
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $this->_testClient->listTables($idOfBucket);
         $this->assertCount(0, $tables);
 
         $this->assertCount(2, $refreshJobResult['warnings']);
@@ -125,9 +153,9 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $db->createTable('normalTable', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
 
         // new table should be added, and warning for table with long name should be returned
-        $refreshJobResult = $this->_client->refreshBucket($idOfBucket);
+        $refreshJobResult = $this->_testClient->refreshBucket($idOfBucket);
         assert(is_array($refreshJobResult));
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $this->_testClient->listTables($idOfBucket);
         $this->assertCount(1, $tables);
 
         $this->assertCount(2, $refreshJobResult['warnings']);
@@ -140,12 +168,14 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             $refreshJobResult['warnings'][1]['message'],
         );
     }
-
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testRegisterTablesWithDuplicateNameWithDifferentCase(): void
     {
-        $this->dropBucketIfExists($this->_client, 'in.bucket-registration-duplicate-table-name', true);
+        $this->dropBucketIfExists($this->_testClient, 'in.bucket-registration-duplicate-table-name', true);
 
-        $ws = new Workspaces($this->_client);
+        $ws = new Workspaces($this->_testClient);
         // prepare workspace
         $workspace = $ws->createWorkspace();
         $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
@@ -174,7 +204,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         );
 
         try {
-            $this->_client->registerBucket(
+            $this->_testClient->registerBucket(
                 'bucket-registration-duplicate-table-name',
                 $externalBucketPath,
                 'in',
@@ -184,15 +214,23 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             );
             $this->fail('Register bucket should fail with duplicate table name');
         } catch (ClientException $e) {
-            $this->assertSame('storage.duplicateTableNamesInSchema', $e->getStringCode());
-            $this->assertSame(
-                'Multiple tables with the same name detected. Table names are case-insensitive, leading to duplicates: "tEst1, test1"',
-                $e->getMessage(),
-            );
+            if ($this->_testClient instanceof BranchAwareClient) {
+                $this->assertSame('Cannot register bucket in dev branch', $e->getMessage());
+            } else {
+                $this->assertSame('storage.duplicateTableNamesInSchema', $e->getStringCode());
+                $this->assertSame(
+                    'Multiple tables with the same name detected. Table names are case-insensitive, leading to duplicates: "tEst1, test1"',
+                    $e->getMessage(),
+                );
+            }
         }
         // refresh
         $db->dropTable('tEst1');
-        $registeredBucketId = $this->_client->registerBucket(
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('Cannot register bucket in dev branch');
+        }
+        $registeredBucketId = $this->_testClient->registerBucket(
             'bucket-registration-duplicate-table-name',
             $externalBucketPath,
             'in',
@@ -207,30 +245,40 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             ],
         );
         try {
-            $this->_client->refreshBucket($registeredBucketId);
+            $this->_testClient->refreshBucket($registeredBucketId);
             $this->fail('Refresh bucket should fail with duplicate table name');
         } catch (ClientException $e) {
-            $this->assertSame('storage.duplicateTableNamesInSchema', $e->getStringCode());
-            $this->assertSame(
-                'Multiple tables with the same name detected. Table names are case-insensitive, leading to duplicates: "tEst1, test1"',
-                $e->getMessage(),
-            );
+            if ($this->_testClient instanceof BranchAwareClient) {
+                $this->assertSame('This endpoint is available in the default branch only.', $e->getMessage());
+            } else {
+                $this->assertSame('storage.duplicateTableNamesInSchema', $e->getStringCode());
+                $this->assertSame(
+                    'Multiple tables with the same name detected. Table names are case-insensitive, leading to duplicates: "tEst1, test1"',
+                    $e->getMessage(),
+                );
+            }
         }
     }
-
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testRegisterWSAsExternalBucket(): void
     {
-        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
-        $this->initEvents($this->_client);
+        $this->dropBucketIfExists($this->_testClient, 'in.test-bucket-registration', true);
+        $this->initEvents($this->_testClient);
 
-        $ws = new Workspaces($this->_client);
+        $ws = new Workspaces($this->_testClient);
 
         // prepare workspace
         $workspace = $ws->createWorkspace();
 
         $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
         $externalBucketBackend = 'snowflake';
-        $guide = $this->_client->registerBucketGuide($externalBucketPath, $externalBucketBackend);
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('This endpoint is available in the default branch only.');
+        }
+        $guide = $this->_testClient->registerBucketGuide($externalBucketPath, $externalBucketBackend);
         $this->assertArrayHasKey('markdown', $guide);
         $this->assertStringContainsString('GRANT USAGE ON DATABASE', $guide['markdown']);
         $this->assertStringContainsString('GRANT USAGE ON SCHEMA', $guide['markdown']);
@@ -243,7 +291,8 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
 
         // register workspace as external bucket
         $runId = $this->setRunId();
-        $idOfBucket = $this->_client->registerBucket(
+        $this->_testClient->setRunId($runId);
+        $idOfBucket = $this->_testClient->registerBucket(
             'test-bucket-registration',
             $externalBucketPath,
             'in',
@@ -258,14 +307,14 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.bucketCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
         // check external bucket
-        $bucket = $this->_client->getBucket($idOfBucket);
+        $bucket = $this->_testClient->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
         $this->assertSame($workspace['connection']['database'], $bucket['databaseName']);
 
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $this->_testClient->listTables($idOfBucket);
         $this->assertCount(0, $tables);
 
         // add first table to workspace
@@ -276,7 +325,8 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
 
         // refresh external bucket
         $runId = $this->setRunId();
-        $this->_client->refreshBucket($idOfBucket);
+        $this->_testClient->setRunId($runId);
+        $this->_testClient->refreshBucket($idOfBucket);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -285,7 +335,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.tableCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -294,12 +344,12 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.bucketRefreshed')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
         // check external bucket
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $this->_testClient->listTables($idOfBucket);
         $this->assertCount(1, $tables);
-        $tableDetail = $this->_client->getTable($tables[0]['id']);
+        $tableDetail = $this->_testClient->getTable($tables[0]['id']);
 
         $this->assertSame('KBC.dataTypesEnabled', $tableDetail['metadata'][0]['key']);
         $this->assertSame('true', $tableDetail['metadata'][0]['value']);
@@ -323,9 +373,9 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         );
 
         // export table from external bucket
-        $this->_client->exportTableAsync($tables[0]['id']);
+        $this->_testClient->exportTableAsync($tables[0]['id']);
 
-        $preview = $this->_client->getTableDataPreview($tables[0]['id']);
+        $preview = $this->_testClient->getTableDataPreview($tables[0]['id']);
         // expect two lines in preview because of the header
         $this->assertCount(2, Client::parseCsv($preview, false));
 
@@ -334,7 +384,8 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
 
         // refresh external bucket
         $runId = $this->setRunId();
-        $this->_client->refreshBucket($idOfBucket);
+        $this->_testClient->setRunId($runId);
+        $this->_testClient->refreshBucket($idOfBucket);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -343,7 +394,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.tableCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -352,10 +403,10 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.bucketRefreshed')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
         // check external bucket
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $this->_testClient->listTables($idOfBucket);
         $this->assertCount(2, $tables);
 
         // alter first table, drop second table, add third table to workspace
@@ -366,7 +417,8 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
 
         // refresh external bucket
         $runId = $this->setRunId();
-        $this->_client->refreshBucket($idOfBucket);
+        $this->_testClient->setRunId($runId);
+        $this->_testClient->refreshBucket($idOfBucket);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -375,7 +427,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.tableDeleted')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -384,7 +436,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.tableCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -393,7 +445,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.tableColumnsUpdated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
         $assertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -402,13 +454,13 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $query->setEvent('storage.bucketRefreshed')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
         // check external bucket
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $this->_testClient->listTables($idOfBucket);
         $this->assertCount(2, $tables);
 
-        $tableDetail = $this->_client->getTable($tables[0]['id']);
+        $tableDetail = $this->_testClient->getTable($tables[0]['id']);
         $this->assertSame(['DESCRIPTION', 'XXX'], $tableDetail['columns']);
 
         $this->assertColumnMetadata(
@@ -471,15 +523,17 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         }
 
         // drop external bucket
-        $this->_client->dropBucket($idOfBucket, ['force' => true]);
+        $this->_testClient->dropBucket($idOfBucket, ['force' => true]);
     }
-
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testAliasFromExternalBucketNotAllowed(): void
     {
-        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
-        $this->initEvents($this->_client);
+        $this->dropBucketIfExists($this->_testClient, 'in.test-bucket-registration', true);
+        $this->initEvents($this->_testClient);
 
-        $ws = new Workspaces($this->_client);
+        $ws = new Workspaces($this->_testClient);
 
         // prepare workspace
         $workspace = $ws->createWorkspace([], true);
@@ -489,9 +543,12 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
 
         $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
         $externalBucketBackend = 'snowflake';
-
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('Cannot register bucket in dev branch');
+        }
         // register workspace as external bucket
-        $idOfBucket = $this->_client->registerBucket(
+        $idOfBucket = $this->_testClient->registerBucket(
             'test-bucket-registration',
             $externalBucketPath,
             'in',
@@ -502,17 +559,17 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
 
         // test that it's not possible to alias table in external bucket
         $testBucketId = $this->getTestBucketId();
-        $testTableId = $this->_client->getTableId('TEST', $idOfBucket);
+        $testTableId = $this->_testClient->getTableId('TEST', $idOfBucket);
         assert(is_string($testTableId));
         try {
-            $this->_client->createAliasTable(
+            $this->_testClient->createAliasTable(
                 $testBucketId,
                 $testTableId,
                 'testAlias',
             );
 
             // delete bucket in case the call didn't fail
-            $this->_client->dropBucket($idOfBucket, ['force' => true]);
+            $this->_testClient->dropBucket($idOfBucket, ['force' => true]);
 
             $this->fail('Should have failed');
         } catch (ClientException $e) {
@@ -525,15 +582,17 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
                 $e->getStringCode(),
             );
         }
-        $this->_client->dropBucket($idOfBucket, ['force' => true]);
+        $this->_testClient->dropBucket($idOfBucket, ['force' => true]);
     }
-
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testRegistrationOfExternalTable(): void
     {
-        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
-        $this->initEvents($this->_client);
+        $this->dropBucketIfExists($this->_testClient, 'in.test-bucket-registration', true);
+        $this->initEvents($this->_testClient);
 
-        $ws = new Workspaces($this->_client);
+        $ws = new Workspaces($this->_testClient);
         // prepare workspace
         $workspace = $ws->createWorkspace();
 
@@ -562,7 +621,12 @@ SQL,
 
         // register workspace as external bucket including external table
         $runId = $this->setRunId();
-        $idOfBucket = $this->_client->registerBucket(
+        $this->_testClient->setRunId($runId);
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('Cannot register bucket in dev branch');
+        }
+        $idOfBucket = $this->_testClient->registerBucket(
             'test-bucket-registration',
             [$workspace['connection']['database'], $workspace['connection']['schema']],
             'in',
@@ -577,15 +641,15 @@ SQL,
         $query->setEvent('storage.bucketCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
         // check external bucket
-        $bucket = $this->_client->getBucket($idOfBucket);
+        $bucket = $this->_testClient->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
         $this->assertSame($workspace['connection']['database'], $bucket['databaseName']);
 
         // check table existence and metadata
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $this->_testClient->listTables($idOfBucket);
         $this->assertCount(1, $tables);
         $firstTable = $tables[0];
         $this->assertEquals('MY_LITTLE_EXT_TABLE', $firstTable['name']);
@@ -598,23 +662,25 @@ DROP TABLE MY_LITTLE_EXT_TABLE;
 SQL,
         );
         $db->createTable('MY_LITTLE_EXT_TABLE', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
-        $this->_client->refreshBucket($idOfBucket);
+        $this->_testClient->refreshBucket($idOfBucket);
 
         // check table existence and metadata
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $this->_testClient->listTables($idOfBucket);
         $this->assertCount(1, $tables);
         $firstTable = $tables[0];
         $this->assertEquals('MY_LITTLE_EXT_TABLE', $firstTable['name']);
 
         $this->assertSame($firstTable['tableType'], 'table');
     }
-
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testRegistrationOfView(): void
     {
-        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
-        $this->initEvents($this->_client);
+        $this->dropBucketIfExists($this->_testClient, 'in.test-bucket-registration', true);
+        $this->initEvents($this->_testClient);
 
-        $ws = new Workspaces($this->_client);
+        $ws = new Workspaces($this->_testClient);
         // prepare workspace
         $workspace = $ws->createWorkspace();
 
@@ -631,7 +697,12 @@ SQL,
 
         // register workspace as external bucket including external table
         $runId = $this->setRunId();
-        $idOfBucket = $this->_client->registerBucket(
+        $this->_testClient->setRunId($runId);
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('Cannot register bucket in dev branch');
+        }
+        $idOfBucket = $this->_testClient->registerBucket(
             'test-bucket-registration',
             [$workspace['connection']['database'], $workspace['connection']['schema']],
             'in',
@@ -646,15 +717,15 @@ SQL,
         $query->setEvent('storage.bucketCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
         // check external bucket
-        $bucket = $this->_client->getBucket($idOfBucket);
+        $bucket = $this->_testClient->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
         $this->assertSame($workspace['connection']['database'], $bucket['databaseName']);
 
         // check table existence and metadata
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $this->_testClient->listTables($idOfBucket);
         $this->assertCount(2, $tables);
         $table = $tables[0];
         $this->assertEquals('MY_LITTLE_TABLE_FOR_VIEW', $table['name']);
@@ -663,23 +734,29 @@ SQL,
         $this->assertEquals('MY_LITTLE_VIEW', $view['name']);
         $this->assertEquals('view', $view['tableType']);
     }
-
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testCreateSnapshotFromExternalBucketIsNotSupported(): void
     {
         $description = $this->generateDescriptionForTestObject();
         $testBucketName = $this->getTestBucketName($description);
         $bucketId = self::STAGE_IN . '.' . $testBucketName;
 
-        $this->dropBucketIfExists($this->_client, $bucketId, true);
+        $this->dropBucketIfExists($this->_testClient, $bucketId, true);
 
-        $ws = new Workspaces($this->_client);
+        $ws = new Workspaces($this->_testClient);
         $workspace = $ws->createWorkspace();
 
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $db->createTable('TABLE_FOR_SNAPSHOT', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
 
-        $idOfBucket = $this->_client->registerBucket(
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('Cannot register bucket in dev branch');
+        }
+        $idOfBucket = $this->_testClient->registerBucket(
             $testBucketName,
             [$workspace['connection']['database'], $workspace['connection']['schema']],
             'in',
@@ -688,10 +765,10 @@ SQL,
             'You-cant-create-snapshot-from-me',
         );
 
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $this->_testClient->listTables($idOfBucket);
 
         try {
-            $this->_client->createTableSnapshot(reset($tables)['id']);
+            $this->_testClient->createTableSnapshot(reset($tables)['id']);
             $this->fail('Should fail');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
@@ -699,16 +776,18 @@ SQL,
             $this->assertSame('Creating snapshots from tables in external buckets is not supported.', $e->getMessage());
         }
     }
-
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testAlteredColumnThrowsUserExAndAfterRefreshWillWork(): void
     {
         $description = $this->generateDescriptionForTestObject();
         $testBucketName = $this->getTestBucketName($description);
         $bucketId = self::STAGE_IN . '.' . $testBucketName;
 
-        $this->dropBucketIfExists($this->_client, $bucketId, true);
+        $this->dropBucketIfExists($this->_testClient, $bucketId, true);
 
-        $ws = new Workspaces($this->_client);
+        $ws = new Workspaces($this->_testClient);
         $workspace = $ws->createWorkspace();
 
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -720,8 +799,11 @@ SQL,
 CREATE OR REPLACE VIEW MY_LITTLE_VIEW AS SELECT * FROM  MY_LITTLE_TABLE_FOR_VIEW;
 SQL,
         );
-
-        $idOfBucket = $this->_client->registerBucket(
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('Cannot register bucket in dev branch');
+        }
+        $idOfBucket = $this->_testClient->registerBucket(
             $testBucketName,
             [$workspace['connection']['database'], $workspace['connection']['schema']],
             'in',
@@ -730,12 +812,12 @@ SQL,
             'Iam-your-external-bucket-to-test-alter-table',
         );
 
-        $bucket = $this->_client->getBucket($idOfBucket);
+        $bucket = $this->_testClient->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
         $this->assertSame($workspace['connection']['database'], $bucket['databaseName']);
 
         // check table existence
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $this->_testClient->listTables($idOfBucket);
         $this->assertCount(2, $tables);
         $table = $tables[0];
         $view = $tables[1];
@@ -754,15 +836,15 @@ SQL,
         );
 
         /** @var array $tableDataPreview */
-        $tableDataPreview = $this->_client->getTableDataPreview($table['id'], ['format' => 'json']);
+        $tableDataPreview = $this->_testClient->getTableDataPreview($table['id'], ['format' => 'json']);
         /** @var array $viewDataPreview1 */
-        $viewDataPreview1 = $this->_client->getTableDataPreview($view['id'], ['format' => 'json']);
+        $viewDataPreview1 = $this->_testClient->getTableDataPreview($view['id'], ['format' => 'json']);
         $this->assertSame(['AMOUNT', 'DESCRIPTION'], $tableDataPreview['columns']);
         $this->assertSame(['AMOUNT', 'DESCRIPTION'], $viewDataPreview1['columns']);
 
         $expectationsFileWithTwoCols = __DIR__ . '/../../_data/export/with-two-columns.csv';
         $expectationsFileWithThreeCols = __DIR__ . '/../../_data/export/with-three-columns.csv';
-        $exporter = new TableExporter($this->_client);
+        $exporter = new TableExporter($this->_testClient);
 
         $exporter->exportTable($table['id'], $this->getExportFilePathForTest('with-two-cols.csv'), []);
         $this->assertLinesEqualsSorted(
@@ -776,13 +858,13 @@ SQL,
             file_get_contents($this->getExportFilePathForTest('with-two-cols.csv')),
         );
 
-        $this->_client->refreshBucket($idOfBucket);
+        $this->_testClient->refreshBucket($idOfBucket);
 
         // test after refresh, still works
         /** @var array $tableDataPreview */
-        $tableDataPreview = $this->_client->getTableDataPreview($table['id'], ['format' => 'json']);
+        $tableDataPreview = $this->_testClient->getTableDataPreview($table['id'], ['format' => 'json']);
         /** @var array $viewDataPreview1 */
-        $viewDataPreview1 = $this->_client->getTableDataPreview($view['id'], ['format' => 'json']);
+        $viewDataPreview1 = $this->_testClient->getTableDataPreview($view['id'], ['format' => 'json']);
         $this->assertSame(['AMOUNT', 'DESCRIPTION', 'AGE'], $tableDataPreview['columns']);
         $this->assertSame(['AMOUNT', 'DESCRIPTION', 'AGE'], $viewDataPreview1['columns']);
 
@@ -812,7 +894,7 @@ SQL,
         );
 
         try {
-            $this->_client->getTableDataPreview($table['id'], ['format' => 'json']);
+            $this->_testClient->getTableDataPreview($table['id'], ['format' => 'json']);
             $this->fail('Should fail');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
@@ -821,7 +903,7 @@ SQL,
         }
 
         try {
-            $this->_client->getTableDataPreview($view['id'], ['format' => 'json']);
+            $this->_testClient->getTableDataPreview($view['id'], ['format' => 'json']);
             $this->fail('Should fail');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
@@ -846,12 +928,12 @@ SQL,
         }
 
         // after refresh should work again
-        $this->_client->refreshBucket($idOfBucket);
+        $this->_testClient->refreshBucket($idOfBucket);
 
         /** @var array $tableDataPreview */
-        $tableDataPreview = $this->_client->getTableDataPreview($table['id'], ['format' => 'json']);
+        $tableDataPreview = $this->_testClient->getTableDataPreview($table['id'], ['format' => 'json']);
         /** @var array $viewDataPreview1 */
-        $viewDataPreview1 = $this->_client->getTableDataPreview($view['id'], ['format' => 'json']);
+        $viewDataPreview1 = $this->_testClient->getTableDataPreview($view['id'], ['format' => 'json']);
         $this->assertSame(['AMOUNT', 'DESCRIPTION'], $tableDataPreview['columns']);
         $this->assertSame(['AMOUNT', 'DESCRIPTION'], $viewDataPreview1['columns']);
 
@@ -867,16 +949,23 @@ SQL,
             file_get_contents($this->getExportFilePathForTest('with-two-cols.csv')),
         );
     }
-
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testRegisterExternalDB(): void
     {
-        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration-ext', true);
-        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration-ext2', true);
-        $this->initEvents($this->_client);
+        $this->dropBucketIfExists($this->_testClient, 'in.test-bucket-registration-ext', true);
+        $this->dropBucketIfExists($this->_testClient, 'in.test-bucket-registration-ext2', true);
+        $this->initEvents($this->_testClient);
         $runId = $this->setRunId();
+        $this->_testClient->setRunId($runId);
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('Cannot register bucket in dev branch');
+        }
         // try same with schema outside of project database.
         // This DB has been created when test project was inited
-        $idOfBucket = $this->_client->registerBucket(
+        $idOfBucket = $this->_testClient->registerBucket(
             'test-bucket-registration-ext',
             ['TEST_EXTERNAL_BUCKETS', 'TEST_SCHEMA'],
             'in',
@@ -892,7 +981,7 @@ SQL,
         $query->setEvent('storage.bucketCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
         $assertCallback = function ($events) {
             $this->assertCount(3, $events);
@@ -901,9 +990,9 @@ SQL,
         $query->setEvent('storage.tableCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
-        $idOfBucket2 = $this->_client->registerBucket(
+        $idOfBucket2 = $this->_testClient->registerBucket(
             'test-bucket-registration-ext2',
             ['TEST_EXTERNAL_BUCKETS', 'TEST_SCHEMA2'],
             'in',
@@ -913,11 +1002,11 @@ SQL,
         );
 
         // check external bucket
-        $bucket = $this->_client->getBucket($idOfBucket);
+        $bucket = $this->_testClient->getBucket($idOfBucket);
         $this->assertTrue($bucket['hasExternalSchema']);
         $this->assertSame('TEST_EXTERNAL_BUCKETS', $bucket['databaseName']);
 
-        $tables = $this->_client->listTables($idOfBucket);
+        $tables = $this->_testClient->listTables($idOfBucket);
         $this->assertCount(3, $tables);
         $tableResponse = $viewResponse = $externalTable = null;
 
@@ -936,20 +1025,20 @@ SQL,
                     throw new \RuntimeException('Unexpected object in external bucket');
             }
         }
-        $this->_client->exportTableAsync($tableResponse['id']);
+        $this->_testClient->exportTableAsync($tableResponse['id']);
         $this->assertEquals('snowflake-external-table', $externalTable['tableType']);
         $this->assertEquals('view', $viewResponse['tableType']);
-        $previewTable = $this->_client->getTableDataPreview($tableResponse['id']);
-        $previewView = $this->_client->getTableDataPreview($viewResponse['id']);
+        $previewTable = $this->_testClient->getTableDataPreview($tableResponse['id']);
+        $previewView = $this->_testClient->getTableDataPreview($viewResponse['id']);
         // expect two lines in preview because of the header
         $this->assertCount(2, Client::parseCsv($previewTable, false));
         $this->assertCount(2, Client::parseCsv($previewView, false));
-        $this->_client->refreshBucket($idOfBucket);
-        $tables = $this->_client->listTables($idOfBucket);
+        $this->_testClient->refreshBucket($idOfBucket);
+        $tables = $this->_testClient->listTables($idOfBucket);
         $this->assertCount(3, $tables);
 
         // check that workspace user CAN READ from table in external bucket directly
-        $ws = new Workspaces($this->_client);
+        $ws = new Workspaces($this->_testClient);
 
         $workspace = $ws->createWorkspace();
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
@@ -965,7 +1054,7 @@ SQL,
         ], $result);
 
         // drop external bucket
-        $this->_client->dropBucket($idOfBucket, ['force' => true]);
+        $this->_testClient->dropBucket($idOfBucket, ['force' => true]);
 
         // check that workspace user CANNOT READ from table in external bucket directly
         try {
@@ -986,7 +1075,7 @@ SQL,
         );
         $this->assertSame((int) $rowsCount, 1);
 
-        $this->_client->dropBucket($idOfBucket2, ['force' => true]);
+        $this->_testClient->dropBucket($idOfBucket2, ['force' => true]);
 
         try {
             $db->getDb()->fetchAll(
@@ -1002,21 +1091,28 @@ SQL,
         }
     }
 
-
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testRegisterExternalDBWithNoWS(): void
     {
-        $wsService = new Workspaces($this->_client);
+        $wsService = new Workspaces($this->_testClient);
         $allWorkspacesInThisProject = $wsService->listWorkspaces();
         foreach ($allWorkspacesInThisProject as $workspace) {
             $wsService->deleteWorkspace($workspace['id']);
         }
 
-        $this->dropBucketIfExists($this->_client, 'in.test-bucket-reg-ext-no-ws', true);
-        $this->initEvents($this->_client);
+        $this->dropBucketIfExists($this->_testClient, 'in.test-bucket-reg-ext-no-ws', true);
+        $this->initEvents($this->_testClient);
         $runId = $this->setRunId();
+        $this->_testClient->setRunId($runId);
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('Cannot register bucket in dev branch');
+        }
         // try same with schema outside of project database.
         // This DB has been created when test project was inited
-        $idOfBucket = $this->_client->registerBucket(
+        $idOfBucket = $this->_testClient->registerBucket(
             'test-bucket-reg-ext-no-ws',
             ['TEST_EXTERNAL_BUCKETS', 'TEST_SCHEMA'],
             'in',
@@ -1032,7 +1128,7 @@ SQL,
         $query->setEvent('storage.bucketCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
         $assertCallback = function ($events) {
             $this->assertCount(3, $events);
@@ -1041,24 +1137,30 @@ SQL,
         $query->setEvent('storage.tableCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
         // it should be easily dropped even no WS exists
-        $this->_client->dropBucket($idOfBucket, ['force' => true]);
+        $this->_testClient->dropBucket($idOfBucket, ['force' => true]);
     }
-
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testRefreshBucketWhenSchemaDoesNotExist(): void
     {
-        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
-        $this->initEvents($this->_client);
+        $this->dropBucketIfExists($this->_testClient, 'in.test-bucket-registration', true);
+        $this->initEvents($this->_testClient);
 
-        $ws = new Workspaces($this->_client);
+        $ws = new Workspaces($this->_testClient);
         // prepare workspace
         $workspace = $ws->createWorkspace();
-
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('Cannot register bucket in dev branch');
+        }
         // register workspace as external bucket including external table
         $runId = $this->setRunId();
-        $idOfBucket = $this->_client->registerBucket(
+        $this->_testClient->setRunId($runId);
+        $idOfBucket = $this->_testClient->registerBucket(
             'test-bucket-registration',
             [$workspace['connection']['database'], $workspace['connection']['schema']],
             'in',
@@ -1074,47 +1176,57 @@ SQL,
         $query->setEvent('storage.bucketCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
         // delete workspace = simulates situation when BYODB owner simply deletes the registered schema -> it should also delete the bucket
         $ws->deleteWorkspace($workspace['id']);
 
         // bucket shouldn't be deleted and exception should be thrown
         try {
-            $this->_client->refreshBucket($idOfBucket);
+            $this->_testClient->refreshBucket($idOfBucket);
             $this->fail('should fail');
         } catch (ClientException $e) {
-            $this->assertStringContainsString('doesn\'t exist or project user is missing privileges to read from it.', $e->getMessage());
+            if ($this->_testClient instanceof BranchAwareClient) {
+                $this->assertSame('This endpoint is available in the default branch only.', $e->getMessage());
+            } else {
+                $this->assertStringContainsString('doesn\'t exist or project user is missing privileges to read from it.', $e->getMessage());
+            }
         }
 
         // test bucket still exists
-        $bucket = $this->_client->getBucket($idOfBucket);
+        $bucket = $this->_testClient->getBucket($idOfBucket);
         $this->assertNotEmpty($bucket);
 
-        $this->_client->dropBucket($idOfBucket);
+        $this->_testClient->dropBucket($idOfBucket);
 
         // test bucket is deleted
         try {
-            $this->_client->getBucket($idOfBucket);
+            $this->_testClient->getBucket($idOfBucket);
             $this->fail('should fail');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame(sprintf('Bucket %s not found', $idOfBucket), $e->getMessage());
         }
     }
-
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testDropBucketWhenSchemaDoesNotExist(): void
     {
-        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
-        $this->initEvents($this->_client);
+        $this->dropBucketIfExists($this->_testClient, 'in.test-bucket-registration', true);
+        $this->initEvents($this->_testClient);
 
-        $ws = new Workspaces($this->_client);
+        $ws = new Workspaces($this->_testClient);
         // prepare workspace
         $workspace = $ws->createWorkspace();
-
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('Cannot register bucket in dev branch');
+        }
         // register workspace as external bucket including external table
         $runId = $this->setRunId();
-        $idOfBucket = $this->_client->registerBucket(
+        $this->_testClient->setRunId($runId);
+        $idOfBucket = $this->_testClient->registerBucket(
             'test-bucket-registration',
             [$workspace['connection']['database'], $workspace['connection']['schema']],
             'in',
@@ -1130,24 +1242,26 @@ SQL,
         $query->setEvent('storage.bucketCreated')
             ->setTokenId($this->tokenId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->_testClient, $assertCallback, $query);
 
         // delete workspace = simulates situation when BYODB owner simply deletes the registered schema -> should be able to delete the bucket
         $ws->deleteWorkspace($workspace['id']);
 
-        $this->_client->dropBucket($idOfBucket, ['force' => true]);
+        $this->_testClient->dropBucket($idOfBucket, ['force' => true]);
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Bucket in.test-bucket-registration not found');
-        $this->_client->getBucket($idOfBucket);
+        $this->_testClient->getBucket($idOfBucket);
     }
-
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testDropExternalBucket(): void
     {
-        $this->dropBucketIfExists($this->_client, 'in.external_bucket_1', true);
-        $this->dropBucketIfExists($this->_client, 'in.external_bucket_2', true);
+        $this->dropBucketIfExists($this->_testClient, 'in.external_bucket_1', true);
+        $this->dropBucketIfExists($this->_testClient, 'in.external_bucket_2', true);
 
-        $ws = new Workspaces($this->_client);
+        $ws = new Workspaces($this->_testClient);
         // prepare workspace
         $workspace = $ws->createWorkspace();
         $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
@@ -1177,8 +1291,11 @@ SQL,
             ],
         );
         $db2->executeQuery('INSERT INTO "test2" VALUES (1)');
-
-        $bucket1ID = $this->_client->registerBucket(
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('Cannot register bucket in dev branch');
+        }
+        $bucket1ID = $this->_testClient->registerBucket(
             'external_bucket_1',
             $externalBucketPath,
             'in',
@@ -1187,7 +1304,7 @@ SQL,
             'external_bucket_1',
         );
 
-        $this->_client->registerBucket(
+        $this->_testClient->registerBucket(
             'external_bucket_2',
             $externalBucketPath2,
             'in',
@@ -1224,7 +1341,7 @@ SQL,
         $this->assertEquals(['AMOUNT' => '1'], $dataFromBucket2BeforeDeletion[0]);
 
         // dropping the bucket
-        $this->_client->dropBucket($bucket1ID);
+        $this->_testClient->dropBucket($bucket1ID);
 
         // RO role should keep access to existing external bucket (=workspace)
         $dataFrom2AfterDeletion = $workspaceDbForChecking->fetchAll(
@@ -1238,43 +1355,26 @@ SQL,
         $this->assertEquals($dataFromBucket2BeforeDeletion, $dataFrom2AfterDeletion);
     }
 
-    public function testGuideInBranch(): void
-    {
-        $guide = $this->_client->registerBucketGuide([self::EXTERNAL_DB, self::EXTERNAL_SCHEMA], 'snowflake');
-        $this->assertStringContainsString('GRANT USAGE ON DATABASE', $guide['markdown']);
-        $bucketId = $this->initEmptyBucketWithDescription(self::STAGE_IN);
-        $bucket = $this->_client->getBucket($bucketId);
-        $mainBranchId = $bucket['idBranch'];
-        $branchAwareClient = $this->getBranchAwareDefaultClient($mainBranchId);
-        // cal with main branch
-        $guide = $branchAwareClient->registerBucketGuide([self::EXTERNAL_DB, self::EXTERNAL_SCHEMA], 'snowflake');
-        $this->assertStringContainsString('GRANT USAGE ON DATABASE', $guide['markdown']);
-
-        // cal with dev branch
-        $branchesClient = new DevBranches($this->_client);
-        $newBranch = $branchesClient->createBranch($this->generateDescriptionForTestObject());
-        try {
-            $branchAwareClient = $this->getBranchAwareDefaultClient($newBranch['id']);
-            $branchAwareClient->registerBucketGuide(['DB', 'SCHEMA'], 'snowflake');
-            $this->fail('Should fail');
-        } catch (ClientException $e) {
-            $this->assertEquals('This endpoint is available in the default branch only.', $e->getMessage());
-        }
-    }
-
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
     public function testRegisterSharedDatabaseExternalBucket(): void
     {
-        $this->dropBucketIfExists($this->_client, 'in.test-bucket-registration', true);
-        $this->initEvents($this->_client);
+        $this->dropBucketIfExists($this->_testClient, 'in.test-bucket-registration', true);
+        $this->initEvents($this->_testClient);
 
-        $ws = new Workspaces($this->_client);
+        $ws = new Workspaces($this->_testClient);
 
         // prepare workspace
         $workspace = $ws->createWorkspace();
 
         $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
         $externalBucketBackend = 'snowflake';
-        $guide = $this->_client->registerBucketGuide(
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('This endpoint is available in the default branch only.');
+        }
+        $guide = $this->_testClient->registerBucketGuide(
             path: $externalBucketPath,
             backend: $externalBucketBackend,
             isSnowflakeSharedDatabase: true,
