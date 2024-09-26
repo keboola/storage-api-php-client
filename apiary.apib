@@ -1254,6 +1254,7 @@ Returns a guide on how exactly you should register the external bucket. The text
             + snowflake
             + bigquery
     + path (required, array[string]) - Path to the schema. For Snowflake backend it's in a format ['database-name','schema-name'], for BigQuery ['dataset-name']
+    + isSnowflakeSharedDatabase (optional, boolean) - render guide for Snowflake shared database
 
 + Request (application/json)
     + Headers
