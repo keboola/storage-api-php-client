@@ -8,6 +8,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\SharingUtils;
 
 class ShareTest extends StorageApiTestCase
 {
@@ -53,9 +54,8 @@ class ShareTest extends StorageApiTestCase
         $pmBranchClient->shareOrganizationBucket($bucketId);
 
         self::assertTrue($pmBranchClient->isSharedBucket($bucketId));
-        $response = $pmBranchClient->listSharedBuckets();
-        self::assertCount(1, $response);
-        $sharedBucket = reset($response);
+        $sharedBucket = SharingUtils::getSharedBucket($pmBranchClient, $bucketId);
+        self::assertNotNull($sharedBucket);
 
         $linkedBucketName = 'linked-' . time();
         $clientInOtherProject = $this->getClientForToken(
@@ -105,8 +105,8 @@ class ShareTest extends StorageApiTestCase
 
         // test PM can unshare bucket
         $pmBranchClient->unshareBucket($bucketId, ['async' => true]);
-        $response = $pmBranchClient->listSharedBuckets();
-        self::assertCount(0, $response);
+        $sharedBucket = SharingUtils::getSharedBucket($pmBranchClient, $bucketId);
+        self::assertNull($sharedBucket);
     }
 
     public function tokensProvider(): \Generator
@@ -140,9 +140,8 @@ class ShareTest extends StorageApiTestCase
 
         $pmBranchClient->shareOrganizationBucket($productionBucketId);
         self::assertTrue($pmBranchClient->isSharedBucket($productionBucketId));
-        $response = $pmBranchClient->listSharedBuckets();
-        self::assertCount(1, $response);
-        $sharedBucket = reset($response);
+        $sharedBucket = SharingUtils::getSharedBucket($pmBranchClient, $productionBucketId);
+        self::assertNotNull($sharedBucket);
 
         $linkedBucketName = 'linked-' . time();
 
@@ -229,9 +228,8 @@ class ShareTest extends StorageApiTestCase
 
         $pmBranchClient->shareOrganizationBucket($productionBucketId);
         self::assertTrue($pmBranchClient->isSharedBucket($productionBucketId));
-        $response = $pmBranchClient->listSharedBuckets();
-        self::assertCount(1, $response);
-        $sharedBucket = reset($response);
+        $sharedBucket = SharingUtils::getSharedBucket($pmBranchClient, $productionBucketId);
+        self::assertNotNull($sharedBucket);
 
         $linkedBucketName = 'linked-' . time();
 
@@ -331,9 +329,8 @@ class ShareTest extends StorageApiTestCase
 
         $pmBranchClient->shareOrganizationBucket($productionBucketId);
         self::assertTrue($pmBranchClient->isSharedBucket($productionBucketId));
-        $response = $pmBranchClient->listSharedBuckets();
-        self::assertCount(1, $response);
-        $sharedBucket = reset($response);
+        $sharedBucket = SharingUtils::getSharedBucket($pmBranchClient, $productionBucketId);
+        self::assertNotNull($sharedBucket);
 
         $linkedBucketName = 'linked-' . time();
         $devBucketName = 'dev-bucket-' . sha1($this->generateDescriptionForTestObject());
