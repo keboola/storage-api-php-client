@@ -15,7 +15,6 @@ use Keboola\Csv\CsvFile;
 
 class SnapshottingTest extends StorageApiTestCase
 {
-
     public function setUp(): void
     {
         parent::setUp();
@@ -73,12 +72,12 @@ class SnapshottingTest extends StorageApiTestCase
         $sourceTable = $this->_client->getTable($sourceTableId);
         $snapshotId = $this->_client->createTableSnapshot($sourceTableId);
 
-        $hashedUniqueTableName = sha1('new-table-'.$this->generateDescriptionForTestObject());
+        $hashedUniqueTableName = sha1('new-table-' . $this->generateDescriptionForTestObject());
         $newTableId = $this->_client->createTableFromSnapshot($this->getTestBucketId(), $snapshotId, $hashedUniqueTableName);
 
         $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
         $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
-            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
+            $this->assertSame(1, $searchResult['all'], 'GlobalSearch expected result count is not 1: ' . json_encode($searchResult));
             $this->assertSame('table', $searchResult['items'][0]['type'], 'GlobalSearch');
             $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name'], 'GlobalSearch');
         };
