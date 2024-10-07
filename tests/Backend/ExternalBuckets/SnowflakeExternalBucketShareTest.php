@@ -19,11 +19,6 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
     use WorkspaceConnectionTrait;
     use ConnectionUtils;
 
-    private const EXTERNAL_DB = 'EXT_DB';
-    private const EXTERNAL_SCHEMA = 'EXT_SCHEMA';
-    private const EXTERNAL_TABLE = 'EXT_TABLE';
-    private const EXTERNAL_TABLE_2 = 'EXT_TABLE_2';
-
     protected Client $shareClient;
 
     protected Client $linkingClient;
