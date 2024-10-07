@@ -112,4 +112,27 @@ class SOXBranchesTest extends StorageApiTestCase
         $developerBranches->updateBranch($testBranchId, '', 'description');
         $developerBranches->deleteBranch($testBranchId);
     }
+
+    public function testProdManagerCanRegisterExternal(): void
+    {
+        $privilegedClient = $this->getDefaultBranchStorageApiClient();
+        $guide = $privilegedClient->registerBucketGuide(['TEST', 'SCHEMA'], 'snowflake');
+        $this->assertStringContainsString('GRANT USAGE ON DATABASE', $guide['markdown']);
+    }
+
+    public function testDevelopersAndReviewersCannotRegisterExternalBucket(): void
+    {
+        $developerClient = $this->getDeveloperStorageApiClient();
+        $reviewerClient = $this->getReviewerStorageApiClient();
+
+        foreach ([$developerClient, $reviewerClient] as $client) {
+            try {
+                $client->registerBucketGuide(['TEST', 'SCHEMA'], 'snowflake');
+                $this->fail('Developer should not be able to register external bucket');
+            } catch (ClientException $e) {
+                $this->assertSame(403, $e->getCode());
+                $this->assertSame('You don\'t have access to the resource.', $e->getMessage());
+            }
+        }
+    }
 }

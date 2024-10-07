@@ -312,6 +312,7 @@
 		<file>tests/Backend/SOX/MergeRequestsTest.php</file>
 		<file>tests/File/CommonFileTest.php</file>
 		<file>tests/Backend/SOX/ShareTest.php</file>
+		<file>tests/Backend/ExternalBuckets/SnowflakeRegisterBucketTest.php</file>
 	</testsuite>
 	<testsuite name="paratest-sox-bigquery">
 		<directory>tests/Backend/SOX</directory>
@@ -321,11 +322,11 @@
 		<file>tests/Backend/CommonPart1/BucketsTest.php</file>
 		<file>tests/Common/MetadataTest.php</file>
 		<file>tests/File/GcsFileTest.php</file>
+		<file>tests/Backend/ExternalBuckets/BigqueryRegisterBucketTest.php</file>
 		<!--		TESTS that don't need to run in BQ -->
 		<exclude>tests/Backend/SOX/SOXTokensTest.php</exclude>
 		<exclude>tests/Backend/SOX/TriggersTest.php</exclude>
 		<exclude>tests/Backend/SOX/SOXBranchesTest.php</exclude>
-		<exclude>tests/Backend/ExternalBuckets/BigqueryRegisterBucketTest.php</exclude>
 	</testsuite>
 	<testsuite name="sync-sox-bigquery">
 		<file>tests/Backend/SOX/SOXCommonTest.php</file>

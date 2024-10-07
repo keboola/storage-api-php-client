@@ -10,6 +10,11 @@ abstract class BaseExternalBuckets extends StorageApiTestCase
 {
     use MetadataUtils;
 
+    protected const EXTERNAL_DB = 'EXT_DB';
+    protected const EXTERNAL_SCHEMA = 'EXT_SCHEMA';
+    protected const EXTERNAL_TABLE = 'EXT_TABLE';
+    protected const EXTERNAL_TABLE_2 = 'EXT_TABLE_2';
+
     protected string $thisBackend;
 
     protected function assertColumnMetadata(
