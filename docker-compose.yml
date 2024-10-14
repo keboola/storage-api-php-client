@@ -39,6 +39,7 @@ services:
       - SNOWFLAKE_USER
       - SNOWFLAKE_PASSWORD
       - SNOWFLAKE_DB_PREFIX
+      - SNOWFLAKE_INBOUND_DATABASE_NAME
   dev: &dev
     <<: *base
     volumes:

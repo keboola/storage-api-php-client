@@ -411,7 +411,8 @@ class Client
         string $stage,
         string $description = '',
         ?string $backend = null,
-        ?string $displayName = null
+        ?string $displayName = null,
+        ?bool $isSnowflakeSharedDatabase = null,
     ): string {
         $data = [
             'name' => $name,
@@ -426,6 +427,10 @@ class Client
 
         if ($displayName !== null) {
             $data['displayName'] = $displayName;
+        }
+
+        if ($isSnowflakeSharedDatabase !== null) {
+            $data['isSnowflakeSharedDatabase'] = $isSnowflakeSharedDatabase;
         }
 
         $result = $this->apiPostJson('buckets/register', $data);
