@@ -50,7 +50,11 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
     {
         $inboundDatabaseName = getenv('SNOWFLAKE_INBOUND_DATABASE_NAME');
         assert($inboundDatabaseName !== false, 'SNOWFLAKE_INBOUND_DATABASE_NAME env var is not set');
-        $this->assertCount(2, explode('.', $inboundDatabaseName), 'SNOWFLAKE_INBOUND_DATABASE_NAME should have exactly 2 parts: <DATABASE_NAME>.<SCHEMA_NAME>');
+        $this->assertCount(
+            2,
+            explode('.', $inboundDatabaseName),
+            sprintf('SNOWFLAKE_INBOUND_DATABASE_NAME should have exactly 2 parts: <DATABASE_NAME>.<SCHEMA_NAME> gets %s', $inboundDatabaseName),
+        );
         return $inboundDatabaseName;
     }
 
