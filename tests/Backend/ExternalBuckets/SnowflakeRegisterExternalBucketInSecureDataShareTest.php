@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Keboola\Test\Backend\ExternalBuckets;
 
+use Keboola\StorageApi\BranchAwareClient;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\ConnectionUtils;
 
@@ -12,8 +15,19 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
 {
     use ConnectionUtils;
 
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->allowTestForBackendsOnly([self::BACKEND_SNOWFLAKE], 'Backend has to support external buckets');
+    }
+
     public function testRegisterExternalBucket(): void
     {
+        $externalTableNames = [
+            'NAMES_TABLE',
+            'SECURED_NAMES',
+        ];
+
         $workspaces = new Workspaces($this->_client);
         $workspace0 = $workspaces->createWorkspace(['backend' => 'snowflake']);
         $projectRole = $workspace0['connection']['database'];
@@ -24,9 +38,7 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
         $testBucketName = $this->getTestBucketName($description);
         $bucketId = self::STAGE_IN . '.' . $testBucketName;
 
-        if ($this->_client->bucketExists($bucketId)) {
-            $this->_client->dropBucket($bucketId);
-        }
+        $this->dropBucketIfExists($this->_client, $bucketId);
 
         $this->_client->registerBucket(
             $testBucketName,
@@ -43,7 +55,44 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
         $this->assertSame($testBucketName, $registeredBucket['name']);
         $this->assertSame(self::STAGE_IN, $registeredBucket['stage']);
 
+        $registeredTableNames = [];
+        foreach ($registeredBucket['tables'] as $table) {
+            $registeredTableNames[] = $table['name'];
+        }
+
+        $this->assertEquals($externalTableNames, $registeredTableNames, 'Not all external tables/views have registered view.');
+
         $this->_client->dropBucket($bucketId);
+    }
+
+    public function testInvalidDbToRegister(): void
+    {
+        $bucketName = 'test-sds-bucket';
+        $bucketId = self::STAGE_IN.'.'.$bucketName;
+
+        $this->dropBucketIfExists($this->_client, $bucketId);
+
+        try {
+            $this->_client->registerBucket(
+                $bucketName,
+                ['non-existing-database', 'non-existing-schema'],
+                self::STAGE_IN,
+                'will fail',
+                'snowflake',
+                'test-bucket-will-fail',
+            );
+            $this->fail('should fail');
+        } catch (ClientException $e) {
+            if ($this->_client instanceof BranchAwareClient) {
+                $this->assertSame('Cannot register bucket in dev branch', $e->getMessage());
+            } else {
+                $this->assertSame('storage.dbObjectNotFound', $e->getStringCode());
+                $this->assertStringContainsString(
+                    'doesn\'t exist or project user is missing privileges to read from it.',
+                    $e->getMessage(),
+                );
+            }
+        }
     }
 
     private function getInboundSharedDatabaseName(): string
