@@ -135,8 +135,6 @@ class BranchAwareClientTest extends TestCase
         } else {
             $client->$method();
         }
-//        $client->generateRunId();
-//        $client->deleteSnapshot();
         $this->assertNotEmpty($historyContainer, 'No requests were captured.');
         $this->assertCount(1, $historyContainer, 'Expected exactly one request.');
         /** @var Request $request */
