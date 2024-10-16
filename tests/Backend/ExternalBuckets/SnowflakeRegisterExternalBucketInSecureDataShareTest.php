@@ -54,6 +54,10 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
 
         $this->assertSame($testBucketName, $registeredBucket['name']);
         $this->assertSame(self::STAGE_IN, $registeredBucket['stage']);
+        $this->assertSame(
+            sprintf('%s.%s', $projectRole, 'SDS_'.mb_strtoupper(str_replace('-', '_', $testBucketName))),
+            $registeredBucket['path'],
+        );
 
         $registeredTableNames = [];
         foreach ($registeredBucket['tables'] as $table) {
