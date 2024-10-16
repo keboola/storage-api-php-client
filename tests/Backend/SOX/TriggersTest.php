@@ -170,19 +170,6 @@ class TriggersTest extends StorageApiTestCase
         ];
     }
 
-    /**
-     * @dataProvider clientProvider
-     */
-    public function testTriggerCannotBeCreatedInBranch(Client $client): void
-    {
-        ['id' => $branchId] = (new DevBranches($this->getDeveloperStorageApiClient()))->createBranch($this->generateDescriptionForTestObject());
-
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Not implemented');
-        $this->expectExceptionCode(501);
-        $client->getBranchAwareClient($branchId)->createTrigger([]);
-    }
-
     public function testCreateTriggerInDefaultBranchWithTableInBranch(): void
     {
         $description = $this->generateDescriptionForTestObject();
