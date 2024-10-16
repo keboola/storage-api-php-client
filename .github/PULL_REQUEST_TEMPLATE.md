@@ -6,6 +6,7 @@ Before asking for review make sure that:
 ## Checklist
 
 - [ ] New client method(s) has tests
+- [ ] New client method(s) support branches, or they are listed in BranchAwareClient 
 - [ ] Apiary file is updated
 
 ## Release
