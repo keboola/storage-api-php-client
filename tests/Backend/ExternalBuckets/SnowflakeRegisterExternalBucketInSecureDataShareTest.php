@@ -80,18 +80,15 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
                 'will fail',
                 'snowflake',
                 'test-bucket-will-fail',
+                true,
             );
             $this->fail('should fail');
         } catch (ClientException $e) {
-            if ($this->_client instanceof BranchAwareClient) {
-                $this->assertSame('Cannot register bucket in dev branch', $e->getMessage());
-            } else {
-                $this->assertSame('storage.dbObjectNotFound', $e->getStringCode());
-                $this->assertStringContainsString(
-                    'doesn\'t exist or project user is missing privileges to read from it.',
-                    $e->getMessage(),
-                );
-            }
+            $this->assertSame('storage.dbObjectNotFound', $e->getStringCode(), $e->getMessage());
+            $this->assertStringContainsString(
+                'doesn\'t exist or project user is missing privileges to read from it.',
+                $e->getMessage(),
+            );
         }
     }
 
