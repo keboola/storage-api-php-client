@@ -67,6 +67,9 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
         $this->assertEquals($externalTableNames, $registeredTableNames, 'Not all external tables/views have registered view.');
 
         $this->_client->dropBucket($bucketId);
+
+        $bucketExist = $this->_client->bucketExists($bucketId);
+        $this->assertFalse($bucketExist, 'Bucket '.$bucketId.' still exist.');
     }
 
     public function testInvalidDbToRegister(): void
