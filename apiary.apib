@@ -1067,6 +1067,7 @@ existing bucket from another project (see below).
                 "backend": "snowflake",
                 "hasExternalSchema": false,
                 "databaseName": null,
+                "path": "database_name.c-my-new-bucket",
                 "sharing": null
             }
 
@@ -1188,6 +1189,7 @@ Use this API call to create a new bucket from existing resource (schema or DB - 
             + bigquery
     + displayName (optional) - Bucket displayName, this name is displayed in UI and can be changed anytime; only alphanumeric characters,underscores and dashes are allowed.
     + path (required, array) - Path to the schema. On SNFLK ['database-name','schema-name'], Teradata ['database-name'], BigQuery ['projectId', 'location', 'exchangerName', 'listingName']
+    + isSnowflakeSharedDatabase (optional, bool) - Flag if external bucket uses Snowflake Secure Data Share feature
 
 + Request (application/json)
     + Headers
@@ -1298,6 +1300,7 @@ Obtains information about a bucket.
                 "backend": "snowflake",
                 "hasExternalSchema": false,
                 "databaseName": null,
+                "path": "database_name.c-ga",
                 "linkedBy": [
                     {
                         "id": "in.c-linked-bucket",
@@ -2345,6 +2348,7 @@ Lists tables in a given bucket.
                     "isAliasable": true,
                     "isTyped": false,
                     "tableType": "table",
+                    "path": "kbc.c-keboola-ex-db-snowflake-528221294.datatypes",
                     "metadata": [
                         {
                             "id": "206180828",
@@ -2381,6 +2385,7 @@ Lists tables in a given bucket.
                     "isAliasable": true,
                     "isTyped": false,
                     "tableType": "table",
+                    "path": "kbc_578.c-keboola-ex-db-snowflake-528221294.datatypes-alias",
                     "sourceTable": {
                         "id": "in.c-keboola-ex-db-snowflake-528221294.datatypes",
                         "uri": "https://connection.keboola.com/v2/storage/tables/in.c-keboola-ex-db-snowflake-528221294.datatypes",
@@ -3656,6 +3661,7 @@ Obtains information about a table.
                 "isAliasable": true,
                 "isTyped": false,
                 "tableType": "table",
+                "path": "kbc_578.c-application-testing.cashier-data-alias",
                 "definition": {
                     "primaryKeysNames": [],
                     "columns": [
@@ -3847,6 +3853,7 @@ Synchronous call response (async=false)
                 "isAliasable": true,
                 "isTyped": false,
                 "tableType": "table",
+                "path": "kbc_578.c-application-testing.cashier-data-alias",
                 "sourceTable": {
                     "id": "in.c-application-testing.cashier-data",
                     "uri": "https://connection.keboola.com/v2/storage/tables/in.c-application-testing.cashier-data",
@@ -4062,6 +4069,7 @@ attributes and information about the containing bucket.
                     "isAliasable": true,
                     "isTyped": false,
                     "tableType": "table",
+                    "path": "kbc_578.c-application-testing.cashier-data",
                     "columns": [
                         "time_spent_in_shop",
                         "number_of_items",
@@ -4117,6 +4125,7 @@ attributes and information about the containing bucket.
                     "isAliasable": true,
                     "isTyped": false,
                     "tableType": "table",
+                    "path": "kbc_578.c-application-testing.cashier-data-alias",
                     "sourceTable": {
                         "id": "in.c-application-testing.cashier-data",
                         "uri": "https:\/\/connection.keboola.com\/v2\/storage\/tables\/in.c-application-testing.cashier-data",
@@ -8608,6 +8617,7 @@ attributes and information about the containing bucket. At least one of paramete
                     "isAliasable": true,
                     "isTyped": false,
                     "tableType": "table",
+                    "path": "kbc_578.c-application-testing.cashier-data",
                     "columns": [
                         "time_spent_in_shop",
                         "number_of_items"
@@ -8656,6 +8666,7 @@ attributes and information about the containing bucket. At least one of paramete
                     "isAliasable": true,
                     "isTyped": false,
                     "tableType": "table",
+                    "path": "kbc_578.c-application-testing.cashier-data-alias",
                     "sourceTable": {
                         "id": "in.c-application-testing.cashier-data",
                         "uri": "https:\/\/connection.keboola.com\/v2\/storage\/tables\/in.c-application-testing.cashier-data",
