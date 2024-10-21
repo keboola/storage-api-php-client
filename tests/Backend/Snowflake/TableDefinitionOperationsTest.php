@@ -1854,6 +1854,12 @@ EOD,
 
         $this->assertCount(1, $data['rows']);
 
+        // test that fulltextSearch will not fail
+        $this->_client->getTableDataPreview($tableId, [
+            'format' => 'json',
+            'fulltextSearch' => 'test',
+        ]);
+
         foreach ($tableDefinition['columns'] as $col) {
             if ($col['name'] === 'id') {
                 continue;
