@@ -4193,7 +4193,7 @@ Adds a new column to an existing table. This request is [asynchronous](#introduc
     + definition (optional, object) - column settings, this object is applicable when table is typed. Otherwise it is ignored
         + type (required, string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP) [Synapse](https://bit.ly/3uZjN60) [Snowflake](https://bit.ly/3A5CkT8), [BigQuery](https://bit.ly/3jcQ8VX), [Teradata](https://bit.ly/3jj3r7h)
         + length (string) - optional, default: depends on type
-        + nullable (boolean) - optional, default: true, BigQuery - false: BQ doesn't support adding a REQUIRED column to an existing table schema.
+        + nullable (boolean) - optional, default: true; BigQuery: BQ doesn't support adding a REQUIRED column to an existing table schema so if this parameter is present, it has to be true.
         + default (string) - optional, default value for column, not supported by BigQuery
     + basetype (optional, enum[string]) - base datatype of this column, will be converted to backend specific types
         + Members
