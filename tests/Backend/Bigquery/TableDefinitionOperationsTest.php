@@ -766,6 +766,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
                 'name' => 'column_float',
                 'definition' => [
                     'type' => 'FLOAT64',
+                    'nullable' => 'true',
                 ],
                 'basetype' => null,
             ],
@@ -880,6 +881,40 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Column "definition" or "basetype" must be set.');
         $this->_client->addTableColumn($sourceTableId, 'addColumn');
+    }
+
+    public function testAddRequiredColumn(): void
+    {
+        $tableDefinition = [
+            'name' => 'my-new-table-typed-add-column',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INTEGER',
+                        'nullable' => false,
+                    ],
+                ],
+            ],
+        ];
+
+        $sourceTableId = $this->_client->createTableDefinition($this->getTestBucketId(), $tableDefinition);
+
+        try {
+            $this->_client->addTableColumn(
+                $sourceTableId,
+                'addColumn',
+                [
+                    'type' => 'FLOAT64',
+                    'nullable' => 'false',
+                    // this shouldn't be possible because now you try to add required column
+                ],
+            );
+            $this->fail('Should not be able to add REQUIRED column');
+        } catch (ClientException $e) {
+            $this->assertSame('Invalid parameters - definition[nullable]: BigQuery cannot add required columns.', $e->getMessage());
+        }
     }
 
     public function testDropColumnOnTypedTable(): void
