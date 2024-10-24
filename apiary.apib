@@ -514,6 +514,16 @@ bucket permissions, don't forget to specify the previous permissions.
                 }
             }
 
+### Delete Token [DELETE]
+It is possible to delete only the token that is not the master token, you know that in the token detail there is `"isMasterToken": false` and the token that is not used for table triggers.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 204
+
 ## Token Verification [/v2/storage/tokens/verify]
 ### Token verification [GET]
 Checks the token privileges and returns information about the project to which the token belongs (`owner`)
