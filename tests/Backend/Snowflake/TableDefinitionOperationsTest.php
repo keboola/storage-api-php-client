@@ -72,7 +72,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                         'nullable' => false,
                         'length' => '38,0',
                     ],
-                    'basetype' => 'NUMERIC',
+                    'basetype' => 'INTEGER',
                     'canBeFiltered' => true,
                 ],
                 [
@@ -936,7 +936,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                         'nullable' => true,
                         'length' => '38,0',
                     ],
-                    'basetype' => 'NUMERIC',
+                    'basetype' => 'INTEGER',
                     'canBeFiltered' => true,
                 ],
                 [
@@ -1806,7 +1806,7 @@ EOD,
                     'nullable' => false,
                     'length' => '38,0',
                 ],
-                'basetype' => 'NUMERIC',
+                'basetype' => 'INTEGER',
                 'canBeFiltered' => true,
             ],
             [
@@ -2578,7 +2578,7 @@ EOD,
         ], $idColumnMetadata[1], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
             'key' => 'KBC.datatype.basetype',
-            'value' => 'NUMERIC',
+            'value' => 'INTEGER',
             'provider' => 'storage',
         ], $idColumnMetadata[2], ['id', 'timestamp']);
         $this->assertArrayEqualsExceptKeys([
@@ -3215,7 +3215,7 @@ SELECT 2, ARRAY_CONSTRUCT(1, 2, 3, NULL), [1,2,3]::VECTOR(INT,3), TO_VARIANT(\'3
                     'nullable' => false,
                     'length' => '38,0',
                 ],
-                'basetype' => 'NUMERIC',
+                'basetype' => 'INTEGER',
                 'canBeFiltered' => true,
             ],
             //increase length of text column
