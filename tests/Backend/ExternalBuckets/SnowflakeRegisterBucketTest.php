@@ -1382,4 +1382,71 @@ SQL,
         $this->assertArrayHasKey('markdown', $guide);
         $this->assertStringContainsString('GRANT IMPORTED PRIVILEGES ON DATABASE', $guide['markdown']);
     }
+
+
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testRegisterTableAndChangeColumnCase(): void
+    {
+        $name = $this->getTestBucketName($this->generateDescriptionForTestObject());
+        $bucketName = 'in.' . $name;
+        $this->dropBucketIfExists(
+            $this->_testClient,
+            $bucketName,
+            true,
+        );
+
+        $ws = new Workspaces($this->_testClient);
+        // prepare workspace
+        $workspace = $ws->createWorkspace();
+        $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
+        $externalBucketBackend = 'snowflake';
+
+        // add first table to workspace with long name, table should be skipped
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $db->createTable(
+            'test',
+            [
+                'amount' => 'INT',
+                'description' => 'STRING',
+            ],
+        );
+        if ($this->_testClient instanceof BranchAwareClient) {
+            $this->expectException(ClientException::class);
+            $this->expectExceptionMessage('Cannot register bucket in dev branch');
+        }
+        // Api endpoint return warning, but client method return only bucket id
+        // I added warning message to logs
+        $idOfBucket = $this->_testClient->registerBucket(
+            $name,
+            $externalBucketPath,
+            'in',
+            'ItestRegisterTableAndChangeColumnCase',
+            $externalBucketBackend,
+            'testRegisterTableAndChangeColumnCase',
+        );
+
+        $tables = $this->_testClient->listTables($idOfBucket);
+        $this->assertCount(1, $tables);
+
+        $db->dropTable('test');
+        $db->createTable(
+            'test',
+            [
+                'AMOUNT' => 'INT',
+                'DESCRIPTION' => 'STRING',
+            ],
+        );
+
+        $this->_testClient->refreshBucket($idOfBucket);
+
+        $tables = $this->_testClient->listTables($idOfBucket);
+        $this->assertCount(1, $tables);
+
+        $table = $this->_testClient->getTable($tables[0]['id']);
+        $this->assertCount(2, $table['columns']);
+        $this->assertCount(2, $table['definition']['columns']);
+    }
 }
