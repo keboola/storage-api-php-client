@@ -2151,4 +2151,133 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
             'Invalid default value for column "invalid_boolean_default". Allowed values are true, false, 0, 1, got "test".',
         ];
     }
+
+    public function testCreateTableBasetypes(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $data = [
+            'name' => 'table_basetypes',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'basetype' => 'numeric',
+                ],
+                [
+                    'name' => 'numeric',
+                    'basetype' => 'numeric',
+                ],
+                [
+                    'name' => 'BOOLEAN',
+                    'basetype' => 'BOOLEAN',
+                ],
+                [
+                    'name' => 'DATE',
+                    'basetype' => 'DATE',
+                ],
+                [
+                    'name' => 'FLOAT',
+                    'basetype' => 'FLOAT',
+                ],
+                [
+                    'name' => 'INTEGER',
+                    'basetype' => 'INTEGER',
+                ],
+                [
+                    'name' => 'STRING',
+                    'basetype' => 'STRING',
+                ],
+                [
+                    'name' => 'TIMESTAMP',
+                    'basetype' => 'TIMESTAMP',
+                ],
+            ],
+        ];
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $newTableId = $this->_client->createTableDefinition($bucketId, $data);
+        $tableDetail = $this->_client->getTable($newTableId);
+        $this->assertSame([
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'BOOLEAN',
+                    'definition' => [
+                        'type' => 'BOOL',
+                        'nullable' => true,
+                    ],
+                    'basetype' => 'BOOLEAN',
+                    'canBeFiltered' => true,
+                ],
+                [
+                    'name' => 'DATE',
+                    'definition' => [
+                        'type' => 'DATE',
+                        'nullable' => true,
+                    ],
+                    'basetype' => 'DATE',
+                    'canBeFiltered' => true,
+                ],
+                [
+                    'name' => 'FLOAT',
+                    'definition' => [
+                        'type' => 'FLOAT64',
+                        'nullable' => true,
+                    ],
+                    'basetype' => 'FLOAT',
+                    'canBeFiltered' => true,
+                ],
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => false,
+                    ],
+                    'basetype' => 'NUMERIC',
+                    'canBeFiltered' => true,
+                ],
+                [
+                    'name' => 'INTEGER',
+                    'definition' => [
+                        'type' => 'INTEGER',
+                        'nullable' => true,
+                    ],
+                    'basetype' => 'INTEGER',
+                    'canBeFiltered' => true,
+                ],
+                [
+                    'name' => 'numeric',
+                    'definition' => [
+                        'type' => 'NUMERIC',
+                        'nullable' => true,
+                    ],
+                    'basetype' => 'NUMERIC',
+                    'canBeFiltered' => true,
+                ],
+                [
+                    'name' => 'STRING',
+                    'definition' => [
+                        'type' => 'STRING',
+                        'nullable' => true,
+                    ],
+                    'basetype' => 'STRING',
+                    'canBeFiltered' => true,
+                ],
+                [
+                    'name' => 'TIMESTAMP',
+                    'definition' => [
+                        'type' => 'TIMESTAMP',
+                        'nullable' => true,
+                    ],
+                    'basetype' => 'TIMESTAMP',
+                    'canBeFiltered' => true,
+                ],
+            ],
+        ], $tableDetail['definition']);
+    }
 }
