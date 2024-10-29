@@ -375,7 +375,7 @@ class PullTableTest extends StorageApiTestCase
                             'nullable' => false,
                             'length' => '38,0',
                         ],
-                        'basetype' => 'NUMERIC',
+                        'basetype' => 'INTEGER',
                         'canBeFiltered' => true,
                     ],
                     [
