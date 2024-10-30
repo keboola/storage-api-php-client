@@ -156,7 +156,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $expectedIdMetadata = [
             'KBC.datatype.type' => 'NUMBER',
             'KBC.datatype.nullable' => '1',
-            'KBC.datatype.basetype' => 'NUMERIC',
+            'KBC.datatype.basetype' => 'INTEGER',
             'KBC.datatype.length' => '38,0',
         ];
 
@@ -190,7 +190,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $expectedIdMetadata = [
             'KBC.datatype.type' => 'NUMBER',
             'KBC.datatype.nullable' => '1',
-            'KBC.datatype.basetype' => 'NUMERIC',
+            'KBC.datatype.basetype' => 'INTEGER',
             'KBC.datatype.length' => '38,0',
         ];
 
@@ -246,7 +246,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $expectedIntegerMetadata = [
             'KBC.datatype.type' => 'NUMBER',
             'KBC.datatype.nullable' => '',
-            'KBC.datatype.basetype' => 'NUMERIC',
+            'KBC.datatype.basetype' => 'INTEGER',
             'KBC.datatype.length' => '38,0',
             'KBC.datatype.default' => '4',
         ];
@@ -371,7 +371,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $expectedIdMetadata = [
             'KBC.datatype.type' => 'NUMBER',
             'KBC.datatype.nullable' => '',
-            'KBC.datatype.basetype' => 'NUMERIC',
+            'KBC.datatype.basetype' => 'INTEGER',
             'KBC.datatype.length' => '38,0',
         ];
         $expectedNameMetadata = [
@@ -460,7 +460,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertMetadata([
             'KBC.datatype.type' => 'NUMBER',
             'KBC.datatype.nullable' => '1',
-            'KBC.datatype.basetype' => 'NUMERIC',
+            'KBC.datatype.basetype' => 'INTEGER',
             'KBC.datatype.length' => '38,0',
         ], $table['columnMetadata']['id']);
         $this->assertMetadata([
@@ -512,7 +512,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertMetadata([
             'KBC.datatype.type' => 'NUMBER',
             'KBC.datatype.nullable' => '1',
-            'KBC.datatype.basetype' => 'NUMERIC',
+            'KBC.datatype.basetype' => 'INTEGER',
             'KBC.datatype.length' => '38,0',
         ], $table['columnMetadata']['id']);
         $this->assertMetadata([
