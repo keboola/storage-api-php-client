@@ -360,7 +360,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $this->assertColumnMetadata(
             'NUMBER',
             '1',
-            'NUMERIC',
+            'INTEGER',
             '38,0',
             $tableDetail['columnMetadata']['AMOUNT'],
         );
