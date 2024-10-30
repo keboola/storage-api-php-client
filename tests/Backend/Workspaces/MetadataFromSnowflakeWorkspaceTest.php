@@ -190,7 +190,7 @@ class MetadataFromSnowflakeWorkspaceTest extends ParallelWorkspacesTestCase
         $expectedIdMetadata = [
             'KBC.datatype.type' => 'NUMBER',
             'KBC.datatype.nullable' => '1',
-            'KBC.datatype.basetype' => 'NUMERIC',
+            'KBC.datatype.basetype' => 'INTEGER',
             'KBC.datatype.length' => '38,0',
         ];
 
