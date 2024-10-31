@@ -73,6 +73,7 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
             sprintf('%s.%s', $projectRole, 'SDS_'.mb_strtoupper(str_replace('-', '_', $testBucketName))),
             $registeredBucket['path'],
         );
+        $this->assertTrue($registeredBucket['isSnowflakeSharedDatabase']);
 
         $registeredTableNames = [];
         foreach ($registeredBucket['tables'] as $table) {
