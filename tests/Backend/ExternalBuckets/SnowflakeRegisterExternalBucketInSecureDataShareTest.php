@@ -10,10 +10,13 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\ConnectionUtils;
+use Keboola\Test\Utils\EventsQueryBuilder;
+use Keboola\Test\Utils\EventTesterUtils;
 
 class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTestCase
 {
     use ConnectionUtils;
+    use EventTesterUtils;
 
     public function setUp(): void
     {
@@ -27,6 +30,9 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
             'NAMES_TABLE',
             'SECURED_NAMES',
         ];
+
+        $this->initEvents($this->_client);
+        $runId = $this->setRunId();
 
         $workspaces = new Workspaces($this->_client);
         $workspace0 = $workspaces->createWorkspace(['backend' => 'snowflake']);
@@ -50,6 +56,15 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
             true,
         );
 
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketCreated')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
         $registeredBucket = $this->_client->getBucket($bucketId);
 
         $this->assertSame($testBucketName, $registeredBucket['name']);
@@ -68,8 +83,19 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
 
         $this->_client->dropBucket($bucketId);
 
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketDeleted')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
         $bucketExist = $this->_client->bucketExists($bucketId);
         $this->assertFalse($bucketExist, 'Bucket '.$bucketId.' still exist.');
+
+        $this->ensureSharedDatabaseStillExists();
     }
 
     public function testInvalidDbToRegister(): void
@@ -120,5 +146,37 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
             explode('.', $this->getInboundSharedDatabaseName())[0],
             $projectRole,
         ));
+    }
+
+    private function ensureSharedDatabaseStillExists(): void
+    {
+        $db = $this->ensureSnowflakeConnection();
+        $db->executeQuery('USE ROLE ACCOUNTADMIN');
+        $database = $db->fetchAllAssociative(sprintf(
+            'DESCRIBE DATABASE %s',
+            explode('.', $this->getInboundSharedDatabaseName())[0],
+        ));
+        $this->assertNotEmpty($database);
+
+        $tables = $db->fetchAllAssociative(sprintf(
+            'SHOW TABLES IN %s',
+            $this->getInboundSharedDatabaseName(),
+        ));
+        $this->assertCount(1, $tables);
+        $this->assertSame('NAMES_TABLE', $tables[0]['name']);
+
+        $views = $db->fetchAllAssociative(sprintf(
+            'SHOW VIEWS IN %s',
+            $this->getInboundSharedDatabaseName(),
+        ));
+        $this->assertCount(1, $views);
+        $this->assertSame('SECURED_NAMES', $views[0]['name']);
+    }
+
+    protected function setRunId(): string
+    {
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+        return $runId;
     }
 }
