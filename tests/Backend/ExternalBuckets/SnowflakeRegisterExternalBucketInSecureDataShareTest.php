@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Keboola\Test\Backend\ExternalBuckets;
 
-use Keboola\StorageApi\BranchAwareClient;
+use Doctrine\DBAL\Connection;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
-use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\ConnectionUtils;
 use Keboola\Test\Utils\EventsQueryBuilder;
@@ -126,6 +126,54 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
         }
     }
 
+    public function testRegisterAndRefreshExternalBucket(): void
+    {
+        $workspaces = new Workspaces($this->_client);
+        $workspace0 = $workspaces->createWorkspace(['backend' => 'snowflake']);
+        $projectRole = $workspace0['connection']['database'];
+
+        $newTableName = 'NEW_TABLE';
+        $this->dropTableInProducerDatabase($newTableName);
+        $this->grantImportedPrivilegesToProjectRole($projectRole);
+
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $this->dropBucketIfExists($this->_client, $bucketId);
+
+        $this->_client->registerBucket(
+            $testBucketName,
+            explode('.', $this->getInboundSharedDatabaseName()),
+            self::STAGE_IN,
+            $description,
+            'snowflake',
+            null,
+            true,
+        );
+
+        $registeredBucket = $this->_client->getBucket($bucketId);
+        $this->assertTrue($registeredBucket['isSnowflakeSharedDatabase']);
+
+        $this->createTableInProducerDatabase($newTableName, ['id INT', 'name VARCHAR'], [[1, "'Jan'"], [2, "'Josef'"]]);
+        $this->_client->refreshBucket($registeredBucket['id']);
+
+        $refreshedBucket = $this->_client->getBucket($registeredBucket['id']);
+        $tableNames = array_map(
+            function ($tableRow) {
+                return $tableRow['name'];
+            },
+            $refreshedBucket['tables'],
+        );
+        $this->assertTrue(in_array($newTableName, $tableNames), 'New table not found in refreshed bucket');
+
+        $this->_client->dropBucket($bucketId);
+        $bucketExist = $this->_client->bucketExists($bucketId);
+        $this->assertFalse($bucketExist, 'Bucket '.$bucketId.' still exist.');
+        $this->dropTableInProducerDatabase($newTableName);
+        $this->ensureSharedDatabaseStillExists();
+    }
+
     private function getInboundSharedDatabaseName(): string
     {
         $inboundDatabaseName = getenv('SNOWFLAKE_INBOUND_DATABASE_NAME');
@@ -179,5 +227,113 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
         return $runId;
+    }
+
+    private function ensureProducerSnowflakeConnection(): Connection
+    {
+        static $connection = null;
+
+        if ($connection === null) {
+            $host = getenv('SNOWFLAKE_PRODUCER_HOST');
+            assert($host !== false, 'SNOWFLAKE_PRODUCER_HOST env var is not set');
+            $user = getenv('SNOWFLAKE_PRODUCER_USER');
+            assert($user !== false, 'SNOWFLAKE_PRODUCER_USER env var is not set');
+            $pass = getenv('SNOWFLAKE_PRODUCER_PASSWORD');
+            assert($pass !== false, 'SNOWFLAKE_PRODUCER_PASSWORD env var is not set');
+            $warehouse = getenv('SNOWFLAKE_PRODUCER_WAREHOUSE');
+            $params = [];
+            if ($warehouse !== false) {
+                $params['warehouse'] = $warehouse;
+            }
+            $connection = SnowflakeConnectionFactory::getConnection($host, $user, $pass, $params);
+        }
+
+        return $connection;
+    }
+
+    private function getProducerSharedDatabase(): string
+    {
+        $producerDatabaseName = getenv('SNOWFLAKE_PRODUCER_SHARED_DATABASE');
+        assert($producerDatabaseName !== false, 'SNOWFLAKE_PRODUCER_SHARED_DATABASE env var is not set');
+        $this->assertCount(
+            2,
+            explode('.', $producerDatabaseName),
+            sprintf('SNOWFLAKE_PRODUCER_SHARED_DATABASE should have exactly 2 parts: <DATABASE_NAME>.<SCHEMA_NAME> gets %s', $producerDatabaseName),
+        );
+        return $producerDatabaseName;
+    }
+
+    private function getProducerShareName(): string
+    {
+        $shareName = getenv('SNOWFLAKE_PRODUCER_SHARE_NAME');
+        assert($shareName !== false, 'SNOWFLAKE_PRODUCER_SHARE_NAME env var is not set');
+        return $shareName;
+    }
+
+    private function getProducerSnowflakeWarehouse(): string
+    {
+        $warehouse = getenv('SNOWFLAKE_PRODUCER_WAREHOUSE');
+        assert($warehouse !== false, 'SNOWFLAKE_PRODUCER_WAREHOUSE env var is not set');
+        return $warehouse;
+    }
+
+    /**
+     * @param string $tableName
+     * @param string[] $columnsDefinition
+     * @param array<array<mixed>> $data
+     * @return void
+     * @throws \Doctrine\DBAL\Exception
+     */
+    private function createTableInProducerDatabase(string $tableName, array $columnsDefinition, array $data): void
+    {
+        $db = $this->ensureProducerSnowflakeConnection();
+        $dbName = $this->getProducerSharedDatabase();
+
+        $db->executeQuery('USE ROLE ACCOUNTADMIN');
+        $db->executeQuery(sprintf('USE WAREHOUSE %s', $this->getProducerSnowflakeWarehouse()));
+
+        $db->executeQuery(sprintf(
+            'CREATE TABLE IF NOT EXISTS %s.%s(%s)',
+            $dbName,
+            $tableName,
+            implode(', ', $columnsDefinition),
+        ));
+
+        $db->executeQuery(sprintf(
+            'TRUNCATE TABLE %s.%s',
+            $dbName,
+            $tableName,
+        ));
+
+        foreach ($data as $row) {
+            $db->executeQuery(sprintf(
+                'INSERT INTO %s.%s VALUES (%s)',
+                $dbName,
+                $tableName,
+                implode(', ', $row),
+            ));
+        }
+
+        $db->executeQuery(sprintf(
+            'GRANT SELECT ON TABLE %s.%s TO SHARE %s',
+            $dbName,
+            $tableName,
+            $this->getProducerShareName(),
+        ));
+    }
+
+    private function dropTableInProducerDatabase(string $tableName): void
+    {
+        $db = $this->ensureProducerSnowflakeConnection();
+        $dbName = $this->getProducerSharedDatabase();
+
+        $db->executeQuery('USE ROLE ACCOUNTADMIN');
+        $db->executeQuery('USE WAREHOUSE DEV');
+
+        $db->executeQuery(sprintf(
+            'DROP TABLE IF EXISTS %s.%s',
+            $dbName,
+            $tableName,
+        ));
     }
 }
