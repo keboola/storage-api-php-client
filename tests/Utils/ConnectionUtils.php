@@ -9,11 +9,11 @@ use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 
 trait ConnectionUtils
 {
-    private static ?Connection $connection = null;
-
     public function ensureSnowflakeConnection(): Connection
     {
-        if (self::$connection === null) {
+        static $connection = null;
+
+        if ($connection === null) {
             $host = getenv('SNOWFLAKE_HOST');
             assert($host !== false, 'SNOWFLAKE_HOST env var is not set');
             $user = getenv('SNOWFLAKE_USER');
@@ -26,10 +26,10 @@ trait ConnectionUtils
                 $params['warehouse'] = $warehouse;
             }
 
-            self::$connection = SnowflakeConnectionFactory::getConnection($host, $user, $pass, $params);
+            $connection = SnowflakeConnectionFactory::getConnection($host, $user, $pass, $params);
         }
 
-        return self::$connection;
+        return $connection;
     }
 
     public function getSnowflakeUser(): string
