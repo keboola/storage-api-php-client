@@ -74,6 +74,7 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
         $this->shareClient->shareBucketToProjects($registeredBucketId, [$targetProjectId]);
 
         $sharedBucket = $this->_client->getBucket($registeredBucketId);
+        $this->assertTrue($sharedBucket['hasExternalSchema']);
         $this->assertEquals('specific-projects', $sharedBucket['sharing']);
         $this->assertEquals($targetProjectId, $sharedBucket['sharingParameters']['projects'][0]['id']);
 
@@ -103,7 +104,7 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
         $linkedBucketId = $this->linkingClient->linkBucket('LINKED_BUCKET', 'in', $token['owner']['id'], $sharedBucket['id'], 'LINKED_BUCKET');
         $linkedBucket = $this->linkingClient->getBucket($linkedBucketId);
         $this->assertEquals($sharedBucket['id'], $linkedBucket['sourceBucket']['id']);
-
+        $this->assertTrue($linkedBucket['hasExternalSchema']);
         $linkingTables = $this->linkingClient->listTables($linkedBucketId);
         $this->assertCount(1, $linkingTables);
         $linkingTable = $linkingTables[0];
