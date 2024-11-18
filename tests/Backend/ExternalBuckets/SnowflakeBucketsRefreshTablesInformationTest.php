@@ -129,7 +129,7 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
         );
     }
 
-    public function testNamesCoincidence(): void
+    public function testAliasesShouldNotBeRefreshedWhenSourceTableIsInAnotherBucket(): void
     {
         $expectedRowsForTableAndAlias = 6;
 
