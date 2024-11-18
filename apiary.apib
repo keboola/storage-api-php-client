@@ -1466,7 +1466,7 @@ Asynchronous call response that creates a new job. To see job detail use [Job De
             }
 
 ### Bucket Tables Information Refresh [POST /v2/storage/branch/{branch_id}/buckets/{bucket_id}/refresh-tables-info]
-Refresh tables information in bucket. For **Snowflake** backend only.
+Refresh tables information in bucket. For **Snowflake** backend only. Aliases with source table in the defined bucket are also refreshed. If alias in the discussed bucket has source table in another bucket, it won't be refreshed.
 
 
 + Parameters
