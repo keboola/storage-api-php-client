@@ -131,6 +131,8 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
 
     public function testNamesCoincidence(): void
     {
+        $expectedRowsForTableAndAlias = 6;
+
         $client = $this->getBranchAwareDefaultClient('default');
         foreach ([self::BUCKET_FINANCE, self::BUCKET_ACCOUNTING] as $bucketName) {
             $this->dropBucketIfExists($this->_client, 'in.c-' . $bucketName);
@@ -140,7 +142,7 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
 
         $tableInAccountingBucket = $this->createTableWithRandomData(
             'invoices',
-            3,
+            $expectedRowsForTableAndAlias,
             3,
             bucketId: $bucketIdAccountingWithAliasSource,
         );
@@ -155,10 +157,10 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
         // creating alias from ACCOUNTING but in FINANCE bucket
         $createdAlias = $this->_client->createAliasTable($bucketIdFinance, $tableInAccountingBucket, 'invoices_alias');
         $aliasDetail = $this->_client->getTable($createdAlias);
-        $this->assertEquals(3, $aliasDetail['rowsCount']);
+        $this->assertEquals($expectedRowsForTableAndAlias, $aliasDetail['rowsCount']);
         $client->refreshTableInformationInBucket($bucketIdFinance);
         $aliasDetail = $this->_client->getTable($createdAlias);
         // the alias should keep the old row count
-        $this->assertEquals(3, $aliasDetail['rowsCount']);
+        $this->assertEquals($expectedRowsForTableAndAlias, $aliasDetail['rowsCount']);
     }
 }
