@@ -498,8 +498,12 @@ abstract class StorageApiTestCase extends ClientTestCase
         }
     }
 
-    protected function createTableWithRandomData($tableName, $rows = 5, $columns = 10, $charsInCell = 20)
+    protected function createTableWithRandomData($tableName, $rows = 5, $columns = 10, $charsInCell = 20, string $bucketId = null)
     {
+        if ($bucketId === null) {
+            $bucketId = $this->getTestBucketId();
+        }
+
         $csvFile = $this->createTempCsv();
         $header = [];
         for ($i = 0; $i++ < $columns;) {
@@ -513,7 +517,7 @@ abstract class StorageApiTestCase extends ClientTestCase
             }
             $csvFile->writeRow($row);
         }
-        return $this->_client->createTableAsync($this->getTestBucketId(), $tableName, $csvFile);
+        return $this->_client->createTableAsync($bucketId, $tableName, $csvFile);
     }
 
     protected function createTempCsv(): CsvFile
