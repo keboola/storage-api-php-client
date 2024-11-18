@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Test\Backend\ExternalBuckets;
 
+use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Utils\ConnectionUtils;
@@ -12,6 +13,8 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
 {
     use ConnectionUtils;
 
+    const BUCKET_FINANCE = 'test-finance';
+    const BUCKET_ACCOUNTING = 'test-accounting';
     public function testRefreshTablesInformationEndpointExists(): void
     {
         $bucketId = $this->initEmptyBucketWithDescription(self::STAGE_IN);
@@ -124,5 +127,38 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
                 SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
             ),
         );
+    }
+
+    public function testNamesCoincidence(): void
+    {
+        $client = $this->getBranchAwareDefaultClient('default');
+        foreach ([self::BUCKET_FINANCE, self::BUCKET_ACCOUNTING] as $bucketName) {
+            $this->dropBucketIfExists($this->_client, 'in.c-' . $bucketName);
+        }
+        $bucketIdFinance = $this->_client->createBucket(self::BUCKET_FINANCE, self::STAGE_IN);
+        $bucketIdAccountingWithAliasSource = $this->_client->createBucket(self::BUCKET_ACCOUNTING, self::STAGE_IN);
+
+        $tableInAccountingBucket = $this->createTableWithRandomData(
+            'invoices',
+            3,
+            3,
+            bucketId: $bucketIdAccountingWithAliasSource,
+        );
+
+        $this->createTableWithRandomData(
+            'invoices',
+            2,
+            3,
+            bucketId: $bucketIdFinance,
+        );
+
+        // creating alias from ACCOUNTING but in FINANCE bucket
+        $createdAlias = $this->_client->createAliasTable($bucketIdFinance, $tableInAccountingBucket, 'invoices_alias');
+        $aliasDetail = $this->_client->getTable($createdAlias);
+        $this->assertEquals(3, $aliasDetail['rowsCount']);
+        $client->refreshTableInformationInBucket($bucketIdFinance);
+        $aliasDetail = $this->_client->getTable($createdAlias);
+        // the alias should keep the old row count
+        $this->assertEquals(3, $aliasDetail['rowsCount']);
     }
 }
