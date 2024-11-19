@@ -579,7 +579,7 @@ class BucketsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      */
-    public function testBucketOwner(string $devBranchType, string $userRole)
+    public function testBucketOwner(string $devBranchType, string $userRole): void
     {
         $bucketId = $this->getTestBucketId();
         $bucket = $this->_testClient->getBucket($bucketId);
