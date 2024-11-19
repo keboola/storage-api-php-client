@@ -9,6 +9,7 @@ use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\BucketDetailOptions;
+use Keboola\StorageApi\Options\BucketOwnerUpdateOptions;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\Metadata\TableMetadataUpdateOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
@@ -573,6 +574,26 @@ class BucketsTest extends StorageApiTestCase
     {
         $this->assertTrue($this->_testClient->bucketExists($this->getTestBucketId()));
         $this->assertFalse($this->_testClient->bucketExists('in.ukulele'));
+    }
+
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testBucketOwner(string $devBranchType, string $userRole)
+    {
+        $bucketId = $this->getTestBucketId();
+        $bucket = $this->_testClient->getBucket($bucketId);
+        $this->assertNull($bucket['owner']);
+
+        $token = $this->_testClient->verifyToken();
+
+        $this->_testClient->updateBucketOwner($bucketId, new BucketOwnerUpdateOptions(id: $token['admin']['id']));
+        $bucketOwner = $this->_testClient->bucketOwner($bucketId);
+
+        $this->assertSame($token['admin']['id'], $bucketOwner['id']);
+
+        $bucket = $this->_testClient->getBucket($bucketId);
+        $this->assertEquals($token['admin']['id'], $bucket['owner']['id']);
     }
 
     public function provideComponentsClientTypeBasedOnSuite(): array
