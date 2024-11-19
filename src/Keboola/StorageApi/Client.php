@@ -501,13 +501,24 @@ class Client
         return $this->apiPutJson($url);
     }
 
+    /**
+     * @return array{
+     *     id: int,
+     *     name: string,
+     *     email: string,
+     * }
+     */
     public function bucketOwner(string $bucketId)
     {
         $url = 'buckets/' . $bucketId . '/owner';
 
+        // @phpstan-ignore-next-line
         return $this->apiGet($url);
     }
 
+    /**
+     * @return mixed|string
+     */
     public function updateBucketOwner(string $bucketId, BucketOwnerUpdateOptions $updateOptions)
     {
         $url = 'buckets/' . $bucketId . '/owner';
