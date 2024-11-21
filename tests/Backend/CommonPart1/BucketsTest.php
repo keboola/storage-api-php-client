@@ -581,19 +581,43 @@ class BucketsTest extends StorageApiTestCase
      */
     public function testBucketOwner(string $devBranchType, string $userRole): void
     {
-        $bucketId = $this->getTestBucketId();
+        $this->initEvents($this->_testClient);
+
+        $bucketName = 'bucketOwnerTesting';
+
+        $this->dropBucketIfExists($this->_testClient, "in.c-{$bucketName}", true);
+        $bucketId = $this->_testClient->createBucket($bucketName, self::STAGE_IN);
+
         $bucket = $this->_testClient->getBucket($bucketId);
         $this->assertNull($bucket['owner']);
 
         $token = $this->_testClient->verifyToken();
 
         $this->_testClient->updateBucketOwner($bucketId, new BucketOwnerUpdateOptions(id: $token['admin']['id']));
+
+        $eventAssertCallback = function ($events) use ($bucketId, $token) {
+            $this->assertCount(1, $events);
+
+            $this->assertSame('bucket', $events[0]['objectType']);
+            $this->assertSame($bucketId, $events[0]['objectId']);
+            $this->assertSame($token['admin']['id'], $events[0]['params']['owner']['id']);
+            $this->assertSame($token['admin']['name'], $events[0]['params']['owner']['name']);
+        };
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketUpdated')
+            ->setTokenId($this->tokenId)
+            ->setObjectId($bucketId);
+        $this->assertEventWithRetries($this->_testClient, $eventAssertCallback, $query);
+
         $bucketOwner = $this->_testClient->bucketOwner($bucketId);
 
         $this->assertSame($token['admin']['id'], $bucketOwner['id']);
+        $this->assertSame($token['admin']['name'], $bucketOwner['name']);
 
         $bucket = $this->_testClient->getBucket($bucketId);
         $this->assertEquals($token['admin']['id'], $bucket['owner']['id']);
+        $this->assertEquals($token['admin']['name'], $bucket['owner']['name']);
     }
 
     public function provideComponentsClientTypeBasedOnSuite(): array
