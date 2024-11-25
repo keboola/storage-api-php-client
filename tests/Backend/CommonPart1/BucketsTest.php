@@ -577,10 +577,16 @@ class BucketsTest extends StorageApiTestCase
     }
 
     /**
+     * @group noSOX
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      */
     public function testBucketOwner(string $devBranchType, string $userRole): void
     {
+        $token = $this->_testClient->verifyToken();
+
+        $ownerId = $token['adminOwner']['id'];
+        $ownerName = $token['adminOwner']['name'];
+
         $this->initEvents($this->_testClient);
 
         $bucketName = 'bucketOwnerTesting';
@@ -600,8 +606,6 @@ class BucketsTest extends StorageApiTestCase
             $this->assertSame("Owner of Bucket in.c-{$bucketName} not found", $e->getMessage());
         }
 
-        $token = $this->_testClient->verifyToken();
-
         try {
             $this->_testClient->updateBucketOwner($bucketId, new BucketOwnerUpdateOptions(id: 99999999));
             $this->fail('Should fail.');
@@ -611,15 +615,15 @@ class BucketsTest extends StorageApiTestCase
             $this->assertSame("Owner of Bucket in.c-{$bucketName} not found", $e->getMessage());
         }
 
-        $this->_testClient->updateBucketOwner($bucketId, new BucketOwnerUpdateOptions(id: $token['admin']['id']));
+        $this->_testClient->updateBucketOwner($bucketId, new BucketOwnerUpdateOptions(id: $ownerId));
 
-        $eventAssertCallback = function ($events) use ($bucketId, $token) {
+        $eventAssertCallback = function ($events) use ($bucketId, $ownerId, $ownerName) {
             $this->assertCount(1, $events);
 
             $this->assertSame('bucket', $events[0]['objectType']);
             $this->assertSame($bucketId, $events[0]['objectId']);
-            $this->assertSame($token['admin']['id'], $events[0]['params']['owner']['id']);
-            $this->assertSame($token['admin']['name'], $events[0]['params']['owner']['name']);
+            $this->assertSame($ownerId, $events[0]['params']['owner']['id']);
+            $this->assertSame($ownerName, $events[0]['params']['owner']['name']);
         };
 
         $query = new EventsQueryBuilder();
@@ -630,12 +634,12 @@ class BucketsTest extends StorageApiTestCase
 
         $bucketOwner = $this->_testClient->bucketOwner($bucketId);
 
-        $this->assertSame($token['admin']['id'], $bucketOwner['id']);
-        $this->assertSame($token['admin']['name'], $bucketOwner['name']);
+        $this->assertSame($ownerId, $bucketOwner['id']);
+        $this->assertSame($ownerName, $bucketOwner['name']);
 
         $bucket = $this->_testClient->getBucket($bucketId);
-        $this->assertEquals($token['admin']['id'], $bucket['owner']['id']);
-        $this->assertEquals($token['admin']['name'], $bucket['owner']['name']);
+        $this->assertEquals($ownerId, $bucket['owner']['id']);
+        $this->assertEquals($ownerName, $bucket['owner']['name']);
     }
 
     public function provideComponentsClientTypeBasedOnSuite(): array
