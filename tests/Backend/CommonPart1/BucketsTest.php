@@ -9,6 +9,7 @@ use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\BucketDetailOptions;
+use Keboola\StorageApi\Options\BucketOwnerUpdateOptions;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\Metadata\TableMetadataUpdateOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
@@ -573,6 +574,68 @@ class BucketsTest extends StorageApiTestCase
     {
         $this->assertTrue($this->_testClient->bucketExists($this->getTestBucketId()));
         $this->assertFalse($this->_testClient->bucketExists('in.ukulele'));
+    }
+
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testBucketOwner(string $devBranchType, string $userRole): void
+    {
+        $this->initEvents($this->_testClient);
+
+        $bucketName = 'bucketOwnerTesting';
+
+        $this->dropBucketIfExists($this->_testClient, "in.c-{$bucketName}", true);
+        $bucketId = $this->_testClient->createBucket($bucketName, self::STAGE_IN);
+
+        $bucket = $this->_testClient->getBucket($bucketId);
+        $this->assertNull($bucket['owner']);
+
+        try {
+            $this->_testClient->bucketOwner($bucketId);
+            $this->fail('Should fail.');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('storage.bucket.ownerNotFound', $e->getStringCode());
+            $this->assertSame("Owner of Bucket in.c-{$bucketName} not found", $e->getMessage());
+        }
+
+        $token = $this->_testClient->verifyToken();
+
+        try {
+            $this->_testClient->updateBucketOwner($bucketId, new BucketOwnerUpdateOptions(id: 99999999));
+            $this->fail('Should fail.');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('storage.bucket.ownerNotFound', $e->getStringCode());
+            $this->assertSame("Owner of Bucket in.c-{$bucketName} not found", $e->getMessage());
+        }
+
+        $this->_testClient->updateBucketOwner($bucketId, new BucketOwnerUpdateOptions(id: $token['admin']['id']));
+
+        $eventAssertCallback = function ($events) use ($bucketId, $token) {
+            $this->assertCount(1, $events);
+
+            $this->assertSame('bucket', $events[0]['objectType']);
+            $this->assertSame($bucketId, $events[0]['objectId']);
+            $this->assertSame($token['admin']['id'], $events[0]['params']['owner']['id']);
+            $this->assertSame($token['admin']['name'], $events[0]['params']['owner']['name']);
+        };
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketUpdated')
+            ->setTokenId($this->tokenId)
+            ->setObjectId($bucketId);
+        $this->assertEventWithRetries($this->_testClient, $eventAssertCallback, $query);
+
+        $bucketOwner = $this->_testClient->bucketOwner($bucketId);
+
+        $this->assertSame($token['admin']['id'], $bucketOwner['id']);
+        $this->assertSame($token['admin']['name'], $bucketOwner['name']);
+
+        $bucket = $this->_testClient->getBucket($bucketId);
+        $this->assertEquals($token['admin']['id'], $bucket['owner']['id']);
+        $this->assertEquals($token['admin']['name'], $bucket['owner']['name']);
     }
 
     public function provideComponentsClientTypeBasedOnSuite(): array

@@ -14,6 +14,7 @@ use Keboola\StorageApi\Client\RequestTimeoutMiddleware;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Options\BackendConfiguration;
 use Keboola\StorageApi\Options\BucketDetailOptions;
+use Keboola\StorageApi\Options\BucketOwnerUpdateOptions;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\Components\SearchComponentConfigurationsOptions;
 use Keboola\StorageApi\Options\FileUploadTransferOptions;
@@ -498,6 +499,31 @@ class Client
         // Method Keboola\StorageApi\Client::refreshBucket() should return array{id: string, uri: string, name: string, stage: string, tables: string, backend: string, created: string, sharing: string|null, ...} but returns mixed.
         // @phpstan-ignore-next-line
         return $this->apiPutJson($url);
+    }
+
+    /**
+     * @return array{
+     *     id: int,
+     *     name: string,
+     *     email: string,
+     * }
+     */
+    public function bucketOwner(string $bucketId)
+    {
+        $url = 'buckets/' . $bucketId . '/owner';
+
+        // @phpstan-ignore-next-line
+        return $this->apiGet($url);
+    }
+
+    /**
+     * @return mixed|string
+     */
+    public function updateBucketOwner(string $bucketId, BucketOwnerUpdateOptions $updateOptions)
+    {
+        $url = 'buckets/' . $bucketId . '/owner';
+
+        return $this->apiPostJson($url, $updateOptions->toArray());
     }
 
     /**
