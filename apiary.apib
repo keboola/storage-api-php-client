@@ -1001,7 +1001,11 @@ All buckets are returned.
                                 "name": "Some Other Project"
                             }
                         }
-                    ]
+                    ],
+                    "owner": {
+                        "id": 123,
+                        "name": "Jan Developer"
+                    }
                 },
                 {
                     "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-organizationData",
@@ -1021,7 +1025,8 @@ All buckets are returned.
                             "id": 123,
                             "name": "Project name"
                         }
-                    }
+                    },
+                    "owner": null,
                 }
             ]
 
@@ -1336,7 +1341,11 @@ Obtains information about a bucket.
                             "provider": "user",
                             "timestamp": "2019-08-12T14:36:08+0200"
                         }
-                ]
+                ],
+                "owner": {
+                    "id": 123,
+                    "name": "Jan Developer"
+                }
             }
 
 ### Bucket Update [PUT /v2/storage/buckets/{bucket_id}/?async={async}]
@@ -1563,6 +1572,45 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
                     "outBytesUncompressed": 0
                 }
             }
+
+### Bucket Owner detail [GET /v2/storage/buckets/{bucket_id}/owner]
+Return information about current bucket owner.
+
++ Parameters
+    + bucket_id (required) - Bucket Id
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+    + Body
+
+        {
+            "id": 123,
+            "name": "Dev",
+            "email": "dev@keboola.com"
+        }
+
++ Response 404
+
+### Bucket Owner update [POST /v2/storage/buckets/{bucket_id}/owner]
+Update information about current bucket owner.
+
++ Parameters
+    + bucket_id (required) - Bucket Id
+    + id (optional, boolean) - Project Admin ID. ID or email is required.
+    + email (optional, boolean) - Project Admin email. ID or email is required.
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200
+
++ Response 404
 
 ## Bucket Sharing [/v2/storage/buckets/{bucket_id}/share?async={async}]
 
