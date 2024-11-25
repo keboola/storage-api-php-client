@@ -591,7 +591,25 @@ class BucketsTest extends StorageApiTestCase
         $bucket = $this->_testClient->getBucket($bucketId);
         $this->assertNull($bucket['owner']);
 
+        try {
+            $this->_testClient->bucketOwner($bucketId);
+            $this->fail('Should fail.');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('storage.bucket.ownerNotFound', $e->getStringCode());
+            $this->assertSame("Owner of Bucket in.c-{$bucketName} not found", $e->getMessage());
+        }
+
         $token = $this->_testClient->verifyToken();
+
+        try {
+            $this->_testClient->updateBucketOwner($bucketId, new BucketOwnerUpdateOptions(id: 99999999));
+            $this->fail('Should fail.');
+        } catch (ClientException $e) {
+            $this->assertSame(404, $e->getCode());
+            $this->assertSame('storage.bucket.ownerNotFound', $e->getStringCode());
+            $this->assertSame("Owner of Bucket in.c-{$bucketName} not found", $e->getMessage());
+        }
 
         $this->_testClient->updateBucketOwner($bucketId, new BucketOwnerUpdateOptions(id: $token['admin']['id']));
 
