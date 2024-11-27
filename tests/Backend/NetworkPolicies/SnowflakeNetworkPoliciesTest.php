@@ -45,10 +45,15 @@ class SnowflakeNetworkPoliciesTest extends NetworkPoliciesTestCase
     public function testAccessWithSystemNetworkPolicy(): void
     {
         $systemNetworkPolicyName = $this->defaultNetworkPolicyName();
+        $verifiedToken = $this->_client->verifyToken();
 
         if (!$this->networkPolicyExists($systemNetworkPolicyName)) {
             $this->createNetworkPolicy($systemNetworkPolicyName);
         }
+
+        // the project might not have the NP enabled -> so do it manually.
+        // Keep in mind that it might not have the feature set, but it is ok
+        $this->assignNetworkPolicyToProjectUser($verifiedToken['owner']['id'], $systemNetworkPolicyName);
 
         $this->assertNetworkPolicyExists($systemNetworkPolicyName);
 
@@ -88,10 +93,15 @@ class SnowflakeNetworkPoliciesTest extends NetworkPoliciesTestCase
     public function testAccessWithPrivateIpInNetworkPolicy(): void
     {
         $systemNetworkPolicyName = $this->defaultNetworkPolicyName();
+        $verifiedToken = $this->_client->verifyToken();
 
         if (!$this->networkPolicyExists($systemNetworkPolicyName)) {
             $this->createNetworkPolicy($systemNetworkPolicyName);
         }
+
+        // the project might not have the NP enabled -> so do it manually.
+        // Keep in mind that it might not have the feature set, but it is ok
+        $this->assignNetworkPolicyToProjectUser($verifiedToken['owner']['id'], $systemNetworkPolicyName);
 
         $this->assertNetworkPolicyExists($systemNetworkPolicyName);
 
