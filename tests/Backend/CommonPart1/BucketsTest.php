@@ -648,7 +648,42 @@ class BucketsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      */
-    public function testBucketDescriptionMetadata(): void
+    public function testBucketDisplayNameUpdate(): void
+    {
+        $this->initEvents($this->_testClient);
+
+        $bucketName = 'bucketDisplayNameTesting';
+
+        $this->dropBucketIfExists($this->_testClient, "in.c-{$bucketName}", true);
+        $bucketId = $this->_testClient->createBucket($bucketName, self::STAGE_IN);
+
+        $bucket = $this->_testClient->getBucket($bucketId);
+        $this->assertNull($bucket['updated']);
+
+        $this->_testClient->updateBucket(new BucketUpdateOptions($bucketId, 'newBucketDisplayNameTesting'));
+
+        $eventAssertCallback = function ($events) use ($bucketId) {
+            $this->assertCount(1, $events);
+
+            $this->assertSame('bucket', $events[0]['objectType']);
+            $this->assertSame($bucketId, $events[0]['objectId']);
+        };
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketUpdated')
+            ->setTokenId($this->tokenId)
+            ->setObjectId($bucketId);
+        $this->assertEventWithRetries($this->_testClient, $eventAssertCallback, $query);
+
+        // update displayName do not change updated column
+        $bucket = $this->_testClient->getBucket($bucketId);
+        $this->assertNull($bucket['updated']);
+    }
+
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testBucketDescriptionMetadataUpdate(): void
     {
         $this->initEvents($this->_testClient);
 
