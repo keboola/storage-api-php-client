@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend\MixedSnowflakeBigquery;
 
+use DateTime;
 use Generator;
 use Google\Cloud\BigQuery\BigQueryClient;
 use Google\Cloud\BigQuery\Table;
@@ -14,6 +15,7 @@ use Keboola\Test\Backend\Mixed\StorageApiSharingTestCase;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\BigqueryWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Keboola\Test\Utils\EventsQueryBuilder;
 use Throwable;
 
 class SharingTest extends StorageApiSharingTestCase
@@ -355,6 +357,76 @@ class SharingTest extends StorageApiSharingTestCase
 
         $this->_client2->exportTableAsync(
             $storageTablesInDestProject[0]['id'],
+        );
+    }
+
+    public function testBucketShareUpdate(): void
+    {
+        $this->initEvents($this->_client);
+
+        $bucketName = 'bucketShareTesting';
+
+        $this->dropBucketIfExists($this->_client, "in.c-{$bucketName}", true);
+        $bucketId = $this->_client->createBucket($bucketName, self::STAGE_IN);
+
+        $bucket = $this->_client->getBucket($bucketId);
+        $this->assertNull($bucket['updated']);
+
+        $this->_client->shareOrganizationProjectBucket($bucketId);
+
+        $eventAssertCallback = function ($events) use ($bucketId) {
+            $this->assertCount(1, $events);
+
+            $this->assertSame('bucket', $events[0]['objectType']);
+            $this->assertSame($bucketId, $events[0]['objectId']);
+        };
+
+        $tokenData = $this->_client->verifyToken();
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketSharingEnabled')
+            ->setTokenId($tokenData['id'])
+            ->setObjectId($bucketId);
+        $this->assertEventWithRetries($this->_client, $eventAssertCallback, $query);
+
+        $bucket = $this->_client->getBucket($bucketId);
+        $this->assertNotNull($bucket['updated']);
+
+        $shareEnabledTime = $bucket['updated'];
+
+        $this->_client->shareOrganizationBucket($bucketId);
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketSharingTypeChanged')
+            ->setTokenId($tokenData['id'])
+            ->setObjectId($bucketId);
+        $this->assertEventWithRetries($this->_client, $eventAssertCallback, $query);
+
+        $bucket = $this->_client->getBucket($bucketId);
+        $this->assertNotNull($bucket['updated']);
+
+        $shareTypeChangedTime = $bucket['updated'];
+
+        $this->assertGreaterThan(
+            DateTime::createFromFormat(DateTime::ATOM, $shareEnabledTime),
+            DateTime::createFromFormat(DateTime::ATOM, $shareTypeChangedTime),
+        );
+
+        $this->_client->unshareBucket($bucketId);
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketSharingDisabled')
+            ->setTokenId($tokenData['id'])
+            ->setObjectId($bucketId);
+        $this->assertEventWithRetries($this->_client, $eventAssertCallback, $query);
+
+        $bucket = $this->_client->getBucket($bucketId);
+        $this->assertNotNull($bucket['updated']);
+
+        $shareDisabledTime = $bucket['updated'];
+
+        $this->assertGreaterThan(
+            DateTime::createFromFormat(DateTime::ATOM, $shareTypeChangedTime),
+            DateTime::createFromFormat(DateTime::ATOM, $shareDisabledTime),
         );
     }
 

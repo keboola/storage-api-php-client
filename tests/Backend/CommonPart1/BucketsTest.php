@@ -606,6 +606,8 @@ class BucketsTest extends StorageApiTestCase
             $this->assertSame("Owner of Bucket in.c-{$bucketName} not found", $e->getMessage());
         }
 
+        $this->assertNull($bucket['updated']);
+
         try {
             $this->_testClient->updateBucketOwner($bucketId, new BucketOwnerUpdateOptions(id: 99999999));
             $this->fail('Should fail.');
@@ -640,6 +642,86 @@ class BucketsTest extends StorageApiTestCase
         $bucket = $this->_testClient->getBucket($bucketId);
         $this->assertEquals($ownerId, $bucket['owner']['id']);
         $this->assertEquals($ownerName, $bucket['owner']['name']);
+        $this->assertNotNull($bucket['updated']);
+    }
+
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testBucketDisplayNameUpdate(): void
+    {
+        $this->initEvents($this->_testClient);
+
+        $bucketName = 'bucketDisplayNameTesting';
+
+        $this->dropBucketIfExists($this->_testClient, "in.c-{$bucketName}", true);
+        $bucketId = $this->_testClient->createBucket($bucketName, self::STAGE_IN);
+
+        $bucket = $this->_testClient->getBucket($bucketId);
+        $this->assertNull($bucket['updated']);
+
+        $this->_testClient->updateBucket(new BucketUpdateOptions($bucketId, 'newBucketDisplayNameTesting'));
+
+        $eventAssertCallback = function ($events) use ($bucketId) {
+            $this->assertCount(1, $events);
+
+            $this->assertSame('bucket', $events[0]['objectType']);
+            $this->assertSame($bucketId, $events[0]['objectId']);
+        };
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketUpdated')
+            ->setTokenId($this->tokenId)
+            ->setObjectId($bucketId);
+        $this->assertEventWithRetries($this->_testClient, $eventAssertCallback, $query);
+
+        // update displayName do not change updated column
+        $bucket = $this->_testClient->getBucket($bucketId);
+        $this->assertNull($bucket['updated']);
+    }
+
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testBucketDescriptionMetadataUpdate(): void
+    {
+        $this->initEvents($this->_testClient);
+
+        $bucketName = 'bucketMetadataDescriptionTesting';
+        $metadataProvider = 'user';
+        $descriptionKey = 'KBC.description';
+
+        $this->dropBucketIfExists($this->_testClient, "in.c-{$bucketName}", true);
+        $bucketId = $this->_testClient->createBucket($bucketName, self::STAGE_IN);
+
+        $bucket = $this->_testClient->getBucket($bucketId);
+        $this->assertNull($bucket['updated']);
+
+        $metadataClient = new Metadata($this->_testClient);
+
+        $bucketMetadata = $metadataClient->listBucketMetadata($bucketId);
+        $this->assertEmpty($bucketMetadata);
+
+        $metadataClient->postBucketMetadata($bucketId, $metadataProvider, [[ 'key' => $descriptionKey, 'value' => 'Testing bucket description']]);
+
+        $eventAssertCallback = function ($events) use ($bucketId) {
+            $this->assertCount(1, $events);
+
+            $this->assertSame('bucket', $events[0]['objectType']);
+            $this->assertSame($bucketId, $events[0]['objectId']);
+        };
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.bucketMetadataSet')
+            ->setTokenId($this->tokenId)
+            ->setObjectId($bucketId);
+        $this->assertEventWithRetries($this->_testClient, $eventAssertCallback, $query);
+
+        $bucketMetadata = $metadataClient->listBucketMetadata($bucketId);
+        $this->assertNotEmpty($bucketMetadata);
+
+        $bucket = $this->_testClient->getBucket($bucketId);
+        $this->assertNotNull($bucket['updated']);
     }
 
     public function provideComponentsClientTypeBasedOnSuite(): array
