@@ -1005,7 +1005,8 @@ All buckets are returned.
                     "owner": {
                         "id": 123,
                         "name": "Jan Developer"
-                    }
+                    },
+                    "updated": "2024-11-28T13:03:13+0100"
                 },
                 {
                     "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-organizationData",
@@ -1027,6 +1028,7 @@ All buckets are returned.
                         }
                     },
                     "owner": null,
+                    "updated": "2024-11-28T13:03:13+0100"
                 }
             ]
 
@@ -1083,7 +1085,8 @@ existing bucket from another project (see below).
                 "hasExternalSchema": false,
                 "databaseName": null,
                 "path": "database_name.c-my-new-bucket",
-                "sharing": null
+                "sharing": null,
+                "updated": "2024-11-28T13:03:13+0100"
             }
 
 ### Link Shared Bucket [POST /v2/storage/buckets?async={async}]
@@ -1142,7 +1145,9 @@ Synchronous call response (async=false)
                         "id": 123,
                         "name": "Project name"
                     }
-                }
+                },
+                "owner": null,
+                "updated": "2024-11-28T13:03:13+0100"
             }
 
 + Response 202
@@ -1345,7 +1350,8 @@ Obtains information about a bucket.
                 "owner": {
                     "id": 123,
                     "name": "Jan Developer"
-                }
+                },
+                "updated": "2024-11-28T13:03:13+0100"
             }
 
 ### Bucket Update [PUT /v2/storage/buckets/{bucket_id}/?async={async}]
@@ -1390,6 +1396,8 @@ Synchronous call response (async=false)
                 "isMaintenance": false,
                 "backend": "snowflake",
                 "sharing": null,
+                "owner": null,
+                "updated": "2024-11-28T13:03:13+0100"
             }
 + Response 202
 Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
@@ -1660,6 +1668,8 @@ Synchronous call response (async=false)
                 "isMaintenance": false,
                 "backend": "snowflake",
                 "sharing": "organization",
+                "owner": null,
+                "updated": "2024-11-28T13:03:13+0100"
             }
 
 + Response 202
@@ -1735,6 +1745,8 @@ Synchronous call response (async=false)
                     "name": "dev@keboola.com",
                     "date": "2020-02-03T14:58:29+0100"
                 },
+                "owner": null,
+                "updated": "2024-11-28T13:03:13+0100"
             }
 
 + Response 202
@@ -1809,6 +1821,8 @@ Synchronous call response (async=false)
                     "name": "dev@keboola.com",
                     "date": "2020-02-03T14:58:29+0100"
                 },
+                "owner": null,
+                "updated": "2024-11-28T13:03:13+0100"
             }
 
 + Response 202
@@ -1911,6 +1925,8 @@ Synchronous call response (async=false)
                     "name": "dev@keboola.com",
                     "date": "2020-02-03T14:58:29+0100"
                 },
+                "owner": null,
+                "updated": "2024-11-28T13:03:13+0100"
             }
 
 + Response 202
@@ -2019,6 +2035,8 @@ Synchronous call response (async=false)
                     "name": "dev@keboola.com",
                     "date": "2020-02-03T14:58:29+0100"
                 },
+                "owner": null,
+                "updated": "2024-11-28T13:03:13+0100"
             }
 
 + Response 202
@@ -2103,6 +2121,8 @@ Synchronous call response (async=false)
                     "name": "dev@keboola.com",
                     "date": "2020-02-03T14:58:29+0100"
                 },
+                "owner": null,
+                "updated": "2024-11-28T13:03:13+0100"
             }
 
 + Response 202
@@ -2293,6 +2313,8 @@ Lists buckets which may be shared to the project.
                         "name": "dev@keboola.com",
                         "date": "2020-02-03T14:58:29+0100"
                     }
+                    "owner": null,
+                    "updated": "2024-11-28T13:03:13+0100"
                 }
             ]
 
