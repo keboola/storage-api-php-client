@@ -3241,7 +3241,7 @@ Further information can be found in the [Developers Documentation](https://devel
 
         Specific behavior of BigQuery:
 
-        * If the treatValuesAsNull[] array is empty in the request, no values will be converted to NULL. Internally, the value "_\_KEBOOLA_IMPORT_AS_NULL_\_+UUID" will be used, e.g. _\_KEBOOLA_IMPORT_AS_NULL_\_4b340550242239.64159797. Such a value is highly unlikely to be present in the data, so no value will be converted to NULL.
+        * If the `treatValuesAsNull` parameter is empty array in the request, no values will be converted to NULL. Internally, the value `_\_KEBOOLA_IMPORT_AS_NULL_\_+UUID` will be used, e.g. `_\_KEBOOLA_IMPORT_AS_NULL_\_4b340550242239.64159797`. Such a value is highly unlikely to be present in the data, so no value will be converted to NULL.
 
 + Request (application/json)
     + Headers
