@@ -52,8 +52,7 @@ class ImportTreatValuesAsNullTest extends ParallelWorkspacesTestCase
             return $row;
         }, $data);
 
-        $this->assertEqualsCanonicalizing($expectedData, $data);
-
+        $this->assertArraySameSorted($expectedData, $data, 0);
         $workspaces->deleteWorkspace($workspace['id']);
     }
 
@@ -98,7 +97,7 @@ class ImportTreatValuesAsNullTest extends ParallelWorkspacesTestCase
                 1 => [
                     0 => 31,
                     1 => 'belarus',
-                    2 => '',
+                    2 => null,
                     3 => 'b',
                 ],
                 2 => [
@@ -108,6 +107,30 @@ class ImportTreatValuesAsNullTest extends ParallelWorkspacesTestCase
                     3 => 'b',
                 ],
             ],
+        ];
+        yield 'string' => [
+            'importedFile' => __DIR__ . '/../../_data/languages-empty-string.csv',
+            'expectedData' => [
+                0 => [
+                    0 => 30,
+                    1 => 'armenia',
+                    2 => '',
+                    3 => null,
+                ],
+                1 => [
+                    0 => 31,
+                    1 => 'belarus',
+                    2 => '',
+                    3 => null,
+                ],
+                2 => [
+                    0 => 32,
+                    1 => 'malta',
+                    2 => 'a',
+                    3 => null,
+                ],
+            ],
+            'treatValuesAsNull' => ['b'],
         ];
     }
 
