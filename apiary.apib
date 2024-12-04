@@ -3239,6 +3239,10 @@ Further information can be found in the [Developers Documentation](https://devel
     + ignoredLinesCount (optional, number) - Number of lines to skip at the beginning of the file. If ignoredLinesCount is specified, the withoutHeaders option will be ignored.
     + treatValuesAsNull (optional, array[string]) - (Snowflake and BigQuery only) Array of string values that should be imported as NULL values. The default value is `['']`. Some other common values you might consider are `'\N'` or `'null'`. **Currently only single value is allowed**, but it still must be sent as array to allow future expansion.
 
+        Specific behavior of BigQuery:
+
+        * If the `treatValuesAsNull` parameter is empty array in the request, no values will be converted to NULL. Internally, the value `_\_KEBOOLA_IMPORT_AS_NULL_\_+UUID` will be used, e.g. `_\_KEBOOLA_IMPORT_AS_NULL_\_4b340550242239.64159797`. Such a value is highly unlikely to be present in the data, so no value will be converted to NULL.
+
 + Request (application/json)
     + Headers
 
