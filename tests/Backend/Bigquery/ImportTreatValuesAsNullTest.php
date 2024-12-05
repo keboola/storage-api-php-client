@@ -66,20 +66,20 @@ class ImportTreatValuesAsNullTest extends ParallelWorkspacesTestCase
             'expectedData' => [
                 0 => [
                     0 => 30,
-                    1 => 'armenia',
+                    1 => 'armenia with null',
                     2 => '',
                     3 => 'b',
                 ],
                 1 => [
                     0 => 31,
-                    1 => 'belarus',
+                    1 => 'belarus with empty string',
                     2 => '',
-                    3 => 'b',
+                    3 => 'c',
                 ],
                 2 => [
                     0 => 32,
                     1 => 'malta',
-                    2 => 'a',
+                    2 => 'b',
                     3 => 'b',
                 ],
             ],
@@ -90,20 +90,20 @@ class ImportTreatValuesAsNullTest extends ParallelWorkspacesTestCase
             'expectedData' => [
                 0 => [
                     0 => 30,
-                    1 => 'armenia',
+                    1 => 'armenia with null',
                     2 => null,
                     3 => 'b',
                 ],
                 1 => [
                     0 => 31,
-                    1 => 'belarus',
-                    2 => null,
-                    3 => 'b',
+                    1 => 'belarus with empty string',
+                    2 => '',
+                    3 => 'c',
                 ],
                 2 => [
                     0 => 32,
                     1 => 'malta',
-                    2 => 'a',
+                    2 => 'b',
                     3 => 'b',
                 ],
             ],
@@ -113,20 +113,20 @@ class ImportTreatValuesAsNullTest extends ParallelWorkspacesTestCase
             'expectedData' => [
                 0 => [
                     0 => 30,
-                    1 => 'armenia',
+                    1 => 'armenia with null',
                     2 => '',
                     3 => null,
                 ],
                 1 => [
                     0 => 31,
-                    1 => 'belarus',
+                    1 => 'belarus with empty string',
                     2 => '',
-                    3 => null,
+                    3 => 'c',
                 ],
                 2 => [
                     0 => 32,
                     1 => 'malta',
-                    2 => 'a',
+                    2 => null,
                     3 => null,
                 ],
             ],
