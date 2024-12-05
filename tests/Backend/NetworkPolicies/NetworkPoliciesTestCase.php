@@ -21,6 +21,16 @@ class NetworkPoliciesTestCase extends StorageApiTestCase
         return $dbPrefix;
     }
 
+    protected function assignNetworkPolicyToProjectUser(int $projectId, string $networkPolicyName): void
+    {
+        $db = $this->ensureSnowflakeConnection();
+        $this->useRoleAccountAdmin();
+
+        $projectUserName = $this->getDBPrefix() . $projectId;
+        $query = \sprintf('ALTER USER %s SET NETWORK_POLICY = %s ', $projectUserName, $networkPolicyName);
+        $db->executeQuery($query);
+    }
+
     private function useRoleAccountAdmin(): void
     {
         $db = $this->ensureSnowflakeConnection();
