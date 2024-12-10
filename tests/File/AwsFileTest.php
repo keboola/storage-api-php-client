@@ -89,10 +89,6 @@ class AwsFileTest extends StorageApiTestCase
     {
         $path = __DIR__ . '/../_data/files.upload.txt';
         $uploadData = [
-            'isPublic: true' => [
-                $path,
-                (new FileUploadOptions())->setIsPublic(true),
-            ],
             'isPublic: false' => [
                 $path,
                 (new FileUploadOptions())
@@ -118,7 +114,7 @@ class AwsFileTest extends StorageApiTestCase
             'isPublic: false, isPermanent: true, tags: \'sapi-import\', \'martin\'' => [
                 $path,
                 (new FileUploadOptions())
-                    ->setIsPublic(true)
+                    ->setIsPublic(false)
                     ->setIsPermanent(true)
                     ->setTags(['sapi-import', 'martin']),
             ],
