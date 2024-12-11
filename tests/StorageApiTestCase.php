@@ -266,6 +266,26 @@ abstract class StorageApiTestCase extends ClientTestCase
         $this->assertEquals($expected, $actual, $message);
     }
 
+    /**
+     * strict version of assertArrayEqualsSorted
+     */
+    public function assertArraySameSorted(
+        array $expected,
+        array $actual,
+        int|string $sortKey,
+        string $message = ''
+    ): void {
+        $comparison = function ($attrLeft, $attrRight) use ($sortKey) {
+            if ($attrLeft[$sortKey] === $attrRight[$sortKey]) {
+                return 0;
+            }
+            return $attrLeft[$sortKey] < $attrRight[$sortKey] ? -1 : 1;
+        };
+        usort($expected, $comparison);
+        usort($actual, $comparison);
+        $this->assertSame($expected, $actual, $message);
+    }
+
     public function tableExportFiltersData()
     {
         return [
