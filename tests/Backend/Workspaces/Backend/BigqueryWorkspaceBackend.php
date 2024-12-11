@@ -219,9 +219,11 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
         $dataset = $this->bqClient->dataset($schema);
         $table = $dataset->table($table);
 
-        return (new RetryProxy())->call(function () use ($table) {
+        $exists = (new RetryProxy())->call(function () use ($table) {
             return $table->exists();
         });
+        assert(is_bool($exists));
+        return $exists;
     }
 
     public function dropViewIfExists(string $table): void
