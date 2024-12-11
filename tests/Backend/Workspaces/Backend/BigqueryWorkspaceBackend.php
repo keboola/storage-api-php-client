@@ -17,6 +17,7 @@ use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\View\ViewReflectionInterface;
 use PDO;
+use Retry\RetryProxy;
 
 class BigqueryWorkspaceBackend implements WorkspaceBackend
 {
@@ -218,7 +219,9 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
         $dataset = $this->bqClient->dataset($schema);
         $table = $dataset->table($table);
 
-        return $table->exists();
+        return (new RetryProxy())->call(function () use ($table) {
+            return $table->exists();
+        });
     }
 
     public function dropViewIfExists(string $table): void
