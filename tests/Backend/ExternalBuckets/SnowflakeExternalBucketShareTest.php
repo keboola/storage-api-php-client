@@ -340,7 +340,7 @@ EXPECTED,
                     'The table "EXT_TABLE" was not found in the bucket "%s" in the project',
                     $linkedBucketId,
                 ),
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -356,7 +356,7 @@ EXPECTED,
             $this->assertEquals(sprintf(
                 'odbc_prepare(): SQL error: SQL compilation error:
 Database \'%s\' does not exist or not authorized., SQL state 02000 in SQLPrepare',
-                self::EXTERNAL_DB
+                self::EXTERNAL_DB,
             ), $e->getMessage());
         }
 
@@ -597,7 +597,7 @@ EXPECTED,
                 'odbc_prepare(): SQL error: SQL compilation error:
 Object \'%s.%s.EXT_TABLE_2\' does not exist or not authorized., SQL state S0002 in SQLPrepare',
                 $workspace['connection']['database'],
-                $workspace['name']
+                $workspace['name'],
             ), $e->getMessage());
         }
 
@@ -617,7 +617,7 @@ Object \'%s.%s.EXT_TABLE_2\' does not exist or not authorized., SQL state S0002 
             $this->assertEquals(sprintf(
                 'odbc_prepare(): SQL error: SQL compilation error:
 Database \'%s\' does not exist or not authorized., SQL state 02000 in SQLPrepare',
-                $workspace['connection']['database']
+                $workspace['connection']['database'],
             ), $e->getMessage());
         }
 
