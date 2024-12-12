@@ -42,11 +42,10 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
 
     public function testExternalSchemaAsSharedBucket(): void
     {
-        $stage = 'in';
-        $bucketName = 'test-bucket-ext';
+        $bucketName = $this->getTestBucketName($this->generateDescriptionForTestObject());
 
-        $this->forceUnshareBucketIfExists($this->shareClient, $stage . '.' . $bucketName, true);
-        $this->dropBucketIfExists($this->_client, $stage.'.'.$bucketName, true);
+        $this->forceUnshareBucketIfExists($this->shareClient, self::STAGE_IN . '.' . $bucketName, true);
+        $this->dropBucketIfExists($this->_client, self::STAGE_IN . '.' . $bucketName, true);
 
         $this->initEvents($this->_client);
         $guide = $this->_client->registerBucketGuide([self::EXTERNAL_DB, self::EXTERNAL_SCHEMA], 'snowflake');
@@ -59,13 +58,13 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
         $registeredBucketId = $this->_client->registerBucket(
             $bucketName,
             [self::EXTERNAL_DB, self::EXTERNAL_SCHEMA],
-            $stage,
+            self::STAGE_IN,
             'will not fail',
             'snowflake',
-            $bucketName,
+            $bucketName . '-registered',
         );
 
-        $tables = $this->_client->listTables($stage.'.'.$bucketName);
+        $tables = $this->_client->listTables(self::STAGE_IN . '.' . $bucketName);
         $this->assertCount(1, $tables);
 
         $shareToken = $this->linkingClient->verifyToken();
@@ -99,9 +98,16 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
         }
 
         // LINKING START
+        $this->dropBucketIfExists($this->linkingClient, self::STAGE_IN . '.' . $bucketName, true);
 
         $token = $this->_client->verifyToken();
-        $linkedBucketId = $this->linkingClient->linkBucket('LINKED_BUCKET', 'in', $token['owner']['id'], $sharedBucket['id'], 'LINKED_BUCKET');
+        $linkedBucketId = $this->linkingClient->linkBucket(
+            $bucketName,
+            self::STAGE_IN,
+            $token['owner']['id'],
+            $sharedBucket['id'],
+            $bucketName . '-linked',
+        );
         $linkedBucket = $this->linkingClient->getBucket($linkedBucketId);
         $this->assertEquals($sharedBucket['id'], $linkedBucket['sourceBucket']['id']);
         $this->assertTrue($linkedBucket['hasExternalSchema']);
@@ -182,8 +188,7 @@ EXPECTED,
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableColumnsUpdated')
             ->setObjectId($linkedBucketId . '.' . self::EXTERNAL_TABLE)
-            ->setTokenId($this->tokenId)
-        ;
+            ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->linkingClient, $assertCallback, $query);
 
         $assertCallback = function ($events) {
@@ -192,8 +197,7 @@ EXPECTED,
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableCreated')
             ->setObjectId($linkedBucketId . '.' . self::EXTERNAL_TABLE_2)
-            ->setTokenId($this->tokenId)
-        ;
+            ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->linkingClient, $assertCallback, $query);
 
         $linkingTables = $this->linkingClient->listTables($linkedBucketId);
@@ -277,8 +281,7 @@ Object 'EXT_DB.EXT_SCHEMA.EXT_TABLE_2' does not exist or not authorized., SQL st
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableDeleted')
             ->setObjectId($linkedBucketId . '.' . self::EXTERNAL_TABLE_2)
-            ->setTokenId($this->tokenId)
-        ;
+            ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->linkingClient, $assertCallback, $query);
 
         $assertCallback = function ($events) {
@@ -287,8 +290,7 @@ Object 'EXT_DB.EXT_SCHEMA.EXT_TABLE_2' does not exist or not authorized., SQL st
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.tableColumnsUpdated')
             ->setObjectId($linkedBucketId . '.' . self::EXTERNAL_TABLE)
-            ->setTokenId($this->tokenId)
-        ;
+            ->setTokenId($this->tokenId);
         $this->assertEventWithRetries($this->linkingClient, $assertCallback, $query);
 
         $linkingTables = $this->linkingClient->listTables($linkedBucketId);
@@ -333,7 +335,13 @@ EXPECTED,
             $this->fail('Select should fail.');
         } catch (Throwable $e) {
             $this->assertSame(404, $e->getCode());
-            $this->assertStringContainsString('The table "EXT_TABLE" was not found in the bucket "in.c-LINKED_BUCKET" in the project', $e->getMessage());
+            $this->assertStringContainsString(
+                sprintf(
+                    'The table "EXT_TABLE" was not found in the bucket "%s" in the project',
+                    $linkedBucketId,
+                ),
+                $e->getMessage(),
+            );
         }
 
         try {
@@ -345,8 +353,11 @@ EXPECTED,
             ));
             $this->fail('Select should fail.');
         } catch (Throwable $e) {
-            $this->assertEquals("odbc_prepare(): SQL error: SQL compilation error:
-Database '".self::EXTERNAL_DB."' does not exist or not authorized., SQL state 02000 in SQLPrepare", $e->getMessage());
+            $this->assertEquals(sprintf(
+                'odbc_prepare(): SQL error: SQL compilation error:
+Database \'%s\' does not exist or not authorized., SQL state 02000 in SQLPrepare',
+                self::EXTERNAL_DB,
+            ), $e->getMessage());
         }
 
         // LINKING END
@@ -365,11 +376,10 @@ Database '".self::EXTERNAL_DB."' does not exist or not authorized., SQL state 02
 
     public function testWorkspaceSchemaAsSharedBucket(): void
     {
-        $stage = 'in';
-        $bucketName = 'test-bucket-ext';
+        $bucketName = $this->getTestBucketName($this->generateDescriptionForTestObject());
 
-        $this->forceUnshareBucketIfExists($this->shareClient, $stage . '.' . $bucketName, true);
-        $this->dropBucketIfExists($this->_client, $stage.'.'.$bucketName, true);
+        $this->forceUnshareBucketIfExists($this->shareClient, self::STAGE_IN . '.' . $bucketName, true);
+        $this->dropBucketIfExists($this->_client, self::STAGE_IN . '.' . $bucketName, true);
 
         $this->initEvents($this->_client);
 
@@ -387,13 +397,13 @@ Database '".self::EXTERNAL_DB."' does not exist or not authorized., SQL state 02
         $registeredBucketId = $this->_client->registerBucket(
             $bucketName,
             [$workspace['connection']['database'], $workspace['connection']['schema']],
-            $stage,
+            self::STAGE_IN,
             'I\'am in workspace',
             'snowflake',
-            $bucketName,
+            $bucketName . '-registered',
         );
 
-        $tables = $this->_client->listTables($stage.'.'.$bucketName);
+        $tables = $this->_client->listTables(self::STAGE_IN . '.' . $bucketName);
         $this->assertCount(1, $tables);
 
         $shareToken = $this->linkingClient->verifyToken();
@@ -406,9 +416,16 @@ Database '".self::EXTERNAL_DB."' does not exist or not authorized., SQL state 02
         $this->assertEquals($targetProjectId, $sharedBucket['sharingParameters']['projects'][0]['id']);
 
         // LINKING START
+        $this->dropBucketIfExists($this->linkingClient, self::STAGE_IN . '.' . $bucketName, true);
 
         $token = $this->_client->verifyToken();
-        $linkedBucketId = $this->linkingClient->linkBucket('LINKED_BUCKET', 'in', $token['owner']['id'], $sharedBucket['id'], 'LINKED_BUCKET');
+        $linkedBucketId = $this->linkingClient->linkBucket(
+            $bucketName,
+            self::STAGE_IN,
+            $token['owner']['id'],
+            $sharedBucket['id'],
+            $bucketName . '-linked',
+        );
         $linkedBucket = $this->linkingClient->getBucket($linkedBucketId);
         $this->assertEquals($sharedBucket['id'], $linkedBucket['sourceBucket']['id']);
 
@@ -576,11 +593,12 @@ EXPECTED,
             ));
             $this->fail('Should fail.');
         } catch (Throwable $e) {
-            $this->assertEquals(
-                "odbc_prepare(): SQL error: SQL compilation error:
-Object '".$workspace['connection']['database'].'.'.$workspace['name'].".EXT_TABLE_2' does not exist or not authorized., SQL state S0002 in SQLPrepare",
-                $e->getMessage(),
-            );
+            $this->assertEquals(sprintf(
+                'odbc_prepare(): SQL error: SQL compilation error:
+Object \'%s.%s.EXT_TABLE_2\' does not exist or not authorized., SQL state S0002 in SQLPrepare',
+                $workspace['connection']['database'],
+                $workspace['name'],
+            ), $e->getMessage());
         }
 
         // REFRESH END
@@ -596,8 +614,11 @@ Object '".$workspace['connection']['database'].'.'.$workspace['name'].".EXT_TABL
             ));
             $this->fail('Select should fail.');
         } catch (Throwable $e) {
-            $this->assertEquals("odbc_prepare(): SQL error: SQL compilation error:
-Database '".$workspace['connection']['database']."' does not exist or not authorized., SQL state 02000 in SQLPrepare", $e->getMessage());
+            $this->assertEquals(sprintf(
+                'odbc_prepare(): SQL error: SQL compilation error:
+Database \'%s\' does not exist or not authorized., SQL state 02000 in SQLPrepare',
+                $workspace['connection']['database'],
+            ), $e->getMessage());
         }
 
         // LINKING END
