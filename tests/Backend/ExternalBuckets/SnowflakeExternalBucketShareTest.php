@@ -99,6 +99,7 @@ class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
         }
 
         // LINKING START
+        $this->dropBucketIfExists($this->linkingClient, 'in.c-LINKED_BUCKET', true);
 
         $token = $this->_client->verifyToken();
         $linkedBucketId = $this->linkingClient->linkBucket('LINKED_BUCKET', 'in', $token['owner']['id'], $sharedBucket['id'], 'LINKED_BUCKET');
