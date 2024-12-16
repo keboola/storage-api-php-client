@@ -14,6 +14,7 @@ use Google\Cloud\Iam\V1\Binding;
 use Google\Cloud\Storage\StorageClient;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Options\GlobalSearchOptions;
 use Keboola\StorageApi\TableExporter;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientWrapper;
@@ -694,7 +695,9 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             $hashedUniqueBucketName,
         );
 
-        $apiCall = fn() => $testClient->globalSearch($hashedUniqueBucketName);
+        $apiCall = fn() => $testClient->globalSearch($hashedUniqueBucketName, new GlobalSearchOptions(
+            projectIds: [$testClient->verifyToken()['owner']['id']],
+        ));
         $assertCallback = function ($searchResult) use ($hashedUniqueBucketName) {
             $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
             $this->assertSame('bucket', $searchResult['items'][0]['type'], 'GlobalSearch');
@@ -743,7 +746,9 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $testClient->setRunId($runId);
         $testClient->refreshBucket($idOfBucket);
 
-        $apiCall = fn() => $testClient->globalSearch($hashedUniqueTableName);
+        $apiCall = fn() => $testClient->globalSearch($hashedUniqueTableName, new GlobalSearchOptions(
+            projectIds: [$testClient->verifyToken()['owner']['id']],
+        ));
         $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
             $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
             $this->assertSame('table', $searchResult['items'][0]['type'], 'GlobalSearch');
