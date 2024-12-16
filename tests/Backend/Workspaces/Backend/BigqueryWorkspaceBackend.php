@@ -137,7 +137,7 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
     {
         if ($this->isTableExists($this->schema, $table)) {
             $dataset = $this->bqClient->dataset($this->schema);
-            $dataset->table($table)->delete();
+            $dataset->table($table)->delete(['retries' => 5]);
         }
     }
 
