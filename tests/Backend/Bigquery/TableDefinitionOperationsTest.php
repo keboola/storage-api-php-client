@@ -61,6 +61,78 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
         return $this->_client->createTableDefinition($bucketId, $data);
     }
 
+    public function testDataPreviewNullValues(): void
+    {
+        $bucketId = $this->getTestBucketId();
+
+        $tableDefinition = [
+            'name' => 'null_my_new_table',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INT64',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'name',
+                    'definition' => [
+                        'type' => 'string',
+                        'length' => '6',
+                        'nullable' => true,
+                    ],
+                ],
+            ],
+        ];
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
+
+        $this->_client->writeTableAsync(
+            $tableId,
+            new CsvFile(__DIR__ . '/../../_data/languages.null.csv'),
+            [
+                'treatValuesAsNull' => ['slovak'],
+            ],
+        );
+
+        /** @var array $data */
+        $data = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
+
+        $expectedPreview = [
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '24',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'name',
+                    'value' => '',
+                    'isTruncated' => false,
+                ],
+            ],
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '26',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'name',
+                    'value' => null,
+                    'isTruncated' => false,
+                ],
+            ],
+        ];
+
+        $this->assertArraySameSorted($expectedPreview, $data['rows'], 0);
+    }
+
     public function testDataPreviewExoticTypes(): void
     {
         $bucketId = $this->getTestBucketId();
