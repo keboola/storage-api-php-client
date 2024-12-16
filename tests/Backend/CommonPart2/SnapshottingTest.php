@@ -9,6 +9,7 @@
 namespace Keboola\Test\Backend\CommonPart2;
 
 use Keboola\StorageApi\Metadata;
+use Keboola\StorageApi\Options\GlobalSearchOptions;
 use Keboola\Test\Common\MetadataTest;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
@@ -75,7 +76,9 @@ class SnapshottingTest extends StorageApiTestCase
         $hashedUniqueTableName = sha1('new-table-' . $this->generateDescriptionForTestObject());
         $newTableId = $this->_client->createTableFromSnapshot($this->getTestBucketId(), $snapshotId, $hashedUniqueTableName);
 
-        $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
+        $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName, new GlobalSearchOptions(
+            projectIds: [$this->_client->verifyToken()['owner']['id']],
+        ));
         $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
             $this->assertSame(1, $searchResult['all'], 'GlobalSearch expected result count is not 1: ' . json_encode($searchResult));
             $this->assertSame('table', $searchResult['items'][0]['type'], 'GlobalSearch');
