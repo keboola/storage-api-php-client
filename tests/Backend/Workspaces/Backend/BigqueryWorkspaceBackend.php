@@ -17,6 +17,7 @@ use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\View\ViewReflectionInterface;
 use PDO;
+use Retry\Policy\SimpleRetryPolicy;
 use Retry\RetryProxy;
 
 class BigqueryWorkspaceBackend implements WorkspaceBackend
@@ -137,7 +138,7 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
     {
         if ($this->isTableExists($this->schema, $table)) {
             $dataset = $this->bqClient->dataset($this->schema);
-            $dataset->table($table)->delete();
+            $dataset->table($table)->delete(['retries' => 5]);
         }
     }
 
@@ -219,7 +220,7 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
         $dataset = $this->bqClient->dataset($schema);
         $table = $dataset->table($table);
 
-        $exists = (new RetryProxy())->call(function () use ($table) {
+        $exists = (new RetryProxy(new SimpleRetryPolicy(10)))->call(function () use ($table) {
             return $table->exists();
         });
         assert(is_bool($exists));

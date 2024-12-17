@@ -1767,7 +1767,7 @@ class MergeRequestsTest extends StorageApiTestCase
         $this->initEvents($this->getDefaultBranchStorageApiClient());
         $this->prodManagerClient->mergeMergeRequest($mrId);
         $assertCallback = function ($events) {
-            $this->assertCount(2, $events);
+            $this->assertCount(2, $events, (string) json_encode($events));
             $params = $events[0]['params'];
             unset($params['mergeRequestId']);
             $this->assertEquals([
