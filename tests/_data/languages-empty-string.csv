@@ -1,4 +1,4 @@
 "Id","Name","iso","Something"
-"30","armenia",,"b"
-"31","belarus","","b"
-"32","malta","a","b"
+"30","armenia with null",,"b"
+"31","belarus with empty string","","c"
+"32","malta","b","b"
