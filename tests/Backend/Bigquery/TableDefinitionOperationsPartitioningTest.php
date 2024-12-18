@@ -164,7 +164,7 @@ class TableDefinitionOperationsPartitioningTest extends ParallelWorkspacesTestCa
         $dataset = $client->dataset($workspace['connection']['schema']);
         $tableInWorkspace = $dataset->table('partitioned');
         if ($tableInWorkspace->exists()) {
-            $tableInWorkspace->delete();
+            $tableInWorkspace->delete(['retries' => 20]);
         }
         $dataset->createTable('partitioned', [
             'schema' => [
