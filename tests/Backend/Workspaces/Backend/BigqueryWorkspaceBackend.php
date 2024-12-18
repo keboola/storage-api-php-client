@@ -6,8 +6,6 @@ use Google\Cloud\BigQuery\BigQueryClient;
 use Google\Cloud\BigQuery\Dataset;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\StorageApi\Exception;
-use Keboola\StorageDriver\BigQuery\Client\BigQuery\Retry;
-use Keboola\StorageDriver\BigQuery\CredentialsHelper;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientWrapper;
@@ -17,6 +15,7 @@ use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\View\ViewReflectionInterface;
 use PDO;
+use Retry\BackOff\ExponentialRandomBackOffPolicy;
 use Retry\Policy\SimpleRetryPolicy;
 use Retry\RetryProxy;
 
@@ -63,7 +62,7 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
                     'datasetId' => $this->schema,
                 ],
             ],
-        ]));
+        ]), self::addOptionRetry([]));
     }
 
     /**
@@ -99,7 +98,7 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
             $this->schema,
             $tableName,
             new ColumnCollection($cols),
-        )));
+        )), self::addOptionRetry([]));
     }
 
     /**
@@ -178,7 +177,7 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
                 $orderBy !== null ? " ORDER BY $orderBy" : null,
             ),
         );
-        $queryResults = $this->bqClient->runQuery($query);
+        $queryResults = $this->bqClient->runQuery($query, self::addOptionRetry([]));
 
         $data = [];
         switch ($style) {
@@ -245,5 +244,13 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
     public function getSchemaReflection(): BigquerySchemaReflection
     {
         return new BigquerySchemaReflection($this->bqClient, $this->schema);
+    }
+
+    public static function addOptionRetry(array $options): array
+    {
+        return [
+            'retryCount' => 20,
+            'backOffPolicy' => new ExponentialRandomBackOffPolicy(10, 1.8, 1000),
+        ];
     }
 }
