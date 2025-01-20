@@ -5758,6 +5758,7 @@ Only for BigQuery workspace
     + warehouse: `SAPI_PROD` (string)
     + user: `xzy` (string)
     + container: file workspace containerName (string) - Only for file workspaces
+    + loginType: `default` (string)
 + creatorToken
     + id: 234 (number)
     + description: `martin@keboola.com` (string)
@@ -5765,6 +5766,7 @@ Only for BigQuery workspace
     + id: 234 (number)
     + name: `Martin` (string)
 + readOnlyStorageAccess: `true` (boolean, nullable) - has read only access to storage (null when unknown).
++ platformUsageType: `user` (string, nullable) - type of usage in Keboola Connection (user, system)
 
 ### WorkspaceCreated (Workspace)
 
@@ -5780,6 +5782,7 @@ Only for BigQuery workspace
     + connectionString: `BlobEndpoint=https://<account>.blob.core.windows.net;SharedAccessSignature=sv=2017-11-09&sr=c&st=2020-11-03T10:31:36Z&se=2020-11-04T10:31:36Z&sp=rwl&sig=<SAS signature>` (string) only for file workspaces
     + credentials(GCPCredentials) only for BigQuery workspace
     + container: file workspace containerName (string) - Only for file workspaces
+    + loginType: `default` (string)
 
 # Group Events
 Virtually every interaction of the client (an API call) creates an Event. Apart from that, external events may
@@ -8573,6 +8576,10 @@ Creates a new workspace for an existing configuration in [Development Branch](#r
             + system
             + user
     + readOnlyStorageAccess: (optional, boolean) - Allows read only access to all objects in Storage.
+    + loginType: (optional, enum[string]) - Request credentials type for new workspace. backend attribute is required when loginType is set.
+        + Members
+            + default
+            + snowflake-legacy-service
 
 + Request (application/json)
     + Headers
