@@ -23,7 +23,13 @@ class Workspaces
     }
 
     /**
-     * @param array $options backend (optional)
+     * @param array{
+     *     backend?: string,
+     *     backendSize?: string,
+     *     loginType?: string,
+     *     networkPolicy?: string,
+     *     readOnlyStorageAccess?: bool,
+     * } $options
      * @return array
      */
     public function createWorkspace(array $options = [], bool $async = false)

@@ -4536,16 +4536,6 @@ parameters:
 			path: tests/Backend/Workspaces/WorkspacesSynapseTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\WorkspacesTest\\:\\:assertCredentialsShouldNotWork\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesTest.php
-
-		-
-			message: "#^Property Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\WorkspacesTest\\:\\:\\$RETRY_FAIL_MESSAGE has no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\WorkspacesTestCase\\:\\:deleteAllWorkspaces\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/WorkspacesTestCase.php
@@ -4579,16 +4569,6 @@ parameters:
 			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchEventsTest\\:\\:waitForListEvents\\(\\) has parameter \\$query with no type specified\\.$#"
 			count: 1
 			path: tests/Common/BranchEventsTest.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Common\\\\BranchWorkspacesTest\\:\\:assertCredentialsShouldNotWork\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Common/BranchWorkspacesTest.php
-
-		-
-			message: "#^Property Keboola\\\\Test\\\\Common\\\\BranchWorkspacesTest\\:\\:\\$RETRY_FAIL_MESSAGE has no type specified\\.$#"
-			count: 1
-			path: tests/Common/BranchWorkspacesTest.php
 
 		-
 			message: "#^Property Keboola\\\\Test\\\\Common\\\\BranchWorkspacesTest\\:\\:\\$branchId has no type specified\\.$#"

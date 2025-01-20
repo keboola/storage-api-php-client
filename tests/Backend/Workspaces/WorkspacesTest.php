@@ -165,6 +165,43 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->assertCredentialsShouldNotWork($connection);
     }
 
+    /**
+     * test that it is possible to set loginType for other backends than Snowflake
+     */
+    public function testWorkspaceCreateDefaultLoginType(): void
+    {
+        $this->skipTestForBackend(
+            [self::BACKEND_SNOWFLAKE],
+            'Snowflake has own loginTypes tested in WorkspacesLoginTypesTest',
+        );
+        $this->initEvents($this->workspaceSapiClient);
+
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+
+        foreach ($this->listTestWorkspaces($this->_client) as $workspace) {
+            $workspaces->deleteWorkspace($workspace['id'], [], true);
+        }
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+        $this->workspaceSapiClient->setRunId($runId);
+
+        $tokenInfo = $this->_client->verifyToken();
+        $workspace = $workspaces->createWorkspace([
+            'backend' => $tokenInfo['owner']['defaultBackend'],
+            'loginType' => 'default',
+        ], true);
+        /** @var array $connection */
+        $connection = $workspace['connection'];
+        $this->assertSame($tokenInfo['owner']['defaultBackend'], $connection['backend']);
+        $this->assertSame('default', $connection['loginType']);
+
+        // test connection is working
+        $this->getDbConnection($workspace);
+
+        $workspaces->deleteWorkspace($workspace['id'], [], true);
+    }
+
     public function testQueueWorkspaceCreate(): void
     {
         $this->initEvents($this->workspaceSapiClient);
