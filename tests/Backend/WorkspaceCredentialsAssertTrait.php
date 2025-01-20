@@ -10,12 +10,12 @@ use Retry\RetryProxy;
 
 trait WorkspaceCredentialsAssertTrait
 {
-    private static $RETRY_FAIL_MESSAGE = 'Credentials should be invalid';
+    private static string $RETRY_FAIL_MESSAGE = 'Credentials should be invalid';
     /**
      * @param array $connection
      * @throws \Exception
      */
-    private function assertCredentialsShouldNotWork($connection)
+    private function assertCredentialsShouldNotWork($connection): void
     {
         $retryPolicy = new CallableRetryPolicy(function (\Exception $e) {
             return $e->getMessage() === self::$RETRY_FAIL_MESSAGE;
