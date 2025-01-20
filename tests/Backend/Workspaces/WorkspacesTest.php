@@ -118,7 +118,9 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->assertArrayNotHasKey('password', $workspace['connection']);
         $this->assertArrayHasKey('region', $workspace['connection']);
         $this->assertNotEmpty($workspace['connection']['region']);
+        $this->assertSame('user', $workspace['platformUsageType']);
         if ($workspaceWithSnowflakeBackend) {
+            $this->assertArrayHasKey('warehouse', $workspace['connection']);
             $this->assertNotEmpty($workspace['connection']['warehouse']);
         }
 

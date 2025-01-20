@@ -104,6 +104,7 @@ class ComponentsWorkspacesTest extends WorkspacesTestCase
         $this->assertEquals($componentId, $workspace['component']);
         $this->assertEquals($configurationId, $workspace['configurationId']);
         $this->assertArrayHasKey('password', $workspace['connection']);
+        $this->assertSame('service', $workspace['platformUsageType']);
 
         $workspacesIds = array_map(function ($workspace) {
             return $workspace['id'];
