@@ -9,6 +9,38 @@
 
 namespace Keboola\StorageApi;
 
+/**
+ * @phpstan-type WorkspaceResponse array{
+ *      id: int,
+ *      type: 'file'|'table',
+ *      name: string|null,
+ *      component: string|null,
+ *      configurationId: string|null,
+ *      created: string,
+ *      connection: array{
+ *       backend: string,
+ *       region: string|null,
+ *       host: string,
+ *       database: string|null,
+ *       schema: string|null,
+ *       warehouse: string|null,
+ *       user: string,
+ *       loginType: string,
+ *      }|array{
+ *       backend: string,
+ *       container: string|null,
+ *       region: string|null
+ *      },
+ *      backendSize: string|null,
+ *      statementTimeoutSeconds: int,
+ *      creatorToken: array{
+ *       id: int,
+ *       description: string|null
+ *      },
+ *      readOnlyStorageAccess: bool,
+ *      platformUsageType: string|null,
+ *  }
+ */
 class Workspaces
 {
 
@@ -23,7 +55,13 @@ class Workspaces
     }
 
     /**
-     * @param array $options backend (optional)
+     * @param array{
+     *     backend?: string,
+     *     backendSize?: string,
+     *     loginType?: string,
+     *     networkPolicy?: string,
+     *     readOnlyStorageAccess?: bool,
+     * } $options
      * @return array
      */
     public function createWorkspace(array $options = [], bool $async = false)
@@ -42,9 +80,9 @@ class Workspaces
     }
 
     /**
-     * @return array
+     * @return WorkspaceResponse[]
      */
-    public function listWorkspaces()
+    public function listWorkspaces(): array
     {
         $result = $this->client->apiGet('workspaces');
         assert(is_array($result));
@@ -53,11 +91,11 @@ class Workspaces
 
     /**
      * @param int $id
-     * @return array{id: int, connection: array}
+     * @return WorkspaceResponse
      */
-    public function getWorkspace($id)
+    public function getWorkspace($id): array
     {
-        /** @var array{id: int, connection: array} $result */
+        /** @var WorkspaceResponse $result */
         $result = $this->client->apiGet("workspaces/{$id}");
         assert(is_array($result));
         return $result;
