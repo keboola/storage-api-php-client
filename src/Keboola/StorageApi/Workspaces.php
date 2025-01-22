@@ -40,6 +40,14 @@ namespace Keboola\StorageApi;
  *      readOnlyStorageAccess: bool,
  *      platformUsageType: string|null,
  *  }
+ *
+ * @phpstan-type CreateWorkspaceOptions array{
+ *      backend?: string,
+ *      backendSize?: string,
+ *      loginType?: string,
+ *      networkPolicy?: string,
+ *      readOnlyStorageAccess?: bool,
+ *  }
  */
 class Workspaces
 {
@@ -55,16 +63,10 @@ class Workspaces
     }
 
     /**
-     * @param array{
-     *     backend?: string,
-     *     backendSize?: string,
-     *     loginType?: string,
-     *     networkPolicy?: string,
-     *     readOnlyStorageAccess?: bool,
-     * } $options
+     * @param CreateWorkspaceOptions $options
      * @return array
      */
-    public function createWorkspace(array $options = [], bool $async = false)
+    public function createWorkspace(array $options = [], bool $async = false): array
     {
         $workspaceResponse = $this->internalCreateWorkspace($async, $options, true);
         assert(is_array($workspaceResponse));

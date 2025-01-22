@@ -1,4 +1,5 @@
 <?php
+
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\StorageApi\Client;
@@ -7,6 +8,9 @@ use Keboola\StorageApi\Tokens;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\StorageApiTestCase;
 
+/**
+ * @phpstan-import-type CreateWorkspaceOptions from Workspaces
+ */
 abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
 {
     /** @var string */
@@ -32,12 +36,15 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
 
     /**
      * Creates a new workspace for current test. If workspace already exist, resets its password.
-     *
-     * @param null|string $backend
+     * @param CreateWorkspaceOptions $options
      * @return array workspace detail
      */
-    protected function initTestWorkspace($backend = null, array $options = [], bool $forceRecreate = false, bool $async = true)
-    {
+    protected function initTestWorkspace(
+        string|null $backend = null,
+        array $options = [],
+        bool $forceRecreate = false,
+        bool $async = true,
+    ): array {
         if ($backend) {
             $options['backend'] = $backend;
         }
