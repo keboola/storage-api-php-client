@@ -32,9 +32,15 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
     public static function createWorkspaceProvider(): Generator
     {
         foreach (self::syncAsyncProvider() as $name => $syncAsync) {
+            yield 'default ' . $name => [
+                'loginType' => null,
+                'async' => $syncAsync['async'],
+                'expectedLoginType' => 'snowflake-legacy-service',
+            ];
             yield 'legacy login type ' . $name => [
                 'loginType' => 'snowflake-legacy-service',
                 'async' => $syncAsync['async'],
+                'expectedLoginType' => 'snowflake-legacy-service',
             ];
         }
     }
@@ -42,7 +48,7 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
     /**
      * @dataProvider createWorkspaceProvider
      */
-    public function testWorkspaceCreate(string $loginType, bool $async): void
+    public function testWorkspaceCreate(string|null $loginType, bool $async, string $expectedLoginType): void
     {
         $this->allowTestForBackendsOnly(
             [self::BACKEND_SNOWFLAKE],
@@ -60,14 +66,18 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
         $this->_client->setRunId($runId);
         $this->workspaceSapiClient->setRunId($runId);
 
-        $workspace = $workspaces->createWorkspace([
-            'backend' => 'snowflake',
-            'loginType' => $loginType,
-        ], $async);
+
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+        $options = [];
+        if ($loginType !== null) {
+            $options['loginType'] = $loginType;
+        }
+        $workspace = $this->initTestWorkspace('snowflake', $options, true, $async);
+
         /** @var array $connection */
         $connection = $workspace['connection'];
         $this->assertSame('snowflake', $connection['backend']);
-        $this->assertSame('snowflake-legacy-service', $connection['loginType']);
+        $this->assertSame($expectedLoginType, $connection['loginType']);
 
         // test connection is working
         $this->getDbConnectionSnowflake($connection);
