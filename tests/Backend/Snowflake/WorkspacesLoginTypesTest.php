@@ -66,7 +66,6 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
         $this->_client->setRunId($runId);
         $this->workspaceSapiClient->setRunId($runId);
 
-
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $options = [];
         if ($loginType !== null) {

@@ -199,7 +199,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $this->assertSame('default', $connection['loginType']);
 
         // test connection is working
-        $this->getDbConnection($workspace);
+        $this->getDbConnection($connection);
 
         $workspaces->deleteWorkspace($workspace['id'], [], true);
     }
