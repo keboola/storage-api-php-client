@@ -284,6 +284,99 @@ class DeleteRowsTest extends StorageApiTestCase
                     ],
                 ],
             ],
+            'where filter: valuesByTableInWorkspace' => [
+                [
+                    'whereFilters' => [
+                        [
+                            'column' => 'city',
+                            'valuesByTableInWorkspace' => [
+                                    'workspaceId' => 123,
+                                    'table' => 'table',
+                                    'column' => 'city',
+                            ],
+                        ],
+                    ],
+                ],
+                // no rows should be deleted because valuesByTableInStorage doesn't do anything yet
+                [
+                    [
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
+                    ],
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
+                    ],
+                    [
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
+                    ],
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
+                    ],
+                    [
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
+                    ],
+                ],
+            ],
+            'where filter: valuesByTableInStorage' => [
+                [
+                    'whereFilters' => [
+                        [
+                            'column' => 'city',
+                            'valuesByTableInStorage' => [
+                                    'tableId' => 'table',
+                                    'column' => 'city',
+                            ],
+                        ],
+                    ],
+                ],
+                // no rows should be deleted because valuesByTableInStorage doesn't do anything yet
+                [
+                    [
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
+                    ],
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
+                    ],
+                    [
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
+                    ],
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
+                    ],
+                    [
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
+                    ],
+                ],
+            ],
         ];
     }
 }
