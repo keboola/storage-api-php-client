@@ -55,9 +55,16 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
 
         $db->executeQuery(
             sprintf(
+                'USE ROLE %s;',
+                SnowflakeQuote::quoteSingleIdentifier($this->getSnowflakeUser()),
+            ),
+        );
+
+        $db->executeQuery(
+            sprintf(
                 'GRANT ROLE %s TO USER %s;',
                 SnowflakeQuote::quoteSingleIdentifier($workspace['connection']['database']),
-                SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
+                SnowflakeQuote::quoteSingleIdentifier($this->getSnowflakeUser()),
             ),
         );
 
@@ -116,7 +123,7 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
         $db->executeQuery(
             sprintf(
                 'USE ROLE %s;',
-                SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
+                SnowflakeQuote::quoteSingleIdentifier($this->getSnowflakeUser()),
             ),
         );
 
@@ -124,7 +131,7 @@ class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
             sprintf(
                 'REVOKE ROLE %s FROM USER %s;',
                 SnowflakeQuote::quoteSingleIdentifier($workspace['connection']['database']),
-                SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
+                SnowflakeQuote::quoteSingleIdentifier($this->getSnowflakeUser()),
             ),
         );
     }
