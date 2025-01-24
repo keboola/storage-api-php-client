@@ -4471,6 +4471,14 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
                 + ne - Not equals  - case be used with multiple values
             + Default: eq
         + values[] (required, array) - array of variables to compare
+        + valuesByTableInWorkspace (optional) - Available with project feature `delete-rows-by-reference`. Exclusive with `values` and `valuesByTableInStorage` (just one param possible). Snowflake only.
+            + workspaceId (number) - ID of workspace (returned by SAPI)
+            + table (string) - Exact name of table present in the workspace when doing this API call
+            + column (string) - Name of the column, which values (all rows) will be used as values to DELETE rows by. Datatype of this column has to match with datatype of the column specified in root of this API call.
+        + valuesByTableInStorage (optional) - Available with project feature `delete-rows-by-reference`. Exclusive with `values` and `valuesByTableInWorkspace` (just one param possible). Snowflake only.
+            + tableId - Storage ID of table (e.g. `in-c.bucketName.users`). It has to be present in Storage doing this API call
+            + column (string) - Name of the column, which values (all rows) will be used as values to DELETE rows by. Datatype of this column has to match with datatype of the column specified in root of this API call.
+
         + dataType (optional, enum[string]) - Not supported for Redshift - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type. BigQuery supports all listed types and converts them to BigQuery equivalent in the background
             + Members
                 + INTEGER - for numbers without a decimal point (Snowflake, Teradata, BigQuery)
