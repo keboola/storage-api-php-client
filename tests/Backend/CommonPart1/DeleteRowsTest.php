@@ -10,13 +10,14 @@
 namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 
 class DeleteRowsTest extends StorageApiTestCase
 {
-
     public function setUp(): void
     {
         parent::setUp();
@@ -326,9 +327,9 @@ class DeleteRowsTest extends StorageApiTestCase
                         [
                             'column' => 'city',
                             'valuesByTableInWorkspace' => [
-                                    'workspaceId' => 123,
-                                    'table' => 'table',
-                                    'column' => 'city',
+                                'workspaceId' => 123,
+                                'table' => 'table',
+                                'column' => 'city',
                             ],
                         ],
                     ],
@@ -373,8 +374,8 @@ class DeleteRowsTest extends StorageApiTestCase
                         [
                             'column' => 'city',
                             'valuesByTableInStorage' => [
-                                    'tableId' => 'table',
-                                    'column' => 'city',
+                                'tableId' => 'table',
+                                'column' => 'city',
                             ],
                         ],
                     ],
@@ -414,5 +415,67 @@ class DeleteRowsTest extends StorageApiTestCase
                 ],
             ],
         ];
+    }
+
+    public function testDeleteByValuesInWorkspace()
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+
+        $workspaces = new Workspaces($this->_client);
+
+        foreach ($workspaces->listWorkspaces() as $workspace) {
+            $workspaces->deleteWorkspace($workspace['id'], [], true);
+        }
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+        $this->_client->setRunId($runId);
+
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->createTable('USERS', ['ID' => 'INT', 'name' => 'VARCHAR(255)']);
+
+        $backend->executeQuery("INSERT INTO USERS VALUES (1, 'martin');");
+        $backend->executeQuery("INSERT INTO USERS VALUES (3, 'ondra');");
+
+        $this->_client->deleteTableRows($tableId, [
+            'whereFilters' => [
+                [
+                    'column' => 'id',
+                    'valuesByTableInWorkspace' => [
+                        'workspaceId' => $workspace['id'],
+                        'table' => 'USERS',
+                        'column' => 'ID',
+                    ],
+                ],
+            ],
+        ]);
+        // 1 and 3 should be deleted
+        $expectedTableContent = [
+            [
+                '2',
+                'klara',
+                'PRG',
+                'female',
+            ],
+            [
+                '4',
+                'miro',
+                'BRA',
+                'male',
+            ],
+            [
+                '5',
+                'hidden',
+                '',
+                'male',
+            ],
+        ];
+        $dataPreview = $this->_client->getTableDataPreview($tableId);
+        $parsedData = Client::parseCsv($dataPreview, false);
+        array_shift($parsedData); // remove header
+
+        $this->assertArrayEqualsSorted($expectedTableContent, $parsedData, 0);
     }
 }
