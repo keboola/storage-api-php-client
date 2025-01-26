@@ -91,6 +91,27 @@ class DeleteRowsTest extends StorageApiTestCase
         }
     }
 
+    public function testDeleteRowsOnInvalidColumn(): void
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+
+        try {
+            $this->_client->deleteTableRows($tableId, [
+                'whereFilters' => [
+                    [
+                        'column' => 'notExistingColumn',
+                        'values' => ['PRG'],
+                    ],
+                ],
+            ]);
+            $this->fail('Exception should be thrown');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertSame('storage.tables.columnNotExists', $e->getStringCode());
+            $this->assertSame('Cannot filter by column "notExistingColumn", column does not exist', $e->getMessage());
+        }
+    }
+
     public function tableDeleteRowsByFiltersData(): array
     {
         $yesterday = new \DateTime('-1 day');
