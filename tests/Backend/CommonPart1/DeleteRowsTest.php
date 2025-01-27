@@ -30,9 +30,12 @@ class DeleteRowsTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $tableInfo = $this->_client->getTable($tableId);
+        if ($this->isBigqueryWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
+            $this->markTestSkipped('BQ does not new params of valuesBy* yet');
+        }
 
         $this->_client->deleteTableRows($tableId, $filterParams);
-        $tableInfo = $this->_client->getTable($tableId);
 
         $data = $this->_client->getTableDataPreview($tableId);
 
@@ -63,9 +66,11 @@ class DeleteRowsTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
-
-        $this->_client->deleteTableRowsAsQuery($tableId, $filterParams);
         $tableInfo = $this->_client->getTable($tableId);
+        if ($this->isBigqueryWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
+            $this->markTestSkipped('BQ does not new params of valuesBy* yet');
+        }
+        $this->_client->deleteTableRowsAsQuery($tableId, $filterParams);
 
         $data = $this->_client->getTableDataPreview($tableId);
 
@@ -73,6 +78,16 @@ class DeleteRowsTest extends StorageApiTestCase
         array_shift($parsedData); // remove header
 
         $this->assertArrayEqualsSorted($expectedTableContent, $parsedData, 0);
+    }
+
+    // because BQ does not support valuesByTableInStorage / valuesByTableInWorkspace yet/. Tmp fix
+    private function isBigqueryWithNewDeleteRows(string $backendName, array $filterParams): bool
+    {
+        return $backendName === 'bigquery' &&
+            array_key_exists('whereFilters', $filterParams) &&
+            count($filterParams) > 0 &&
+            (array_key_exists('valuesByTableInStorage', $filterParams['whereFilters'][0]) || array_key_exists('valuesByTableInWorkspace', $filterParams['whereFilters'][0])
+            );
     }
 
     public function testDeleteRowsMissingValuesShouldReturnUserError(): void
