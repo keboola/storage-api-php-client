@@ -85,7 +85,7 @@ class DeleteRowsTest extends StorageApiTestCase
     {
         return $backendName === 'bigquery' &&
             array_key_exists('whereFilters', $filterParams) &&
-            count($filterParams) > 0 &&
+            count($filterParams['whereFilters']) > 0 &&
             (array_key_exists('valuesByTableInStorage', $filterParams['whereFilters'][0]) || array_key_exists('valuesByTableInWorkspace', $filterParams['whereFilters'][0])
             );
     }
