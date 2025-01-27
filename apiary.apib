@@ -4472,7 +4472,7 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
             + Default: eq
         + values[] (required, array) - array of variables to compare
         + valuesByTableInWorkspace (optional) - Available with project feature `delete-rows-by-reference`. Exclusive with `values` and `valuesByTableInStorage` (just one param possible). Snowflake only.
-            + workspaceId (number) - ID of workspace (returned by SAPI)
+            + workspaceId (number) - ID of workspace (returned by Storage API)
             + table (string) - Exact name of table present in the workspace when doing this API call
             + column (string) - Name of the column, which values (all rows) will be used as values to DELETE rows by. Datatype of this column has to match with datatype of the column specified in root of this API call.
         + valuesByTableInStorage (optional) - Available with project feature `delete-rows-by-reference`. Exclusive with `values` and `valuesByTableInWorkspace` (just one param possible). Snowflake only.
