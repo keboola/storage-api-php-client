@@ -83,7 +83,7 @@ class DeleteRowsTest extends StorageApiTestCase
     // because BQ does not support valuesByTableInStorage / valuesByTableInWorkspace yet/. Tmp fix
     private function isBigqueryWithNewDeleteRows(string $backendName, array $filterParams): bool
     {
-        return $backendName === 'bigquery' &&
+        return in_array($backendName, ['bigquery', 'exasol']) &&
             array_key_exists('whereFilters', $filterParams) &&
             count($filterParams['whereFilters']) > 0 &&
             (array_key_exists('valuesByTableInStorage', $filterParams['whereFilters'][0]) || array_key_exists('valuesByTableInWorkspace', $filterParams['whereFilters'][0])
