@@ -80,7 +80,7 @@ class DeleteRowsTest extends StorageApiTestCase
         $this->assertArrayEqualsSorted($expectedTableContent, $parsedData, 0);
     }
 
-    // because BQ does not support valuesByTableInStorage / valuesByTableInWorkspace yet/. Tmp fix
+    // because BQ/exa does not support valuesByTableInStorage / valuesByTableInWorkspace yet/. Tmp fix
     private function isBigqueryWithNewDeleteRows(string $backendName, array $filterParams): bool
     {
         return in_array($backendName, ['bigquery', 'exasol']) &&
