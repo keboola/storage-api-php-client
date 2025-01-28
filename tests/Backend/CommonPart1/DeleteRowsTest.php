@@ -321,53 +321,6 @@ class DeleteRowsTest extends StorageApiTestCase
                     ],
                 ],
             ],
-            'where filter: valuesByTableInWorkspace' => [
-                [
-                    'whereFilters' => [
-                        [
-                            'column' => 'city',
-                            'valuesByTableInWorkspace' => [
-                                'workspaceId' => 123,
-                                'table' => 'table',
-                                'column' => 'city',
-                            ],
-                        ],
-                    ],
-                ],
-                // no rows should be deleted because valuesByTableInStorage doesn't do anything yet
-                [
-                    [
-                        '1',
-                        'martin',
-                        'PRG',
-                        'male',
-                    ],
-                    [
-                        '2',
-                        'klara',
-                        'PRG',
-                        'female',
-                    ],
-                    [
-                        '3',
-                        'ondra',
-                        'VAN',
-                        'male',
-                    ],
-                    [
-                        '4',
-                        'miro',
-                        'BRA',
-                        'male',
-                    ],
-                    [
-                        '5',
-                        'hidden',
-                        '',
-                        'male',
-                    ],
-                ],
-            ],
             'where filter: valuesByTableInStorage' => [
                 [
                     'whereFilters' => [
@@ -417,7 +370,7 @@ class DeleteRowsTest extends StorageApiTestCase
         ];
     }
 
-    public function testDeleteByValuesInWorkspace()
+    public function testDeleteByValuesInWorkspaceWithInvalidData(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
@@ -439,7 +392,94 @@ class DeleteRowsTest extends StorageApiTestCase
         $backend->executeQuery("INSERT INTO USERS VALUES (1, 'martin');");
         $backend->executeQuery("INSERT INTO USERS VALUES (3, 'ondra');");
 
-        $this->_client->deleteTableRows($tableId, [
+        // test invalid table
+        try {
+            $this->_client->deleteTableRows($tableId, [
+                'whereFilters' => [
+                    [
+                        'column' => 'id',
+                        'valuesByTableInWorkspace' => [
+                            'workspaceId' => $workspace['id'],
+                            'table' => 'NOTEXISTING',
+                            'column' => 'ID',
+                        ],
+                    ],
+                ],
+            ]);
+            $this->fail('Should fail because table does not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                sprintf(
+                    'Table "NOTEXISTING" not found in schema "%s"',
+                    $workspace['connection']['schema'],
+                ),
+                $e->getMessage(),
+            );
+            $this->assertSame('storage.tableNotFound', $e->getStringCode());
+        }
+
+        // test type of column (storage is type of VARCHAR)
+        try {
+            $this->_client->deleteTableRows($tableId, [
+                'whereFilters' => [
+                    [
+                        'column' => 'id',
+                        'valuesByTableInWorkspace' => [
+                            'workspaceId' => $workspace['id'],
+                            'table' => 'USERS',
+                            'column' => 'ID',
+                        ],
+                    ],
+                ],
+            ]);
+            $this->fail('Should fail because of invalid column type');
+        } catch (ClientException $e) {
+            $this->assertSame('Cannot use column "ID" to delete by. Column types do not match. Type is "NUMBER" but expected type is "VARCHAR".', $e->getMessage());
+            $this->assertSame('storage.tables.validation.invalidColumnToDeleteBy', $e->getStringCode());
+        }
+
+        // test non-existing column
+        try {
+            $this->_client->deleteTableRows($tableId, [
+                'whereFilters' => [
+                    [
+                        'column' => 'id',
+                        'valuesByTableInWorkspace' => [
+                            'workspaceId' => $workspace['id'],
+                            'table' => 'USERS',
+                            'column' => 'NOTEXISTING',
+                        ],
+                    ],
+                ],
+            ]);
+            $this->fail('Should fail because of column does not exist');
+        } catch (ClientException $e) {
+            $this->assertSame('Cannot use column "NOTEXISTING" to delete by. Column does not exist.', $e->getMessage());
+            $this->assertSame('storage.tables.validation.invalidColumnToDeleteBy', $e->getStringCode());
+        }
+    }
+
+    public function testDeleteByValuesInWorkspaceWithValidData(): void
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+
+        $workspaces = new Workspaces($this->_client);
+
+        foreach ($workspaces->listWorkspaces() as $workspace) {
+            $workspaces->deleteWorkspace($workspace['id'], [], true);
+        }
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+        $this->_client->setRunId($runId);
+
+        $workspace = $workspaces->createWorkspace();
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->createTable('USERS', ['ID' => 'VARCHAR', 'name' => 'VARCHAR(255)']);
+
+        // WS table is empty - should pass and not delete anything
+        $result = $this->_client->deleteTableRows($tableId, [
             'whereFilters' => [
                 [
                     'column' => 'id',
@@ -451,8 +491,40 @@ class DeleteRowsTest extends StorageApiTestCase
                 ],
             ],
         ]);
-        // 1 and 3 should be deleted
+        assert(is_array($result));
+        assert(array_key_exists('deletedRows', $result));
+        $this->assertEquals(0, $result['deletedRows']);
+
+        // there is one row in WS table - should delete one row
+        $backend->executeQuery("INSERT INTO USERS VALUES ('3', 'ondra');");
+        $result = $this->_client->deleteTableRows($tableId, [
+            'whereFilters' => [
+                [
+                    'column' => 'id',
+                    'valuesByTableInWorkspace' => [
+                        'workspaceId' => $workspace['id'],
+                        'table' => 'USERS',
+                        'column' => 'ID',
+                    ],
+                ],
+            ],
+        ]);
+        assert(is_array($result));
+        assert(array_key_exists('deletedRows', $result));
+        $this->assertEquals(1, $result['deletedRows']);
+
+        $data = $this->_client->getTableDataPreview($tableId);
+
+        $parsedData = Client::parseCsv($data, false);
+        array_shift($parsedData); // remove header
+
         $expectedTableContent = [
+            [
+                '1',
+                'martin',
+                'PRG',
+                'male',
+            ],
             [
                 '2',
                 'klara',
@@ -472,10 +544,6 @@ class DeleteRowsTest extends StorageApiTestCase
                 'male',
             ],
         ];
-        $dataPreview = $this->_client->getTableDataPreview($tableId);
-        $parsedData = Client::parseCsv($dataPreview, false);
-        array_shift($parsedData); // remove header
-
         $this->assertArrayEqualsSorted($expectedTableContent, $parsedData, 0);
     }
 }
