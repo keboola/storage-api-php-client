@@ -374,7 +374,7 @@ class Client
      *
      * @return string bucket Id
      */
-    public function createBucket($name, $stage, $description = '', $backend = null, $displayName = null)
+    public function createBucket($name, $stage, $description = '', $backend = null, $displayName = null, $color = null)
     {
         $options = [
             'name' => $name,
@@ -388,6 +388,10 @@ class Client
 
         if ($displayName) {
             $options['displayName'] = $displayName;
+        }
+
+        if ($color) {
+            $options['color'] = $color;
         }
 
         $bucketId = $this->getBucketId($name, $stage);
