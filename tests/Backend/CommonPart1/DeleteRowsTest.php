@@ -30,9 +30,12 @@ class DeleteRowsTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+        $tableInfo = $this->_client->getTable($tableId);
+        if ($this->isBigqueryWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
+            $this->markTestSkipped('BQ does not new params of valuesBy* yet');
+        }
 
         $this->_client->deleteTableRows($tableId, $filterParams);
-        $tableInfo = $this->_client->getTable($tableId);
 
         $data = $this->_client->getTableDataPreview($tableId);
 
@@ -63,9 +66,11 @@ class DeleteRowsTest extends StorageApiTestCase
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
-
-        $this->_client->deleteTableRowsAsQuery($tableId, $filterParams);
         $tableInfo = $this->_client->getTable($tableId);
+        if ($this->isBigqueryWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
+            $this->markTestSkipped('BQ does not new params of valuesBy* yet');
+        }
+        $this->_client->deleteTableRowsAsQuery($tableId, $filterParams);
 
         $data = $this->_client->getTableDataPreview($tableId);
 
@@ -73,6 +78,16 @@ class DeleteRowsTest extends StorageApiTestCase
         array_shift($parsedData); // remove header
 
         $this->assertArrayEqualsSorted($expectedTableContent, $parsedData, 0);
+    }
+
+    // because BQ/exa does not support valuesByTableInStorage / valuesByTableInWorkspace yet/. Tmp fix
+    private function isBigqueryWithNewDeleteRows(string $backendName, array $filterParams): bool
+    {
+        return in_array($backendName, ['bigquery', 'exasol']) &&
+            array_key_exists('whereFilters', $filterParams) &&
+            count($filterParams['whereFilters']) > 0 &&
+            (array_key_exists('valuesByTableInStorage', $filterParams['whereFilters'][0]) || array_key_exists('valuesByTableInWorkspace', $filterParams['whereFilters'][0])
+            );
     }
 
     public function testDeleteRowsMissingValuesShouldReturnUserError(): void
@@ -88,6 +103,27 @@ class DeleteRowsTest extends StorageApiTestCase
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertSame('validation.failed', $e->getStringCode());
             $this->assertSame("Invalid request:\n - whereColumn: \"To use \"whereColumn\" specify \"whereValues\".\"", $e->getMessage());
+        }
+    }
+
+    public function testDeleteRowsOnInvalidColumn(): void
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+
+        try {
+            $this->_client->deleteTableRows($tableId, [
+                'whereFilters' => [
+                    [
+                        'column' => 'notExistingColumn',
+                        'values' => ['PRG'],
+                    ],
+                ],
+            ]);
+            $this->fail('Exception should be thrown');
+        } catch (\Keboola\StorageApi\ClientException $e) {
+            $this->assertSame('storage.tables.columnNotExists', $e->getStringCode());
+            $this->assertSame('Cannot filter by column "notExistingColumn", column does not exist', $e->getMessage());
         }
     }
 
@@ -269,6 +305,99 @@ class DeleteRowsTest extends StorageApiTestCase
                         'klara',
                         'PRG',
                         'female',
+                    ],
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
+                    ],
+                    [
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
+                    ],
+                ],
+            ],
+            'where filter: valuesByTableInWorkspace' => [
+                [
+                    'whereFilters' => [
+                        [
+                            'column' => 'city',
+                            'valuesByTableInWorkspace' => [
+                                    'workspaceId' => 123,
+                                    'table' => 'table',
+                                    'column' => 'city',
+                            ],
+                        ],
+                    ],
+                ],
+                // no rows should be deleted because valuesByTableInStorage doesn't do anything yet
+                [
+                    [
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
+                    ],
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
+                    ],
+                    [
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
+                    ],
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
+                    ],
+                    [
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
+                    ],
+                ],
+            ],
+            'where filter: valuesByTableInStorage' => [
+                [
+                    'whereFilters' => [
+                        [
+                            'column' => 'city',
+                            'valuesByTableInStorage' => [
+                                    'tableId' => 'table',
+                                    'column' => 'city',
+                            ],
+                        ],
+                    ],
+                ],
+                // no rows should be deleted because valuesByTableInStorage doesn't do anything yet
+                [
+                    [
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
+                    ],
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
+                    ],
+                    [
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
                     ],
                     [
                         '4',
