@@ -267,7 +267,7 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
         $this->assertCount(2, $linkingTables);
         $linkingTable = $linkingTables[0];
 
-        $dataPreview = $this->linkingClient->getTableDataPreview($linkingTable['id']);
+        $dataPreview = $this->linkingClient->getTableDataPreview($linkingTable['id'], ['columns' => ['ID', 'NAME']]);
         $this->assertEquals(
             <<<EXPECTED
 "ID","NAME"
@@ -351,7 +351,7 @@ EXPECTED,
 
         $linkedTable = reset($filteredTables);
 
-        $dataPreview = $this->linkingClient->getTableDataPreview($linkedTable['id']);
+        $dataPreview = $this->linkingClient->getTableDataPreview($linkedTable['id'], ['columns' => ['ID', 'NAME']]);
         $this->assertEquals(
             <<<EXPECTED
 "ID","NAME"
@@ -377,6 +377,103 @@ EXPECTED,
                 [
                     'ID' => 2,
                     'NAME' => 'Josef',
+                ],
+            ],
+            $result,
+        );
+
+        // check ALTER TABLE
+        $db = $this->ensureProducerSnowflakeConnection();
+        $db->executeQuery('USE ROLE ACCOUNTADMIN');
+        $dbName = $this->getProducerSharedDatabase();
+        $db->executeQuery(sprintf('USE WAREHOUSE %s', $this->getProducerSnowflakeWarehouse()));
+
+        $db->executeQuery(sprintf(
+            'ALTER TABLE %s.%s ADD COLUMN GENDER STRING DEFAULT \'M\'',
+            $dbName,
+            $newTableName,
+        ));
+
+        $this->_client->refreshBucket($bucketId);
+
+        $refreshedBucket = $this->_client->getBucket($bucketId);
+        $tableNames = array_map(
+            function ($tableRow) {
+                return $tableRow['name'];
+            },
+            $refreshedBucket['tables'],
+        );
+        $this->assertTrue(in_array($newTableName, $tableNames), 'Altered table not found in refreshed bucket');
+
+        $filteredTables = array_filter(
+            $refreshedBucket['tables'],
+            function ($tableRow) use ($newTableName) {
+                return $tableRow['name'] === $newTableName;
+            },
+        );
+
+        $newTable = reset($filteredTables);
+
+        $dataPreview = $this->_client->getTableDataPreview($newTable['id'], ['columns' => ['ID', 'NAME', 'GENDER']]);
+        $this->assertEquals(
+            <<<EXPECTED
+"ID","NAME","GENDER"
+"1","Jan","M"
+"2","Josef","M"
+
+EXPECTED,
+            $dataPreview,
+        );
+
+        $linkingTables = $this->linkingClient->listTables($linkedBucketId);
+        $this->assertCount(3, $linkingTables);
+
+        $linkedBucket = $this->linkingClient->getBucket($linkedBucketId);
+        $linkedTableNames = array_map(
+            function ($tableRow) {
+                return $tableRow['name'];
+            },
+            $linkedBucket['tables'],
+        );
+        $this->assertTrue(in_array($newTableName, $linkedTableNames), 'Altered table not found in linked bucket after refresh');
+
+        $filteredTables = array_filter(
+            $linkedBucket['tables'],
+            function ($tableRow) use ($newTableName) {
+                return $tableRow['name'] === $newTableName;
+            },
+        );
+
+        $linkedTable = reset($filteredTables);
+
+        $dataPreview = $this->linkingClient->getTableDataPreview($linkedTable['id'], ['columns' => ['ID', 'NAME', 'GENDER']]);
+        $this->assertEquals(
+            <<<EXPECTED
+"ID","NAME","GENDER"
+"1","Jan","M"
+"2","Josef","M"
+
+EXPECTED,
+            $dataPreview,
+        );
+
+        // test RO works
+        $result = $linkingSnowflakeDb->fetchAll(sprintf(
+            'SELECT * FROM %s.%s',
+            $linkedBucket['path'],
+            $newTableName,
+        ));
+        $this->assertEquals(
+            [
+                [
+                    'ID' => 1,
+                    'NAME' => 'Jan',
+                    'GENDER' => 'M',
+                ],
+                [
+                    'ID' => 2,
+                    'NAME' => 'Josef',
+                    'GENDER' => 'M',
                 ],
             ],
             $result,
