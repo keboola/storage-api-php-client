@@ -10,13 +10,14 @@
 namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\StorageApi\ClientException;
-use Keboola\Test\StorageApiTestCase;
+use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 
-class DeleteRowsTest extends StorageApiTestCase
+class DeleteRowsTest extends ParallelWorkspacesTestCase
 {
-
     public function setUp(): void
     {
         parent::setUp();
@@ -31,7 +32,7 @@ class DeleteRowsTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
         $tableInfo = $this->_client->getTable($tableId);
-        if ($this->isBigqueryWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
+        if ($this->isBigqueryOrExasolWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
             $this->markTestSkipped('BQ does not new params of valuesBy* yet');
         }
 
@@ -67,7 +68,7 @@ class DeleteRowsTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
         $tableInfo = $this->_client->getTable($tableId);
-        if ($this->isBigqueryWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
+        if ($this->isBigqueryOrExasolWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
             $this->markTestSkipped('BQ does not new params of valuesBy* yet');
         }
         $this->_client->deleteTableRowsAsQuery($tableId, $filterParams);
@@ -81,7 +82,7 @@ class DeleteRowsTest extends StorageApiTestCase
     }
 
     // because BQ/exa does not support valuesByTableInStorage / valuesByTableInWorkspace yet/. Tmp fix
-    private function isBigqueryWithNewDeleteRows(string $backendName, array $filterParams): bool
+    private function isBigqueryOrExasolWithNewDeleteRows(string $backendName, array $filterParams): bool
     {
         return in_array($backendName, ['bigquery', 'exasol']) &&
             array_key_exists('whereFilters', $filterParams) &&
@@ -320,61 +321,14 @@ class DeleteRowsTest extends StorageApiTestCase
                     ],
                 ],
             ],
-            'where filter: valuesByTableInWorkspace' => [
-                [
-                    'whereFilters' => [
-                        [
-                            'column' => 'city',
-                            'valuesByTableInWorkspace' => [
-                                    'workspaceId' => 123,
-                                    'table' => 'table',
-                                    'column' => 'city',
-                            ],
-                        ],
-                    ],
-                ],
-                // no rows should be deleted because valuesByTableInStorage doesn't do anything yet
-                [
-                    [
-                        '1',
-                        'martin',
-                        'PRG',
-                        'male',
-                    ],
-                    [
-                        '2',
-                        'klara',
-                        'PRG',
-                        'female',
-                    ],
-                    [
-                        '3',
-                        'ondra',
-                        'VAN',
-                        'male',
-                    ],
-                    [
-                        '4',
-                        'miro',
-                        'BRA',
-                        'male',
-                    ],
-                    [
-                        '5',
-                        'hidden',
-                        '',
-                        'male',
-                    ],
-                ],
-            ],
             'where filter: valuesByTableInStorage' => [
                 [
                     'whereFilters' => [
                         [
                             'column' => 'city',
                             'valuesByTableInStorage' => [
-                                    'tableId' => 'table',
-                                    'column' => 'city',
+                                'tableId' => 'table',
+                                'column' => 'city',
                             ],
                         ],
                     ],
@@ -414,5 +368,172 @@ class DeleteRowsTest extends StorageApiTestCase
                 ],
             ],
         ];
+    }
+
+    public function testDeleteByValuesInWorkspaceWithInvalidData(): void
+    {
+        $this->skipTestForBackend(['bigquery', 'exasol'], 'Not supported in BQ/Exasol yet');
+
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $workspace = $this->initTestWorkspace('snowflake');
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $backend->createTable('USERS', ['ID' => 'INT', 'name' => 'VARCHAR(255)']);
+        $backend->executeQuery("INSERT INTO USERS VALUES (1, 'martin');");
+        $backend->executeQuery("INSERT INTO USERS VALUES (3, 'ondra');");
+
+        // test invalid table
+        try {
+            $this->_client->deleteTableRows($tableId, [
+                'whereFilters' => [
+                    [
+                        'column' => 'id',
+                        'valuesByTableInWorkspace' => [
+                            'workspaceId' => $workspace['id'],
+                            'table' => 'NOTEXISTING',
+                            'column' => 'ID',
+                        ],
+                    ],
+                ],
+            ]);
+            $this->fail('Should fail because table does not exist');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                sprintf(
+                    'Table "NOTEXISTING" not found in schema "%s"',
+                    $workspace['connection']['schema'],
+                ),
+                $e->getMessage(),
+            );
+            $this->assertSame('storage.tableNotFound', $e->getStringCode());
+        }
+
+        // test type of column (storage is type of VARCHAR)
+        try {
+            $this->_client->deleteTableRows($tableId, [
+                'whereFilters' => [
+                    [
+                        'column' => 'id',
+                        'valuesByTableInWorkspace' => [
+                            'workspaceId' => $workspace['id'],
+                            'table' => 'USERS',
+                            'column' => 'ID',
+                        ],
+                    ],
+                ],
+            ]);
+            $this->fail('Should fail because of invalid column type');
+        } catch (ClientException $e) {
+            $this->assertSame('Cannot use column "ID" to delete by. Column types do not match. Type is "NUMBER" but expected type is "VARCHAR".', $e->getMessage());
+            $this->assertSame('storage.tables.validation.invalidColumnToDeleteBy', $e->getStringCode());
+        }
+
+        // test non-existing column
+        try {
+            $this->_client->deleteTableRows($tableId, [
+                'whereFilters' => [
+                    [
+                        'column' => 'id',
+                        'valuesByTableInWorkspace' => [
+                            'workspaceId' => $workspace['id'],
+                            'table' => 'USERS',
+                            'column' => 'NOTEXISTING',
+                        ],
+                    ],
+                ],
+            ]);
+            $this->fail('Should fail because of column does not exist');
+        } catch (ClientException $e) {
+            $this->assertSame('Cannot use column "NOTEXISTING" to delete by. Column does not exist.', $e->getMessage());
+            $this->assertSame('storage.tables.validation.invalidColumnToDeleteBy', $e->getStringCode());
+        }
+    }
+
+    public function testDeleteByValuesInWorkspaceWithValidData(): void
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv';
+        $this->skipTestForBackend(['bigquery', 'exasol'], 'Not supported in BQ/Exasol yet');
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $workspace = $this->initTestWorkspace('snowflake');
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $backend->createTable('USERS', ['ID' => 'VARCHAR', 'name' => 'VARCHAR(255)']);
+
+        // WS table is empty - should pass and not delete anything
+        $result = $this->_client->deleteTableRows($tableId, [
+            'whereFilters' => [
+                [
+                    'column' => 'id',
+                    'valuesByTableInWorkspace' => [
+                        'workspaceId' => $workspace['id'],
+                        'table' => 'USERS',
+                        'column' => 'ID',
+                    ],
+                ],
+            ],
+        ]);
+        assert(is_array($result));
+        assert(array_key_exists('deletedRows', $result));
+        $this->assertEquals(0, $result['deletedRows']);
+
+        // there is one row in WS table - should delete one row
+        $backend->executeQuery("INSERT INTO USERS VALUES ('3', 'ondra');");
+        $result = $this->_client->deleteTableRows($tableId, [
+            'whereFilters' => [
+                [
+                    'column' => 'id',
+                    'valuesByTableInWorkspace' => [
+                        'workspaceId' => $workspace['id'],
+                        'table' => 'USERS',
+                        'column' => 'ID',
+                    ],
+                ],
+            ],
+        ]);
+        assert(is_array($result));
+        assert(array_key_exists('deletedRows', $result));
+        $this->assertEquals(1, $result['deletedRows']);
+
+        $data = $this->_client->getTableDataPreview($tableId);
+
+        $parsedData = Client::parseCsv($data, false);
+        array_shift($parsedData); // remove header
+
+        $expectedTableContent = [
+            [
+                '1',
+                'martin',
+                'PRG',
+                'male',
+            ],
+            [
+                '2',
+                'klara',
+                'PRG',
+                'female',
+            ],
+            [
+                '4',
+                'miro',
+                'BRA',
+                'male',
+            ],
+            [
+                '5',
+                'hidden',
+                '',
+                'male',
+            ],
+        ];
+        $this->assertArrayEqualsSorted($expectedTableContent, $parsedData, 0);
     }
 }
