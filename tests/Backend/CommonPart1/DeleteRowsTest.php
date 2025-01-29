@@ -383,6 +383,7 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace('snowflake');
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
+        $backend->dropTableIfExists('USERS');
         $backend->createTable('USERS', ['ID' => 'INT', 'name' => 'VARCHAR(255)']);
         $backend->executeQuery("INSERT INTO USERS VALUES (1, 'martin');");
         $backend->executeQuery("INSERT INTO USERS VALUES (3, 'ondra');");
@@ -466,6 +467,7 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace('snowflake');
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
+        $backend->dropTableIfExists('USERS');
         $backend->createTable('USERS', ['ID' => 'VARCHAR', 'name' => 'VARCHAR(255)']);
 
         // WS table is empty - should pass and not delete anything
