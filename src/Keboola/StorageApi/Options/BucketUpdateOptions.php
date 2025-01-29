@@ -12,7 +12,10 @@ class BucketUpdateOptions
     private $displayName;
 
     /** @var ?string $color */
-    private $color = self::REQUEST_COLOR_NO_CHANGE;
+    private $color = null;
+
+    /** @var bool $deleteColor */
+    private $deleteColor = false;
 
     /** @var bool $async */
     private $async;
@@ -20,14 +23,12 @@ class BucketUpdateOptions
     /**
      * @param string $bucketId
      * @param string $displayName
-     * @param string|null $color
      * @param bool $async
      */
-    public function __construct($bucketId, $displayName, $color = self::REQUEST_COLOR_NO_CHANGE, $async = false)
+    public function __construct($bucketId, $displayName, $async = false)
     {
         $this->bucketId = (string) $bucketId;
         $this->displayName = (string) $displayName;
-        $this->color = $color;
         $this->async = $async;
     }
 
@@ -43,6 +44,26 @@ class BucketUpdateOptions
         return $this->bucketId;
     }
 
+    public function getColor(): ?string
+    {
+        return $this->color;
+    }
+
+    public function setColor(?string $color): void
+    {
+        $this->color = $color;
+    }
+
+    public function isDeleteColor(): bool
+    {
+        return $this->deleteColor;
+    }
+
+    public function setDeleteColor(bool $deleteColor): void
+    {
+        $this->deleteColor = $deleteColor;
+    }
+
     /** @return array */
     public function toParamsArray()
     {
@@ -52,8 +73,10 @@ class BucketUpdateOptions
             $params['displayName'] = $this->getDisplayName();
         }
 
-        if ($this->color !== self::REQUEST_COLOR_NO_CHANGE) {
-            $params['color'] = $this->color;
+        if ($this->isDeleteColor()) {
+            $params['color'] = null;
+        } elseif ($this->getColor() !== null) {
+            $params['color'] = $this->getColor();
         }
 
         if ($this->async) {
