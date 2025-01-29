@@ -147,7 +147,7 @@ class BucketsTest extends StorageApiTestCase
         $this->assertEquals('red', $bucket['color']);
 
         $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $displayName);
-        $bucketUpdateOptions->setDeleteColor(true);
+        $bucketUpdateOptions->deleteColor();
         $bucket = $this->_testClient->updateBucket($bucketUpdateOptions);
         try {
             $this->_testClient->createBucket($displayName, self::STAGE_IN);

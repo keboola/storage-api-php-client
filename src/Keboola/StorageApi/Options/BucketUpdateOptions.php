@@ -54,14 +54,14 @@ class BucketUpdateOptions
         $this->color = $color;
     }
 
-    public function isDeleteColor(): bool
+    private function isDeleteColor(): bool
     {
         return $this->deleteColor;
     }
 
-    public function setDeleteColor(bool $deleteColor): void
+    public function deleteColor(): void
     {
-        $this->deleteColor = $deleteColor;
+        $this->deleteColor = true;
     }
 
     /** @return array */
