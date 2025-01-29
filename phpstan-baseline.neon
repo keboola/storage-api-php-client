@@ -1441,21 +1441,6 @@ parameters:
 			path: src/Keboola/StorageApi/MaintenanceException.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\BucketUpdateOptions\\:\\:__construct\\(\\) has parameter \\$async with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/BucketUpdateOptions.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\BucketUpdateOptions\\:\\:__construct\\(\\) has parameter \\$bucketId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/BucketUpdateOptions.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\BucketUpdateOptions\\:\\:__construct\\(\\) has parameter \\$displayName with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/BucketUpdateOptions.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\Configuration\\:\\:setChangeDescription\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/Components/Configuration.php
