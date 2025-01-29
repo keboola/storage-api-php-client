@@ -138,14 +138,16 @@ class BucketsTest extends StorageApiTestCase
         );
 
         $asyncBucketDisplayName = $displayName . '-async';
-        $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $asyncBucketDisplayName, 'red', true);
+        $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $asyncBucketDisplayName, true);
+        $bucketUpdateOptions->setColor('red');
         $this->_testClient->updateBucket($bucketUpdateOptions);
 
         $bucket = $this->_testClient->getBucket($bucketId);
         $this->assertEquals($asyncBucketDisplayName, $bucket['displayName']);
         $this->assertEquals('red', $bucket['color']);
 
-        $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $displayName, null);
+        $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $displayName);
+        $bucketUpdateOptions->setDeleteColor(true);
         $bucket = $this->_testClient->updateBucket($bucketUpdateOptions);
         try {
             $this->_testClient->createBucket($displayName, self::STAGE_IN);

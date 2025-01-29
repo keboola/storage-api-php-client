@@ -212,7 +212,7 @@ class GlobalSearchTest extends StorageApiTestCase
 
         $newDisplayName = 'DisplayName'.$this->generateDescriptionForTestObject();
         $hashedDisplayName = sha1($newDisplayName);
-        $bucketUpdateOptions = new BucketUpdateOptions($testBucketId, $hashedDisplayName, BucketUpdateOptions::REQUEST_COLOR_NO_CHANGE, true);
+        $bucketUpdateOptions = new BucketUpdateOptions($testBucketId, $hashedDisplayName, true);
         $this->_client->updateBucket($bucketUpdateOptions);
 
         $apiCall = fn() => $this->client->globalSearch($hashedDisplayName);
