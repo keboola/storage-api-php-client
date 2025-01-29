@@ -17,6 +17,12 @@ class BucketUpdateOptions
     /** @var bool $async */
     private $async;
 
+    /**
+     * @param string $bucketId
+     * @param string $displayName
+     * @param string|null $color
+     * @param bool $async
+     */
     public function __construct($bucketId, $displayName, $color = self::REQUEST_COLOR_NO_CHANGE, $async = false)
     {
         $this->bucketId = (string) $bucketId;

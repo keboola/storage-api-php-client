@@ -371,6 +371,7 @@ class Client
      * @param string $stage bucket stage
      * @param string $description bucket description
      * @param string|null $displayName name that will be displayed in the UI - can be changed
+     * @param string|null $color bucket color
      *
      * @return string bucket Id
      */
