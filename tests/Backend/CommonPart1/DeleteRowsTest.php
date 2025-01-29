@@ -12,11 +12,11 @@ namespace Keboola\Test\Backend\CommonPart1;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 
-class DeleteRowsTest extends StorageApiTestCase
+class DeleteRowsTest extends ParallelWorkspacesTestCase
 {
     public function setUp(): void
     {
@@ -377,19 +377,13 @@ class DeleteRowsTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
-        $workspaces = new Workspaces($this->_client);
-
-        foreach ($workspaces->listWorkspaces() as $workspace) {
-            $workspaces->deleteWorkspace($workspace['id'], [], true);
-        }
-
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace('snowflake');
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        $backend->createTable('USERS', ['ID' => 'INT', 'name' => 'VARCHAR(255)']);
 
+        $backend->createTable('USERS', ['ID' => 'INT', 'name' => 'VARCHAR(255)']);
         $backend->executeQuery("INSERT INTO USERS VALUES (1, 'martin');");
         $backend->executeQuery("INSERT INTO USERS VALUES (3, 'ondra');");
 
@@ -466,17 +460,12 @@ class DeleteRowsTest extends StorageApiTestCase
         $this->skipTestForBackend(['bigquery', 'exasol'], 'Not supported in BQ/Exasol yet');
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
-        $workspaces = new Workspaces($this->_client);
-
-        foreach ($workspaces->listWorkspaces() as $workspace) {
-            $workspaces->deleteWorkspace($workspace['id'], [], true);
-        }
-
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
-        $workspace = $workspaces->createWorkspace();
+        $workspace = $this->initTestWorkspace('snowflake');
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
         $backend->createTable('USERS', ['ID' => 'VARCHAR', 'name' => 'VARCHAR(255)']);
 
         // WS table is empty - should pass and not delete anything
