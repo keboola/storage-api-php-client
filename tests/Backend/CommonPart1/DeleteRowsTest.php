@@ -32,7 +32,7 @@ class DeleteRowsTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
         $tableInfo = $this->_client->getTable($tableId);
-        if ($this->isBigqueryWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
+        if ($this->isBigqueryOrExasolWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
             $this->markTestSkipped('BQ does not new params of valuesBy* yet');
         }
 
@@ -68,7 +68,7 @@ class DeleteRowsTest extends StorageApiTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
         $tableInfo = $this->_client->getTable($tableId);
-        if ($this->isBigqueryWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
+        if ($this->isBigqueryOrExasolWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
             $this->markTestSkipped('BQ does not new params of valuesBy* yet');
         }
         $this->_client->deleteTableRowsAsQuery($tableId, $filterParams);
@@ -82,7 +82,7 @@ class DeleteRowsTest extends StorageApiTestCase
     }
 
     // because BQ/exa does not support valuesByTableInStorage / valuesByTableInWorkspace yet/. Tmp fix
-    private function isBigqueryWithNewDeleteRows(string $backendName, array $filterParams): bool
+    private function isBigqueryOrExasolWithNewDeleteRows(string $backendName, array $filterParams): bool
     {
         return in_array($backendName, ['bigquery', 'exasol']) &&
             array_key_exists('whereFilters', $filterParams) &&
@@ -372,6 +372,8 @@ class DeleteRowsTest extends StorageApiTestCase
 
     public function testDeleteByValuesInWorkspaceWithInvalidData(): void
     {
+        $this->skipTestForBackend(['bigquery', 'exasol'], 'Not supported in BQ/Exasol yet');
+
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
@@ -382,7 +384,6 @@ class DeleteRowsTest extends StorageApiTestCase
         }
 
         $runId = $this->_client->generateRunId();
-        $this->_client->setRunId($runId);
         $this->_client->setRunId($runId);
 
         $workspace = $workspaces->createWorkspace();
@@ -462,6 +463,7 @@ class DeleteRowsTest extends StorageApiTestCase
     public function testDeleteByValuesInWorkspaceWithValidData(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
+        $this->skipTestForBackend(['bigquery', 'exasol'], 'Not supported in BQ/Exasol yet');
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $workspaces = new Workspaces($this->_client);
@@ -471,7 +473,6 @@ class DeleteRowsTest extends StorageApiTestCase
         }
 
         $runId = $this->_client->generateRunId();
-        $this->_client->setRunId($runId);
         $this->_client->setRunId($runId);
 
         $workspace = $workspaces->createWorkspace();
