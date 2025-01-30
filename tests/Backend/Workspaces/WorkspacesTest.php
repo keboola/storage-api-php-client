@@ -58,6 +58,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         /** @var array $connection */
         $connection = $workspace['connection'];
         $this->assertArrayHasKey('region', $connection);
+        $this->assertArrayHasKey('ssoLoginAvailable', $connection);
         $this->assertNotEmpty($connection['region']);
         $workspaceWithSnowflakeBackend = $connection['backend'] === self::BACKEND_SNOWFLAKE;
         $workspaceBackend = $connection['backend'];
