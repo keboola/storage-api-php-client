@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Backend\Snowflake;
+namespace Keboola\Test\Backend\Snowflake;
 
 use Generator;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
