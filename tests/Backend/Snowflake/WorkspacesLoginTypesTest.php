@@ -50,10 +50,6 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
      */
     public function testWorkspaceCreate(string|null $loginType, bool $async, string $expectedLoginType): void
     {
-        $this->allowTestForBackendsOnly(
-            [self::BACKEND_SNOWFLAKE],
-            'Test only for Snowflake login types',
-        );
         $this->initEvents($this->workspaceSapiClient);
 
         $runId = $this->_client->generateRunId();
