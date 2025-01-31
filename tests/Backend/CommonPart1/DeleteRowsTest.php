@@ -453,6 +453,26 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
             $this->assertSame('Cannot use column "NOTEXISTING" to delete by. Column does not exist.', $e->getMessage());
             $this->assertSame('storage.tables.validation.invalidColumnToDeleteBy', $e->getStringCode());
         }
+
+        // test non-existing workspace
+        try {
+            $this->_client->deleteTableRows($tableId, [
+                'whereFilters' => [
+                    [
+                        'column' => 'id',
+                        'valuesByTableInWorkspace' => [
+                            'workspaceId' => 123456, // not existing workspace
+                            'table' => 'USERS',
+                            'column' => 'name',
+                        ],
+                    ],
+                ],
+            ]);
+            $this->fail('Should fail because of column does not exist');
+        } catch (ClientException $e) {
+            $this->assertSame('Workspace "123456" not found.', $e->getMessage());
+            $this->assertSame('workspace.workspaceNotFound', $e->getStringCode());
+        }
     }
 
     public function testDeleteByValuesInWorkspaceWithValidData(): void
