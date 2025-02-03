@@ -4,7 +4,6 @@ namespace Keboola\StorageApi\Options;
 
 class BucketUpdateOptions
 {
-    public const REQUEST_COLOR_NO_CHANGE = 'color-no-change';
     /** @var string $bucketId */
     private $bucketId;
 
