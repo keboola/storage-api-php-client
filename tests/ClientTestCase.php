@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ClientTestCase extends TestCase
 {
-    use \PHPUnitRetry\RetryTrait;
+//    use \PHPUnitRetry\RetryTrait;
 
     public function getLogger(): ConsoleLogger
     {
@@ -31,6 +31,7 @@ class ClientTestCase extends TestCase
         if (!array_key_exists('logger', $options)) {
             $options['logger'] = $this->getLogger();
         }
+        $options['debug'] = $this->buildDebugOption($options['token'], $options['url']);
         return new Client($options);
     }
 
@@ -43,6 +44,7 @@ class ClientTestCase extends TestCase
             $options['token'],
             $options['url'],
         );
+        $options['debug'] = $this->buildDebugOption($options['token'], $options['url']);
         return new BranchAwareClient($branchId, $options);
     }
 
@@ -139,12 +141,7 @@ class ClientTestCase extends TestCase
         return $this->getClient($this->getClientOptionsForToken($token));
     }
 
-    /**
-     * @param string $token
-     * @param string $url
-     * @return string
-     */
-    protected function buildUserAgentString($token, $url)
+    protected function buildUserAgentString(string $token, string $url): string
     {
         $testSuiteName = '';
         if (SUITE_NAME) {
@@ -174,6 +171,31 @@ class ClientTestCase extends TestCase
             $tokenAgentString,
             $this->getTestName(),
         );
+    }
+
+    /**
+     * @return array{suite?: string, buildId?: string, project?: string, token?: string, url: string, test: string}
+     */
+    protected function buildDebugOption(string $token, string $url): array
+    {
+        $debug = [];
+        if (SUITE_NAME) {
+            $debug['suite'] = SUITE_NAME;
+        }
+
+        if (TRAVIS_BUILD_ID) {
+            $debug['buildId'] = TRAVIS_BUILD_ID;
+        }
+
+        $tokenParts = explode('-', $token);
+        if (count($tokenParts) === 3) {
+            // token comes in from of <projectId>-<tokenId>-<hash>
+            $debug['project'] = $tokenParts[0];
+            $debug['token'] = $tokenParts[1];
+        }
+        $debug['url'] = $url;
+        $debug['test'] = $this->getTestName();
+        return $debug;
     }
 
     /**

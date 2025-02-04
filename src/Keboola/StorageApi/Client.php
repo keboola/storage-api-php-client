@@ -72,6 +72,10 @@ class Client
     public $token;
 
     // current run id sent with all request
+
+    /** @var array<mixed>|null */
+    private array|null $debug;
+
     private $runId = null;
 
     // configuration will be send with all requests
@@ -155,6 +159,11 @@ class Client
         $this->userAgent .= '/' . self::VERSION;
         if (isset($config['userAgent'])) {
             $this->userAgent .= ' ' . $config['userAgent'];
+        }
+
+        $this->debug = null;
+        if (isset($config['debug'])) {
+            $this->debug = $config['debug'];
         }
 
         if (!isset($config['token'])) {
@@ -2988,6 +2997,7 @@ class Client
         }
 
         try {
+            $this->log('[' . $method . '] ' . $url, $requestOptions);
             /**
              * @var ResponseInterface $response
              */
@@ -3043,10 +3053,12 @@ class Client
     {
         /** @var array{id: int, results: mixed} $job */
         $job = json_decode((string) $jobCreatedResponse->getBody(), true);
+        $this->log('Job ' . $job['id'], $job);
         $job = $this->waitForJob($job['id']);
         if ($job === null) {
             throw new ClientException('StorageJob expected');
         }
+        $this->log('Job ' . $job['id'] . 'result', $job);
         $this->handleJobError($job);
         return $job['results'];
     }
@@ -3121,6 +3133,9 @@ class Client
      */
     private function log($message, $context = [])
     {
+        if ($this->debug !== null) {
+            $context['debug'] = $this->debug;
+        }
         $this->logger->debug($message, $context);
     }
 
