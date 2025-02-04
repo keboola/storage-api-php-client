@@ -44,12 +44,16 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         array $options = [],
         bool $forceRecreate = false,
         bool $async = true,
+        Client $client = null
     ): array {
         if ($backend) {
             $options['backend'] = $backend;
         }
+        if ($client === null) {
+            $client = $this->_client;
+        }
 
-        $oldWorkspaces = $this->listTestWorkspaces($this->_client);
+        $oldWorkspaces = $this->listTestWorkspaces($client);
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
         $oldWorkspace = $oldWorkspaces ? reset($oldWorkspaces) : null;
@@ -68,15 +72,18 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
             return $oldWorkspace;
         }
 
-        $this->deleteOldTestWorkspaces();
+        $this->deleteOldTestWorkspaces($client);
         return $workspaces->createWorkspace($options, $async);
     }
 
-    protected function deleteOldTestWorkspaces()
+    protected function deleteOldTestWorkspaces(Client $client = null): void
     {
-        $workspaces = new Workspaces($this->_client);
+        if ($client === null) {
+            $client = $this->_client;
+        }
+        $workspaces = new Workspaces($client);
 
-        foreach ($this->listTestWorkspaces($this->_client) as $workspace) {
+        foreach ($this->listTestWorkspaces($client) as $workspace) {
             $workspaces->deleteWorkspace($workspace['id'], [], true);
         }
     }
