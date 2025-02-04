@@ -2997,7 +2997,7 @@ class Client
         }
 
         try {
-            $this->log('[' . $method . '] ' . $url, $requestOptions);
+            $this->log('[' . $method . '] ' . $url);
             /**
              * @var ResponseInterface $response
              */
@@ -3058,7 +3058,7 @@ class Client
         if ($job === null) {
             throw new ClientException('StorageJob expected');
         }
-        $this->log('Job ' . $job['id'] . 'result', $job);
+        $this->log('Job ' . $job['id'] . ' '. $job['status'], $job);
         $this->handleJobError($job);
         return $job['results'];
     }
@@ -3136,7 +3136,7 @@ class Client
         if ($this->debug !== null) {
             $context['debug'] = $this->debug;
         }
-        $this->logger->debug($message, $context);
+        $this->logger->debug($message, (array) json_encode($context));
     }
 
     /**
