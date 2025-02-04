@@ -364,7 +364,7 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         $this->dropBucketIfExists(
             $this->_client,
             self::STAGE_OUT . '.c-' . $testBucketName,
-            true
+            true,
         );
 
         $this->createTableFromFile(
