@@ -9,6 +9,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\BucketOwnerUpdateOptions;
+use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\GlobalSearchOptions;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
@@ -1285,6 +1286,9 @@ class SharingTest extends StorageApiSharingTestCase
             'languages-alias',
         );
 
+        $bucketUpdate = new BucketUpdateOptions($bucketId);
+        $bucketUpdate->setColor('red');
+        $this->_client->updateBucket($bucketUpdate);
         $this->_client->updateBucketOwner($bucketId, new BucketOwnerUpdateOptions($ownerId));
 
         $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
@@ -1324,6 +1328,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertEquals($bucket['description'], $linkedBucket['description']);
         $this->assertEquals($bucket['owner']['id'], $linkedBucket['owner']['id']);
         $this->assertEquals($bucket['owner']['name'], $linkedBucket['owner']['name']);
+        $this->assertEquals($bucket['color'], $linkedBucket['color']);
 
         $this->assertTablesMetadata($bucketId, $linkedBucketId);
 
