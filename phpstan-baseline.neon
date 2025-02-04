@@ -3196,11 +3196,6 @@ parameters:
 			path: tests/Backend/Snowflake/CloneIntoWorkspaceTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\CloneIntoWorkspaceTest\\:\\:cloneProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Snowflake/CloneIntoWorkspaceTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Snowflake\\\\CloneIntoWorkspaceTest\\:\\:createTableAliasChain\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Snowflake/CloneIntoWorkspaceTest.php
@@ -4221,11 +4216,6 @@ parameters:
 			path: tests/Backend/Workspaces/MetadataFromSynapseWorkspaceTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\ParallelWorkspacesTestCase\\:\\:deleteOldTestWorkspaces\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/ParallelWorkspacesTestCase.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\ParallelWorkspacesTestCase\\:\\:listTestWorkspaces\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/ParallelWorkspacesTestCase.php
@@ -5112,11 +5102,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:getTestBucketId\\(\\) has parameter \\$stage with no type specified\\.$#"
-			count: 1
-			path: tests/StorageApiTestCase.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\StorageApiTestCase\\:\\:getTestBucketName\\(\\) has parameter \\$testName with no type specified\\.$#"
 			count: 1
 			path: tests/StorageApiTestCase.php
 
