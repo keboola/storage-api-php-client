@@ -7,7 +7,7 @@ class BucketUpdateOptions
     /** @var string $bucketId */
     private $bucketId;
 
-    /** @var string $displayName */
+    /** @var ?string $displayName */
     private $displayName;
 
     /** @var ?string $color */
@@ -24,17 +24,25 @@ class BucketUpdateOptions
      * @param string $displayName
      * @param bool $async
      */
-    public function __construct($bucketId, $displayName, $async = false)
+    public function __construct($bucketId, $displayName = null, $async = false)
     {
         $this->bucketId = (string) $bucketId;
-        $this->displayName = (string) $displayName;
+        $this->displayName = $displayName !== null ? (string) $displayName : $displayName;
         $this->async = $async;
     }
 
-    /** @return string */
+    /** @return ?string */
     public function getDisplayName()
     {
         return $this->displayName;
+    }
+
+    /**
+     * @param string|null $displayName
+     */
+    public function setDisplayName($displayName): void
+    {
+        $this->displayName = $displayName;
     }
 
     /** @return string */
