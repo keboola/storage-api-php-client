@@ -8,6 +8,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
+use Keboola\StorageApi\Options\BucketOwnerUpdateOptions;
 use Keboola\StorageApi\Options\GlobalSearchOptions;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
@@ -1240,6 +1241,10 @@ class SharingTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
+        $token = $this->_client->verifyToken();
+
+        $ownerId = $token['adminOwner']['id'];
+
         // prepare bucket tables
         $tableId = $this->_client->createTableAsync(
             $bucketId,
@@ -1280,6 +1285,8 @@ class SharingTest extends StorageApiSharingTestCase
             'languages-alias',
         );
 
+        $this->_client->updateBucketOwner($bucketId, new BucketOwnerUpdateOptions($ownerId));
+
         $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
 
         // link
@@ -1315,6 +1322,8 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertEquals('in', $linkedBucket['stage']);
         $this->assertEquals($bucket['backend'], $linkedBucket['backend']);
         $this->assertEquals($bucket['description'], $linkedBucket['description']);
+        $this->assertEquals($bucket['owner']['id'], $linkedBucket['owner']['id']);
+        $this->assertEquals($bucket['owner']['name'], $linkedBucket['owner']['name']);
 
         $this->assertTablesMetadata($bucketId, $linkedBucketId);
 
