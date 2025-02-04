@@ -11,37 +11,34 @@ use Keboola\StorageApi\Exception;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
+use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\Test\Utils\EventsQueryBuilder;
 
-class CloneIntoWorkspaceTest extends WorkspacesTestCase
+class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
 {
-    const IMPORT_FILE_PATH = __DIR__ . '/../../_data/languages.csv';
+    private const IMPORT_FILE_PATH = __DIR__ . '/../../_data/languages.csv';
 
     /**
      * @dataProvider cloneProvider
-     * @param int $aliasNestingLevel
-     * @throws Exception
      */
-    public function testClone($aliasNestingLevel): void
+    public function testClone(int $aliasNestingLevel): void
     {
-        $this->initEvents($this->_client);
+        $this->initEvents($this->workspaceSapiClient);
 
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $sourceTableId = $this->createTableFromFile(
-            $this->_client,
+            $this->workspaceSapiClient,
             $bucketId,
             self::IMPORT_FILE_PATH,
         );
 
         $sourceTableId = $this->createTableAliasChain($sourceTableId, $aliasNestingLevel, 'languages');
 
-        $workspacesClient = new Workspaces($this->_client);
+        $workspacesClient = new Workspaces($this->workspaceSapiClient);
+        $workspace = $this->initTestWorkspace();
 
-        $workspace = $workspacesClient->createWorkspace([], true);
-
-        $runId = $this->_client->generateRunId();
-        $this->_client->setRunId($runId);
+        $runId = $this->workspaceSapiClient->generateRunId();
+        $this->workspaceSapiClient->setRunId($runId);
 
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
             'input' => [
@@ -71,10 +68,10 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             ->setTokenId($this->tokenId)
             ->setObjectId($sourceTableId)
             ->setRunId($runId);
-        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $this->assertEventWithRetries($this->workspaceSapiClient, $assertCallback, $query);
 
         // test that stats are generated
-        $stats = $this->_client->getStats((new \Keboola\StorageApi\Options\StatsOptions())->setRunId($runId));
+        $stats = $this->workspaceSapiClient->getStats((new \Keboola\StorageApi\Options\StatsOptions())->setRunId($runId));
         $this->assertSame(0, $stats['tables']['import']['totalCount']);
         $this->assertSame(1, $stats['tables']['export']['totalCount']);
         $this->assertCount(1, $stats['tables']['export']['tables']);
@@ -118,7 +115,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
             // try to import table from workspace
             // table languagesDetails has _timestamp column
             // but import still works
-            $this->_client->writeTableAsyncDirect(
+            $this->workspaceSapiClient->writeTableAsyncDirect(
                 $sourceTableId,
                 [
                     'dataWorkspaceId' => $workspace['id'],
@@ -161,7 +158,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         );
     }
 
-    public function cloneProvider()
+    public function cloneProvider(): array
     {
         return [
           'normal table' => [
@@ -179,20 +176,20 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
     public function testCloneMultipleTables(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
-        $table1Id = $this->_client->createTableAsync(
+        $table1Id = $this->workspaceSapiClient->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile(self::IMPORT_FILE_PATH),
         );
 
-        $table2Id = $this->_client->createTableAsync(
+        $table2Id = $this->workspaceSapiClient->createTableAsync(
             $bucketId,
             'rates',
             new CsvFile(__DIR__ . '/../../_data/rates.csv'),
         );
 
-        $workspacesClient = new Workspaces($this->_client);
-        $workspace = $workspacesClient->createWorkspace([], true);
+        $workspacesClient = new Workspaces($this->workspaceSapiClient);
+        $workspace = $this->initTestWorkspace();
 
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
            'input' => [
@@ -208,7 +205,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         ]);
 
         $actualJob = null;
-        foreach ($this->_client->listJobs() as $job) {
+        foreach ($this->workspaceSapiClient->listJobs() as $job) {
             if ($job['operationName'] === 'workspaceLoadClone') {
                 if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
                     $actualJob = $job;
@@ -233,20 +230,20 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
     {
         $sourceBucketId = $this->getTestBucketId();
         $sourceTableId = $this->createTableFromFile(
-            $this->_client,
+            $this->workspaceSapiClient,
             $sourceBucketId,
             self::IMPORT_FILE_PATH,
         );
 
-        $aliasTableId = $this->_client->createAliasTable(
+        $aliasTableId = $this->workspaceSapiClient->createAliasTable(
             $sourceBucketId,
             $sourceTableId,
             'aliased',
             $aliasSettings,
         );
 
-        $workspacesClient = new Workspaces($this->_client);
-        $workspace = $workspacesClient->createWorkspace([], true);
+        $workspacesClient = new Workspaces($this->workspaceSapiClient);
+        $workspace = $this->initTestWorkspace();
 
         $this->expectException(Exception::class);
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
@@ -263,13 +260,13 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
     {
         $sourceBucketId = $this->getTestBucketId();
         $sourceTableId = $this->createTableFromFile(
-            $this->_client,
+            $this->workspaceSapiClient,
             $sourceBucketId,
             self::IMPORT_FILE_PATH,
         );
 
-        $workspacesClient = new Workspaces($this->_client);
-        $workspace = $workspacesClient->createWorkspace([], true);
+        $workspacesClient = new Workspaces($this->workspaceSapiClient);
+        $workspace = $this->initTestWorkspace();
 
         // first load
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
@@ -300,13 +297,13 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
     {
         $sourceBucketId = $this->getTestBucketId();
         $sourceTableId = $this->createTableFromFile(
-            $this->_client,
+            $this->workspaceSapiClient,
             $sourceBucketId,
             self::IMPORT_FILE_PATH,
         );
 
-        $workspacesClient = new Workspaces($this->_client);
-        $workspace = $workspacesClient->createWorkspace([], true);
+        $workspacesClient = new Workspaces($this->workspaceSapiClient);
+        $workspace = $this->initTestWorkspace();
 
         // first load
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
@@ -342,40 +339,50 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
 
     public function testTableAlreadyExistsAndOverwrite(): void
     {
-        $workspaces = new Workspaces($this->_client);
-        $workspace = $workspaces->createWorkspace([], true);
+        $description = $this->generateDescriptionForTestObject();
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+        $workspace = $this->initTestWorkspace();
 
         $client2 = $this->getClientForToken(
             STORAGE_API_LINKING_TOKEN,
         );
 
         $tableId = $this->createTableFromFile(
-            $this->_client,
+            $this->workspaceSapiClient,
             $this->getTestBucketId(self::STAGE_IN),
             self::IMPORT_FILE_PATH,
         );
 
-        $this->dropBucketIfExists($this->_client, 'out.c-linked-bucket', true);
-        $this->dropBucketIfExists($client2, 'in.c-shared-bucket', true);
+        $testBucketName = $this->getTestBucketName($description, 'API-Shared');
+        $sharedBucket = $this->initEmptyBucket(
+            $testBucketName,
+            self::STAGE_IN,
+            $description,
+            $client2,
+        );
 
-        $bucket = $client2->createBucket('shared-bucket', 'in');
+        $this->dropBucketIfExists(
+            $this->_client,
+            self::STAGE_OUT . '.c-' . $testBucketName,
+            true,
+        );
 
         $this->createTableFromFile(
             $client2,
-            $bucket,
+            $sharedBucket,
             __DIR__ . '/../../_data/languages.more-rows.csv',
             'id',
             'languagesDetails2',
         );
 
-        $client2->shareBucket($bucket);
+        $client2->shareBucket($sharedBucket);
 
         $sourceProjectId = $client2->verifyToken()['owner']['id'];
         $linkedBucketId = $this->_client->linkBucket(
-            'linked-bucket',
-            'out',
+            $testBucketName,
+            self::STAGE_OUT,
             $sourceProjectId,
-            $bucket,
+            $sharedBucket,
         );
 
         // first load
@@ -449,8 +456,8 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
 
     public function testCloneWithWrongInput(): void
     {
-        $workspacesClient = new Workspaces($this->_client);
-        $workspace = $workspacesClient->createWorkspace([], true);
+        $workspacesClient = new Workspaces($this->workspaceSapiClient);
+        $workspace = $this->initTestWorkspace();
 
         try {
             $workspacesClient->cloneIntoWorkspace($workspace['id'], [
@@ -491,14 +498,14 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
     public function testQueueWorkspaceCloneInto(): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
-        $table1Id = $this->_client->createTableAsync(
+        $table1Id = $this->workspaceSapiClient->createTableAsync(
             $bucketId,
             'languages',
             new CsvFile(self::IMPORT_FILE_PATH),
         );
 
-        $workspacesClient = new Workspaces($this->_client);
-        $workspace = $workspacesClient->createWorkspace([], true);
+        $workspacesClient = new Workspaces($this->workspaceSapiClient);
+        $workspace = $this->initTestWorkspace();
 
         $options = [
             'input' => [
@@ -510,7 +517,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
         ];
 
         $jobId = $workspacesClient->queueWorkspaceCloneInto($workspace['id'], $options);
-        $job = $this->_client->getJob($jobId);
+        $job = $this->workspaceSapiClient->getJob($jobId);
 
         $this->assertEquals('workspaceLoadClone', $job['operationName']);
         $this->assertEquals($workspace['id'], $job['operationParams']['workspaceId']);
@@ -545,7 +552,7 @@ class CloneIntoWorkspaceTest extends WorkspacesTestCase
     {
         $i = 0;
         while ($i < $nestingLevel) {
-            $sourceTableId  = $this->_client->createAliasTable(
+            $sourceTableId  = $this->workspaceSapiClient->createAliasTable(
                 $this->getTestBucketId(self::STAGE_OUT),
                 $sourceTableId,
                 sprintf('%s-%s', $aliasNamePrefix, $i),
