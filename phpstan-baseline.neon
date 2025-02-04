@@ -4231,11 +4231,6 @@ parameters:
 			path: tests/Backend/Workspaces/MetadataFromSynapseWorkspaceTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\ParallelWorkspacesTestCase\\:\\:deleteOldTestWorkspaces\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/ParallelWorkspacesTestCase.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\ParallelWorkspacesTestCase\\:\\:listTestWorkspaces\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/ParallelWorkspacesTestCase.php
