@@ -205,7 +205,7 @@ class Client
         $handlerStack->push((RequestTimeoutMiddleware::factory()));
         $handlerStack->push(Middleware::log(
             $this->logger,
-            new MessageFormatter('{hostname} {req_header_User-Agent} - [{ts}] "{method} {resource} {protocol}/{version}" {code} {res_header_Content-Length}'),
+            new MessageFormatter('{hostname} {req_header_User-Agent} - [{ts}] "{method} {uri} {protocol}/{version}" {code} {res_header_Content-Length} {req_body}'),
             LogLevel::DEBUG,
         ));
         $this->client = new \GuzzleHttp\Client([
@@ -3043,10 +3043,12 @@ class Client
     {
         /** @var array{id: int, results: mixed} $job */
         $job = json_decode((string) $jobCreatedResponse->getBody(), true);
+        $this->log(sprintf('Job "%d" created. %s', $job['id'], json_encode($job)));
         $job = $this->waitForJob($job['id']);
         if ($job === null) {
             throw new ClientException('StorageJob expected');
         }
+        $this->log(sprintf('Job "%s" ends with "%s". %s', $job['id'], $job['status'], json_encode($job)));
         $this->handleJobError($job);
         return $job['results'];
     }
