@@ -95,7 +95,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $tokenInfo = $this->_client->verifyToken();
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
 
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace, false, 2);
 
         if ($workspaceWithSnowflakeBackend) {
             $db = $backend->getDb();
@@ -254,7 +254,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $tokenInfo = $this->_client->verifyToken();
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
 
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace, false, 2);
         $backend->dropTableIfExists('mytable');
 
         $backend->createTable('mytable', ['amount' => $this->getColumnAmountType($connection['backend'])]);
