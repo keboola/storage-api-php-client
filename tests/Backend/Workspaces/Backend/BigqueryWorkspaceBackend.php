@@ -36,7 +36,7 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
             'restRetryFunction' => Retry::getRestRetryFunction(new NullLogger()),
             'requestTimeout' => 120,
             'retries' => $retriesCount,
-        ], 'sapiTest');
+        ], 'sapitest');
 
         $this->bqClient = $bqClient;
         $this->schema = $workspace['connection']['schema'];

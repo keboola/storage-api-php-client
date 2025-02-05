@@ -156,7 +156,7 @@ trait WorkspaceConnectionTrait
             'restRetryFunction' => Retry::getRestRetryFunction(new NullLogger()),
             'requestTimeout' => 120,
             'retries' => 10,
-        ], 'sapiTest');
+        ], 'sapitest');
 
         $bqClient->runQuery(
             $bqClient->query('SELECT SESSION_USER() AS USER'),
