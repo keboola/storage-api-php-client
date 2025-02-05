@@ -1534,7 +1534,7 @@ SQL,
             'requestTimeout' => 120,
             'retries' => 10,
             'location' => $this->region,
-        ], 'sapiTest');
+        ], 'sapitest');
     }
 
     private function createExternalTable(WorkspaceBackend $db, string $schemaName): void
