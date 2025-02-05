@@ -608,7 +608,7 @@ class BucketsTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('storage.bucket.ownerNotFound', $e->getStringCode());
-            $this->assertSame("Owner of Bucket in.c-{$bucketName} not found", $e->getMessage());
+            $this->assertSame("Owner for bucket in.c-{$bucketName} in project {$token['owner']['id']} not found.", $e->getMessage());
         }
 
         $this->assertNull($bucket['updated']);
@@ -619,7 +619,7 @@ class BucketsTest extends StorageApiTestCase
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
             $this->assertSame('storage.bucket.ownerNotFound', $e->getStringCode());
-            $this->assertSame("Owner of Bucket in.c-{$bucketName} not found", $e->getMessage());
+            $this->assertSame("Owner 99999999 for bucket in.c-{$bucketName} in project {$token['owner']['id']} not found.", $e->getMessage());
         }
 
         $this->_testClient->updateBucketOwner($bucketId, new BucketOwnerUpdateOptions(id: $ownerId));
