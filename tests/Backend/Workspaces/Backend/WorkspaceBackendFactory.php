@@ -16,7 +16,7 @@ class WorkspaceBackendFactory
     /**
      * @param array<mixed> $workspace
      */
-    public static function createWorkspaceBackend(array $workspace, bool $useDBAL = false): WorkspaceBackend
+    public static function createWorkspaceBackend(array $workspace, bool $useDBAL = false, int $retriesCount = 10): WorkspaceBackend
     {
         switch ($workspace['connection']['backend']) {
             case StorageApiTestCase::BACKEND_REDSHIFT:
@@ -33,7 +33,7 @@ class WorkspaceBackendFactory
             case StorageApiTestCase::BACKEND_TERADATA:
                 return new TeradataWorkspaceBackend($workspace);
             case StorageApiTestCase::BACKEND_BIGQUERY:
-                return new BigqueryWorkspaceBackend($workspace);
+                return new BigqueryWorkspaceBackend($workspace, $retriesCount);
             default:
                 throw new Exception($workspace['connection']['backend'] . ' workspaces are not supported.');
         }
