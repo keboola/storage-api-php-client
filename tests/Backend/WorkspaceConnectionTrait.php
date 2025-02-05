@@ -3,6 +3,9 @@
 namespace Keboola\Test\Backend;
 
 use Google\Cloud\BigQuery\BigQueryClient;
+use Keboola\StorageDriver\BigQuery\CredentialsHelper;
+use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientWrapper;
+use Keboola\TableBackendUtils\Connection\Bigquery\Retry;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
 use Doctrine\DBAL\Connection as DBALConnection;
@@ -11,13 +14,14 @@ use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\Test\StorageApiTestCase;
+use Psr\Log\NullLogger;
 
 trait WorkspaceConnectionTrait
 {
     /**
      * @return SnowflakeConnection|DBALConnection|\PDO|BigQueryClient
      */
-    private function getDbConnection(array $connection)
+    private function getDbConnection(array $connection, bool $bigQueryShouldRetry401 = true)
     {
         switch ($connection['backend']) {
             case StorageApiTestCase::BACKEND_SNOWFLAKE:
@@ -31,7 +35,7 @@ trait WorkspaceConnectionTrait
             case StorageApiTestCase::BACKEND_TERADATA:
                 return $this->getDbConnectionTeradata($connection);
             case StorageApiTestCase::BACKEND_BIGQUERY:
-                return $this->getDbConnectionBigquery($connection);
+                return $this->getDbConnectionBigquery($connection, $bigQueryShouldRetry401);
         }
 
         throw new \Exception('Unsupported Backend for workspaces');
@@ -144,11 +148,15 @@ trait WorkspaceConnectionTrait
         return $db;
     }
 
-    private function getDbConnectionBigquery(array $connection): BigQueryClient
+    private function getDbConnectionBigquery(array $connection, bool $bigQueryShouldRetry401 = true): BigQueryClient
     {
-        $bqClient = new BigQueryClient([
+        // note: the close method is not used in this client
+        $bqClient = new BigQueryClientWrapper([
             'keyFile' => $connection['credentials'],
-        ]);
+            'restRetryFunction' => Retry::getRestRetryFunction(new NullLogger(), $bigQueryShouldRetry401),
+            'requestTimeout' => 120,
+            'retries' => 20,
+        ], 'sapitest');
 
         $bqClient->runQuery(
             $bqClient->query('SELECT SESSION_USER() AS USER'),

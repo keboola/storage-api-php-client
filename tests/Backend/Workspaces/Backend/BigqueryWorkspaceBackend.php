@@ -6,23 +6,23 @@ use Google\Cloud\BigQuery\BigQueryClient;
 use Google\Cloud\BigQuery\Dataset;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\StorageApi\Exception;
-use Keboola\StorageDriver\BigQuery\Client\BigQuery\Retry;
-use Keboola\StorageDriver\BigQuery\CredentialsHelper;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientWrapper;
+use Keboola\TableBackendUtils\Connection\Bigquery\Retry;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Schema\Bigquery\BigquerySchemaReflection;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\View\ViewReflectionInterface;
 use PDO;
+use Psr\Log\NullLogger;
 use Retry\Policy\SimpleRetryPolicy;
 use Retry\RetryProxy;
 
 class BigqueryWorkspaceBackend implements WorkspaceBackend
 {
-    private BigQueryClient $bqClient;
+    private BigQueryClientWrapper $bqClient;
 
     private string $schema;
 
@@ -33,11 +33,11 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
     {
         $bqClient = new BigQueryClientWrapper([
             'keyFile' => $workspace['connection']['credentials'],
+            'restRetryFunction' => Retry::getRestRetryFunction(new NullLogger(), true),
             'requestTimeout' => 120,
             'retries' => 20,
-        ]);
+        ], 'sapitest');
 
-        assert($bqClient instanceof BigQueryClient);
         $this->bqClient = $bqClient;
         $this->schema = $workspace['connection']['schema'];
     }
