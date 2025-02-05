@@ -353,7 +353,7 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
             self::IMPORT_FILE_PATH,
         );
 
-        $testBucketName = $this->getTestBucketName($description, 'API-Shared');
+        $testBucketName = $this->getTestBucketName($description, 'API-Shared-');
         $sharedBucket = $this->initEmptyBucket(
             $testBucketName,
             self::STAGE_IN,
