@@ -14,6 +14,7 @@ use Keboola\StorageApi\Options\GlobalSearchOptions;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
+use Keboola\StorageApi\Tokens;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
@@ -1343,6 +1344,23 @@ class SharingTest extends StorageApiSharingTestCase
         );
 
         $this->assertTablesMetadata($bucketId, $linkedBucketId);
+
+        // test update owner in share bucket propagate to linked bucket
+        $tokensClient = new Tokens($this->_client);
+        $tokens = $tokensClient->listTokens();
+        $newOwner = null;
+        foreach ($tokens as $otherToken) {
+            $otherAdmin = $otherToken['admin']['id'] ?? null;
+            if ($otherAdmin !== $ownerId) {
+                $newOwner = $otherAdmin;
+            }
+        }
+        $this->assertNotNull($newOwner, 'Fail to find other admin in project.');
+        $this->_client->updateBucketOwner($bucketId, new BucketOwnerUpdateOptions($newOwner));
+        $bucket = $this->_client->getBucket($bucketId);
+        $linkedBucket = $this->_client2->getBucket($linkedBucketId);
+        $this->assertEquals($bucket['owner']['id'], $linkedBucket['owner']['id']);
+        $this->assertEquals($bucket['owner']['name'], $linkedBucket['owner']['name']);
 
         // remove primary key
         $this->_client->removeTablePrimaryKey($tableId);
