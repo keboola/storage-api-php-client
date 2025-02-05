@@ -63,7 +63,7 @@ class BranchWorkspacesTest extends WorkspacesTest
         $tokenInfo = $this->_client->verifyToken();
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
 
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace, false, 2);
         $backend->createTable('mytable', ['amount' => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? 'NUMBER' : 'VARCHAR']);
 
         $tableNames = $backend->getTables();
@@ -124,7 +124,7 @@ class BranchWorkspacesTest extends WorkspacesTest
         $tokenInfo = $this->_client->verifyToken();
         $this->assertEquals($tokenInfo['owner']['defaultBackend'], $connection['backend']);
 
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace, false, 2);
         $backend->dropTableIfExists('mytable');
         $backend->createTable('mytable', ['amount' => ($connection['backend'] === self::BACKEND_SNOWFLAKE) ? 'NUMBER' : 'VARCHAR']);
 

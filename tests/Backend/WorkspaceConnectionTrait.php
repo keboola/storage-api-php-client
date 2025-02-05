@@ -3,6 +3,9 @@
 namespace Keboola\Test\Backend;
 
 use Google\Cloud\BigQuery\BigQueryClient;
+use Keboola\StorageDriver\BigQuery\CredentialsHelper;
+use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientWrapper;
+use Keboola\TableBackendUtils\Connection\Bigquery\Retry;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
 use Doctrine\DBAL\Connection as DBALConnection;
@@ -11,6 +14,7 @@ use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\Test\StorageApiTestCase;
+use Psr\Log\NullLogger;
 
 trait WorkspaceConnectionTrait
 {
@@ -146,9 +150,13 @@ trait WorkspaceConnectionTrait
 
     private function getDbConnectionBigquery(array $connection): BigQueryClient
     {
-        $bqClient = new BigQueryClient([
+        // note: the close method is not used in this client
+        $bqClient = new BigQueryClientWrapper([
             'keyFile' => $connection['credentials'],
-        ]);
+            'restRetryFunction' => Retry::getRestRetryFunction(new NullLogger()),
+            'requestTimeout' => 120,
+            'retries' => 10,
+        ], 'sapiTest');
 
         $bqClient->runQuery(
             $bqClient->query('SELECT SESSION_USER() AS USER'),
