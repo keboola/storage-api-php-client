@@ -8,10 +8,13 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
+use Keboola\StorageApi\Options\BucketOwnerUpdateOptions;
+use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\GlobalSearchOptions;
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
+use Keboola\StorageApi\Tokens;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
@@ -1240,6 +1243,10 @@ class SharingTest extends StorageApiSharingTestCase
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
+        $token = $this->_client->verifyToken();
+
+        $ownerId = $token['adminOwner']['id'];
+
         // prepare bucket tables
         $tableId = $this->_client->createTableAsync(
             $bucketId,
@@ -1280,6 +1287,11 @@ class SharingTest extends StorageApiSharingTestCase
             'languages-alias',
         );
 
+        $bucketUpdate = new BucketUpdateOptions($bucketId);
+        $bucketUpdate->setColor('red');
+        $this->_client->updateBucket($bucketUpdate);
+        $this->_client->updateBucketOwner($bucketId, new BucketOwnerUpdateOptions($ownerId));
+
         $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
 
         // link
@@ -1315,6 +1327,9 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertEquals('in', $linkedBucket['stage']);
         $this->assertEquals($bucket['backend'], $linkedBucket['backend']);
         $this->assertEquals($bucket['description'], $linkedBucket['description']);
+        $this->assertEquals($bucket['owner']['id'], $linkedBucket['owner']['id']);
+        $this->assertEquals($bucket['owner']['name'], $linkedBucket['owner']['name']);
+        $this->assertEquals($bucket['color'], $linkedBucket['color']);
 
         $this->assertTablesMetadata($bucketId, $linkedBucketId);
 
@@ -1329,6 +1344,23 @@ class SharingTest extends StorageApiSharingTestCase
         );
 
         $this->assertTablesMetadata($bucketId, $linkedBucketId);
+
+        // test update owner in share bucket propagate to linked bucket
+        $tokensClient = new Tokens($this->_client);
+        $tokens = $tokensClient->listTokens();
+        $newOwner = null;
+        foreach ($tokens as $otherToken) {
+            $otherAdmin = $otherToken['admin']['id'] ?? null;
+            if ($otherAdmin !== $ownerId) {
+                $newOwner = $otherAdmin;
+            }
+        }
+        $this->assertNotNull($newOwner, 'Fail to find other admin in project.');
+        $this->_client->updateBucketOwner($bucketId, new BucketOwnerUpdateOptions($newOwner));
+        $bucket = $this->_client->getBucket($bucketId);
+        $linkedBucket = $this->_client2->getBucket($linkedBucketId);
+        $this->assertEquals($bucket['owner']['id'], $linkedBucket['owner']['id']);
+        $this->assertEquals($bucket['owner']['name'], $linkedBucket['owner']['name']);
 
         // remove primary key
         $this->_client->removeTablePrimaryKey($tableId);

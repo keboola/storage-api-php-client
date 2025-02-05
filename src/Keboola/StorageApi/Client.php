@@ -371,10 +371,11 @@ class Client
      * @param string $stage bucket stage
      * @param string $description bucket description
      * @param string|null $displayName name that will be displayed in the UI - can be changed
+     * @param string|null $color bucket color
      *
      * @return string bucket Id
      */
-    public function createBucket($name, $stage, $description = '', $backend = null, $displayName = null)
+    public function createBucket($name, $stage, $description = '', $backend = null, $displayName = null, $color = null)
     {
         $options = [
             'name' => $name,
@@ -388,6 +389,10 @@ class Client
 
         if ($displayName) {
             $options['displayName'] = $displayName;
+        }
+
+        if ($color) {
+            $options['color'] = $color;
         }
 
         $bucketId = $this->getBucketId($name, $stage);
