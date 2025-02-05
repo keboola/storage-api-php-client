@@ -61,13 +61,9 @@ abstract class StorageApiTestCase extends ClientTestCase
     /** @var Tokens */
     protected $tokens;
 
-    /**
-     * @param $testName
-     * @return string
-     */
-    public function getTestBucketName($testName)
+    public function getTestBucketName(string $testName, string $prefix = 'API-tests-'): string
     {
-        return sprintf('API-tests-' . sha1($testName));
+        return $prefix . sha1($testName);
     }
 
     /**
