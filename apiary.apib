@@ -1006,7 +1006,8 @@ All buckets are returned.
                         "id": 123,
                         "name": "Jan Developer"
                     },
-                    "updated": "2024-11-28T13:03:13+0100"
+                    "updated": "2024-11-28T13:03:13+0100",
+                    "color": null
                 },
                 {
                     "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-organizationData",
@@ -1028,7 +1029,8 @@ All buckets are returned.
                         }
                     },
                     "owner": null,
-                    "updated": "2024-11-28T13:03:13+0100"
+                    "updated": "2024-11-28T13:03:13+0100",
+                    "color": "#FF0000"
                 }
             ]
 
@@ -1050,6 +1052,7 @@ existing bucket from another project (see below).
             + redshift
             + bigquery
     + displayName (optional) - Bucket displayName, this name is displayed in UI and can be changed anytime; only alphanumeric characters,underscores and dashes are allowed.
+    + color (optional) - Bucket color. Accept valid CSS values for colors.
 
 + Request (application/json)
     + Headers
@@ -1086,7 +1089,8 @@ existing bucket from another project (see below).
                 "databaseName": null,
                 "path": "database_name.c-my-new-bucket",
                 "sharing": null,
-                "updated": "2024-11-28T13:03:13+0100"
+                "updated": "2024-11-28T13:03:13+0100",
+                "color": null
             }
 
 ### Link Shared Bucket [POST /v2/storage/buckets?async={async}]
@@ -1363,6 +1367,7 @@ Update an existing bucket
 
 + Attributes
     + displayName (required, string) - Bucket displayName, this name is displayed in UI and can be changed anytime; only alphanumeric characters,underscores and dashes are allowed.
+    + color (optional) - Bucket color. Accept valid CSS values for colors.
 
 + Request (application/json)
     + Headers
@@ -1372,7 +1377,8 @@ Update an existing bucket
     + Body
 
             {
-                "displayName": "my-display-name-for-bucket"
+                "displayName": "my-display-name-for-bucket",
+                "color": "#00FF00"
             }
 
 + Response 200 (application/json)
@@ -1397,7 +1403,8 @@ Synchronous call response (async=false)
                 "backend": "snowflake",
                 "sharing": null,
                 "owner": null,
-                "updated": "2024-11-28T13:03:13+0100"
+                "updated": "2024-11-28T13:03:13+0100",
+                "color": "#00FF00"
             }
 + Response 202
 Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)

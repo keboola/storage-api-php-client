@@ -106,13 +106,14 @@ class BucketsTest extends StorageApiTestCase
 
         $tokenData = $this->_testClient->verifyToken();
         $this->dropBucketIfExists($this->_testClient, 'in.c-' . $bucketName, true);
-        $bucketId = $this->_testClient->createBucket($bucketName, self::STAGE_IN);
+        $bucketId = $this->_testClient->createBucket(name: $bucketName, stage: self::STAGE_IN, color: '#00FF00');
 
         $bucket = $this->_testClient->getBucket($bucketId);
         $this->assertEquals($branch['id'], $bucket['idBranch']);
 
         $this->assertEquals($tokenData['owner']['defaultBackend'], $bucket['backend']);
         $this->assertNotEquals($displayName, $bucket['displayName']);
+        $this->assertEquals('#00FF00', $bucket['color']);
 
         $this->assertArrayHasKey('metadata', $bucket);
         $this->assertSame([], $bucket['metadata']);
@@ -138,12 +139,15 @@ class BucketsTest extends StorageApiTestCase
 
         $asyncBucketDisplayName = $displayName . '-async';
         $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $asyncBucketDisplayName, true);
+        $bucketUpdateOptions->setColor('red');
         $this->_testClient->updateBucket($bucketUpdateOptions);
 
         $bucket = $this->_testClient->getBucket($bucketId);
         $this->assertEquals($asyncBucketDisplayName, $bucket['displayName']);
+        $this->assertEquals('red', $bucket['color']);
 
         $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $displayName);
+        $bucketUpdateOptions->deleteColor();
         $bucket = $this->_testClient->updateBucket($bucketUpdateOptions);
         try {
             $this->_testClient->createBucket($displayName, self::STAGE_IN);
@@ -153,6 +157,7 @@ class BucketsTest extends StorageApiTestCase
         }
 
         $this->assertEquals($displayName, $bucket['displayName']);
+        $this->assertEquals(null, $bucket['color']);
 
         $bucketUpdateOptions = new BucketUpdateOptions($this->getTestBucketId(), $displayName);
         try {
