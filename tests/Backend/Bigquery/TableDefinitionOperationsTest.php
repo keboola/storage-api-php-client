@@ -200,7 +200,7 @@ class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
                 new BigqueryColumn('geography', new Bigquery('GEOGRAPHY')),
                 new BigqueryColumn('json', new Bigquery('JSON')),
             ]),
-        )));
+        )), BigqueryWorkspaceBackend::addOptionRetry([]));
         $backend->executeQuery(sprintf(
         /** @lang BigQuery */
             '
@@ -1262,6 +1262,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
                     $dataset,
                 ),
             ),
+            BigqueryWorkspaceBackend::addOptionRetry([]),
         );
         $client->runQuery(
             $client->query(
@@ -1270,6 +1271,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
                     $dataset,
                 ),
             ),
+            BigqueryWorkspaceBackend::addOptionRetry([]),
         );
 
         try {
@@ -1389,7 +1391,7 @@ INSERT INTO %s.`test_Languages3` (`id`, `struct`, `bytes`, `geography`, `json`) 
                 new BigqueryColumn('id', new Bigquery('INT64')),
                 new BigqueryColumn('price', new Bigquery('STRING')),
             ]),
-        )));
+        )), BigqueryWorkspaceBackend::addOptionRetry([]));
         $backend->executeQuery(sprintf(
         /** @lang BigQuery */
             '
