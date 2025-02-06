@@ -1329,6 +1329,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertEquals($bucket['description'], $linkedBucket['description']);
         $this->assertEquals($bucket['owner']['id'], $linkedBucket['owner']['id']);
         $this->assertEquals($bucket['owner']['name'], $linkedBucket['owner']['name']);
+        $this->assertEquals($bucket['owner']['email'], $linkedBucket['owner']['email']);
         $this->assertEquals($bucket['color'], $linkedBucket['color']);
 
         $this->assertTablesMetadata($bucketId, $linkedBucketId);
@@ -1361,6 +1362,7 @@ class SharingTest extends StorageApiSharingTestCase
         $linkedBucket = $this->_client2->getBucket($linkedBucketId);
         $this->assertEquals($bucket['owner']['id'], $linkedBucket['owner']['id']);
         $this->assertEquals($bucket['owner']['name'], $linkedBucket['owner']['name']);
+        $this->assertEquals($bucket['owner']['email'], $linkedBucket['owner']['email']);
 
         // remove primary key
         $this->_client->removeTablePrimaryKey($tableId);
