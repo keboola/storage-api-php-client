@@ -29,13 +29,13 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
     /**
      * @param array $workspace
      */
-    public function __construct(array $workspace, int $retriesCount)
+    public function __construct(array $workspace)
     {
         $bqClient = new BigQueryClientWrapper([
             'keyFile' => $workspace['connection']['credentials'],
             'restRetryFunction' => Retry::getRestRetryFunction(new NullLogger()),
             'requestTimeout' => 120,
-            'retries' => $retriesCount,
+            'retries' => 20,
         ], 'sapitest');
 
         $this->bqClient = $bqClient;

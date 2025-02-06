@@ -21,7 +21,7 @@ trait WorkspaceConnectionTrait
     /**
      * @return SnowflakeConnection|DBALConnection|\PDO|BigQueryClient
      */
-    private function getDbConnection(array $connection)
+    private function getDbConnection(array $connection, int $retriesCount = 20)
     {
         switch ($connection['backend']) {
             case StorageApiTestCase::BACKEND_SNOWFLAKE:
@@ -35,7 +35,7 @@ trait WorkspaceConnectionTrait
             case StorageApiTestCase::BACKEND_TERADATA:
                 return $this->getDbConnectionTeradata($connection);
             case StorageApiTestCase::BACKEND_BIGQUERY:
-                return $this->getDbConnectionBigquery($connection);
+                return $this->getDbConnectionBigquery($connection, $retriesCount);
         }
 
         throw new \Exception('Unsupported Backend for workspaces');
@@ -148,14 +148,14 @@ trait WorkspaceConnectionTrait
         return $db;
     }
 
-    private function getDbConnectionBigquery(array $connection): BigQueryClient
+    private function getDbConnectionBigquery(array $connection, int $retriesCount): BigQueryClient
     {
         // note: the close method is not used in this client
         $bqClient = new BigQueryClientWrapper([
             'keyFile' => $connection['credentials'],
             'restRetryFunction' => Retry::getRestRetryFunction(new NullLogger()),
             'requestTimeout' => 120,
-            'retries' => 10,
+            'retries' => $retriesCount,
         ], 'sapitest');
 
         $bqClient->runQuery(
