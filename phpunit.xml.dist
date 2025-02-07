@@ -256,11 +256,6 @@
 
 		<directory>tests/Backend/CommonPart1</directory>
 		<exclude>tests/Backend/CommonPart1/TimeTravelTest.php</exclude>
-		<!--		TD does not support TWC-->
-		<exclude>tests/Backend/CommonPart1/TableWithConfigurationLoadFromWorkspaceTest.php</exclude>
-		<exclude>tests/Backend/CommonPart1/TableWithConfigurationLoadTest.php</exclude>
-		<exclude>tests/Backend/CommonPart1/CreateTableWithConfigurationTest.php</exclude>
-		<exclude>tests/Backend/CommonPart1/MigrateTableWithConfigurationTest.php</exclude>
 	</testsuite>
 
 	<testsuite name="paratest-teradata-part-2">
@@ -281,9 +276,6 @@
 	<testsuite name="paratest-bigquery">
 
 		<directory>tests/Backend/CommonPart1</directory>
-		<!--		BQ does not support TWC-->
-		<exclude>tests/Backend/CommonPart1/CreateTableWithConfigurationTest.php</exclude>
-		<exclude>tests/Backend/CommonPart1/MigrateTableWithConfigurationTest.php</exclude>
 		<exclude>tests/Backend/CommonPart1/RegisterBucketTest.php</exclude>
 
 		<directory>tests/Backend/CommonPart2</directory>
