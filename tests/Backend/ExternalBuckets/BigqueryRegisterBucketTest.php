@@ -18,6 +18,7 @@ use Keboola\StorageApi\Options\GlobalSearchOptions;
 use Keboola\StorageApi\TableExporter;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientWrapper;
+use Keboola\TableBackendUtils\Connection\Bigquery\Retry;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
@@ -25,6 +26,7 @@ use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\ClientProvider\TestSetupHelper;
 use Keboola\Test\Utils\EventsQueryBuilder;
 use LogicException;
+use Psr\Log\NullLogger;
 
 // Tests for registering an external bucket that contains different types of tables.
 // Available table types https://cloud.google.com/bigquery/docs/information-schema-tables#schema:
@@ -1528,10 +1530,11 @@ SQL,
     {
         return new BigQueryClientWrapper([
             'keyFile' => $externalCredentials,
+            'restRetryFunction' => Retry::getRestRetryFunction(new NullLogger(), true),
             'requestTimeout' => 120,
-            'retries' => 20,
+            'retries' => 10,
             'location' => $this->region,
-        ]);
+        ], 'sapitest');
     }
 
     private function createExternalTable(WorkspaceBackend $db, string $schemaName): void

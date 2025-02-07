@@ -23,7 +23,7 @@ trait WorkspaceCredentialsAssertTrait
         try {
             $proxy = new RetryProxy($retryPolicy, new ExponentialBackOffPolicy());
             $proxy->call(function () use ($connection) {
-                $this->getDbConnection($connection);
+                $this->getDbConnection($connection, false);
                 throw new \Exception(self::$RETRY_FAIL_MESSAGE);
             });
         } catch (\Doctrine\DBAL\Driver\Exception $e) {
