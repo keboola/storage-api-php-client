@@ -829,6 +829,9 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertArrayHasKey('id', $sharedBucket['sharedBy']);
         $this->assertArrayHasKey('name', $sharedBucket['sharedBy']);
 
+        $this->assertArrayHasKey('color', $sharedBucket);
+        $this->assertArrayHasKey('owner', $sharedBucket);
+
         $this->assertEquals(
             $verifyTokenResponse['id'],
             $sharedBucket['sharedBy']['id'],
@@ -1299,6 +1302,11 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertCount(1, $response);
 
         $sharedBucket = reset($response);
+
+        $bucket = $this->_client->getBucket($bucketId);
+        $this->assertEquals($bucket['owner']['id'], $sharedBucket['owner']['id']);
+        $this->assertEquals($bucket['owner']['name'], $sharedBucket['owner']['name']);
+        $this->assertEquals($bucket['color'], $sharedBucket['color']);
 
         $hashedUniqueTableName = sha1('linked-'.$this->generateDescriptionForTestObject());
 
