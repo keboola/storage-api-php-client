@@ -11,6 +11,7 @@ namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\StorageApi\Options\TokenAbstractOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
+use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Client;
 use Keboola\Csv\CsvFile;
@@ -208,5 +209,28 @@ class ExportParamsTest extends StorageApiTestCase
 
         $file = $client->getFile($results['file']['id']);
         Client::parseCsv(file_get_contents($file['url']), false);
+    }
+
+
+    public function testExportWithInternalTimestampColumn(): void
+    {
+        $this->allowTestForBackendsOnly([
+            self::BACKEND_SNOWFLAKE,
+        ]);
+        $downloadPath = $this->getExportFilePathForTest('languages.sliced.csv');
+        $filePath = __DIR__ . '/../../_data/languages.csv';
+        $importFile = new CsvFile($filePath);
+
+        $tableId = $this->_client->createTableAsync($this->getTestBucketId(), 'exportWithTimestamp', $importFile);
+
+        $exporter = new TableExporter($this->_client);
+        $exporter->exportTable($tableId, $downloadPath, [
+            'includeInternalTimestamp' => true,
+        ]);
+
+        // compare data
+        $this->assertFileExists($downloadPath);
+        $exportFile = new CsvFile($downloadPath);
+        $this->assertSame(['id','name','_timestamp'], $exportFile->getHeader());
     }
 }
