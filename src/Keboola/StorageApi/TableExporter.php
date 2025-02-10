@@ -96,6 +96,10 @@ class TableExporter
                 $columns = $table['columns'];
             }
 
+            if (array_key_exists('includeInternalTimestamp', $exportOptions) && $exportOptions['includeInternalTimestamp']) {
+                $columns[] = '_timestamp';
+            }
+
             $header = $enclosure . join($enclosure . $delimiter . $enclosure, $columns) . $enclosure . "\n";
             $fs->dumpFile($destination . '.tmp', $header);
 
