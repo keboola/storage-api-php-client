@@ -1532,7 +1532,7 @@ SQL,
             'keyFile' => $externalCredentials,
             'restRetryFunction' => Retry::getRestRetryFunction(new NullLogger(), true),
             'requestTimeout' => 120,
-            'retries' => 10,
+            'retries' => 20,
             'location' => $this->region,
         ], 'sapitest');
     }
