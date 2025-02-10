@@ -3,6 +3,7 @@
 namespace Keboola\Test\Backend;
 
 use Google\Cloud\BigQuery\BigQueryClient;
+use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientWrapper;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
 use Doctrine\DBAL\Connection as DBALConnection;
@@ -10,6 +11,7 @@ use Keboola\Db\Import\Snowflake\Connection as SnowflakeConnection;
 use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
+use Keboola\Test\Backend\Workspaces\Backend\BigqueryWorkspaceBackend;
 use Keboola\Test\StorageApiTestCase;
 
 trait WorkspaceConnectionTrait
@@ -146,12 +148,13 @@ trait WorkspaceConnectionTrait
 
     private function getDbConnectionBigquery(array $connection): BigQueryClient
     {
-        $bqClient = new BigQueryClient([
+        $bqClient = new BigQueryClientWrapper([
             'keyFile' => $connection['credentials'],
         ]);
 
         $bqClient->runQuery(
             $bqClient->query('SELECT SESSION_USER() AS USER'),
+            BigqueryWorkspaceBackend::addOptionRetry([]),
         )->getIterator()->current();
 
         return $bqClient;
