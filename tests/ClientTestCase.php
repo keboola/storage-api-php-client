@@ -139,12 +139,7 @@ class ClientTestCase extends TestCase
         return $this->getClient($this->getClientOptionsForToken($token));
     }
 
-    /**
-     * @param string $token
-     * @param string $url
-     * @return string
-     */
-    protected function buildUserAgentString($token, $url)
+    protected function buildUserAgentString(string $token, string $url): string
     {
         $testSuiteName = '';
         if (SUITE_NAME) {
