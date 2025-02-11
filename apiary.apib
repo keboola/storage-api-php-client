@@ -3248,6 +3248,7 @@ Further information can be found in the [Developers Documentation](https://devel
     + withoutHeaders (optional, boolean) - Indicates that the CSV file does not have header row. The columns in the CSV file must be in the same order as the columns in the table in storage. Use the 'columns' option to specify the column order.
     + ignoredLinesCount (optional, number) - Number of lines to skip at the beginning of the file. If ignoredLinesCount is specified, the withoutHeaders option will be ignored.
     + treatValuesAsNull (optional, array[string]) - (Snowflake and BigQuery only) Array of string values that should be imported as NULL values. The default value is `['']`. Some other common values you might consider are `'\N'` or `'null'`. **Currently only single value is allowed**, but it still must be sent as array to allow future expansion.
+    + overwriteInternalTimestamp (optional, boolean) - (Snowflake only) If `overwriteInternalTimestamp` is `true`, it is required for input csv file to contain `_timestamp` column with valid datetime values.
 
         Specific behavior of BigQuery:
 

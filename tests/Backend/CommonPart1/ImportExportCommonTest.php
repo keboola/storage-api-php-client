@@ -13,12 +13,12 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
+use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
 class ImportExportCommonTest extends StorageApiTestCase
 {
-
     public function setUp(): void
     {
         parent::setUp();
@@ -972,5 +972,132 @@ END,
         $this->assertCount(1, $arrayWithFrenchRowOnly);
         // CSV will not return null, but an empty string - but importantly, not the word "french"
         $this->assertSame('', $arrayWithFrenchRowOnly[0]['name']);
+    }
+
+    public function testImportFileWithTimestampColumn(): void
+    {
+        $this->allowTestForBackendsOnly([
+            self::BACKEND_SNOWFLAKE,
+        ]);
+
+        $tableId = $this->_client->createTableDefinition(
+            $this->getTestBucketId(),
+            [
+                'name' => 'import_with_timestamp',
+                'primaryKeysNames' => [],
+                'columns' => [
+                    [
+                        'name' => 'id',
+                        'definition' => [
+                            'type' => 'INTEGER',
+                        ],
+                    ],
+                    [
+                        'name' => 'name',
+                        'definition' => [
+                            'type' => 'STRING',
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        // do import with _timestamp present in columns
+        $inputCsv = new CsvFile(__DIR__ . '/../../_data/languages.with-timestamp.csv');
+        $inputWithoutHeader = new CsvFile(__DIR__ . '/../../_data/languages.with-timestamp.no-header.csv');
+        $this->_client->writeTableAsync(
+            $tableId,
+            $inputCsv,
+            [
+                'incremental' => false,
+                'ignoredLinesCount' => 1,
+                'columns' => ['id', 'name', '_timestamp'],
+                'overwriteInternalTimestamp' => true,
+            ],
+        );
+        $this->assertTableContentWithTimestamp($tableId, $inputCsv);
+
+        // do import with _timestamp not present in columns
+        // _timestamp column is added automatically
+        $this->_client->writeTableAsync(
+            $tableId,
+            $inputCsv,
+            [
+                'incremental' => false,
+                'ignoredLinesCount' => 1,
+                'columns' => ['id', 'name'],
+                'overwriteInternalTimestamp' => true,
+            ],
+        );
+        $this->assertTableContentWithTimestamp($tableId, $inputCsv);
+
+        // do import without columns
+        $this->_client->writeTableAsync(
+            $tableId,
+            $inputCsv,
+            [
+                'incremental' => false,
+                'ignoredLinesCount' => 1,
+                'columns' => ['id', 'name'],
+                'overwriteInternalTimestamp' => true,
+            ],
+        );
+        $this->assertTableContentWithTimestamp($tableId, $inputCsv);
+
+        // withoutHeaders without columns
+        $this->_client->writeTableAsync(
+            $tableId,
+            $inputWithoutHeader,
+            [
+                'incremental' => false,
+                'withoutHeaders' => true,
+                'overwriteInternalTimestamp' => true,
+            ],
+        );
+        $this->assertTableContentWithTimestamp($tableId, $inputCsv);
+
+        // withoutHeaders with columns including _timestamp
+        $this->_client->writeTableAsync(
+            $tableId,
+            $inputWithoutHeader,
+            [
+                'incremental' => false,
+                'withoutHeaders' => true,
+                'columns' => ['id', 'name', '_timestamp'],
+                'overwriteInternalTimestamp' => true,
+            ],
+        );
+        $this->assertTableContentWithTimestamp($tableId, $inputCsv);
+
+        // withoutHeaders with columns without _timestamp
+        $this->_client->writeTableAsync(
+            $tableId,
+            $inputWithoutHeader,
+            [
+                'incremental' => false,
+                'withoutHeaders' => true,
+                'columns' => ['id', 'name'],
+                'overwriteInternalTimestamp' => true,
+            ],
+        );
+        $this->assertTableContentWithTimestamp($tableId, $inputCsv);
+    }
+
+    private function assertTableContentWithTimestamp(string $tableId, CsvFile $inputCsv): void
+    {
+        $downloadPath = $this->getExportFilePathForTest('languages.with-timestamp.csv');
+        $exporter = new TableExporter($this->_client);
+        $exporter->exportTable($tableId, $downloadPath, [
+            'includeInternalTimestamp' => true,
+        ]);
+        $this->assertFileExists($downloadPath);
+        $exportFile = new CsvFile($downloadPath);
+        $this->assertSame(['id', 'name', '_timestamp'], $exportFile->getHeader());
+
+        $this->assertArraySameSorted(
+            iterator_to_array($inputCsv),
+            iterator_to_array($exportFile),
+            0,
+        );
     }
 }
