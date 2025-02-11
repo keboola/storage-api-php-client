@@ -204,6 +204,9 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $testBucketName = $this->getTestBucketName($description);
         $bucketId = self::STAGE_IN . '.' . $testBucketName;
 
+        $token = $this->_client->verifyToken();
+        $projectId = $token['owner']['id'];
+
         $this->dropBucketIfExists($this->_testClient, $bucketId, true);
 
         // prepare external bucket
@@ -250,7 +253,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             $this->fail('should fail');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
-            $this->assertSame(sprintf('Bucket %s not found', $idOfBucket), $e->getMessage());
+            $this->assertSame(sprintf('The bucket "%s" was not found in the project "%s"', $idOfBucket, $projectId), $e->getMessage());
         }
     }
 
