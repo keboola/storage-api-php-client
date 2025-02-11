@@ -13,6 +13,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
+use Keboola\StorageApi\TableExporter;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Csv\CsvFile;
 
@@ -972,5 +973,62 @@ END,
         $this->assertCount(1, $arrayWithFrenchRowOnly);
         // CSV will not return null, but an empty string - but importantly, not the word "french"
         $this->assertSame('', $arrayWithFrenchRowOnly[0]['name']);
+    }
+
+    public function testImportFileWithTimestampColumn(): void
+    {
+        $this->allowTestForBackendsOnly([
+            self::BACKEND_SNOWFLAKE,
+        ]);
+
+        $tableId = $this->_client->createTableDefinition(
+            $this->getTestBucketId(),
+            [
+                'name' => 'import_with_timestamp',
+                'primaryKeysNames' => [],
+                'columns' => [
+                    [
+                        'name' => 'id',
+                        'definition' => [
+                            'type' => 'INTEGER',
+                        ],
+                    ],
+                    [
+                        'name' => 'name',
+                        'definition' => [
+                            'type' => 'STRING',
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        // do import with _timestamp
+        $this->_client->writeTableAsync(
+            $tableId,
+            new CsvFile(__DIR__ . '/../../_data/languages.with-timestamp.csv'),
+            [
+                'incremental' => false,
+                'ignoredLinesCount' => 1,
+                'columns' => ['id', 'name', '_timestamp'],
+                'overwriteInternalTimestamp' => true,
+            ],
+        );
+
+        // export and test data
+        $downloadPath = $this->getExportFilePathForTest('languages.with-timestamp.csv');
+        $exporter = new TableExporter($this->_client);
+        $exporter->exportTable($tableId, $downloadPath, [
+            'includeInternalTimestamp' => true,
+        ]);
+        $this->assertFileExists($downloadPath);
+        $exportFile = new CsvFile($downloadPath);
+        $this->assertSame(['id','name','_timestamp'], $exportFile->getHeader());
+        /**
+         * @var array{id:int,name:string,_timestamp:string} $row
+         */
+        foreach ($exportFile as $row) {
+            $this->assertSame('2025-01-01 00:00:00', $row['_timestamp']);
+        }
     }
 }
