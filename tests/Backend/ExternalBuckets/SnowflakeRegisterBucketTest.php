@@ -1150,6 +1150,9 @@ SQL,
         $this->dropBucketIfExists($this->_testClient, 'in.test-bucket-registration', true);
         $this->initEvents($this->_testClient);
 
+        $token = $this->_client->verifyToken();
+        $projectId = $token['owner']['id'];
+
         $ws = new Workspaces($this->_testClient);
         // prepare workspace
         $workspace = $ws->createWorkspace();
@@ -1205,7 +1208,7 @@ SQL,
             $this->fail('should fail');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
-            $this->assertSame(sprintf('Bucket %s not found', $idOfBucket), $e->getMessage());
+            $this->assertSame(sprintf('The bucket "%s" was not found in the project "%s"', $idOfBucket, $projectId), $e->getMessage());
         }
     }
     /**
