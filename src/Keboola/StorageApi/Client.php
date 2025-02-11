@@ -1462,6 +1462,7 @@ class Client
             'columns',
             'treatValuesAsNull',
             'ignoredLinesCount',
+            'overwriteInternalTimestamp',
         ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
