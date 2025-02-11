@@ -69,6 +69,9 @@ class ShareTest extends StorageApiTestCase
             $sharedBucket['id'],
         );
 
+        $tokenInOtherProject = $clientInOtherProject->verifyToken();
+        $projectIdInOtherProject = $tokenInOtherProject['owner']['id'];
+
         $linkedBucket = $clientInOtherProject->getBucket($linkedBucketId);
         $this->assertSame($linkedBucketId, $linkedBucket['id']);
 
@@ -80,7 +83,7 @@ class ShareTest extends StorageApiTestCase
             $this->fail('Bucket should not exist');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
-            $this->assertSame(sprintf('Bucket %s not found', $linkedBucketId), $e->getMessage());
+            $this->assertSame(sprintf('The bucket "%s" was not found in the project "%s"', $linkedBucketId, $projectIdInOtherProject), $e->getMessage());
         }
 
         $linkedBucketId = $clientInOtherProject->linkBucket(
@@ -100,7 +103,7 @@ class ShareTest extends StorageApiTestCase
             $this->fail('Bucket should not exist');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
-            $this->assertSame(sprintf('Bucket %s not found', $linkedBucketId), $e->getMessage());
+            $this->assertSame(sprintf('The bucket "%s" was not found in the project "%s"', $linkedBucketId, $projectIdInOtherProject), $e->getMessage());
         }
 
         // test PM can unshare bucket
