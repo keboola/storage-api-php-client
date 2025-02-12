@@ -3670,7 +3670,7 @@ will show information about the created file and caching:
     + whereFilters (optional, array[WhereFiltersObject])
     + orderBy (optional, array[OrderByObject]) - Not supported for Redshift
     + gzip (optional, boolean) - The response will be gzipped if set to true.
-    + includeInternalTimestamp (optional, boolean) - Include internal _timestamp column in the exported data. This is timestamp of row last change. (Available only for Snowflake)
+    + includeInternalTimestamp (optional, boolean) - Include internal _timestamp column in the exported data (column is included even when not in columns list). This is timestamp of row last change. (Available only for Snowflake)
 
 + Request (application/json)
     + Headers
