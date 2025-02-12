@@ -1012,7 +1012,7 @@ END,
                 'incremental' => false,
                 'ignoredLinesCount' => 1,
                 'columns' => ['id', 'name', '_timestamp'],
-                'overwriteInternalTimestamp' => true,
+                'useTimestampFromDataFile' => true,
             ],
         );
         $this->assertTableContentWithTimestamp($tableId, $inputCsv);
@@ -1026,7 +1026,7 @@ END,
                 'incremental' => false,
                 'ignoredLinesCount' => 1,
                 'columns' => ['id', 'name'],
-                'overwriteInternalTimestamp' => true,
+                'useTimestampFromDataFile' => true,
             ],
         );
         $this->assertTableContentWithTimestamp($tableId, $inputCsv);
@@ -1039,7 +1039,7 @@ END,
                 'incremental' => false,
                 'ignoredLinesCount' => 1,
                 'columns' => ['id', 'name'],
-                'overwriteInternalTimestamp' => true,
+                'useTimestampFromDataFile' => true,
             ],
         );
         $this->assertTableContentWithTimestamp($tableId, $inputCsv);
@@ -1051,7 +1051,7 @@ END,
             [
                 'incremental' => false,
                 'withoutHeaders' => true,
-                'overwriteInternalTimestamp' => true,
+                'useTimestampFromDataFile' => true,
             ],
         );
         $this->assertTableContentWithTimestamp($tableId, $inputCsv);
@@ -1064,7 +1064,7 @@ END,
                 'incremental' => false,
                 'withoutHeaders' => true,
                 'columns' => ['id', 'name', '_timestamp'],
-                'overwriteInternalTimestamp' => true,
+                'useTimestampFromDataFile' => true,
             ],
         );
         $this->assertTableContentWithTimestamp($tableId, $inputCsv);
@@ -1077,7 +1077,7 @@ END,
                 'incremental' => false,
                 'withoutHeaders' => true,
                 'columns' => ['id', 'name'],
-                'overwriteInternalTimestamp' => true,
+                'useTimestampFromDataFile' => true,
             ],
         );
         $this->assertTableContentWithTimestamp($tableId, $inputCsv);
