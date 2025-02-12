@@ -1216,7 +1216,11 @@ SQL,
      */
     public function testDropBucketWhenSchemaDoesNotExist(): void
     {
-        $this->dropBucketIfExists($this->_testClient, 'in.test-bucket-registration', true);
+        $bucketStage = self::STAGE_IN;
+        $bucketName = 'test-bucket-registration';
+        $bucketId = 'in.test-bucket-registration';
+
+        $this->dropBucketIfExists($this->_testClient, $bucketId, true);
         $this->initEvents($this->_testClient);
 
         $ws = new Workspaces($this->_testClient);
@@ -1230,9 +1234,9 @@ SQL,
         $runId = $this->setRunId();
         $this->_testClient->setRunId($runId);
         $idOfBucket = $this->_testClient->registerBucket(
-            'test-bucket-registration',
+            $bucketName,
             [$workspace['connection']['database'], $workspace['connection']['schema']],
-            'in',
+            $bucketStage,
             'Iam in workspace',
             'snowflake',
             'Iam-your-workspace',
@@ -1252,8 +1256,11 @@ SQL,
 
         $this->_testClient->dropBucket($idOfBucket, ['force' => true]);
 
+        $token = $this->_testClient->verifyToken();
+        $projectId = $token['owner']['id'];
+
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Bucket in.test-bucket-registration not found');
+        $this->expectExceptionMessage(sprintf('The bucket "%s" was not found in the project "%s"', $bucketId, $projectId));
         $this->_testClient->getBucket($idOfBucket);
     }
     /**
