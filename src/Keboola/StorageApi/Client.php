@@ -1462,7 +1462,7 @@ class Client
             'columns',
             'treatValuesAsNull',
             'ignoredLinesCount',
-            'useProvidedTimestamp',
+            'useTimestampFromDataFile',
         ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
