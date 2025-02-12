@@ -958,8 +958,10 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 
         $ws = new Workspaces($testClient);
         $workspace = $ws->createWorkspace();
+        $wsDb = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $wsDb->createTable('CLONE_TEST', ['AMOUNT' => 'INT', 'DESCRIPTION' => 'STRING']);
 
-        // try failing load
+        // clone from external bucket
         try {
             $ws->cloneIntoWorkspace(
                 $workspace['id'],
@@ -967,7 +969,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
                     'input' => [
                         [
                             'source' => $tables[0]['id'],
-                            'destination' => 'test',
+                            'destination' => 'CLONE_TEST',
                         ],
                     ],
                 ],
@@ -981,6 +983,9 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             );
         }
 
+        $wsDb->createTable('LOAD_TEST', ['AMOUNT' => 'INT', 'DESCRIPTION' => 'STRING']);
+
+        // load from external bucket
         try {
             $ws->loadWorkspaceData(
                 $workspace['id'],
@@ -988,20 +993,16 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
                     'input' => [
                         [
                             'source' => $tables[1]['id'],
-                            'destination' => 'test',
+                            'destination' => 'LOAD_TEST',
                         ],
                     ],
                 ],
             );
             $this->fail('Should fail');
         } catch (ClientException $e) {
-            $this->assertSame('workspace.tableCannotBeLoaded', $e->getStringCode());
+            $this->assertSame('APPLICATION_ERROR', $e->getStringCode());
             $this->assertStringContainsString(
-                sprintf(
-                    'Table "%s" is part of external bucket "%s.MY_VIEW" and cannot be loaded into workspace.',
-                    $testBucketName,
-                    $bucketId,
-                ),
+                'Backend "bigquery" does not support: "Other types of loading than view".',
                 $e->getMessage(),
             );
         }
