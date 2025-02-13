@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Backend\Snowflake;
 
 use Generator;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
@@ -98,5 +99,47 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
         $query->setEvent('storage.workspaceDeleted')->setRunId($runId);
         $this->assertEventWithRetries($this->workspaceSapiClient, $assertCallback, $query);
         $this->assertCredentialsShouldNotWork($connection);
+    }
+
+    public function testWorkspaceWithSsoLoginType(): void
+    {
+        $this->initEvents($this->workspaceSapiClient);
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+        $this->workspaceSapiClient->setRunId($runId);
+
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+        $options = [
+            'loginType' => 'snowflake-person-sso',
+            'backend' => 'snowflake',
+        ];
+        $this->deleteOldTestWorkspaces($this->_client);
+        // we cannot use createWorkspace method as it is calling reset password directly
+        // which is not allowed for SSO login type
+        $jobId = $workspaces->queueCreateWorkspace($options);
+        $job = $this->_client->waitForJob($jobId);
+        $this->assertNotNull($job);
+        /**
+         * @var array{connection: array<mixed>, backend: string, loginType:string, id: int} $workspace
+         */
+        $workspace = $job['results'];
+
+        /** @var array $connection */
+        $connection = $workspace['connection'];
+        $this->assertSame('snowflake', $connection['backend']);
+        $this->assertSame('snowflake-person-sso', $connection['loginType']);
+        $this->assertArrayNotHasKey('password', $connection);
+
+        // we are not testing working connection as there is no way to connect than SSO
+
+        try {
+            // try reset password
+            $workspaces->resetWorkspacePassword($workspace['id']);
+            $this->fail('Password reset should not be supported for SSO login type');
+        } catch (ClientException $e) {
+            $this->assertSame($e->getCode(), 400);
+            $this->assertSame('workspace.resetPasswordNotSupported', $e->getStringCode());
+        }
     }
 }
