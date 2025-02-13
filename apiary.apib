@@ -8600,7 +8600,8 @@ Creates a new workspace for an existing configuration in [Development Branch](#r
     + loginType: (optional, enum[string]) - Request credentials type for new workspace. backend attribute is required when loginType is set.
         + Members
             + default
-            + snowflake-legacy-service
+            + snowflake-legacy-service - LEGACY_SERVICE type user is created with password
+            + snowflake-person-sso - PERSON type user is created without password, login is possible only from Keboola Connection UI
 
 + Request (application/json)
     + Headers
