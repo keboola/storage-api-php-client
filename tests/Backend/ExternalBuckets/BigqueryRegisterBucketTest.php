@@ -959,9 +959,28 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
         $ws = new Workspaces($testClient);
         $workspace = $ws->createWorkspace();
         $wsDb = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-        $wsDb->createTable('CLONE_TEST', ['AMOUNT' => 'INT', 'DESCRIPTION' => 'STRING']);
+
+        // test view-IM for BQ
+        $ws->loadWorkspaceData(
+            $workspace['id'],
+            [
+                'input' => [
+                    [
+                        'source' => $tables[0]['id'],
+                        'destination' => 'VIEW_TEST',
+                        'useView' => true,
+                    ],
+                ],
+            ],
+        );
+        $schemaRef = $wsDb->getSchemaReflection();
+        $views = $schemaRef->getViewsNames();
+        $this->assertCount(1, $views);
+        $this->assertContains('VIEW_TEST', $views);
+        $this->assertCount(1, $wsDb->fetchAll('VIEW_TEST'));
 
         // clone from external bucket
+        $wsDb->createTable('CLONE_TEST', ['AMOUNT' => 'INT', 'DESCRIPTION' => 'STRING']);
         try {
             $ws->cloneIntoWorkspace(
                 $workspace['id'],
@@ -983,9 +1002,8 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             );
         }
 
-        $wsDb->createTable('LOAD_TEST', ['AMOUNT' => 'INT', 'DESCRIPTION' => 'STRING']);
-
         // load from external bucket
+        $wsDb->createTable('LOAD_TEST', ['AMOUNT' => 'INT', 'DESCRIPTION' => 'STRING']);
         try {
             $ws->loadWorkspaceData(
                 $workspace['id'],
