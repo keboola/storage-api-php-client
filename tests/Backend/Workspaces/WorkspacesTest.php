@@ -6,6 +6,7 @@ use Generator;
 use Google\Cloud\Core\Exception\ServiceException;
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\WorkspaceLoginType;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
@@ -192,7 +193,7 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $tokenInfo = $this->_client->verifyToken();
         $workspace = $workspaces->createWorkspace([
             'backend' => $tokenInfo['owner']['defaultBackend'],
-            'loginType' => 'default',
+            'loginType' => WorkspaceLoginType::DEFAULT,
         ], true);
         /** @var array $connection */
         $connection = $workspace['connection'];
