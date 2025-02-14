@@ -5021,6 +5021,11 @@ Creates a new workspace and return its credentials.
                 + system
                 + user
     + readOnlyStorageAccess: (optional, boolean) - Allows read only access to all objects in Storage.
+    + loginType: (optional, enum[string]) - Request credentials type for new workspace. backend attribute is required when loginType is set.
+        + Members
+            + default
+            + `snowflake-legacy-service` - LEGACY_SERVICE type user is created with password
+            + `snowflake-person-sso` - PERSON type user is created without password, login is possible only from Keboola Connection UI
 
 + Request (application/json)
     + Headers
@@ -5098,6 +5103,11 @@ Creates a new workspace for [Development Branch](#reference/development-branches
                 + system
                 + user
     + readOnlyStorageAccess: (optional, boolean) - Allows read only access to all objects in Storage.
+    + loginType: (optional, enum[string]) - Request credentials type for new workspace. backend attribute is required when loginType is set.
+        + Members
+            + default
+            + `snowflake-legacy-service` - LEGACY_SERVICE type user is created with password
+            + `snowflake-person-sso` - PERSON type user is created without password, login is possible only from Keboola Connection UI
 
 + Request (application/json)
     + Headers
@@ -8600,8 +8610,8 @@ Creates a new workspace for an existing configuration in [Development Branch](#r
     + loginType: (optional, enum[string]) - Request credentials type for new workspace. backend attribute is required when loginType is set.
         + Members
             + default
-            + snowflake-legacy-service - LEGACY_SERVICE type user is created with password
-            + snowflake-person-sso - PERSON type user is created without password, login is possible only from Keboola Connection UI
+            + `snowflake-legacy-service` - LEGACY_SERVICE type user is created with password
+            + `snowflake-person-sso` - PERSON type user is created without password, login is possible only from Keboola Connection UI
 
 + Request (application/json)
     + Headers
