@@ -112,18 +112,8 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $options = [
             'loginType' => 'snowflake-person-sso',
-            'backend' => 'snowflake',
         ];
-        $this->deleteOldTestWorkspaces($this->_client);
-        // we cannot use createWorkspace method as it is calling reset password directly
-        // which is not allowed for SSO login type
-        $jobId = $workspaces->queueCreateWorkspace($options);
-        $job = $this->_client->waitForJob($jobId);
-        $this->assertNotNull($job);
-        /**
-         * @var array{connection: array<mixed>, backend: string, loginType:string, id: int} $workspace
-         */
-        $workspace = $job['results'];
+        $workspace = $this->initTestWorkspace('snowflake', $options, true, true);
 
         /** @var array $connection */
         $connection = $workspace['connection'];
