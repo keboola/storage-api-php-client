@@ -6,6 +6,7 @@ namespace Backend\Snowflake;
 
 use Generator;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\WorkspaceLoginType;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
@@ -36,12 +37,12 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
             yield 'default ' . $name => [
                 'loginType' => null,
                 'async' => $syncAsync['async'],
-                'expectedLoginType' => 'snowflake-legacy-service',
+                'expectedLoginType' => WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD->value,
             ];
             yield 'legacy login type ' . $name => [
-                'loginType' => 'snowflake-legacy-service',
+                'loginType' => WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD,
                 'async' => $syncAsync['async'],
-                'expectedLoginType' => 'snowflake-legacy-service',
+                'expectedLoginType' => WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD->value,
             ];
         }
     }
@@ -49,7 +50,7 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
     /**
      * @dataProvider createWorkspaceProvider
      */
-    public function testWorkspaceCreate(string|null $loginType, bool $async, string $expectedLoginType): void
+    public function testWorkspaceCreate(WorkspaceLoginType|null $loginType, bool $async, string $expectedLoginType): void
     {
         $this->initEvents($this->workspaceSapiClient);
 
@@ -111,7 +112,7 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $options = [
-            'loginType' => 'snowflake-person-sso',
+            'loginType' => WorkspaceLoginType::SNOWFLAKE_PERSON_SSO,
         ];
         $workspace = $this->initTestWorkspace('snowflake', $options, true, true);
 

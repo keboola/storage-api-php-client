@@ -44,7 +44,7 @@ namespace Keboola\StorageApi;
  * @phpstan-type CreateWorkspaceOptions array{
  *      backend?: string,
  *      backendSize?: string,
- *      loginType?: string,
+ *      loginType?: WorkspaceLoginType,
  *      networkPolicy?: string,
  *      readOnlyStorageAccess?: bool,
  *  }
@@ -71,7 +71,7 @@ class Workspaces
         $workspaceResponse = $this->internalCreateWorkspace($async, $options, true);
         assert(is_array($workspaceResponse));
 
-        if (array_key_exists('loginType', $options) && $options['loginType'] === 'snowflake-person-sso') {
+        if (array_key_exists('loginType', $options) && $options['loginType'] === WorkspaceLoginType::SNOWFLAKE_PERSON_SSO) {
             // when sso login is created there is no password and reset is forbidden
             return $workspaceResponse;
         }
