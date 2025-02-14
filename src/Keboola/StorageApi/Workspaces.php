@@ -71,6 +71,10 @@ class Workspaces
         $workspaceResponse = $this->internalCreateWorkspace($async, $options, true);
         assert(is_array($workspaceResponse));
 
+        if (array_key_exists('loginType', $options) && $options['loginType'] === 'snowflake-person-sso') {
+            // when sso login is created there is no password and reset is forbidden
+            return $workspaceResponse;
+        }
         $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
         return Workspaces::addCredentialsToWorkspaceResponse($workspaceResponse, $resetPasswordResponse);
     }
