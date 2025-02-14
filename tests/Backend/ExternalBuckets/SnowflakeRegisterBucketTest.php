@@ -515,6 +515,10 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             ],
         );
 
+        $destinationTableData = $destinationDb->fetchAll('CLONE_TEST');
+        $this->assertCount(2, $destinationTableData[0]);
+        $this->assertEquals(['test', null], $destinationTableData[0]);
+
         // drop destination workspace
         $ws->deleteWorkspace($destinationWorkspace['id']);
         // drop external bucket
