@@ -1,10 +1,3 @@
-FROM quay.io/keboola/aws-cli
-ARG AWS_SECRET_ACCESS_KEY
-ARG AWS_ACCESS_KEY_ID
-ARG AWS_SESSION_TOKEN
-RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/tdodbc1710-17.10.00.08-1.x86_64.deb /tmp/teradata/tdodbc.deb
-RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/utils/TeradataToolsAndUtilitiesBase__ubuntu_x8664.17.00.34.00.tar.gz  /tmp/teradata/tdutils.tar.gz
-
 ARG PHP_VERSION=8.1
 # the default env bellow is used when build pipeline sends "PHP_VERSION=" - the above default value is ignored in that case
 FROM php:${PHP_VERSION:-8.1}-cli-buster as dev
@@ -93,38 +86,6 @@ RUN set -ex; \
     docker-php-ext-enable sqlsrv pdo_sqlsrv; \
     docker-php-source delete
 
-# Exasol
-RUN set -ex; \
-    mkdir -p /tmp/exasol/odbc /opt/exasol ;\
-    curl https://x-up.s3.amazonaws.com/7.x/7.1.10/EXASOL_ODBC-7.1.10.tar.gz --output /tmp/exasol/odbc.tar.gz; \
-    tar -xzf /tmp/exasol/odbc.tar.gz -C /tmp/exasol/odbc --strip-components 1; \
-    cp /tmp/exasol/odbc/lib/linux/x86_64/libexaodbc-uo2214lv2.so /opt/exasol/;\
-    echo "\n[exasol]\nDriver=/opt/exasol/libexaodbc-uo2214lv2.so\n" >> /etc/odbcinst.ini;\
-    rm -rf /tmp/exasol;
-
-# Teradata
-# Teradata ODBC
-COPY --from=0 /tmp/teradata/tdodbc.deb /tmp/teradata/tdodbc.deb
-COPY docker/teradata/odbc.ini /tmp/teradata/odbc_td.ini
-COPY docker/teradata/odbcinst.ini /tmp/teradata/odbcinst_td.ini
-
-RUN dpkg -i /tmp/teradata/tdodbc.deb \
-    && cat /tmp/teradata/odbc_td.ini >> /etc/odbc.ini \
-    && cat /tmp/teradata/odbcinst_td.ini >> /etc/odbcinst.ini \
-    && rm -rf /tmp/teradata
-
-ENV ODBCHOME = /opt/teradata/client/ODBC_64/
-ENV ODBCINI = /opt/teradata/client/ODBC_64/odbc.ini
-ENV ODBCINST = /opt/teradata/client/ODBC_64/odbcinst.ini
-ENV LD_LIBRARY_PATH = /opt/teradata/client/ODBC_64/lib
-
-# Teradata Utils
-COPY --from=0 /tmp/teradata/tdutils.tar.gz /tmp/teradata/tdutils.tar.gz
-RUN cd /tmp/teradata \
-    && tar -xvaf tdutils.tar.gz \
-    && sh /tmp/teradata/TeradataToolsAndUtilitiesBase/.setup.sh tptbase s3axsmod \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /tmp/teradata
 
 # PHP modules
 # needed for Exasol and Teradata
