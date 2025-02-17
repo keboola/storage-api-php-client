@@ -265,7 +265,7 @@ class Client
      * API index with available components list
      * @return array
      */
-    public function indexAction(IndexOptions $options = null)
+    public function indexAction(?IndexOptions $options = null)
     {
         $url = '';
 
@@ -1896,8 +1896,11 @@ class Client
      * @return int - created file id
      * @throws ClientException
      */
-    public function uploadFile($filePath, FileUploadOptions $options, FileUploadTransferOptions $transferOptions = null)
-    {
+    public function uploadFile(
+        $filePath,
+        FileUploadOptions $options,
+        ?FileUploadTransferOptions $transferOptions = null,
+    ) {
         if (!is_readable($filePath)) {
             throw new ClientException('File is not readable: ' . $filePath, null, null, 'fileNotReadable');
         }
@@ -2039,7 +2042,7 @@ class Client
         array $prepareResult,
         $filePath,
         FileUploadOptions $newOptions,
-        FileUploadTransferOptions $transferOptions = null
+        ?FileUploadTransferOptions $transferOptions = null
     ) {
         $uploadParams = $prepareResult['uploadParams'];
         $s3options = [
@@ -2095,8 +2098,11 @@ class Client
      * @return int created file id
      * @throws ClientException
      */
-    public function uploadSlicedFile(array $slices, FileUploadOptions $options, FileUploadTransferOptions $transferOptions = null)
-    {
+    public function uploadSlicedFile(
+        array $slices,
+        FileUploadOptions $options,
+        ?FileUploadTransferOptions $transferOptions = null,
+    ) {
         if (!$options->getIsSliced()) {
             throw new ClientException('File is not sliced.');
         }
@@ -2213,7 +2219,7 @@ class Client
         array $preparedFileResult,
         array $slices,
         FileUploadOptions $newOptions,
-        FileUploadTransferOptions $transferOptions = null
+        ?FileUploadTransferOptions $transferOptions = null
     ) {
         $uploadParams = $preparedFileResult['uploadParams'];
         $options = [
@@ -2281,7 +2287,7 @@ class Client
         array $preparedFileResult,
         array $slices,
         FileUploadOptions $newOptions,
-        FileUploadTransferOptions $transferOptions = null
+        ?FileUploadTransferOptions $transferOptions = null,
     ): void {
         $uploadParams = $preparedFileResult['gcsUploadParams'];
         $refreshCallableWrapper = new RefreshFileCredentialsWrapper($this, $preparedFileResult['id']);
@@ -2306,7 +2312,7 @@ class Client
         );
     }
 
-    public function downloadFile($fileId, $destination, GetFileOptions $getOptions = null)
+    public function downloadFile($fileId, $destination, ?GetFileOptions $getOptions = null)
     {
         $getOptions = ($getOptions)? $getOptions : new GetFileOptions();
         $getOptions->setFederationToken(true);
@@ -2637,7 +2643,7 @@ class Client
      * @param string|int $fileId
      * @return array
      */
-    public function getFile($fileId, GetFileOptions $options = null)
+    public function getFile($fileId, ?GetFileOptions $options = null)
     {
         if (empty($fileId)) {
             throw new ClientException('File id cannot be empty');
@@ -2665,10 +2671,9 @@ class Client
     /**
      * List files
      *
-     * @param ListFilesOptions $options
      * @return array
      */
-    public function listFiles(ListFilesOptions $options = null)
+    public function listFiles(?ListFilesOptions $options = null)
     {
         return $this->apiGet('files?' . http_build_query($options ? $options->toArray() : []));
     }
@@ -3419,7 +3424,7 @@ class Client
                 $this->creds = $creds;
             }
 
-            public function fetchAuthToken(callable $httpHandler = null)
+            public function fetchAuthToken(?callable $httpHandler = null)
             {
                 return $this->creds;
             }

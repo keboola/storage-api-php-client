@@ -32,8 +32,8 @@ class GCSUploader
     public function __construct(
         array $options,
         RefreshFileCredentialsWrapper $refreshFileCredentialsWrapper,
-        LoggerInterface $logger = null,
-        FileUploadTransferOptions $transferOptions = null
+        ?LoggerInterface $logger = null,
+        ?FileUploadTransferOptions $transferOptions = null
     ) {
         $this->gcsClient = $this->initClient($options);
         $this->refreshFileCredentialsWrapper = $refreshFileCredentialsWrapper;
@@ -235,7 +235,7 @@ class GCSUploader
                 $this->creds = $creds;
             }
 
-            public function fetchAuthToken(callable $httpHandler = null)
+            public function fetchAuthToken(?callable $httpHandler = null)
             {
                 return $this->creds;
             }
