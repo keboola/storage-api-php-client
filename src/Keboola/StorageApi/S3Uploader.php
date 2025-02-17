@@ -35,7 +35,7 @@ class S3Uploader
      * @param S3Client $s3Client
      * @param FileUploadTransferOptions|null $transferOptions
      */
-    public function __construct(S3Client $s3Client, FileUploadTransferOptions $transferOptions = null, LoggerInterface $logger = null)
+    public function __construct(S3Client $s3Client, ?FileUploadTransferOptions $transferOptions = null, ?LoggerInterface $logger = null)
     {
         $this->s3Client = $s3Client;
         if (!$transferOptions) {
@@ -200,7 +200,7 @@ class S3Uploader
         $concurrency,
         $encryption = null,
         $name = null,
-        UploadState $state = null
+        ?UploadState $state = null
     ) {
         $uploaderOptions = [
             'Bucket' => $bucket,

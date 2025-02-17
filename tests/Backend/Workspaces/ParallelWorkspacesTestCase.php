@@ -44,7 +44,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         array $options = [],
         bool $forceRecreate = false,
         bool $async = true,
-        Client $client = null
+        ?Client $client = null
     ): array {
         if ($backend) {
             $options['backend'] = $backend;
@@ -76,7 +76,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         return $workspaces->createWorkspace($options, $async);
     }
 
-    protected function deleteOldTestWorkspaces(Client $client = null): void
+    protected function deleteOldTestWorkspaces(?Client $client = null): void
     {
         if ($client === null) {
             $client = $this->_client;

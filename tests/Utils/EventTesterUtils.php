@@ -31,7 +31,7 @@ trait EventTesterUtils
      * @return array
      * @throws \Exception
      */
-    public function createAndWaitForEvent(Event $event, Client $sapiClient = null)
+    public function createAndWaitForEvent(Event $event, ?Client $sapiClient = null)
     {
         // @phpstan-ignore property.notFound
         $client = null !== $sapiClient ? $sapiClient : $this->_client;
@@ -78,7 +78,7 @@ trait EventTesterUtils
     /**
      * @return mixed
      */
-    protected function retryWithCallback(callable $apiCall, callable $callback = null)
+    protected function retryWithCallback(callable $apiCall, ?callable $callback = null)
     {
         sleep(2); // wait for ES to refresh
         $retryPolicy = new SimpleRetryPolicy(30);

@@ -143,7 +143,7 @@ abstract class StorageApiTestCase extends ClientTestCase
      * @param $stage
      * @return string
      */
-    protected function initEmptyBucket($name, $stage, $description, Client $client = null)
+    protected function initEmptyBucket($name, $stage, $description, ?Client $client = null)
     {
         if (!$client) {
             $client = $this->_client;
@@ -205,7 +205,7 @@ abstract class StorageApiTestCase extends ClientTestCase
         }
     }
 
-    protected function initEmptyBucketWithDescription(string $stage, Client $client = null): string
+    protected function initEmptyBucketWithDescription(string $stage, ?Client $client = null): string
     {
         $description = $this->generateDescriptionForTestObject();
         $bucketName = $this->getTestBucketName($description);
@@ -459,7 +459,7 @@ abstract class StorageApiTestCase extends ClientTestCase
      * @return array
      * @throws \Exception
      */
-    protected function createWithFormDataAndWaitForEvent(Event $event, Client $sapiClient = null)
+    protected function createWithFormDataAndWaitForEvent(Event $event, ?Client $sapiClient = null)
     {
         $client = null !== $sapiClient ? $sapiClient : $this->_client;
 
@@ -481,7 +481,7 @@ abstract class StorageApiTestCase extends ClientTestCase
         }
     }
 
-    protected function createAndWaitForFile($path, FileUploadOptions $options, Client $sapiClient = null)
+    protected function createAndWaitForFile($path, FileUploadOptions $options, ?Client $sapiClient = null)
     {
         $client = $sapiClient ? $sapiClient : $this->_client;
 
@@ -514,7 +514,7 @@ abstract class StorageApiTestCase extends ClientTestCase
         }
     }
 
-    protected function createTableWithRandomData($tableName, $rows = 5, $columns = 10, $charsInCell = 20, string $bucketId = null)
+    protected function createTableWithRandomData($tableName, $rows = 5, $columns = 10, $charsInCell = 20, ?string $bucketId = null)
     {
         if ($bucketId === null) {
             $bucketId = $this->getTestBucketId();
@@ -846,7 +846,7 @@ abstract class StorageApiTestCase extends ClientTestCase
                 $this->creds = $creds;
             }
 
-            public function fetchAuthToken(callable $httpHandler = null)
+            public function fetchAuthToken(?callable $httpHandler = null)
             {
                 return $this->creds;
             }

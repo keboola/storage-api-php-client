@@ -55,7 +55,7 @@ final class HandlerStack
         return function (
             $retries,
             RequestInterface $request,
-            ResponseInterface $response = null,
+            ?ResponseInterface $response = null,
             $error = null
         ) use (
             $maxRetries,
