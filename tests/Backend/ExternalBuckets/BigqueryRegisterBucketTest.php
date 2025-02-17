@@ -958,8 +958,29 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
 
         $ws = new Workspaces($testClient);
         $workspace = $ws->createWorkspace();
+        $wsDb = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        // try failing load
+        // test view-IM for BQ
+        $ws->loadWorkspaceData(
+            $workspace['id'],
+            [
+                'input' => [
+                    [
+                        'source' => $tables[0]['id'],
+                        'destination' => 'VIEW_TEST',
+                        'useView' => true,
+                    ],
+                ],
+            ],
+        );
+        $schemaRef = $wsDb->getSchemaReflection();
+        $views = $schemaRef->getViewsNames();
+        $this->assertCount(1, $views);
+        $this->assertContains('VIEW_TEST', $views);
+        $this->assertCount(1, $wsDb->fetchAll('VIEW_TEST'));
+
+        // clone from external bucket
+        $wsDb->createTable('CLONE_TEST', ['AMOUNT' => 'INT', 'DESCRIPTION' => 'STRING']);
         try {
             $ws->cloneIntoWorkspace(
                 $workspace['id'],
@@ -967,7 +988,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
                     'input' => [
                         [
                             'source' => $tables[0]['id'],
-                            'destination' => 'test',
+                            'destination' => 'CLONE_TEST',
                         ],
                     ],
                 ],
@@ -981,6 +1002,8 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             );
         }
 
+        // load from external bucket
+        $wsDb->createTable('LOAD_TEST', ['AMOUNT' => 'INT', 'DESCRIPTION' => 'STRING']);
         try {
             $ws->loadWorkspaceData(
                 $workspace['id'],
@@ -988,20 +1011,16 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
                     'input' => [
                         [
                             'source' => $tables[1]['id'],
-                            'destination' => 'test',
+                            'destination' => 'LOAD_TEST',
                         ],
                     ],
                 ],
             );
             $this->fail('Should fail');
         } catch (ClientException $e) {
-            $this->assertSame('workspace.tableCannotBeLoaded', $e->getStringCode());
+            $this->assertSame('APPLICATION_ERROR', $e->getStringCode());
             $this->assertStringContainsString(
-                sprintf(
-                    'Table "%s" is part of external bucket "%s.MY_VIEW" and cannot be loaded into workspace.',
-                    $testBucketName,
-                    $bucketId,
-                ),
+                'Backend "bigquery" does not support: "Other types of loading than view".',
                 $e->getMessage(),
             );
         }

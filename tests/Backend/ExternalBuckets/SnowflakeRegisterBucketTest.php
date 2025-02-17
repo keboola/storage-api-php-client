@@ -479,49 +479,48 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             $tableDetail['columnMetadata']['XXX'],
         );
 
-        // try failing load
-        try {
-            $ws->cloneIntoWorkspace(
-                $workspace['id'],
-                [
-                    'input' => [
-                        [
-                            'source' => $tables[0]['id'],
-                            'destination' => 'test',
-                        ],
+        $destinationWorkspace = $ws->createWorkspace();
+        $destinationDb = WorkspaceBackendFactory::createWorkspaceBackend($destinationWorkspace);
+        $destinationDb->createTable('DESTINATION_TEST', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
+
+        // clone from external bucket
+        $ws->cloneIntoWorkspace(
+            $destinationWorkspace['id'],
+            [
+                'input' => [
+                    [
+                        'source' => $tables[0]['id'],
+                        'destination' => 'DESTINATION_TEST',
                     ],
                 ],
-            );
-            $this->fail('Should fail');
-        } catch (ClientException $e) {
-            $this->assertSame('workspace.tableCannotBeLoaded', $e->getStringCode());
-            $this->assertSame(
-                'Table "test-bucket-registration" is part of external bucket "in.test-bucket-registration.TEST" and cannot be loaded into workspace.',
-                $e->getMessage(),
-            );
-        }
+            ],
+        );
 
-        try {
-            $ws->loadWorkspaceData(
-                $workspace['id'],
-                [
-                    'input' => [
-                        [
-                            'source' => $tables[0]['id'],
-                            'destination' => 'test',
-                        ],
+        // test cloned data
+        $destinationTableData = $destinationDb->fetchAll('DESTINATION_TEST');
+        $this->assertCount(2, $destinationTableData[0]);
+        $this->assertEquals(['test', null], $destinationTableData[0]);
+
+        // load from external bucket
+        $destinationDb->createTable('CLONE_TEST', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
+        $ws->loadWorkspaceData(
+            $destinationWorkspace['id'],
+            [
+                'input' => [
+                    [
+                        'source' => $tables[0]['id'],
+                        'destination' => 'CLONE_TEST',
                     ],
                 ],
-            );
-            $this->fail('Should fail');
-        } catch (ClientException $e) {
-            $this->assertSame('workspace.tableCannotBeLoaded', $e->getStringCode());
-            $this->assertSame(
-                'Table "test-bucket-registration" is part of external bucket "in.test-bucket-registration.TEST" and cannot be loaded into workspace.',
-                $e->getMessage(),
-            );
-        }
+            ],
+        );
 
+        $destinationTableData = $destinationDb->fetchAll('CLONE_TEST');
+        $this->assertCount(2, $destinationTableData[0]);
+        $this->assertEquals(['test', null], $destinationTableData[0]);
+
+        // drop destination workspace
+        $ws->deleteWorkspace($destinationWorkspace['id']);
         // drop external bucket
         $this->_testClient->dropBucket($idOfBucket, ['force' => true]);
     }
