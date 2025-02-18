@@ -165,10 +165,6 @@
 		<directory>tests/Backend/MixedSnowflakeExasol</directory>
 	</testsuite>
 
-	<testsuite name="backend-mixed-teradata">
-		<directory>tests/Backend/MixedSnowflakeTeradata</directory>
-	</testsuite>
-
 	<testsuite name="backend-mixed-bigquery">
 		<directory>tests/Backend/MixedSnowflakeBigquery</directory>
 	</testsuite>
@@ -250,27 +246,6 @@
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<!--Exasol override-->
 		<directory>tests/Backend/Exasol</directory>
-	</testsuite>
-
-	<testsuite name="paratest-teradata-part-1">
-
-		<directory>tests/Backend/CommonPart1</directory>
-		<exclude>tests/Backend/CommonPart1/TimeTravelTest.php</exclude>
-	</testsuite>
-
-	<testsuite name="paratest-teradata-part-2">
-		<directory>tests/Backend/CommonPart2</directory>
-
-		<!--BUCKET-->
-		<file>tests/Backend/Export/ExportParamsTest.php</file>
-
-		<directory>tests/Backend/Teradata</directory>
-		<!--WORKSPACE-->
-		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
-		<file>tests/Backend/Workspaces/TeradataWorkspacesUnloadTest.php</file>
-
-<!--		External buckets-->
-		<file>tests/Backend/ExternalBuckets/TeradataRegisterBucketTest.php</file>
 	</testsuite>
 
 	<testsuite name="paratest-bigquery">

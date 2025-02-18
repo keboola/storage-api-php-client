@@ -340,11 +340,6 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
 
         $backend->createTable('mytable', ['amount' => $this->getColumnAmountType($connection['backend'])]);
 
-        if ($backend instanceof TeradataWorkspaceBackend) {
-            // Teradata: cannot drop workspace if user is logged in
-            $backend->disconnect();
-        }
-
         // sync delete
         $workspaces->deleteWorkspace($workspace['id'], $dropOptions, $async);
 
@@ -423,11 +418,6 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $backend->createTable('mytable', ['amount' => $this->getColumnAmountType($connection['backend'])]);
-
-        if ($backend instanceof TeradataWorkspaceBackend) {
-            // Teradata: cannot drop workspace if user is logged in
-            $backend->disconnect();
-        }
 
         // always async
         $jobId = $workspaces->queueDeleteWorkspace($workspace['id']);
