@@ -33,7 +33,7 @@ class GcsClientFactory
                 $this->creds = $creds;
             }
 
-            public function fetchAuthToken(callable $httpHandler = null)
+            public function fetchAuthToken(?callable $httpHandler = null)
             {
                 return $this->creds;
             }

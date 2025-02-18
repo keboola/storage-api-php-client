@@ -118,7 +118,7 @@ class Components
         return $this->client->apiPostJson($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/reset-to-default");
     }
 
-    public function listComponents(ListComponentsOptions $options = null)
+    public function listComponents(?ListComponentsOptions $options = null)
     {
         if (!$options) {
             $options = new ListComponentsOptions();
@@ -178,7 +178,7 @@ class Components
         ));
     }
 
-    public function listConfigurationRows(ListConfigurationRowsOptions $options = null)
+    public function listConfigurationRows(?ListConfigurationRowsOptions $options = null)
     {
         if (!$options) {
             $options = new ListConfigurationRowsOptions();
@@ -187,7 +187,7 @@ class Components
             . "{$options->getConfigurationId()}/rows");
     }
 
-    public function listConfigurationWorkspaces(ListConfigurationWorkspacesOptions $options = null)
+    public function listConfigurationWorkspaces(?ListConfigurationWorkspacesOptions $options = null)
     {
         if (!$options) {
             $options = new ListConfigurationWorkspacesOptions();
