@@ -745,6 +745,51 @@ SQL,
         $view = $tables[1];
         $this->assertEquals('MY_LITTLE_VIEW', $view['name']);
         $this->assertEquals('view', $view['tableType']);
+
+        // test load
+        $destinationWorkspace = $ws->createWorkspace();
+        $destinationDb = WorkspaceBackendFactory::createWorkspaceBackend($destinationWorkspace, true);
+        try {
+            // clone from external bucket fail
+            $ws->cloneIntoWorkspace(
+                $destinationWorkspace['id'],
+                [
+                    'input' => [
+                        [
+                            'source' => $view['id'],
+                            'destination' => 'COPY_TEST',
+                        ],
+                    ],
+                ],
+            );
+            $this->fail('Should have failed clone is not supported for external buckets');
+        } catch (ClientException $e) {
+            $this->assertSame('workspace.loadRequestBadInput', $e->getStringCode());
+            $this->assertSame(400, $e->getCode());
+        }
+
+        $ws->loadWorkspaceData(
+            $destinationWorkspace['id'],
+            [
+                'input' => [
+                    [
+                        'source' => $view['id'],
+                        'destination' => 'COPY_TEST',
+                    ],
+                    [
+                        'source' => $view['id'],
+                        'destination' => 'COPY_TEST_VIEW',
+                        'useView' => true,
+                    ],
+                ],
+            ],
+        );
+
+        $schema = $destinationDb->getSchemaReflection();
+        $this->assertSame(['COPY_TEST'], $schema->getTablesNames());
+        $this->assertSame(['COPY_TEST_VIEW'], $schema->getViewsNames());
+        // drop destination workspace
+        $ws->deleteWorkspace($destinationWorkspace['id']);
     }
     /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
