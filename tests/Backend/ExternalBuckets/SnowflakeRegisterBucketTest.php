@@ -480,42 +480,55 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         );
 
         $destinationWorkspace = $ws->createWorkspace();
-        $destinationDb = WorkspaceBackendFactory::createWorkspaceBackend($destinationWorkspace);
-        $destinationDb->createTable('DESTINATION_TEST', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
-
-        // clone from external bucket
-        $ws->cloneIntoWorkspace(
-            $destinationWorkspace['id'],
-            [
-                'input' => [
-                    [
-                        'source' => $tables[0]['id'],
-                        'destination' => 'DESTINATION_TEST',
-                    ],
-                ],
-            ],
-        );
-
-        // test cloned data
-        $destinationTableData = $destinationDb->fetchAll('DESTINATION_TEST');
-        $this->assertCount(2, $destinationTableData[0]);
-        $this->assertEquals(['test', null], $destinationTableData[0]);
+        $destinationDb = WorkspaceBackendFactory::createWorkspaceBackend($destinationWorkspace, true);
 
         // load from external bucket
-        $destinationDb->createTable('CLONE_TEST', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
+        $destinationDb->createTable('COPY_TEST', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
+        try {
+            // clone from external bucket fail
+            $ws->cloneIntoWorkspace(
+                $destinationWorkspace['id'],
+                [
+                    'input' => [
+                        [
+                            'source' => $tables[0]['id'],
+                            'destination' => 'COPY_TEST',
+                        ],
+                    ],
+                ],
+            );
+            $this->fail('Should have failed clone is not supported for external buckets');
+        } catch (ClientException $e) {
+            $this->assertSame('workspace.loadRequestBadInput', $e->getStringCode());
+            $this->assertSame(400, $e->getCode());
+        }
+
         $ws->loadWorkspaceData(
             $destinationWorkspace['id'],
             [
                 'input' => [
                     [
                         'source' => $tables[0]['id'],
-                        'destination' => 'CLONE_TEST',
+                        'destination' => 'COPY_TEST',
+                    ],
+                    [
+                        'source' => $tables[0]['id'],
+                        'destination' => 'COPY_TEST_VIEW',
+                        'useView' => true,
                     ],
                 ],
             ],
         );
 
-        $destinationTableData = $destinationDb->fetchAll('CLONE_TEST');
+        $schema = $destinationDb->getSchemaReflection();
+        $this->assertSame(['COPY_TEST'], $schema->getTablesNames());
+        $this->assertSame(['COPY_TEST_VIEW'], $schema->getViewsNames());
+
+        $destinationTableData = $destinationDb->fetchAll('COPY_TEST');
+        $this->assertCount(2, $destinationTableData[0]);
+        $this->assertEquals(['test', null], $destinationTableData[0]);
+
+        $destinationTableData = $destinationDb->fetchAll('COPY_TEST_VIEW');
         $this->assertCount(2, $destinationTableData[0]);
         $this->assertEquals(['test', null], $destinationTableData[0]);
 
