@@ -5767,6 +5767,66 @@ Only for BigQuery workspace
               }
             }
 
+## Execute Query [/v2/storage/branch/{branch_id}/workspaces/{workspace_id}/query]
+### Execute Query [POST]
+
+Executes a native Snowflake SQL query in given workspace directly without any validation or checks. Query can contain
+only one SQL statement per request. Every request is new Snowflake session. Response has a different format for SELECT
+query, non-SELECT query and failed query.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + workspace_id (required, number)
+
++ Attributes
+    + query (required, string) - Snowflake SQL query
+
+
++ Request (application/json)
+    + Headers
+        X-StorageApi-Token: your_token
+
+    + Body
+        {
+            "query": "SELECT * FROM table_name"
+        }
+
++ Response 200 (application/json)
+
+    + Body
+        // Executing query (SELECT)
+        {
+            "status": "ok",
+            "data":  {
+                "columns": [
+                    "ID",
+                    "NAME"
+                ],
+                "rows": [
+                    {
+                        "ID": '8',
+                        "NAME": "Lisa Simpson",
+                    },
+                    {
+                        "ID": '10',
+                        "NAME": "Bart Simpson",
+                    }
+                ]
+            }
+        }
+
+        // Executing statement (non-SELECT)
+        {
+            "status": "ok",
+            "message": "5 rows affected."
+        }
+
+        // Execution failed (Snowflake error message)
+        {
+            "status": "error",
+            "message": "An exception occurred while executing a query: SQL compilation error: error line 1 at position 7 invalid identifier 'BIRTHDATE'"
+        }
+
 ## Data Structures
 
 ### Workspace
