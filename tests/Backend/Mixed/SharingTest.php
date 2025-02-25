@@ -4,6 +4,7 @@ namespace Keboola\Test\Backend\Mixed;
 
 use DateInterval;
 use DateTimeImmutable;
+use Generator;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
@@ -1983,8 +1984,8 @@ class SharingTest extends StorageApiSharingTestCase
         ];
     }
 
-    /** @dataProvider syncAsyncProvider */
-    public function testDevBranchBucketCannotBeShared($isAsync): void
+    /** @dataProvider sharingMethodProvider */
+    public function testDevBranchBucketCannotBeShared(string $shareMethod, ?bool $async): void
     {
         $metadataProvider = Metadata::PROVIDER_SYSTEM;
         $metadataKey = Metadata::BUCKET_METADATA_KEY_ID_BRANCH;
@@ -2024,12 +2025,9 @@ class SharingTest extends StorageApiSharingTestCase
             ],
         );
 
-        $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
+        $this->shareByMethod($shareMethod, $bucketId, $async);
 
-        $bucket = $this->_client->getBucket($bucketId);
-        $this->assertSame('organization', $bucket['sharing']);
-
-        $this->_client->unshareBucket($bucketId, $isAsync);
+        $this->_client->unshareBucket($bucketId, $async);
 
         // validate restrictions
         $metadata->postBucketMetadata(
@@ -2044,7 +2042,7 @@ class SharingTest extends StorageApiSharingTestCase
         );
 
         try {
-            $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
+            $this->shareByMethod($shareMethod, $bucketId, $async);
             $this->fail('Sharing buckets from Dev/Branch should fail');
         } catch (ClientException $e) {
             $this->assertSame(400, $e->getCode());
