@@ -90,12 +90,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             new CsvFile(self::SOURCE_DATA_FILE_PATH),
         );
 
-        $this->_client->shareBucket(
-            $bucketId,
-            [
-                'sharing' => 'organization-project',
-            ],
-        );
+        $this->_client->shareOrganizationProjectBucket($bucketId);
 
         $workspace = $this->workspaces2->createWorkspace(
             [
@@ -159,12 +154,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             new CsvFile(self::SOURCE_DATA_FILE_PATH),
         );
 
-        $this->client2->shareBucket(
-            $bucketId,
-            [
-                'sharing' => 'organization-project',
-            ],
-        );
+        $this->client2->shareOrganizationProjectBucket($bucketId);
 
         $workspace = $this->workspaces->createWorkspace(
             [
