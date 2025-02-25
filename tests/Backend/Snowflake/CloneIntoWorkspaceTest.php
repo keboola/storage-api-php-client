@@ -375,7 +375,7 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
             'languagesDetails2',
         );
 
-        $client2->shareBucket($sharedBucket);
+        $client2->shareOrganizationBucket($sharedBucket);
 
         $sourceProjectId = $client2->verifyToken()['owner']['id'];
         $linkedBucketId = $this->_client->linkBucket(

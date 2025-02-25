@@ -96,7 +96,7 @@ class SharingTest extends StorageApiSharingTestCase
         );
 
         // share and link bucket
-        $this->_client->shareBucket($bucketId);
+        $this->_client->shareOrganizationBucket($bucketId);
         self::assertTrue($this->_client->isSharedBucket($bucketId));
 
         $response = $this->_client2->listSharedBuckets();
@@ -112,7 +112,7 @@ class SharingTest extends StorageApiSharingTestCase
         );
 
         // share and unshare second bucket - test that it doesn't break permissions of first linked bucket
-        $this->_client->shareBucket($secondBucketId);
+        $this->_client->shareOrganizationBucket($secondBucketId);
         $sharedBucket2 = array_values(array_filter($this->_client->listSharedBuckets(), function ($bucket) use (
             $secondBucketId
         ) {
