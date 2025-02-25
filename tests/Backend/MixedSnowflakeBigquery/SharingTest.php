@@ -42,23 +42,7 @@ class SharingTest extends StorageApiSharingTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
             [],
         );
-
-        // share and link bucket A->B
-        switch ($shareMethod) {
-            case 'shareBucketToProjects':
-                $targetProjectId = $this->_client2->verifyToken()['owner']['id'];
-                $this->_client->shareBucketToProjects($bucketId, [$targetProjectId], $async ?? false);
-                break;
-            case 'shareBucketToUsers':
-                $targetUser = $this->_client2->verifyToken()['admin'];
-                $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']], $async ?? false);
-                break;
-            default:
-                // deprecated method shareBucket use as parameter array of options
-                // async and sync action use the same service at background so in case of this deprecated method
-                // is good enough to test only one time
-                $this->_client->$shareMethod($bucketId, $async ?? []);
-        }
+        $this->shareByMethod($shareMethod, $bucketId, $async);
 
         self::assertTrue($this->_client->isSharedBucket($bucketId));
         $response = $this->_client2->listSharedBuckets();
@@ -140,36 +124,6 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertCount(1, $views);
         $this->assertContains('linked', $views);
         $this->assertCount(5, $wsBackend->fetchAll('linked'));
-    }
-
-    public function sharingMethodProvider(): Generator
-    {
-        yield 'shareBucket' => [
-            'shareBucket',
-            null,
-        ];
-
-        foreach ([true, false] as $async) {
-            yield sprintf('shareOrganizationBucket, async=%s', $async) => [
-                'shareOrganizationBucket',
-                $async,
-            ];
-
-            yield sprintf('shareOrganizationProjectBucket, async=%s', $async) => [
-                'shareOrganizationProjectBucket',
-                $async,
-            ];
-
-            yield sprintf('shareBucketToProjects, async=%s', $async) => [
-                'shareBucketToProjects',
-                $async,
-            ];
-
-            yield sprintf('shareBucketToUsers, async=%s', $async) => [
-                'shareBucketToUsers',
-                $async,
-            ];
-        }
     }
 
     public function testAllSharingOperations(): void

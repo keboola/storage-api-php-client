@@ -2,10 +2,12 @@
 
 namespace Keboola\Test\Backend\Mixed;
 
+use Generator;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Tokens;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\MixedSnowflakeBigquery\SharingTest;
 use Keboola\Test\StorageApiTestCase;
 
 abstract class StorageApiSharingTestCase extends StorageApiTestCase
@@ -88,6 +90,26 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
             throw new \Exception(
                 'STORAGE_API_TOKEN_ADMIN_3_IN_OTHER_ORGANIZATION is in the same organization as STORAGE_API_TOKEN',
             );
+        }
+    }
+
+    protected function shareByMethod(string $shareMethod, string $bucketId, ?bool $async): void
+    {
+        // share and link bucket A->B
+        switch ($shareMethod) {
+            case 'shareBucketToProjects':
+                $targetProjectId = $this->_client2->verifyToken()['owner']['id'];
+                $this->_client->shareBucketToProjects($bucketId, [$targetProjectId], $async ?? false);
+                break;
+            case 'shareBucketToUsers':
+                $targetUser = $this->_client2->verifyToken()['admin'];
+                $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']], $async ?? false);
+                break;
+            default:
+                // deprecated method shareBucket use as parameter array of options
+                // async and sync action use the same service at background so in case of this deprecated method
+                // is good enough to test only one time
+                $this->_client->$shareMethod($bucketId, $async ?? []);
         }
     }
 
@@ -274,6 +296,36 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
             $linkedData = $this->_client2->getTableDataPreview($linkedTables[$i]['id']);
 
             $this->assertLinesEqualsSorted($data, $linkedData);
+        }
+    }
+
+    public function sharingMethodProvider(): Generator
+    {
+        yield 'shareBucket' => [
+            'shareBucket',
+            null,
+        ];
+
+        foreach ([true, false] as $async) {
+            yield sprintf('shareOrganizationBucket, async=%b', $async) => [
+                'shareOrganizationBucket',
+                $async,
+            ];
+
+            yield sprintf('shareOrganizationProjectBucket, async=%b', $async) => [
+                'shareOrganizationProjectBucket',
+                $async,
+            ];
+
+            yield sprintf('shareBucketToProjects, async=%b', $async) => [
+                'shareBucketToProjects',
+                $async,
+            ];
+
+            yield sprintf('shareBucketToUsers, async=%b', $async) => [
+                'shareBucketToUsers',
+                $async,
+            ];
         }
     }
 }
