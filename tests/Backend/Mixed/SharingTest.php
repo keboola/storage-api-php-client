@@ -61,10 +61,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         /** @var array $response */
-        $response = $this->_client->shareBucket($bucketId, [
-            'sharing' => 'organization-project',
-            'async' => true,
-        ]);
+        $response = $this->_client->shareOrganizationProjectBucket($bucketId, true);
 
         // link bucket
         $displayName = 'linked-displayName';
@@ -206,10 +203,7 @@ class SharingTest extends StorageApiSharingTestCase
         $bucketId = reset($this->_bucketIds);
 
         /** @var array $response */
-        $response = $this->_client->shareBucket($bucketId, [
-            'sharing' => 'organization-project',
-            'async' => $isAsync,
-        ]);
+        $response = $this->_client->shareOrganizationProjectBucket($bucketId, $isAsync);
 
         $this->assertArrayHasKey('displayName', $response);
         $this->assertEquals('organization-project', $response['sharing']);
