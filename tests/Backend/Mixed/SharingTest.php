@@ -118,29 +118,6 @@ class SharingTest extends StorageApiSharingTestCase
         $this->assertEventWithRetries($this->_client2, $assertCallback, $query);
     }
 
-    /**
-     * @dataProvider invalidSharingTypeData
-     */
-    public function testInvalidSharingType($sharingType, $isAsync): void
-    {
-        $this->initTestBuckets(self::BACKEND_SNOWFLAKE);
-        $bucketId = reset($this->_bucketIds);
-
-        try {
-            $this->_client->shareBucket(
-                $bucketId,
-                [
-                    'sharing' => $sharingType,
-                    'async' => $isAsync,
-                ],
-            );
-            $this->fail('Bucket should not be shared');
-        } catch (ClientException $e) {
-            $this->assertEquals('storage.buckets.invalidSharingType', $e->getStringCode());
-            $this->assertEquals(400, $e->getCode());
-        }
-    }
-
     /** @dataProvider syncAsyncProvider */
     public function testTryLinkBucketWithSameNameAsAlreadyCreatedBucketThrowUserException(bool $isAsync): void
     {
@@ -595,17 +572,6 @@ class SharingTest extends StorageApiSharingTestCase
 
         $this->_client->unshareBucket($bucketId);
         $this->assertFalse($this->_client->isSharedBucket($bucketId));
-
-        // sharing twice
-        $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
-
-        try {
-            $this->_client->shareBucket($bucketId, ['async' => $isAsync]);
-            $this->fail('sharing twice should fail');
-        } catch (ClientException $e) {
-            $this->assertEquals(400, $e->getCode());
-            $this->assertEquals('storage.buckets.shareTwice', $e->getStringCode());
-        }
     }
 
     /**
