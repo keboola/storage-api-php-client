@@ -133,7 +133,7 @@ class SharingTest extends StorageApiSharingTestCase
         $bucketId = $this->getTestBucketId();
 
         // share and link bucket A->B
-        $this->_client->shareBucket($bucketId);
+        $this->_client->shareOrganizationBucket($bucketId);
         self::assertTrue($this->_client->isSharedBucket($bucketId));
         $response = $this->_client2->listSharedBuckets();
         self::assertCount(1, $response);
@@ -160,7 +160,7 @@ class SharingTest extends StorageApiSharingTestCase
         self::assertCount(0, $response);
 
         // share back
-        $this->_client->shareBucket($bucketId);
+        $this->_client->shareOrganizationBucket($bucketId);
         self::assertTrue($this->_client->isSharedBucket($bucketId));
 
         // link again!
