@@ -2701,11 +2701,6 @@ parameters:
 			path: tests/Backend/Mixed/SharingTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testDevBranchBucketCannotBeShared\\(\\) has parameter \\$isAsync with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Mixed/SharingTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Mixed\\\\SharingTest\\:\\:testForcedDrop\\(\\) has parameter \\$backend with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Mixed/SharingTest.php
