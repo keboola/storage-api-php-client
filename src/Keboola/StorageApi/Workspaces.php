@@ -189,6 +189,19 @@ class Workspaces
         return (int) $job['id'];
     }
 
+    public function executeQuery(int $id, string $query): array
+    {
+        $result = $this->client->apiPostJson(
+            "workspaces/{$id}/query",
+            [
+                'query' => $query,
+            ],
+        );
+        assert(is_array($result));
+
+        return $result;
+    }
+
     public static function addCredentialsToWorkspaceResponse(array $workspaceResponse, array $resetPasswordResponse): array
     {
         if ($workspaceResponse['type'] === 'file') {
