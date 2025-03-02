@@ -135,18 +135,6 @@ trait EventTesterUtils
     }
 
     /**
-     * @param int|string|null $expectedObjectId
-     */
-    protected function listEventsFilteredByName(Client $client, string $eventName, $expectedObjectId = null, int $limit = 1): array
-    {
-        $events = $this->listEvents($client, $eventName, $expectedObjectId, $limit);
-
-        return array_filter($events, static function ($event) use ($eventName) {
-            return $event['event'] === $eventName;
-        });
-    }
-
-    /**
      * @param callable $apiCall
      * @param int $retries
      * @param string $eventName
