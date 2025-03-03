@@ -521,19 +521,60 @@ EXPECTED,
             $linkedBucket['path'],
             $newTableName,
         ));
-        $this->assertEquals(
+        $expectedDataNewTable = [
             [
-                [
-                    'ID' => 1,
-                    'NAME' => 'Jan',
-                    'GENDER' => 'M',
-                ],
-                [
-                    'ID' => 2,
-                    'NAME' => 'Josef',
-                    'GENDER' => 'M',
+                'ID' => 1,
+                'NAME' => 'Jan',
+                'GENDER' => 'M',
+            ],
+            [
+                'ID' => 2,
+                'NAME' => 'Josef',
+                'GENDER' => 'M',
+            ],
+        ];
+        $this->assertEquals(
+            $expectedDataNewTable,
+            $result,
+        );
+
+        // TEST IM LOAD
+        // copy
+        $linkingWorkspaces->loadWorkspaceData(
+            $linkingWorkspaceNoRO['id'],
+            [
+                'input' => [
+                    [
+                        'source' => $linkedTable['id'],
+                        'destination' => 'NEW_TABLE',
+                    ],
                 ],
             ],
+        );
+        $this->assertSame(['NEW_TABLE'], $linkingBackendNoRO->getTables());
+        $result = $linkingBackendNoRO->fetchAll('NEW_TABLE', \PDO::FETCH_ASSOC);
+        $this->assertEquals(
+            $expectedDataNewTable,
+            $result,
+        );
+
+        // view
+        $linkingWorkspaces->loadWorkspaceData(
+            $linkingWorkspaceNoRO['id'],
+            [
+                'input' => [
+                    [
+                        'source' => $linkedTable['id'],
+                        'destination' => 'NEW_TABLE_VIEW',
+                        'useView' => true,
+                    ],
+                ],
+            ],
+        );
+        $this->assertSame(['NEW_TABLE_VIEW'], $linkingBackendNoRO->getSchemaReflection()->getViewsNames());
+        $result = $linkingBackendNoRO->fetchAll('NEW_TABLE_VIEW', \PDO::FETCH_ASSOC);
+        $this->assertEquals(
+            $expectedDataNewTable,
             $result,
         );
 
