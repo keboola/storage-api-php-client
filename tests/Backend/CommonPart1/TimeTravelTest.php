@@ -392,7 +392,7 @@ class TimeTravelTest extends StorageApiTestCase
         );
 
         // share the source bucket
-        $this->_client->shareBucket($this->getTestBucketId());
+        $this->_client->shareOrganizationBucket($this->getTestBucketId());
         $token = $this->_client->verifyToken();
 
         // create a linked bucket in the same project

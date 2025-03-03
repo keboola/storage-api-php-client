@@ -45,7 +45,7 @@ class CopyIntoWorkspaceTest extends WorkspacesTestCase
             'languagesDetails2',
         );
 
-        $client2->shareBucket($bucket);
+        $client2->shareOrganizationBucket($bucket);
 
         $sourceProjectId = $client2->verifyToken()['owner']['id'];
         $linkedBucketId = $this->_client->linkBucket(
