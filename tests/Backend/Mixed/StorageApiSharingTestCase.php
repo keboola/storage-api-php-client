@@ -106,10 +106,7 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
                 $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']], $async ?? false);
                 break;
             default:
-                // deprecated method shareBucket use as parameter array of options
-                // async and sync action use the same service at background so in case of this deprecated method
-                // is good enough to test only one time
-                $this->_client->$shareMethod($bucketId, $async ?? []);
+                $this->_client->$shareMethod($bucketId, $async);
         }
     }
 
@@ -301,11 +298,6 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
 
     public function sharingMethodProvider(): Generator
     {
-        yield 'shareBucket' => [
-            'shareBucket',
-            null,
-        ];
-
         foreach ([true, false] as $async) {
             yield sprintf('shareOrganizationBucket, async=%b', $async) => [
                 'shareOrganizationBucket',

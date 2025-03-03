@@ -1629,91 +1629,7 @@ Update information about current bucket owner.
 
 + Response 404
 
-## Bucket Sharing [/v2/storage/buckets/{bucket_id}/share?async={async}]
-
-
-### Share Bucket [POST]
-
-***DEPRECATED**, use methods listed below to share to organization admins, project admins, concrete users or concrete projects.*
-
-[Enables sharing](https://help.keboola.com/storage/buckets/sharing/) of a bucket. The bucket will be shared
-to the entire organization to which the project belongs. It may then be shared to any project of that organization.
-This operations is available only for organization administrators.
-
-
-+ Parameters
-    + bucket_id (required) - Bucket Id
-    + async (optional, boolean) - Share the bucket in a background job.
-
-+ Attributes
-    + sharing (optional, enum[string]) - Sharing type
-        + Members
-            + `organization` - Bucket is shared to organization. Any organization member will be able to link to this bucket from any project within the organization.
-            + `organization-project` - Bucket is shared to organization. Any member of a project within the organization will be able to link to this bucket from their project.
-        + Default: organization
-
-+ Request (application/x-www-form-urlencoded)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-+ Response 202 (application/json)
-Synchronous call response (async=false)
-    + Body
-
-            {
-                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket",
-                "id": "in.c-my-bucket",
-                "name": "c-my-bucket",
-                "displayName": "my-bucket",
-                "stage": "in",
-                "description": "Some Description",
-                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket/tables",
-                "created": "2017-02-13T12:01:05+0100",
-                "lastChangeDate": null,
-                "isReadOnly": false,
-                "dataSizeBytes": 0,
-                "rowsCount": 0,
-                "isMaintenance": false,
-                "backend": "snowflake",
-                "sharing": "organization",
-                "owner": null,
-                "updated": "2024-11-28T13:03:13+0100"
-            }
-
-+ Response 202
-Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
-    + Body
-
-            {
-                "id": 11,
-                "status": "waiting",
-                "url": "https://connection.keboola.com/v2/storage/jobs/11",
-                "operationName": "bucketShare",
-                "operationParams": {
-                    "params": {
-                        "sharingType": "organization",
-                        "queue": "main"
-                    }
-                },
-                "createdTime": "2013-05-31T16:11:05+0200",
-                "startTime": null,
-                "endTime": null,
-                "runId": null,
-                "results": null,
-                "creatorToken": {
-                    "id": "27978",
-                    "description": "ondrej.popelka@keboola.com"
-                },
-                "metrics": {
-                    "inCompressed": false,
-                    "inBytes": 0,
-                    "inBytesUncompressed": 0,
-                    "outCompressed": false,
-                    "outBytes": 0,
-                    "outBytesUncompressed": 0
-                }
-            }
+## Bucket Sharing
 
 ### Share Bucket To Organization [POST /v2/storage/buckets/{bucket_id}/share-organization?async={async}]
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket within the organization.
@@ -2084,7 +2000,7 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
                 }
             }
 
-### Change Bucket Sharing [PUT]
+### Change Bucket Sharing [PUT /v2/storage/buckets/{bucket_id}/share?async={async}]
 Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket.
 This operations is available only for organization administrators.
 
@@ -2168,7 +2084,7 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
                 }
             }
 
-### Stop Bucket Sharing [DELETE]
+### Stop Bucket Sharing [DELETE /v2/storage/buckets/{bucket_id}/share?async={async}]
 Disables sharing of a bucket. A bucket must not be linked to other projects.
 To unshare an already linked bucket, you have to delete the links first - use the
 [Drop Bucket](#reference/buckets/manage-bucket/drop-bucket) in the linking project.
