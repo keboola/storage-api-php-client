@@ -5,16 +5,17 @@ declare(strict_types=1);
 namespace Keboola\Test\Backend\ExternalBuckets;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception as DbalException;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
+use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackendDBAL;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\ConnectionUtils;
 use Keboola\Test\Utils\EventsQueryBuilder;
 use Keboola\Test\Utils\EventTesterUtils;
-use Throwable;
 
 class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTestCase
 {
@@ -238,26 +239,33 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
 
         $linkingWorkspaces = new Workspaces($this->linkingClient);
         $linkingWorkspace = $linkingWorkspaces->createWorkspace([], true);
-        $linkingBackend = WorkspaceBackendFactory::createWorkspaceBackend($linkingWorkspace);
+        /** @var SnowflakeWorkspaceBackendDBAL $linkingBackend */
+        $linkingBackend = WorkspaceBackendFactory::createWorkspaceBackend($linkingWorkspace, true);
 
-        /** @var \Keboola\Db\Import\Snowflake\Connection $linkingSnowflakeDb */
+        $linkingWorkspaceNoRO = $linkingWorkspaces->createWorkspace(
+            [
+                'readOnlyStorageAccess' => false,
+            ],
+            true,
+        );
+        /** @var SnowflakeWorkspaceBackendDBAL $linkingBackendNoRO */
+        $linkingBackendNoRO = WorkspaceBackendFactory::createWorkspaceBackend($linkingWorkspaceNoRO, true);
         $linkingSnowflakeDb = $linkingBackend->getDb();
 
         // check before link is not work via RO
         try {
-            $linkingSnowflakeDb->fetchAll(sprintf(
+            $linkingSnowflakeDb->fetchAllAssociative(sprintf(
                 'SELECT * FROM %s.%s',
                 $sharedBucket['path'],
                 'NAMES_TABLE', // table created manually during setup
             ));
             $this->fail('Select should fail.');
-        } catch (Throwable $e) {
+        } catch (DbalException $e) {
             $dbName = explode('.', $sharedBucket['path'])[0];
-            $this->assertStringContainsString("Database '{$dbName}' does not exist or not authorized., SQL state 02000 in SQLPrepare", $e->getMessage());
+            $this->assertStringContainsString("Database '{$dbName}' does not exist or not authorized.", $e->getMessage());
         }
 
         // LINKING START
-
         $token = $this->_client->verifyToken();
         $linkedBucketId = $this->linkingClient->linkBucket('LINKED_BUCKET', self::STAGE_IN, $token['owner']['id'], $sharedBucket['id'], 'LINKED_BUCKET');
         $linkedBucket = $this->linkingClient->getBucket($linkedBucketId);
@@ -282,42 +290,92 @@ EXPECTED,
         );
 
         // test RO works
-        /** @var \Keboola\Db\Import\Snowflake\Connection $linkingSnowflakeDb */
         $linkingSnowflakeDb = $linkingBackend->getDb();
 
-        $result = $linkingSnowflakeDb->fetchAll(sprintf(
+        $result = $linkingSnowflakeDb->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.%s',
             $linkedBucket['path'],
             'NAMES_TABLE', // table created manually during setup
         ));
-        $this->assertEquals(
+        $expectedNamesTableContent = [
             [
-                [
-                    'ID' => 1,
-                    'NAME' => 'Jiří',
-                ],
-                [
-                    'ID' => 2,
-                    'NAME' => 'Roman',
-                ],
-                [
-                    'ID' => 3,
-                    'NAME' => 'Tomáš',
-                ],
-                [
-                    'ID' => 4,
-                    'NAME' => 'Vojta',
-                ],
-                [
-                    'ID' => 5,
-                    'NAME' => 'Martin',
+                'ID' => 1,
+                'NAME' => 'Jiří',
+            ],
+            [
+                'ID' => 2,
+                'NAME' => 'Roman',
+            ],
+            [
+                'ID' => 3,
+                'NAME' => 'Tomáš',
+            ],
+            [
+                'ID' => 4,
+                'NAME' => 'Vojta',
+            ],
+            [
+                'ID' => 5,
+                'NAME' => 'Martin',
+            ],
+        ];
+        $this->assertEquals(
+            $expectedNamesTableContent,
+            $result,
+        );
+        // test WS without RO not working
+        try {
+            $linkingBackendNoRO->getDb()->fetchAllAssociative(sprintf(
+                'SELECT * FROM %s.%s',
+                $sharedBucket['path'],
+                'NAMES_TABLE', // table created manually during setup
+            ));
+            $this->fail('Select should fail.');
+        } catch (DbalException $e) {
+            $dbName = explode('.', $sharedBucket['path'])[0];
+            $this->assertStringContainsString("Database '{$dbName}' does not exist or not authorized.", $e->getMessage());
+        }
+        // TEST IM LOAD
+        // copy
+        $linkingWorkspaces->loadWorkspaceData(
+            $linkingWorkspaceNoRO['id'],
+            [
+                'input' => [
+                    [
+                        'source' => $linkingTable['id'],
+                        'destination' => 'NAMES_TABLE',
+                    ],
                 ],
             ],
+        );
+        $this->assertSame(['NAMES_TABLE'], $linkingBackendNoRO->getTables());
+        $result = $linkingBackendNoRO->fetchAll('NAMES_TABLE', \PDO::FETCH_ASSOC);
+        $this->assertEquals(
+            $expectedNamesTableContent,
+            $result,
+        );
+
+        // view
+        $linkingWorkspaces->loadWorkspaceData(
+            $linkingWorkspaceNoRO['id'],
+            [
+                'input' => [
+                    [
+                        'source' => $linkingTable['id'],
+                        'destination' => 'NAMES_TABLE_VIEW',
+                        'useView' => true,
+                    ],
+                ],
+            ],
+        );
+        $this->assertSame(['NAMES_TABLE_VIEW'], $linkingBackendNoRO->getSchemaReflection()->getViewsNames());
+        $result = $linkingBackendNoRO->fetchAll('NAMES_TABLE_VIEW', \PDO::FETCH_ASSOC);
+        $this->assertEquals(
+            $expectedNamesTableContent,
             $result,
         );
 
         // REFRESH START
-
         $this->createTableInProducerDatabase($newTableName, ['ID INT', 'NAME VARCHAR'], [[1, "'Jan'"], [2, "'Josef'"]]);
         $this->_client->refreshBucket($bucketId);
 
@@ -363,7 +421,7 @@ EXPECTED,
         );
 
         // test RO works
-        $result = $linkingSnowflakeDb->fetchAll(sprintf(
+        $result = $linkingSnowflakeDb->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.%s',
             $linkedBucket['path'],
             $newTableName,
@@ -458,7 +516,7 @@ EXPECTED,
         );
 
         // test RO works
-        $result = $linkingSnowflakeDb->fetchAll(sprintf(
+        $result = $linkingSnowflakeDb->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.%s',
             $linkedBucket['path'],
             $newTableName,
