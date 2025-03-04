@@ -115,9 +115,8 @@ abstract class TokenAbstractOptions
 
     /**
      * @param bool $forJson return structure for form-data (false) or for JSON (true)
-     * @return array
      */
-    public function toParamsArray(bool $forJson = false)
+    public function toParamsArray(bool $forJson = false): array
     {
         $params = [];
 

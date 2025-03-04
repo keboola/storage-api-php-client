@@ -35,7 +35,7 @@ class ListComponentsOptions
         return $this;
     }
 
-    public function toParamsArray()
+    public function toParamsArray(): array
     {
         return [
             'componentType' => $this->getComponentType(),

@@ -1571,11 +1571,6 @@ parameters:
 			path: src/Keboola/StorageApi/Options/Components/ListComponentsOptions.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ListComponentsOptions\\:\\:toParamsArray\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/ListComponentsOptions.php
-
-		-
 			message: "#^Property Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ListComponentsOptions\\:\\:\\$componentType has no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/Components/ListComponentsOptions.php
@@ -1602,11 +1597,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ListConfigurationRowVersionsOptions\\:\\:getInclude\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/ListConfigurationRowVersionsOptions.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ListConfigurationRowVersionsOptions\\:\\:toParamsArray\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/Components/ListConfigurationRowVersionsOptions.php
 
@@ -1656,11 +1646,6 @@ parameters:
 			path: src/Keboola/StorageApi/Options/Components/ListConfigurationVersionsOptions.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ListConfigurationVersionsOptions\\:\\:toParamsArray\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/ListConfigurationVersionsOptions.php
-
-		-
 			message: "#^Property Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ListConfigurationVersionsOptions\\:\\:\\$componentId has no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/Components/ListConfigurationVersionsOptions.php
@@ -1694,11 +1679,6 @@ parameters:
 			message: "#^Property Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ListConfigurationWorkspacesOptions\\:\\:\\$configurationId has no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/Components/ListConfigurationWorkspacesOptions.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\SearchComponentConfigurationsOptions\\:\\:toParamsArray\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/SearchComponentConfigurationsOptions.php
 
 		-
 			message: "#^Property Keboola\\\\StorageApi\\\\Options\\\\Components\\\\SearchComponentConfigurationsOptions\\:\\:\\$componentId has no type specified\\.$#"
@@ -1851,11 +1831,6 @@ parameters:
 			path: src/Keboola/StorageApi/Options/ListFilesOptions.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\ListFilesOptions\\:\\:toArray\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/ListFilesOptions.php
-
-		-
 			message: "#^Property Keboola\\\\StorageApi\\\\Options\\\\ListFilesOptions\\:\\:\\$limit has no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/ListFilesOptions.php
@@ -1892,11 +1867,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\StatsOptions\\:\\:setRunId\\(\\) has parameter \\$runId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/StatsOptions.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\StatsOptions\\:\\:toArray\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/StatsOptions.php
 

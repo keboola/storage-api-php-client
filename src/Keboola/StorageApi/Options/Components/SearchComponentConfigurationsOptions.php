@@ -92,7 +92,7 @@ class SearchComponentConfigurationsOptions
         return implode(',', $this->getInclude());
     }
 
-    public function toParamsArray()
+    public function toParamsArray(): array
     {
         $params = [];
 

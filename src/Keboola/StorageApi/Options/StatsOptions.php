@@ -32,7 +32,7 @@ class StatsOptions
         return $this;
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'runId' => $this->getRunId(),

@@ -58,8 +58,7 @@ class TableMetadataUpdateOptions
         return $this->tableId;
     }
 
-    /** @return array */
-    public function toParamsArray()
+    public function toParamsArray(): array
     {
         $data = [
             'provider' => $this->provider,

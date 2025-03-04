@@ -82,7 +82,7 @@ class ListFilesOptions
         return $this;
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'limit' => $this->getLimit(),

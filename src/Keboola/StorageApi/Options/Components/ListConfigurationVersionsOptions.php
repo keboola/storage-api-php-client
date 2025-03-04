@@ -19,7 +19,7 @@ class ListConfigurationVersionsOptions
 
     private $limit;
 
-    public function toParamsArray()
+    public function toParamsArray(): array
     {
         return [
             'include' => implode(',', $this->getInclude()),
