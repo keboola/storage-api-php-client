@@ -1441,37 +1441,7 @@ parameters:
 			path: src/Keboola/StorageApi/MaintenanceException.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\Configuration\\:\\:setChangeDescription\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/Configuration.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\Configuration\\:\\:setComponentId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/Configuration.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\Configuration\\:\\:setConfiguration\\(\\) has parameter \\$configuration with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/Configuration.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\Configuration\\:\\:setConfigurationId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/Configuration.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\Configuration\\:\\:setDescription\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/Configuration.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\Configuration\\:\\:setName\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/Configuration.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\Configuration\\:\\:setState\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/Components/Configuration.php
 
@@ -1514,16 +1484,6 @@ parameters:
 			message: "#^Property Keboola\\\\StorageApi\\\\Options\\\\Components\\\\Configuration\\:\\:\\$state has no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/Components/Configuration.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ConfigurationMetadata\\:\\:setMetadata\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/ConfigurationMetadata.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ConfigurationRow\\:\\:setChangeDescription\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/ConfigurationRow.php
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ConfigurationRow\\:\\:setConfiguration\\(\\) has parameter \\$configuration with no type specified\\.$#"
@@ -1576,21 +1536,6 @@ parameters:
 			path: src/Keboola/StorageApi/Options/Components/ConfigurationRowState.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ConfigurationState\\:\\:setComponentId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/ConfigurationState.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ConfigurationState\\:\\:setConfigurationId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/ConfigurationState.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ConfigurationState\\:\\:setState\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/ConfigurationState.php
-
-		-
 			message: "#^Property Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ConfigurationState\\:\\:\\$componentId has no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/Components/ConfigurationState.php
@@ -1622,11 +1567,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ListComponentsOptions\\:\\:getInclude\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/ListComponentsOptions.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ListComponentsOptions\\:\\:setComponentType\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/Components/ListComponentsOptions.php
 
@@ -1754,16 +1694,6 @@ parameters:
 			message: "#^Property Keboola\\\\StorageApi\\\\Options\\\\Components\\\\ListConfigurationWorkspacesOptions\\:\\:\\$configurationId has no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/Components/ListConfigurationWorkspacesOptions.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\SearchComponentConfigurationsOptions\\:\\:setInclude\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/SearchComponentConfigurationsOptions.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\SearchComponentConfigurationsOptions\\:\\:setMetadataKeys\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/Components/SearchComponentConfigurationsOptions.php
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\Components\\\\SearchComponentConfigurationsOptions\\:\\:toParamsArray\\(\\) has no return type specified\\.$#"
@@ -1901,11 +1831,6 @@ parameters:
 			path: src/Keboola/StorageApi/Options/GetFileOptions.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\IndexOptions\\:\\:setExclude\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/IndexOptions.php
-
-		-
 			message: "#^Cannot cast mixed to int\\.$#"
 			count: 2
 			path: src/Keboola/StorageApi/Options/ListFilesOptions.php
@@ -1916,27 +1841,12 @@ parameters:
 			path: src/Keboola/StorageApi/Options/ListFilesOptions.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\ListFilesOptions\\:\\:setMaxId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/ListFilesOptions.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\ListFilesOptions\\:\\:setOffset\\(\\) has parameter \\$offset with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/ListFilesOptions.php
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\ListFilesOptions\\:\\:setQuery\\(\\) has parameter \\$query with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/ListFilesOptions.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\ListFilesOptions\\:\\:setRunId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Options/ListFilesOptions.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Options\\\\ListFilesOptions\\:\\:setSinceId\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Options/ListFilesOptions.php
 

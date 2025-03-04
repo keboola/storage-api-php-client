@@ -19,7 +19,7 @@ class ListConfigurationRowsOptions
      * @param mixed $componentId
      * @return $this
      */
-    public function setComponentId($componentId)
+    public function setComponentId($componentId): static
     {
         $this->componentId = $componentId;
         return $this;
@@ -37,7 +37,7 @@ class ListConfigurationRowsOptions
      * @param mixed $configurationId
      * @return $this
      */
-    public function setConfigurationId($configurationId)
+    public function setConfigurationId($configurationId): static
     {
         $this->configurationId = $configurationId;
         return $this;

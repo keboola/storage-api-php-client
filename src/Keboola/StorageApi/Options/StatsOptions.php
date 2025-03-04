@@ -26,7 +26,7 @@ class StatsOptions
      * @param $runId
      * @return $this
      */
-    public function setRunId($runId)
+    public function setRunId($runId): static
     {
         $this->runId = $runId;
         return $this;

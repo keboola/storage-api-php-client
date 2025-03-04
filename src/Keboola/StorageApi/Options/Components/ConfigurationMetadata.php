@@ -34,8 +34,9 @@ class ConfigurationMetadata
 
     /**
      * @param array $metadata
+     * @return $this
      */
-    public function setMetadata($metadata)
+    public function setMetadata($metadata): static
     {
         if (!is_array($metadata) || count($metadata) === 0) {
             throw new \LogicException('Argument must be a non-empty array of metadata objects');
