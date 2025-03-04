@@ -27,8 +27,9 @@ class ListComponentsOptions
 
     /**
      * @param mixed $componentType
+     * @return $this
      */
-    public function setComponentType($componentType)
+    public function setComponentType($componentType): static
     {
         $this->componentType = $componentType;
         return $this;
@@ -47,7 +48,7 @@ class ListComponentsOptions
      * @param array $include
      * @return $this
      */
-    public function setInclude($include = [])
+    public function setInclude($include = []): static
     {
         $this->include = (array) $include;
         return $this;
@@ -70,7 +71,7 @@ class ListComponentsOptions
      * @param bool $isDeleted
      * @return $this
      */
-    public function setIsDeleted($isDeleted)
+    public function setIsDeleted($isDeleted): static
     {
         $this->isDeleted = (bool) $isDeleted;
         return $this;

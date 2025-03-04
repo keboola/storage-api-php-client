@@ -42,7 +42,7 @@ class ListConfigurationRowVersionsOptions
      * @param mixed $componentId
      * @return $this
      */
-    public function setComponentId($componentId)
+    public function setComponentId($componentId): static
     {
         $this->componentId = $componentId;
         return $this;
@@ -60,7 +60,7 @@ class ListConfigurationRowVersionsOptions
      * @param mixed $configurationId
      * @return $this
      */
-    public function setConfigurationId($configurationId)
+    public function setConfigurationId($configurationId): static
     {
         $this->configurationId = $configurationId;
         return $this;
@@ -78,7 +78,7 @@ class ListConfigurationRowVersionsOptions
      * @param mixed $offset
      * @return $this
      */
-    public function setOffset($offset)
+    public function setOffset($offset): static
     {
         $this->offset = $offset;
         return $this;
@@ -96,7 +96,7 @@ class ListConfigurationRowVersionsOptions
      * @param mixed $limit
      * @return $this
      */
-    public function setLimit($limit)
+    public function setLimit($limit): static
     {
         $this->limit = $limit;
         return $this;
@@ -106,7 +106,7 @@ class ListConfigurationRowVersionsOptions
      * @param array $include
      * @return $this
      */
-    public function setInclude($include = [])
+    public function setInclude($include = []): static
     {
         $this->include = (array) $include;
         return $this;
@@ -129,7 +129,7 @@ class ListConfigurationRowVersionsOptions
      * @param mixed $rowId
      * @return $this
      */
-    public function setRowId($rowId)
+    public function setRowId($rowId): static
     {
         $this->rowId = $rowId;
         return $this;

@@ -27,9 +27,9 @@ class SearchTablesOptions
 
     /**
      * @param string|null $metadataKey
-     * @return SearchTablesOptions
+     * @return $this
      */
-    public function setMetadataKey($metadataKey)
+    public function setMetadataKey($metadataKey): static
     {
         $this->metadataKey = $metadataKey;
         return $this;
@@ -37,9 +37,9 @@ class SearchTablesOptions
 
     /**
      * @param string|null $metadataValue
-     * @return SearchTablesOptions
+     * @return $this
      */
-    public function setMetadataValue($metadataValue)
+    public function setMetadataValue($metadataValue): static
     {
         $this->metadataValue = $metadataValue;
         return $this;
@@ -47,9 +47,9 @@ class SearchTablesOptions
 
     /**
      * @param string|null $metadataProvider
-     * @return SearchTablesOptions
+     * @return $this
      */
-    public function setMetadataProvider($metadataProvider)
+    public function setMetadataProvider($metadataProvider): static
     {
         $this->metadataProvider = $metadataProvider;
         return $this;

@@ -33,7 +33,7 @@ class ConfigurationRowState
      * @param mixed $rowId
      * @return $this
      */
-    public function setRowId($rowId)
+    public function setRowId($rowId): static
     {
         $this->rowId = $rowId;
         return $this;
@@ -51,7 +51,7 @@ class ConfigurationRowState
      * @param mixed $state
      * @return $this
      */
-    public function setState($state)
+    public function setState($state): static
     {
         $this->state = $state;
         return $this;
