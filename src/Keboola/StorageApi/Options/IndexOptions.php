@@ -7,10 +7,7 @@ class IndexOptions
     /** @var array */
     private $exclude = [];
 
-    /**
-     * @return array
-     */
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'exclude' => $this->getExcludeAsString(),

@@ -55,10 +55,7 @@ class SearchTablesOptions
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'metadataKey' => $this->metadataKey,
