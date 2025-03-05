@@ -24,7 +24,6 @@ use Keboola\StorageApi\Options\IndexOptions;
 use Keboola\StorageApi\Options\ListFilesOptions;
 use Keboola\StorageApi\Options\SearchTablesOptions;
 use Keboola\StorageApi\Options\StatsOptions;
-use Keboola\StorageApi\Options\TableWithConfigurationOptions;
 use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\StorageApi\Options\TokenUpdateOptions;
 use MicrosoftAzure\Storage\Blob\Models\CommitBlobBlocksOptions;
@@ -1120,28 +1119,6 @@ class Client
         /** @var array $mrDetail */
         $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/request-changes", []);
         return $mrDetail;
-    }
-
-    /**
-     * Starts and waits for async creation of table from configuration
-     */
-    public function createTableWithConfiguration(string $bucketId, TableWithConfigurationOptions $data): string
-    {
-        $createdTable = $this->apiPostJson("buckets/{$bucketId}/tables-with-configuration", [
-            'name' => $data->getTableName(),
-            'configurationId' => $data->getConfigurationId(),
-        ]);
-        return $createdTable['id'];
-    }
-
-    /**
-     * Starts and waits for async migration of table from configuration
-     */
-    public function migrateTableWithConfiguration(string $tableId): string
-    {
-        /** @var array{id: string} $migratedTable */
-        $migratedTable = $this->apiPutJson('tables/' . $tableId . '/migrate');
-        return $migratedTable['id'];
     }
 
     /**
