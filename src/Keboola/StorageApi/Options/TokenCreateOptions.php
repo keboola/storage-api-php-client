@@ -26,7 +26,7 @@ class TokenCreateOptions extends TokenAbstractOptions
      * @param $seconds
      * @return $this
      */
-    public function setExpiresIn($seconds)
+    public function setExpiresIn($seconds): static
     {
         $this->expiresIn = (int) $seconds;
         return $this;
@@ -44,13 +44,13 @@ class TokenCreateOptions extends TokenAbstractOptions
      * @param bool $allow
      * @return $this
      */
-    public function setCanManageBuckets($allow)
+    public function setCanManageBuckets($allow): static
     {
         $this->canManageBuckets = (bool) $allow;
         return $this;
     }
 
-    public function setCanManageProtectedDefaultBranch(bool $canManageProtectedDefaultBranch): self
+    public function setCanManageProtectedDefaultBranch(bool $canManageProtectedDefaultBranch): static
     {
         $this->canManageProtectedDefaultBranch = $canManageProtectedDefaultBranch;
         return $this;
@@ -61,7 +61,7 @@ class TokenCreateOptions extends TokenAbstractOptions
         return $this->canManageProtectedDefaultBranch;
     }
 
-    public function setCanCreateJobs(bool $canCreateJobs): self
+    public function setCanCreateJobs(bool $canCreateJobs): static
     {
         $this->canCreateJobs = $canCreateJobs;
         return $this;
@@ -74,9 +74,8 @@ class TokenCreateOptions extends TokenAbstractOptions
 
     /**
      * @param bool $forJson return structure for form-data (false) or for JSON (true)
-     * @return array
      */
-    public function toParamsArray(bool $forJson = false)
+    public function toParamsArray(bool $forJson = false): array
     {
         $params = parent::toParamsArray($forJson);
 

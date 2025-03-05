@@ -59,7 +59,7 @@ class FileUploadTransferOptions
      * @return $this
      * @throws ClientException
      */
-    public function setChunkSize($chunkSize)
+    public function setChunkSize($chunkSize): static
     {
         if ((int) $chunkSize <= 0) {
             throw new ClientException("Invalid chunk size: '{$chunkSize}'");
@@ -81,7 +81,7 @@ class FileUploadTransferOptions
      * @return $this
      * @throws ClientException
      */
-    public function setMaxRetriesPerChunk($maxRetriesPerChunk)
+    public function setMaxRetriesPerChunk($maxRetriesPerChunk): static
     {
         if ((int) $maxRetriesPerChunk <= 0) {
             throw new ClientException("Invalid max retries per chunk: '{$maxRetriesPerChunk}'");
@@ -103,7 +103,7 @@ class FileUploadTransferOptions
      * @return $this
      * @throws ClientException
      */
-    public function setSingleFileConcurrency($singleFileConcurrency)
+    public function setSingleFileConcurrency($singleFileConcurrency): static
     {
         if ((int) $singleFileConcurrency <= 0) {
             throw new ClientException("Invalid single file concurrency: '{$singleFileConcurrency}'");
@@ -125,7 +125,7 @@ class FileUploadTransferOptions
      * @return $this
      * @throws ClientException
      */
-    public function setMultiFileConcurrency($multiFileConcurrency)
+    public function setMultiFileConcurrency($multiFileConcurrency): static
     {
         if ((int) $multiFileConcurrency <= 0) {
             throw new ClientException("Invalid multi file concurrency: '{$multiFileConcurrency}'");

@@ -40,8 +40,9 @@ class Configuration
 
     /**
      * @param mixed $componentId
+     * @return $this
      */
-    public function setComponentId($componentId)
+    public function setComponentId($componentId): static
     {
         $this->componentId = $componentId;
         return $this;
@@ -57,8 +58,9 @@ class Configuration
 
     /**
      * @param mixed $configurationId
+     * @return $this
      */
-    public function setConfigurationId($configurationId)
+    public function setConfigurationId($configurationId): static
     {
         $this->configurationId = $configurationId;
         return $this;
@@ -74,8 +76,9 @@ class Configuration
 
     /**
      * @param mixed $name
+     * @return $this
      */
-    public function setName($name)
+    public function setName($name): static
     {
         $this->name = $name;
         return $this;
@@ -91,8 +94,9 @@ class Configuration
 
     /**
      * @param mixed $description
+     * @return $this
      */
-    public function setDescription($description)
+    public function setDescription($description): static
     {
         $this->description = $description;
         return $this;
@@ -110,7 +114,7 @@ class Configuration
      * @param $configuration
      * @return $this
      */
-    public function setConfiguration($configuration)
+    public function setConfiguration($configuration): static
     {
         $this->configuration = (array) $configuration;
         return $this;
@@ -126,8 +130,9 @@ class Configuration
 
     /**
      * @param mixed $state
+     * @return $this
      */
-    public function setState($state)
+    public function setState($state): static
     {
         $this->state = $state;
         return $this;
@@ -143,8 +148,9 @@ class Configuration
 
     /**
      * @param string $changeDescription
+     * @return $this
      */
-    public function setChangeDescription($changeDescription)
+    public function setChangeDescription($changeDescription): static
     {
         $this->changeDescription = $changeDescription;
         return $this;
@@ -162,7 +168,7 @@ class Configuration
      * @param bool $isDisabled
      * @return $this
      */
-    public function setIsDisabled($isDisabled)
+    public function setIsDisabled($isDisabled): static
     {
         $this->isDisabled = (bool) $isDisabled;
         return $this;
@@ -180,7 +186,7 @@ class Configuration
      * @param array $rowsSortOrder
      * @return $this
      */
-    public function setRowsSortOrder(array $rowsSortOrder)
+    public function setRowsSortOrder(array $rowsSortOrder): static
     {
         $this->rowsSortOrder = $rowsSortOrder;
         return $this;
