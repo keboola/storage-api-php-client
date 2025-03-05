@@ -28,16 +28,14 @@ class GetFileOptions
      * @param $federationToken
      * @return $this
      */
-    public function setFederationToken($federationToken)
+    public function setFederationToken($federationToken): static
     {
         $this->federationToken = (bool) $federationToken;
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function toArray()
+
+    public function toArray(): array
     {
         return [
             'federationToken' => $this->getFederationToken(),

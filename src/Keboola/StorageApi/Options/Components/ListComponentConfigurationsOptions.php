@@ -26,7 +26,7 @@ class ListComponentConfigurationsOptions
      * @param mixed $componentId
      * @return $this
      */
-    public function setComponentId($componentId)
+    public function setComponentId($componentId): static
     {
         $this->componentId = $componentId;
         return $this;
@@ -44,7 +44,7 @@ class ListComponentConfigurationsOptions
      * @param bool $isDeleted
      * @return $this
      */
-    public function setIsDeleted($isDeleted)
+    public function setIsDeleted($isDeleted): static
     {
         $this->isDeleted = (bool) $isDeleted;
         return $this;

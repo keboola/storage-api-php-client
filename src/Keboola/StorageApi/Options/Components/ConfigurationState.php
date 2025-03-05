@@ -19,8 +19,9 @@ class ConfigurationState
 
     /**
      * @param mixed $componentId
+     * @return $this
      */
-    public function setComponentId($componentId)
+    public function setComponentId($componentId): static
     {
         $this->componentId = $componentId;
         return $this;
@@ -36,8 +37,9 @@ class ConfigurationState
 
     /**
      * @param mixed $configurationId
+     * @return $this
      */
-    public function setConfigurationId($configurationId)
+    public function setConfigurationId($configurationId): static
     {
         $this->configurationId = $configurationId;
         return $this;
@@ -53,8 +55,9 @@ class ConfigurationState
 
     /**
      * @param mixed $state
+     * @return $this
      */
-    public function setState($state)
+    public function setState($state): static
     {
         $this->state = $state;
         return $this;

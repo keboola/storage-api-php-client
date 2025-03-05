@@ -19,7 +19,7 @@ class ListConfigurationVersionsOptions
 
     private $limit;
 
-    public function toParamsArray()
+    public function toParamsArray(): array
     {
         return [
             'include' => implode(',', $this->getInclude()),
@@ -40,7 +40,7 @@ class ListConfigurationVersionsOptions
      * @param mixed $componentId
      * @return $this
      */
-    public function setComponentId($componentId)
+    public function setComponentId($componentId): static
     {
         $this->componentId = $componentId;
         return $this;
@@ -58,7 +58,7 @@ class ListConfigurationVersionsOptions
      * @param mixed $configurationId
      * @return $this
      */
-    public function setConfigurationId($configurationId)
+    public function setConfigurationId($configurationId): static
     {
         $this->configurationId = $configurationId;
         return $this;
@@ -76,7 +76,7 @@ class ListConfigurationVersionsOptions
      * @param mixed $offset
      * @return $this
      */
-    public function setOffset($offset)
+    public function setOffset($offset): static
     {
         $this->offset = $offset;
         return $this;
@@ -94,7 +94,7 @@ class ListConfigurationVersionsOptions
      * @param mixed $limit
      * @return $this
      */
-    public function setLimit($limit)
+    public function setLimit($limit): static
     {
         $this->limit = $limit;
         return $this;
@@ -104,7 +104,7 @@ class ListConfigurationVersionsOptions
      * @param array $include
      * @return $this
      */
-    public function setInclude($include = [])
+    public function setInclude($include = []): static
     {
         $this->include = (array) $include;
         return $this;

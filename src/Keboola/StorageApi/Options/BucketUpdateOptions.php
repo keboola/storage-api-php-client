@@ -71,8 +71,7 @@ class BucketUpdateOptions
         $this->deleteColor = true;
     }
 
-    /** @return array */
-    public function toParamsArray()
+    public function toParamsArray(): array
     {
         $params = [];
 

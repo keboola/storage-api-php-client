@@ -24,7 +24,7 @@ class SearchComponentConfigurationsOptions
      * @param string $componentId
      * @return $this
      */
-    public function setComponentId($componentId)
+    public function setComponentId($componentId): static
     {
         $this->componentId = $componentId;
         return $this;
@@ -42,7 +42,7 @@ class SearchComponentConfigurationsOptions
      * @param string $configurationId
      * @return $this
      */
-    public function setConfigurationId($configurationId)
+    public function setConfigurationId($configurationId): static
     {
         $this->configurationId = $configurationId;
         return $this;
@@ -58,8 +58,9 @@ class SearchComponentConfigurationsOptions
 
     /**
      * @param array $metadataKeys
+     * @return $this
      */
-    public function setMetadataKeys($metadataKeys)
+    public function setMetadataKeys($metadataKeys): static
     {
         $this->metadataKeys = $metadataKeys;
         return $this;
@@ -75,8 +76,9 @@ class SearchComponentConfigurationsOptions
 
     /**
      * @param array $include
+     * @return $this
      */
-    public function setInclude($include)
+    public function setInclude($include): static
     {
         $this->include = $include;
         return $this;
@@ -90,7 +92,7 @@ class SearchComponentConfigurationsOptions
         return implode(',', $this->getInclude());
     }
 
-    public function toParamsArray()
+    public function toParamsArray(): array
     {
         $params = [];
 
