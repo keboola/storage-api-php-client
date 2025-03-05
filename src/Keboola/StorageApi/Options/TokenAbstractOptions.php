@@ -34,7 +34,7 @@ abstract class TokenAbstractOptions
      * @param string $description
      * @return $this
      */
-    public function setDescription($description)
+    public function setDescription($description): static
     {
         $this->description = (string) $description;
         return $this;
@@ -52,7 +52,7 @@ abstract class TokenAbstractOptions
      * @param bool $canReadAll
      * @return $this
      */
-    public function setCanReadAllFileUploads($canReadAll)
+    public function setCanReadAllFileUploads($canReadAll): static
     {
         $this->canReadAllFileUploads = (bool) $canReadAll;
         return $this;
@@ -70,7 +70,7 @@ abstract class TokenAbstractOptions
      * @param bool $canPurgeTrash
      * @return $this
      */
-    public function setCanPurgeTrash($canPurgeTrash)
+    public function setCanPurgeTrash($canPurgeTrash): static
     {
         $this->canPurgeTrash = (bool) $canPurgeTrash;
         return $this;
@@ -89,7 +89,7 @@ abstract class TokenAbstractOptions
      * @param string $permission
      * @return $this
      */
-    public function addBucketPermission($bucketId, $permission)
+    public function addBucketPermission($bucketId, $permission): static
     {
         $this->bucketPermissions[$bucketId] = $permission;
         return $this;
@@ -107,7 +107,7 @@ abstract class TokenAbstractOptions
      * @param string $componentId
      * @return $this
      */
-    public function addComponentAccess($componentId)
+    public function addComponentAccess($componentId): static
     {
         $this->componentAccess[$componentId] = $componentId;
         return $this;
@@ -115,9 +115,8 @@ abstract class TokenAbstractOptions
 
     /**
      * @param bool $forJson return structure for form-data (false) or for JSON (true)
-     * @return array
      */
-    public function toParamsArray(bool $forJson = false)
+    public function toParamsArray(bool $forJson = false): array
     {
         $params = [];
 

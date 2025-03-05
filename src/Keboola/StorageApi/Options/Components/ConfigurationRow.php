@@ -47,7 +47,7 @@ class ConfigurationRow
      * @param mixed $rowId
      * @return $this
      */
-    public function setRowId($rowId)
+    public function setRowId($rowId): static
     {
         $this->rowId = $rowId;
         return $this;
@@ -65,7 +65,7 @@ class ConfigurationRow
      * @param $configuration
      * @return $this
      */
-    public function setConfiguration($configuration)
+    public function setConfiguration($configuration): static
     {
         $this->configuration = (array) $configuration;
         return $this;
@@ -81,8 +81,9 @@ class ConfigurationRow
 
     /**
      * @param mixed $changeDescription
+     * @return $this
      */
-    public function setChangeDescription($changeDescription)
+    public function setChangeDescription($changeDescription): static
     {
         $this->changeDescription = $changeDescription;
         return $this;
@@ -100,7 +101,7 @@ class ConfigurationRow
      * @param mixed $name
      * @return $this
      */
-    public function setName($name)
+    public function setName($name): static
     {
         $this->name = $name;
         return $this;
@@ -118,7 +119,7 @@ class ConfigurationRow
      * @param mixed $description
      * @return $this
      */
-    public function setDescription($description)
+    public function setDescription($description): static
     {
         $this->description = $description;
         return $this;
@@ -136,7 +137,7 @@ class ConfigurationRow
      * @param bool $isDisabled
      * @return $this
      */
-    public function setIsDisabled($isDisabled)
+    public function setIsDisabled($isDisabled): static
     {
         $this->isDisabled = (bool) $isDisabled;
         return $this;
@@ -154,7 +155,7 @@ class ConfigurationRow
      * @param mixed $state
      * @return $this
      */
-    public function setState($state)
+    public function setState($state): static
     {
         $this->state = $state;
         return $this;

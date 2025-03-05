@@ -36,7 +36,7 @@ class FileUploadOptions
      * @param $fileName
      * @return $this
      */
-    public function setFileName($fileName)
+    public function setFileName($fileName): static
     {
         $this->fileName = $fileName;
         return $this;
@@ -54,7 +54,7 @@ class FileUploadOptions
      * @param $notify
      * @return $this
      */
-    public function setNotify($notify)
+    public function setNotify($notify): static
     {
         $this->notify = $notify;
         return $this;
@@ -72,7 +72,7 @@ class FileUploadOptions
      * @param $isPublic
      * @return $this
      */
-    public function setIsPublic($isPublic)
+    public function setIsPublic($isPublic): static
     {
         $this->isPublic = $isPublic;
         return $this;
@@ -90,7 +90,7 @@ class FileUploadOptions
      * @param array $tags
      * @return $this
      */
-    public function setTags(array $tags)
+    public function setTags(array $tags): static
     {
         $this->tags = $tags;
         return $this;
@@ -108,7 +108,7 @@ class FileUploadOptions
      * @param $compress
      * @return $this
      */
-    public function setCompress($compress)
+    public function setCompress($compress): static
     {
         $this->compress = $compress;
         return $this;
@@ -126,7 +126,7 @@ class FileUploadOptions
      * @param $federationToken
      * @return $this
      */
-    public function setFederationToken($federationToken)
+    public function setFederationToken($federationToken): static
     {
         $this->federationToken = (bool) $federationToken;
         return $this;
@@ -144,7 +144,7 @@ class FileUploadOptions
      * @param $sizeBytes
      * @return $this
      */
-    public function setSizeBytes($sizeBytes)
+    public function setSizeBytes($sizeBytes): static
     {
         $this->sizeBytes = (int) $sizeBytes;
         return $this;
@@ -162,7 +162,7 @@ class FileUploadOptions
      * @param $permanent
      * @return $this
      */
-    public function setIsPermanent($permanent)
+    public function setIsPermanent($permanent): static
     {
         $this->isPermanent = (bool) $permanent;
         return $this;
@@ -180,7 +180,7 @@ class FileUploadOptions
      * @param $isSliced
      * @return $this
      */
-    public function setIsSliced($isSliced)
+    public function setIsSliced($isSliced): static
     {
         $this->isSliced = $isSliced;
         return $this;
@@ -198,7 +198,7 @@ class FileUploadOptions
      * @param $encrypted
      * @return $this
      */
-    public function setIsEncrypted($encrypted)
+    public function setIsEncrypted($encrypted): static
     {
         $this->isEncrypted = (bool) $encrypted;
         return $this;
