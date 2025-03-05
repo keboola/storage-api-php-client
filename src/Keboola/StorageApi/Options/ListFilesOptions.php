@@ -40,7 +40,7 @@ class ListFilesOptions
      * @param array $tags
      * @return $this
      */
-    public function setTags(array $tags)
+    public function setTags(array $tags): static
     {
         $this->tags = $tags;
         return $this;
@@ -58,7 +58,7 @@ class ListFilesOptions
      * @param $limit
      * @return $this
      */
-    public function setLimit($limit)
+    public function setLimit($limit): static
     {
         $this->limit = (int) $limit;
         return $this;
@@ -76,13 +76,13 @@ class ListFilesOptions
      * @param $offset
      * @return $this
      */
-    public function setOffset($offset)
+    public function setOffset($offset): static
     {
         $this->offset = (int) $offset;
         return $this;
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'limit' => $this->getLimit(),
@@ -108,7 +108,7 @@ class ListFilesOptions
      * @param $query
      * @return $this
      */
-    public function setQuery($query)
+    public function setQuery($query): static
     {
         $this->query = $query;
         return $this;
@@ -124,8 +124,9 @@ class ListFilesOptions
 
     /**
      * @param mixed $sinceId
+     * @return $this
      */
-    public function setSinceId($sinceId)
+    public function setSinceId($sinceId): static
     {
         $this->sinceId = (int) $sinceId;
         return $this;
@@ -141,8 +142,9 @@ class ListFilesOptions
 
     /**
      * @param mixed $maxId
+     * @return $this
      */
-    public function setMaxId($maxId)
+    public function setMaxId($maxId): static
     {
         $this->maxId = (int) $maxId;
         return $this;
@@ -158,8 +160,9 @@ class ListFilesOptions
 
     /**
      * @param mixed $runId
+     * @return $this
      */
-    public function setRunId($runId)
+    public function setRunId($runId): static
     {
         $this->runId = $runId;
         return $this;
@@ -175,9 +178,9 @@ class ListFilesOptions
 
     /**
      * @param bool $showExpired
-     * @return ListFilesOptions
+     * @return $this
      */
-    public function setShowExpired($showExpired)
+    public function setShowExpired($showExpired): static
     {
         $this->showExpired = $showExpired;
         return $this;
