@@ -343,6 +343,11 @@ class Components
         );
         assert(is_array($workspaceResponse));
 
+        if (array_key_exists('loginType', $options) && $options['loginType'] === WorkspaceLoginType::SNOWFLAKE_PERSON_SSO) {
+            // when sso login is created there is no password and reset is forbidden
+            return $workspaceResponse;
+        }
+
         $ws = new Workspaces($this->client);
         $resetPasswordResponse = $ws->resetWorkspacePassword($workspaceResponse['id']);
         return Workspaces::addCredentialsToWorkspaceResponse($workspaceResponse, $resetPasswordResponse);
