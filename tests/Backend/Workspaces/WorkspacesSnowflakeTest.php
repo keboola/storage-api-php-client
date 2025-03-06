@@ -50,6 +50,8 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/rates.csv'),
         );
 
+        $runId = $this->workspaceSapiClient->generateRunId();
+        $this->workspaceSapiClient->setRunId($runId);
         $workspaces->loadWorkspaceData($workspace['id'], [
             'input' => [
                 [
@@ -82,18 +84,11 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                 ],
             ],
         ]);
+        $jobs = $this->listJobsByRunId($runId);
 
-        $actualJobId = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoad') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job;
-                }
-            }
-        }
-
-        $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(3072, $actualJobId['metrics']['outBytes']);
+        $this->assertEquals('workspaceLoad', $jobs[0]['operationName']);
+        $this->assertArrayHasKey('metrics', $jobs[0]);
+        $this->assertEquals(3072, $jobs[0]['metrics']['outBytes']);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $table = $backend->describeTableColumns('languages');
@@ -310,19 +305,15 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             ],
         ];
 
+        $runId = $this->workspaceSapiClient->generateRunId();
+        $this->workspaceSapiClient->setRunId($runId);
         $workspaces->loadWorkspaceData($workspace['id'], $options);
 
-        $actualJobId = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoad') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job;
-                }
-            }
-        }
+        $jobs = $this->listJobsByRunId($runId);
 
-        $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(3072, $actualJobId['metrics']['outBytes']);
+        $this->assertEquals('workspaceLoad', $jobs[0]['operationName']);
+        $this->assertArrayHasKey('metrics', $jobs[0]);
+        $this->assertEquals(3072, $jobs[0]['metrics']['outBytes']);
 
         $this->assertEquals(2, $backend->countRows('languages'));
         $this->assertEquals(5, $backend->countRows('languagesDetails'));
