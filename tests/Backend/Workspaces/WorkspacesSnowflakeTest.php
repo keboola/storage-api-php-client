@@ -1155,6 +1155,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
     {
         $jobs = $this->listJobsByRunId($runId);
         $this->assertCount(1, $jobs);
+        reset($jobs);
 
         $this->assertEquals('workspaceLoad', $jobs[0]['operationName']);
         $this->assertArrayHasKey('metrics', $jobs[0]);
