@@ -84,11 +84,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                 ],
             ],
         ]);
-        $jobs = $this->listJobsByRunId($runId);
-
-        $this->assertEquals('workspaceLoad', $jobs[0]['operationName']);
-        $this->assertArrayHasKey('metrics', $jobs[0]);
-        $this->assertEquals(3072, $jobs[0]['metrics']['outBytes']);
+        $this->assertWorkspaceLoadJobOutBytes($runId, 3000);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $table = $backend->describeTableColumns('languages');
@@ -152,6 +148,8 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/users.csv'),
         );
 
+        $runId = $this->workspaceSapiClient->generateRunId();
+        $this->workspaceSapiClient->setRunId($runId);
         $workspaces->loadWorkspaceData($workspace['id'], [
             'input' => [
                 [
@@ -164,18 +162,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
                 ],
             ],
         ]);
-
-        $actualJobId = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoad') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job;
-                }
-            }
-        }
-
-        $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(3584, $actualJobId['metrics']['outBytes']);
+        $this->assertWorkspaceLoadJobOutBytes($runId, 3000);
 
         $db = $this->getDbConnectionSnowflake($workspace['connection']);
 
@@ -308,12 +295,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $runId = $this->workspaceSapiClient->generateRunId();
         $this->workspaceSapiClient->setRunId($runId);
         $workspaces->loadWorkspaceData($workspace['id'], $options);
-
-        $jobs = $this->listJobsByRunId($runId);
-
-        $this->assertEquals('workspaceLoad', $jobs[0]['operationName']);
-        $this->assertArrayHasKey('metrics', $jobs[0]);
-        $this->assertEquals(3072, $jobs[0]['metrics']['outBytes']);
+        $this->assertWorkspaceLoadJobOutBytes($runId, 3000);
 
         $this->assertEquals(2, $backend->countRows('languages'));
         $this->assertEquals(5, $backend->countRows('languagesDetails'));
@@ -672,6 +654,8 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             new CsvFile(__DIR__ . '/../../_data/rates.csv'),
         );
 
+        $runId = $this->workspaceSapiClient->generateRunId();
+        $this->workspaceSapiClient->setRunId($runId);
         $workspaces->loadWorkspaceData($workspace['id'], [
             'input' => [
                 [
@@ -686,17 +670,7 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             ],
         ]);
 
-        $actualJobId = null;
-        foreach ($this->_client->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoad') {
-                if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
-                    $actualJobId = $job;
-                }
-            }
-        }
-
-        $this->assertArrayHasKey('metrics', $actualJobId);
-        $this->assertEquals(17920, $actualJobId['metrics']['outBytes']);
+        $this->assertWorkspaceLoadJobOutBytes($runId, 17900);
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $this->assertEquals(5, $backend->countRows('languages'));
@@ -1175,5 +1149,19 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $this->assertSame(['id', 'name', 'city', 'sex'], $backend->getTableColumns('targetTable'));
 
         $workspaces->deleteWorkspace($workspace['id']);
+    }
+
+    private function assertWorkspaceLoadJobOutBytes(string $runId, int $expectedBytes): void
+    {
+        $jobs = $this->listJobsByRunId($runId);
+        $this->assertCount(1, $jobs);
+
+        $this->assertEquals('workspaceLoad', $jobs[0]['operationName']);
+        $this->assertArrayHasKey('metrics', $jobs[0]);
+        // snowflake is occasionally changing size of persisted tables, we are testing small data so we can expect
+        // that the size will not change too much, but in the end it is not
+        $this->assertGreaterThanOrEqual($expectedBytes - 1000, $jobs[0]['metrics']['outBytes']);
+        // we keep here higher bound in case something goes way too off
+        $this->assertLessThan($expectedBytes + 1000, $jobs[0]['metrics']['outBytes']);
     }
 }
