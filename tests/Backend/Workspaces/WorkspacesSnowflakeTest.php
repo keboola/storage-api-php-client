@@ -1155,13 +1155,14 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
     {
         $jobs = $this->listJobsByRunId($runId);
         $this->assertCount(1, $jobs);
+        $job = reset($jobs);
 
-        $this->assertEquals('workspaceLoad', $jobs[0]['operationName']);
-        $this->assertArrayHasKey('metrics', $jobs[0]);
+        $this->assertEquals('workspaceLoad', $job['operationName']);
+        $this->assertArrayHasKey('metrics', $job);
         // snowflake is occasionally changing size of persisted tables, we are testing small data so we can expect
         // that the size will not change too much, but in the end it is not
-        $this->assertGreaterThanOrEqual($expectedBytes - 1000, $jobs[0]['metrics']['outBytes']);
+        $this->assertGreaterThanOrEqual($expectedBytes - 1000, $job['metrics']['outBytes']);
         // we keep here higher bound in case something goes way too off
-        $this->assertLessThan($expectedBytes + 1000, $jobs[0]['metrics']['outBytes']);
+        $this->assertLessThan($expectedBytes + 1000, $job['metrics']['outBytes']);
     }
 }
