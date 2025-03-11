@@ -195,5 +195,12 @@ trait EventTesterUtils
         self::assertEquals($this->tokenId, $event['token']['id']);
         self::assertArrayHasKey('params', $event);
         self::assertSame($expectedParams, $event['params']);
+        $this->assertEventUuid($event);
+    }
+
+    protected function assertEventUuid(array $event): void
+    {
+        $this->assertArrayHasKey('uuid', $event);
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{8}(?:\-[0-9a-f]{4}){3}-[0-9a-f]{12}$/', $event['uuid']);
     }
 }
