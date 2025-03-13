@@ -5744,7 +5744,8 @@ the HTTP 400 response code is returned.
     + Body
 
             {
-                "id": "13008826"
+                "id": "13008826",
+                "uuid": "01958f48-b1fc-7f05-b9b9-8a4a7b385bc3"
             }
 
 ### Create Development Branch Event [POST /v2/storage/branch/{branch_id}/events]
@@ -5788,7 +5789,8 @@ the HTTP 400 response code is returned.
     + Body
 
             {
-                "id": "13008826"
+                "id": "13008826",
+                "uuid": "01958f48-b1fc-7f05-b9b9-8a4a7b385bc3"
             }
 
 ### Events list [GET /v2/storage/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
@@ -5842,7 +5844,7 @@ For admin tokens will endpoint lists all events in the project for [Development 
 Obtains information about a event in the project.
 
 + Parameters
-    + event_id (required) - Event Id
+    + event_id (required) - Event Id or uuid
 
 + Request
     + Headers
@@ -5858,7 +5860,7 @@ Obtains information about a event for [Development Branch](#reference/developmen
 
 + Parameters
     + branch_id (required) - Id of the development branch
-    + event_id (required) - Event Id
+    + event_id (required) - Event Id or uuid
 
 + Request
     + Headers
@@ -5945,6 +5947,7 @@ Lists all events associated with a particular token.
 
 ### Event
 + id: 498839405 - Event Id
++ uuid: "01958f48-b1fc-7f05-b9b9-8a4a7b385bc3" - event uuid v7 identifier
 + event: storage.workspaceLoaded - Event identifier such as `storage.tableImportDone` or `storage.tableDetail`
 + component: storage - Name of the component that logged the event. Events can be logged by the `storage` component or any other
 [registered component](#reference/miscellaneous/api-index/component-list).
