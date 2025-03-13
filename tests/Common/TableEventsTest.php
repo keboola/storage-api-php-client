@@ -35,5 +35,6 @@ class TableEventsTest extends StorageApiTestCase
             ],
         );
         $this->assertCount(3, $events);
+        $this->assertEventUuid($events[0]);
     }
 }
