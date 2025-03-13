@@ -7,17 +7,16 @@
  *
  */
 
-
 namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Event;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\EventsQueryBuilder;
+use Keboola\Test\Utils\EventTesterUtils;
 
 class EventsTest extends StorageApiTestCase
 {
-
     public function testEventCreate(): void
     {
         $event = new Event();
@@ -44,6 +43,7 @@ class EventsTest extends StorageApiTestCase
         $this->assertEquals($event->getDescription(), $savedEvent['description']);
         $this->assertEquals($event->getParams(), $savedEvent['params']);
         $this->assertGreaterThan(0, $savedEvent['idBranch']);
+        $this->assertEventUuid($savedEvent);
     }
 
     public function testEventWithSchemaMatchesTheSchema(): void
@@ -280,7 +280,7 @@ class EventsTest extends StorageApiTestCase
             ->setType('info')
             ->setMessage('test - ' . $searchString)
             ->setConfigurationId('myConfig');
-        $searchEvent  = $this->createAndWaitForEvent($event);
+        $searchEvent = $this->createAndWaitForEvent($event);
 
         $event
             ->setComponent('transformation')
@@ -295,6 +295,7 @@ class EventsTest extends StorageApiTestCase
 
         $this->assertCount(1, $events);
         $this->assertEquals($searchEvent['id'], $events[0]['id']);
+        $this->assertEventUuid($events[0]);
     }
 
     public function testEmptyEventsSearch(): void
