@@ -13,7 +13,6 @@ use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Event;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\EventsQueryBuilder;
-use Keboola\Test\Utils\EventTesterUtils;
 
 class EventsTest extends StorageApiTestCase
 {
@@ -34,16 +33,22 @@ class EventsTest extends StorageApiTestCase
 
         $savedEvent = $this->createAndWaitForEvent($event);
 
-        $this->assertEquals($event->getComponent(), $savedEvent['component']);
-        $this->assertEquals($event->getConfigurationId(), $savedEvent['configurationId']);
-        $this->assertEquals($event->getDuration(), $savedEvent['performance']['duration']);
-        $this->assertEquals($event->getType(), $savedEvent['type']);
-        $this->assertEquals($event->getRunId(), $savedEvent['runId']);
-        $this->assertEquals($event->getMessage(), $savedEvent['message']);
-        $this->assertEquals($event->getDescription(), $savedEvent['description']);
-        $this->assertEquals($event->getParams(), $savedEvent['params']);
-        $this->assertGreaterThan(0, $savedEvent['idBranch']);
-        $this->assertEventUuid($savedEvent);
+        $assert = function (Event $expected, array $event) {
+            $this->assertEquals($expected->getComponent(), $event['component']);
+            $this->assertEquals($expected->getConfigurationId(), $event['configurationId']);
+            $this->assertEquals($expected->getDuration(), $event['performance']['duration']);
+            $this->assertEquals($expected->getType(), $event['type']);
+            $this->assertEquals($expected->getRunId(), $event['runId']);
+            $this->assertEquals($expected->getMessage(), $event['message']);
+            $this->assertEquals($expected->getDescription(), $event['description']);
+            $this->assertEquals($expected->getParams(), $event['params']);
+            $this->assertGreaterThan(0, $event['idBranch']);
+            $this->assertEventUuid($event);
+        };
+        $assert($event, $savedEvent);
+
+        $savedEvent = $this->_client->getEvent($savedEvent['uuid']);
+        $assert($event, $savedEvent);
     }
 
     public function testEventWithSchemaMatchesTheSchema(): void
