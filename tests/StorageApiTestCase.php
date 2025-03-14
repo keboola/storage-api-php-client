@@ -61,6 +61,11 @@ abstract class StorageApiTestCase extends ClientTestCase
     /** @var Tokens */
     protected $tokens;
 
+    /**
+     * @var array<int, int>
+     */
+    private array $projectIdCache = [];
+
     public function getTestBucketName(string $testName, string $prefix = 'API-tests-'): string
     {
         return $prefix . sha1($testName);
@@ -107,6 +112,14 @@ abstract class StorageApiTestCase extends ClientTestCase
     {
         $this->_client = $this->getDefaultClient();
         $this->tokens = new Tokens($this->_client);
+    }
+
+    public function getProjectId(Client $client): int
+    {
+        if (!array_key_exists(spl_object_id($client), $this->projectIdCache)) {
+            $this->projectIdCache[spl_object_id($client)] = (int) $client->verifyToken()['owner']['id'];
+        }
+        return $this->projectIdCache[spl_object_id($client)];
     }
 
     protected function _initEmptyTestBuckets($stages = [self::STAGE_OUT, self::STAGE_IN])
