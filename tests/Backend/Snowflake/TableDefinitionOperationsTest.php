@@ -13,11 +13,13 @@ use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
+use Keboola\Test\Utils\GlobalSearchTesterUtils;
 use PHPUnit\Framework\AssertionFailedError;
 use Throwable;
 
 class TableDefinitionOperationsTest extends ParallelWorkspacesTestCase
 {
+    use GlobalSearchTesterUtils;
     private string $tableId;
 
     public function setUp(): void
@@ -1961,13 +1963,11 @@ EOD,
 
         $tableId = $this->_client->createTableDefinition($bucketId, $tableDefinition);
 
-        $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
-        $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
-            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
-            $this->assertSame('table', $searchResult['items'][0]['type'], 'GlobalSearch');
-            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name'], 'GlobalSearch');
-        };
-        $this->retryWithCallback($apiCall, $assertCallback);
+        $this->assertGlobalSearchTable(
+            $this->_client,
+            $hashedUniqueTableName,
+            $this->getProjectId($this->_client),
+        );
 
         $this->_client->writeTableAsync($tableId, $csvFile);
 

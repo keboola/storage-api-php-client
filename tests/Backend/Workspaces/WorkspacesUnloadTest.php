@@ -13,10 +13,12 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\ClientException;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Keboola\Test\Utils\GlobalSearchTesterUtils;
 
 class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
+    use GlobalSearchTesterUtils;
 
     public function testTableCloneCaseSensitiveThrowsUserError(): void
     {
@@ -90,13 +92,11 @@ class WorkspacesUnloadTest extends ParallelWorkspacesTestCase
             'dataTableName' => 'test_Languages3',
         ]);
 
-        $apiCall = fn() => $this->_client->globalSearch($hashedUniqueTableName);
-        $assertCallback = function ($searchResult) use ($hashedUniqueTableName) {
-            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
-            $this->assertSame('table', $searchResult['items'][0]['type'], 'GlobalSearch');
-            $this->assertSame($hashedUniqueTableName, $searchResult['items'][0]['name'], 'GlobalSearch');
-        };
-        $this->retryWithCallback($apiCall, $assertCallback);
+        $this->assertGlobalSearchTable(
+            $this->_client,
+            $hashedUniqueTableName,
+            $this->getProjectId($this->_client),
+        );
 
         $expected = [
             ($connection['backend'] === parent::BACKEND_REDSHIFT) ? '"id","name"' : '"Id","Name"',
