@@ -65,8 +65,7 @@ trait GlobalSearchTesterUtils
             }
             return $item['projectId'] === $projectId;
         });
-        reset($items);
-        return $items;
+        return array_values($items);
     }
 
     /**
