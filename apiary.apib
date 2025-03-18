@@ -5681,8 +5681,10 @@ Virtually every interaction of the client (an API call) creates an Event. Apart 
 also be added via an API. Events are stored for a limited time.
 You can access all events created on an account.
 
+Id field is deprecated and will be removed in the future. Please use Uuid instead.
+
 Events can be filtered by various filters:
-- `sinceId`, `maxId` - Events newer or older than the passed id
+- `sinceId`, `maxId` - Events newer or older than the passed id or Uuid (id is deprecated and will be removed in the future)
 - `component` - Component name
 - `configurationId` - Configuration id
 - `runId` - Run id
@@ -5790,12 +5792,12 @@ the HTTP 400 response code is returned.
                 "uuid": "01958f48-b1fc-7f05-b9b9-8a4a7b385bc3"
             }
 
-### Events list [GET /v2/storage/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
+### Events list [GET /v2/storage/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}&forceUuid={forceUuid}]
 For admin tokens will endpoint lists all events in the project. For non-admin tokens will list only events created by the token.
 
 + Parameters
-    + sinceId (optional) - Shows only events after the specified Id.
-    + maxId (optional) - Shows only events before the passed Id.
+    + sinceId (optional) - Shows only events after the specified Id or Uuid (id is deprecated and will be removed in the future).
+    + maxId (optional) - Shows only events before the passed Id or Uuid (id is deprecated and will be removed in the future).
     + component (optional) - Shows only events emitted by the specified component.
     + configurationId (optional) - Show only events related to given configuration Id.
     + runId (optional) - Shows only events with the specified run Id.
@@ -5804,6 +5806,8 @@ For admin tokens will endpoint lists all events in the project. For non-admin to
         + Default: 100
     + offset (optional, number) - Pagination offset
         + Default: 0
+    + forceUuid (optional, boolean) - If true events are ordered by uuid not by id, this will be default behavior in the future
+        + Default: false
 
 + Request
     + Headers
@@ -5813,13 +5817,13 @@ For admin tokens will endpoint lists all events in the project. For non-admin to
 + Response 200 (application/json)
     + Attributes (array[Event])
 
-### Development Branch Events list [GET /v2/storage/branch/{branch_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
+### Development Branch Events list [GET /v2/storage/branch/{branch_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}&forceUuid={forceUuid}]
 For admin tokens will endpoint lists all events in the project for [Development Branch](#reference/development-branches). For non-admin tokens will list only events created by the token in branch.
 
 + Parameters
     + branch_id (required) - Id of the development branch
-    + sinceId (optional) - Shows only events after the specified Id.
-    + maxId (optional) - Shows only events before the passed Id.
+    + sinceId (optional) - Shows only events after the specified Id or Uuid (id is deprecated and will be removed in the future).
+    + maxId (optional) - Shows only events before the passed Id or Uuid (id is deprecated and will be removed in the future).
     + component (optional) - Shows only events emitted by the specified component.
     + configurationId (optional) - Show only events related to given configuration Id.
     + runId (optional) - Shows only events with the specified run Id.
@@ -5828,6 +5832,8 @@ For admin tokens will endpoint lists all events in the project for [Development 
         + Default: 100
     + offset (optional, number) - Pagination offset
         + Default: 0
+    + forceUuid (optional, boolean) - If true events are ordered by uuid not by id, this will be default behavior in the future
+        + Default: false
 
 + Request
     + Headers
@@ -5841,7 +5847,7 @@ For admin tokens will endpoint lists all events in the project for [Development 
 Obtains information about a event in the project.
 
 + Parameters
-    + event_id (required) - Event Id or uuid
+    + event_id (required) - Event Id or uuid (id is deprecated and will be removed in the future).
 
 + Request
     + Headers
@@ -5857,7 +5863,7 @@ Obtains information about a event for [Development Branch](#reference/developmen
 
 + Parameters
     + branch_id (required) - Id of the development branch
-    + event_id (required) - Event Id or uuid
+    + event_id (required) - Event Id or uuid (id is deprecated and will be removed in the future).
 
 + Request
     + Headers
@@ -5868,13 +5874,13 @@ Obtains information about a event for [Development Branch](#reference/developmen
     + Attributes (Event)
 
 
-## List Bucket Events [/v2/storage/buckets/{bucket_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
+## List Bucket Events [/v2/storage/buckets/{bucket_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}&forceUuid={forceUuid}]
 ### Bucket events list [GET]
 Lists all events associated with a particular bucket.
 
 + Parameters
-    + sinceId (optional) - Shows only events after the specified Id.
-    + maxId (optional) - Shows only events before the passed Id.
+    + sinceId (optional) - Shows only events after the specified Id or Uuid (id is deprecated and will be removed in the future).
+    + maxId (optional) - Shows only events before the passed Id or Uuid (id is deprecated and will be removed in the future).
     + component (optional) - Shows only events emitted by the specified component.
     + configurationId (optional) - Shows only events related to given configuration Id.
     + runId (optional) - Shows only events with the specified run Id.
@@ -5883,6 +5889,8 @@ Lists all events associated with a particular bucket.
         + Default: 100
     + offset (optional, number) - Pagination offset
         + Default: 0
+    + forceUuid (optional, boolean) - If true events are ordered by uuid not by id, this will be default behavior in the future
+        + Default: false
 
 + Request
     + Headers
@@ -5892,13 +5900,13 @@ Lists all events associated with a particular bucket.
 + Response 200 (application/json)
    + Attributes (array[Event])
 
-## List Table Events [/v2/storage/tables/{table_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
+## List Table Events [/v2/storage/tables/{table_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}&forceUuid={forceUuid}]
 ### Table events list [GET]
 Lists all events associated with a particular table.
 
 + Parameters
-    + sinceId (optional) - Shows only events after the specified Id.
-    + maxId (optional) - Shows only events before the passed Id.
+    + sinceId (optional) - Shows only events after the specified Id or Uuid (id is deprecated and will be removed in the future).
+    + maxId (optional) - Shows only events before the passed Id or Uuid (id is deprecated and will be removed in the future).
     + component (optional) - Shows only events emitted by the specified component.
     + configurationId (optional) - Shows only events related to the given configuration Id.
     + runId (optional) - Shows only events with the specified run Id.
@@ -5907,6 +5915,8 @@ Lists all events associated with a particular table.
         + Default: 100
     + offset (optional, number) - Pagination offset
         + Default: 0
+    + forceUuid (optional, boolean) - If true events are ordered by uuid not by id, this will be default behavior in the future
+        + Default: false
 
 + Request
     + Headers
@@ -5916,13 +5926,13 @@ Lists all events associated with a particular table.
 + Response 200 (application/json)
    + Attributes (array[Event])
 
-## List Token Events [/v2/storage/tokens/{token_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
+## List Token Events [/v2/storage/tokens/{token_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}&forceUuid={forceUuid}]
 ### Token events list [GET]
 Lists all events associated with a particular token.
 
 + Parameters
-    + sinceId (optional) - Shows only events after the specified Id.
-    + maxId (optional) - Shows only events before the passed Id.
+    + sinceId (optional) - Shows only events after the specified Id or Uuid (id is deprecated and will be removed in the future).
+    + maxId (optional) - Shows only events before the passed Id or Uuid (id is deprecated and will be removed in the future).
     + component (optional) - Shows only events emitted by the specified component.
     + configurationId (optional) - Shows only events related to the given configuration Id.
     + runId (optional) - Shows only events with the specified run Id.
@@ -5931,6 +5941,8 @@ Lists all events associated with a particular token.
         + Default: 100
     + offset (optional, number) - Pagination offset
         + Default: 0
+    + forceUuid (optional, boolean) - If true events are ordered by uuid not by id, this will be default behavior in the future
+        + Default: false
 
 + Request
     + Headers
@@ -5943,7 +5955,7 @@ Lists all events associated with a particular token.
 ## Data Structures
 
 ### Event
-+ id: 498839405 - Event Id
++ id: 498839405 - Event Id (deprecated and will be removed in the future)
 + uuid: "01958f48-b1fc-7f05-b9b9-8a4a7b385bc3" - event uuid v7 identifier
 + event: storage.workspaceLoaded - Event identifier such as `storage.tableImportDone` or `storage.tableDetail`
 + component: storage - Name of the component that logged the event. Events can be logged by the `storage` component or any other
