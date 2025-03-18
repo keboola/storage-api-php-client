@@ -47,9 +47,9 @@ trait EventTesterUtils
 
     /**
      * @uses \Keboola\Test\StorageApiTestCase::createAndWaitForEvent()
-     * @return void
+     * @return array<mixed>
      */
-    protected function initEvents(Client $client)
+    protected function initEvents(Client $client): array
     {
         // use default _client; branch client doesn't support verifyToken call
         $this->tokenId = $client->verifyToken()['id'];
@@ -62,6 +62,8 @@ trait EventTesterUtils
         if (!empty($lastEvent)) {
             $this->lastEventId = $lastEvent['id'];
         }
+
+        return $lastEvent;
     }
 
     public function assertEventsCallback(Client $client, callable $callback, int $limit = 1): array

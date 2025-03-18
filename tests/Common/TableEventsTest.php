@@ -17,7 +17,7 @@ class TableEventsTest extends StorageApiTestCase
     public function testTableEvents(): void
     {
         // set lastEventId
-        $this->initEvents($this->_client);
+        $lastEvent = $this->initEvents($this->_client);
         $importFile = __DIR__ . '/../_data/languages.csv';
         $tableId = $this->_client->createTableAsync(
             $this->getTestBucketId(),
@@ -28,10 +28,22 @@ class TableEventsTest extends StorageApiTestCase
         $this->createAndWaitForEvent((new Event())
             ->setComponent('dummy')
             ->setMessage('dummy'), $this->_client);
+
+        // sinceId id (int)
         $events = $this->_client->listTableEvents(
             $tableId,
             [
-                'sinceId' => $this->lastEventId,
+                'sinceId' => $lastEvent['id'],
+            ],
+        );
+        $this->assertCount(3, $events);
+        $this->assertEventUuid($events[0]);
+
+        // sinceId uuid
+        $events = $this->_client->listTableEvents(
+            $tableId,
+            [
+                'sinceId' => $lastEvent['uuid'],
             ],
         );
         $this->assertCount(3, $events);
