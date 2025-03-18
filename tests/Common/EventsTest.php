@@ -88,6 +88,69 @@ class EventsTest extends StorageApiTestCase
         }
     }
 
+    public function testEventsSinceIdMaxId(): void
+    {
+        $runId = sha1($this->generateDescriptionForTestObject());
+        // create 3 events wait for persistence
+        $event1= $this->createAndWaitForEvent((new Event())
+            ->setComponent('dummy')
+            ->setRunId($runId)
+            ->setMessage('dummy1'));
+        $event2 = $this->createAndWaitForEvent((new Event())
+            ->setComponent('dummy')
+            ->setRunId($runId)
+            ->setMessage('dummy2'));
+        $event3 = $this->createAndWaitForEvent((new Event())
+            ->setComponent('dummy')
+            ->setRunId($runId)
+            ->setMessage('dummy3'));
+
+        // list events since first one
+        // by id
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+            'sinceId' => $event1['id'],
+        ]);
+        $this->assertCount(2, $events);
+        // by uuid
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+            'sinceId' => $event1['uuid'],
+        ]);
+        $this->assertCount(2, $events);
+
+        // list events between first and last
+        // by id
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+            'sinceId' => $event1['id'],
+            'maxId' => $event3['id'],
+        ]);
+        $this->assertCount(1, $events);
+        $this->assertSame($event2['id'], $events[0]['id']);
+        $this->assertSame($event2['uuid'], $events[0]['uuid']);
+        // by uuid
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+            'sinceId' => $event1['uuid'],
+            'maxId' => $event3['uuid'],
+        ]);
+        $this->assertCount(1, $events);
+        $this->assertSame($event2['id'], $events[0]['id']);
+        $this->assertSame($event2['uuid'], $events[0]['uuid']);
+        // now do the same but force uuid sorting
+        // by uuid
+        $events = $this->_client->listEvents([
+            'runId' => $runId,
+            'sinceId' => $event1['uuid'],
+            'maxId' => $event3['uuid'],
+            'forceUuid' => true,
+        ]);
+        $this->assertCount(1, $events);
+        $this->assertSame($event2['id'], $events[0]['id']);
+        $this->assertSame($event2['uuid'], $events[0]['uuid']);
+    }
+
     public function testEventWithoutSchemaHasOnlyMinimalValidation(): void
     {
         $event = new Event();
