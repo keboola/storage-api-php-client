@@ -30,8 +30,8 @@ trait GlobalSearchTesterUtils
             $items = array_filter($items, fn(array $item) => $item['type'] === 'table');
             $this->assertIsArray($items);
             reset($items);
-            $this->assertCount(1, $items, $this->getGlobalSearchErrorMsg('No table not found 1 expected', $searchResult));
-            $this->assertSame($expectedTableName, $items[0]['name'], $this->getGlobalSearchErrorMsg(sprintf('Table %s not found', $expectedTableName), $searchResult));
+            $this->assertCount(1, $items, $this->getGlobalSearchErrorMsg('No table not found, 1 expected', $searchResult));
+            $this->assertSame($expectedTableName, $items[0]['name'], $this->getGlobalSearchErrorMsg(sprintf('Table "%s" not found', $expectedTableName), $searchResult));
         };
         $this->retryWithCallback($apiCall, $assertCallback);
     }
