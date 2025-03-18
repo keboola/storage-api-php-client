@@ -40,6 +40,7 @@ use Google\Cloud\Storage\StorageClient as GoogleStorageClient;
 
 /**
  * @phpstan-type StorageJob array{id: int, status: string, url: string, tableId: ?string, operationName: string, operationParams: array<string, mixed>, createdTime: string, startTime: ?string, endTime: ?string, runId: ?string, results: ?array<string, mixed>, creatorToken: array{id: ?string, description: ?string}, metrics: array{inCompressed: bool, inBytes: int, inBytesUncompressed: int, outCompressed: bool, outBytes: int, outBytesUncompressed: int}, error?: array{code: string, message: string, exceptionId: string, contextParams: ?array<mixed>, uuid: ?string}}
+ * @phpstan-type GlobalSearchResult array{all: int, items: array<mixed>, aggregations: array<mixed>}
  */
 class Client
 {
@@ -3349,7 +3350,7 @@ class Client
     }
 
     /**
-     * @return array{all: int, items: array<mixed>, aggregations: array<mixed>}
+     * @return GlobalSearchResult
      */
     public function globalSearch(string $query, ?GlobalSearchOptions $params = null): array
     {
@@ -3358,7 +3359,7 @@ class Client
             $paramsArray = array_merge($paramsArray, $params->toParamsArray());
         }
 
-        /** @var array{all: int, items: array<mixed>, aggregations: array<mixed>} $result */
+        /** @var GlobalSearchResult $result */
         $result = $this->apiGet('global-search?' . http_build_query($paramsArray));
         return $result;
     }
