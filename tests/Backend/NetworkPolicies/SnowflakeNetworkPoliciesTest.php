@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace Keboola\Test\Backend\NetworkPolicies;
 
-use Keboola\Db\Import\Exception;
+use Exception;
+use Keboola\Db\Import\Exception as DbImportExecption;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Retry\BackOff\FixedBackOffPolicy;
+use Retry\Policy\CallableRetryPolicy;
+use Retry\RetryProxy;
 
 class SnowflakeNetworkPoliciesTest extends NetworkPoliciesTestCase
 {
@@ -127,9 +131,9 @@ class SnowflakeNetworkPoliciesTest extends NetworkPoliciesTestCase
         $this->assertHaveNetworkPolicyEnabled($workspace2['connection']['user'], $systemNetworkPolicyName);
 
         try {
-            WorkspaceBackendFactory::createWorkspaceBackend($workspace2);
+            $this->connectToWorkspaceUntilFail($workspace2);
             $this->fail('This should fail on "not allowed access to Snowflake"');
-        } catch (Exception $exception) {
+        } catch (DbImportExecption $exception) {
             $this->assertTrue(
                 str_contains($exception->getMessage(), 'is not allowed to access Snowflake'),
                 sprintf('User %s have still access to Snowflake', $workspace2['connection']['user']),
@@ -141,5 +145,27 @@ class SnowflakeNetworkPoliciesTest extends NetworkPoliciesTestCase
 
         $this->removeNetworkRuleFromNetworkPolicy($testNetworkRuleName, $systemNetworkPolicyName);
         $this->dropNetworkRule($testNetworkRuleName);
+    }
+
+    /**
+     * @param array<mixed> $workspace
+     * @throws DbImportExecption
+     */
+    private function connectToWorkspaceUntilFail(array $workspace): void
+    {
+        $retryPolicy = new CallableRetryPolicy(function (Exception $e) {
+            return $e->getMessage() === 'should_fail';
+        });
+        $proxy = new RetryProxy($retryPolicy, new FixedBackOffPolicy());
+        try {
+            $proxy->call(function () use ($workspace) {
+                WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+                throw new Exception('should_fail');
+            });
+        } catch (Exception $e) {
+            if ($e->getMessage() !== 'should_fail') {
+                return;
+            }
+        }
     }
 }
