@@ -10,7 +10,6 @@
 namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\Csv\CsvFile;
@@ -81,14 +80,13 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
         $this->assertArrayEqualsSorted($expectedTableContent, $parsedData, 0);
     }
 
-    // because BQ/exa does not support valuesByTableInStorage / valuesByTableInWorkspace yet/. Tmp fix
+    // because BQ/exa does not support valuesByTableInWorkspace yet/. Tmp fix
     private function isBigqueryOrExasolWithNewDeleteRows(string $backendName, array $filterParams): bool
     {
         return in_array($backendName, ['bigquery', 'exasol']) &&
             array_key_exists('whereFilters', $filterParams) &&
             count($filterParams['whereFilters']) > 0 &&
-            (array_key_exists('valuesByTableInStorage', $filterParams['whereFilters'][0]) || array_key_exists('valuesByTableInWorkspace', $filterParams['whereFilters'][0])
-            );
+            (array_key_exists('valuesByTableInWorkspace', $filterParams['whereFilters'][0]));
     }
 
     public function testDeleteRowsMissingValuesShouldReturnUserError(): void
@@ -321,52 +319,6 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
                     ],
                 ],
             ],
-            'where filter: valuesByTableInStorage' => [
-                [
-                    'whereFilters' => [
-                        [
-                            'column' => 'city',
-                            'valuesByTableInStorage' => [
-                                'tableId' => 'table',
-                                'column' => 'city',
-                            ],
-                        ],
-                    ],
-                ],
-                // no rows should be deleted because valuesByTableInStorage doesn't do anything yet
-                [
-                    [
-                        '1',
-                        'martin',
-                        'PRG',
-                        'male',
-                    ],
-                    [
-                        '2',
-                        'klara',
-                        'PRG',
-                        'female',
-                    ],
-                    [
-                        '3',
-                        'ondra',
-                        'VAN',
-                        'male',
-                    ],
-                    [
-                        '4',
-                        'miro',
-                        'BRA',
-                        'male',
-                    ],
-                    [
-                        '5',
-                        'hidden',
-                        '',
-                        'male',
-                    ],
-                ],
-            ],
         ];
     }
 
@@ -431,7 +383,7 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
             $this->fail('Should fail because of invalid column type');
         } catch (ClientException $e) {
             $this->assertSame('Cannot use column "ID" to delete by. Column types do not match. Type is "NUMBER" but expected type is "VARCHAR".', $e->getMessage());
-            $this->assertSame('storage.tables.validation.invalidColumnToDeleteBy', $e->getStringCode());
+            $this->assertSame('storage.tables.invalidColumnToDeleteBy', $e->getStringCode());
         }
 
         // test non-existing column
@@ -451,7 +403,7 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
             $this->fail('Should fail because of column does not exist');
         } catch (ClientException $e) {
             $this->assertSame('Cannot use column "NOTEXISTING" to delete by. Column does not exist.', $e->getMessage());
-            $this->assertSame('storage.tables.validation.invalidColumnToDeleteBy', $e->getStringCode());
+            $this->assertSame('storage.tables.invalidColumnToDeleteBy', $e->getStringCode());
         }
 
         // test non-existing workspace
