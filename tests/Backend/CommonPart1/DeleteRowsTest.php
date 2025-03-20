@@ -122,7 +122,7 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
             $this->fail('Exception should be thrown');
         } catch (\Keboola\StorageApi\ClientException $e) {
             $this->assertSame('storage.tables.columnNotExists', $e->getStringCode());
-            $this->assertSame('Cannot filter by column "notExistingColumn", column does not exist', $e->getMessage());
+            $this->assertSame('Filter validation: Cannot filter by column "notExistingColumn", column does not exist', $e->getMessage());
         }
     }
 
