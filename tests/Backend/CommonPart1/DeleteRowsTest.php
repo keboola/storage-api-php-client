@@ -45,6 +45,86 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
         $this->assertArrayEqualsSorted($expectedTableContent, $parsedData, 0);
     }
 
+    public function testTableDeleteRowsByNullFilter(): void
+    {
+        $importFile = __DIR__ . '/../../_data/users.csv'; //"id","name","city","sex"
+        $tableId = $this->_client->createTableDefinition(
+            $this->getTestBucketId(self::STAGE_IN),
+            [
+                'name' => 'users',
+                'primaryKeysNames' => [],
+                'columns' => [
+                    [
+                        'name' => 'id',
+                        'definition' => [
+                            'type' => 'INTEGER',
+                        ],
+                    ],
+                    [
+                        'name' => 'name',
+                        'definition' => [
+                            'type' => 'STRING',
+                        ],
+                    ],
+                    [
+                        'name' => 'city',
+                        'definition' => [
+                            'type' => 'STRING',
+                            'nullable' => true,
+                        ],
+                    ],
+                    [
+                        'name' => 'sex',
+                        'definition' => [
+                            'type' => 'STRING',
+                        ],
+                    ],
+                ],
+            ],
+        );
+        $this->_client->writeTableAsync($tableId, new CsvFile($importFile));
+        $this->_client->deleteTableRows($tableId, [
+            'whereFilters' => [
+                [
+                    'column' => 'city',
+                    'values' => [null],
+                ],
+            ],
+        ]);
+
+        $data = $this->_client->getTableDataPreview($tableId);
+
+        $parsedData = Client::parseCsv($data, false);
+        array_shift($parsedData); // remove header
+
+        $this->assertArrayEqualsSorted([
+            [
+                '1',
+                'martin',
+                'PRG',
+                'male',
+            ],
+            [
+                '2',
+                'klara',
+                'PRG',
+                'female',
+            ],
+            [
+                '3',
+                'ondra',
+                'VAN',
+                'male',
+            ],
+            [
+                '4',
+                'miro',
+                'BRA',
+                'male',
+            ],
+        ], $parsedData, 0);
+    }
+
     public function testTableDeleteRowsByEmptyFilterWithoutAllowTruncateShouldFail(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
