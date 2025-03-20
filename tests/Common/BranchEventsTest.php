@@ -169,7 +169,7 @@ class BranchEventsTest extends StorageApiTestCase
      */
     public function testFilterBranchTokenEventsIsNotInDefaultBranch(): void
     {
-        $lastEventId = $this->getLastEventId($this->_client);
+        $lastEvent = $this->getLastEvent($this->_client);
 
         // create new token
         $tokenOptions = (new TokenCreateOptions())
@@ -200,8 +200,14 @@ class BranchEventsTest extends StorageApiTestCase
         $eventInBranchFromMasterToken = $this->createAndWaitForEvent($eventInBranchFromMasterToken, $masterBranchClient);
 
         // test DEFAULT branch
-        // check token events in default branch
-        $defaultTokenEvents = $this->_client->listTokenEvents($token['id'], ['sinceId' => $lastEventId]);
+        // check token events in default branch, list by id
+        $defaultTokenEvents = $this->_client->listTokenEvents($token['id'], ['sinceId' => $lastEvent['id']]);
+        $this->assertCount(1, $defaultTokenEvents); // token created
+        // check dummy event is not among token events
+        $this->assertNotSame($event['id'], reset($defaultTokenEvents)['id']);
+
+        // check events in default branch, list by uuid
+        $defaultTokenEvents = $this->_client->listTokenEvents($token['id'], ['sinceId' => $lastEvent['uuid']]);
         $this->assertCount(1, $defaultTokenEvents); // token created
 
         // check dummy event is not among token events
@@ -236,8 +242,9 @@ class BranchEventsTest extends StorageApiTestCase
 
     /**
      * @see \Keboola\Test\Utils\EventTesterUtils::initEvents inspired by
+     * @return array<mixed>
      */
-    private function getLastEventId(Client $client): string
+    private function getLastEvent(Client $client): array
     {
         $fireEvent = (new Event())
             ->setComponent('dummy')
@@ -245,7 +252,7 @@ class BranchEventsTest extends StorageApiTestCase
         $lastEvent = $this->createAndWaitForEvent($fireEvent, $client);
 
         if (!empty($lastEvent)) {
-            return $lastEvent['id'];
+            return $lastEvent;
         }
         $this->fail('Get last event failed - not created');
     }
