@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Test\Utils;
 
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\Options\GlobalSearchOptions;
 
 /**
  * @phpstan-import-type GlobalSearchResult from Client
@@ -18,8 +19,9 @@ trait GlobalSearchTesterUtils
         string $expectedTableName,
         int $expectedProjectId,
         int|null $expectedBranchId = null,
+        GlobalSearchOptions|null $globalSearchOptions = null,
     ): void {
-        $apiCall = fn() => $client->globalSearch($expectedTableName);
+        $apiCall = fn() => $client->globalSearch($expectedTableName, $globalSearchOptions);
         $assertCallback = function ($searchResult) use ($expectedTableName, $expectedProjectId, $expectedBranchId) {
             $items = $this->filterSearchResultsByProjectAndBranch(
                 $searchResult,
@@ -31,6 +33,30 @@ trait GlobalSearchTesterUtils
             $this->assertIsArray($items);
             $this->assertCount(1, $items, $this->getGlobalSearchErrorMsg('No table not found, 1 expected', $searchResult));
             $this->assertSame($expectedTableName, $items[0]['name'], $this->getGlobalSearchErrorMsg(sprintf('Table "%s" not found', $expectedTableName), $searchResult));
+        };
+        $this->retryWithCallback($apiCall, $assertCallback);
+    }
+
+
+    public function assertGlobalSearchBucket(
+        Client $client,
+        string $expectedBucketName,
+        int $expectedProjectId,
+        int|null $expectedBranchId = null,
+        GlobalSearchOptions|null $globalSearchOptions = null,
+    ): void {
+        $apiCall = fn() => $client->globalSearch($expectedBucketName, $globalSearchOptions);
+        $assertCallback = function ($searchResult) use ($expectedBucketName, $expectedProjectId, $expectedBranchId) {
+            $items = $this->filterSearchResultsByProjectAndBranch(
+                $searchResult,
+                $expectedProjectId,
+                $expectedBranchId,
+            );
+            $this->assertIsArray($items);
+            $items = array_values(array_filter($items, fn(array $item) => $item['type'] === 'bucket'));
+            $this->assertIsArray($items);
+            $this->assertCount(1, $items, $this->getGlobalSearchErrorMsg('Bucket not found, 1 expected', $searchResult));
+            $this->assertSame($expectedBucketName, $items[0]['name'], $this->getGlobalSearchErrorMsg(sprintf('Table "%s" not found', $expectedBucketName), $searchResult));
         };
         $this->retryWithCallback($apiCall, $assertCallback);
     }

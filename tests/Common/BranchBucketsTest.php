@@ -8,9 +8,12 @@ use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\Options\GlobalSearchOptions;
 use Keboola\Test\StorageApiTestCase;
+use Keboola\Test\Utils\GlobalSearchTesterUtils;
 
 class BranchBucketsTest extends StorageApiTestCase
 {
+    use GlobalSearchTesterUtils;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -105,21 +108,24 @@ class BranchBucketsTest extends StorageApiTestCase
         $this->assertCount(2, $this->listTestBucketsForParallelTests());
 
         // bucket in dev branch is searchable
-        $apiCall1 = fn() => $this->_client->globalSearch($devBucketName1, (new GlobalSearchOptions(null, null, null, null, ['development'])));
-        $assertCallback1 = function ($searchResult) use ($devBucketName1) {
-            $this->assertSame(1, $searchResult['all'], 'GlobalSearch');
-            $this->assertArrayHasKey('id', $searchResult['items'][0], 'GlobalSearch');
-            $this->assertArrayHasKey('type', $searchResult['items'][0], 'GlobalSearch');
-            $this->assertEquals('bucket', $searchResult['items'][0]['type'], 'GlobalSearch');
-            $this->assertArrayHasKey('name', $searchResult['items'][0], 'GlobalSearch');
-            $this->assertEquals($devBucketName1, $searchResult['items'][0]['name'], 'GlobalSearch');
-        };
-        $this->retryWithCallback($apiCall1, $assertCallback1);
+        $this->assertGlobalSearchBucket(
+            $this->_client,
+            $devBucketName1,
+            $this->getProjectId($this->_client),
+            null,
+            (new GlobalSearchOptions(branchTypes: ['development'])),
+        );
 
         $devBranchClient->deleteBranch($branch1['id']);
 
         // bucket in dev branch is no longer searchable
-        $apiCall2 = fn() => $this->_client->globalSearch($devBucketName1, (new GlobalSearchOptions(null, null, null, null, ['development'])));
+        $apiCall2 = fn() => $this->_client->globalSearch(
+            $devBucketName1,
+            params: (new GlobalSearchOptions(
+                projectIds: [$this->getProjectId($this->_client)],
+                branchTypes: ['development'],
+            )),
+        );
         $assertCallback2 = function ($searchResult) {
             $this->assertSame(0, $searchResult['all'], 'GlobalSearch');
         };
