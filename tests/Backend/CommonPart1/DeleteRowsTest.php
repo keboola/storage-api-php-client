@@ -9,18 +9,45 @@
 
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Exception;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Workspaces;
+use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use Keboola\Test\StorageApiTestCase;
 
+/**
+ * @phpstan-import-type WorkspaceResponse from Workspaces
+ */
 class DeleteRowsTest extends ParallelWorkspacesTestCase
 {
     public function setUp(): void
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function initData(WorkspaceBackend $backend, string $backendName, string $schemaName): void
+    {
+        switch ($backendName) {
+            case 'snowflake':
+                $backend->executeQuery("INSERT INTO USERS VALUES (1, 'martin');");
+                $backend->executeQuery("INSERT INTO USERS VALUES (3, 'ondra');");
+                break;
+            case 'bigquery':
+                $backend->executeQuery(sprintf("INSERT INTO %s.%s VALUES (1, 'martin');", BigqueryQuote::quoteSingleIdentifier($schemaName), BigqueryQuote::quoteSingleIdentifier('USERS')));
+                $backend->executeQuery(sprintf("INSERT INTO %s.%s VALUES (3, 'ondra');", BigqueryQuote::quoteSingleIdentifier($schemaName), BigqueryQuote::quoteSingleIdentifier('USERS')));
+                break;
+            default:
+                throw new Exception('Unknown backend');
+        }
     }
 
     /**
@@ -31,8 +58,8 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
         $tableInfo = $this->_client->getTable($tableId);
-        if ($this->isBigqueryOrExasolWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
-            $this->markTestSkipped('BQ does not new params of valuesBy* yet');
+        if ($this->isExasolWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
+            $this->markTestSkipped('Not supported in Exasol yet.');
         }
 
         $this->_client->deleteTableRows($tableId, $filterParams);
@@ -67,8 +94,8 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
         $tableInfo = $this->_client->getTable($tableId);
-        if ($this->isBigqueryOrExasolWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
-            $this->markTestSkipped('BQ does not new params of valuesBy* yet');
+        if ($this->isExasolWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
+            $this->markTestSkipped('Not supported in Exasol yet.');
         }
         $this->_client->deleteTableRowsAsQuery($tableId, $filterParams);
 
@@ -81,9 +108,9 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
     }
 
     // because BQ/exa does not support valuesByTableInWorkspace yet/. Tmp fix
-    private function isBigqueryOrExasolWithNewDeleteRows(string $backendName, array $filterParams): bool
+    private function isExasolWithNewDeleteRows(string $backendName, array $filterParams): bool
     {
-        return in_array($backendName, ['bigquery', 'exasol']) &&
+        return $backendName === StorageApiTestCase::BACKEND_EXASOL &&
             array_key_exists('whereFilters', $filterParams) &&
             count($filterParams['whereFilters']) > 0 &&
             (array_key_exists('valuesByTableInWorkspace', $filterParams['whereFilters'][0]));
@@ -324,7 +351,7 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
 
     public function testDeleteByValuesInWorkspaceWithInvalidData(): void
     {
-        $this->skipTestForBackend(['bigquery', 'exasol'], 'Not supported in BQ/Exasol yet');
+        $this->skipTestForBackend([StorageApiTestCase::BACKEND_EXASOL], 'Not supported in Exasol yet.');
 
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
@@ -332,13 +359,12 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
-        $workspace = $this->initTestWorkspace('snowflake');
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $backend->dropTableIfExists('USERS');
-        $backend->createTable('USERS', ['ID' => 'INT', 'name' => 'VARCHAR(255)']);
-        $backend->executeQuery("INSERT INTO USERS VALUES (1, 'martin');");
-        $backend->executeQuery("INSERT INTO USERS VALUES (3, 'ondra');");
+        $backend->createTable('USERS', ['ID' => 'INT', 'name' => 'STRING']);
+        $this->initData($backend, $workspace['connection']['backend'], $workspace['connection']['schema']);
 
         // test invalid table
         try {
@@ -382,7 +408,7 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
             ]);
             $this->fail('Should fail because of invalid column type');
         } catch (ClientException $e) {
-            $this->assertSame('Cannot use column "ID" to delete by. Column types do not match. Type is "NUMBER" but expected type is "VARCHAR".', $e->getMessage());
+            $this->assertMatchesRegularExpression('/Cannot use column "ID" to delete by. Column types do not match.*/', $e->getMessage());
             $this->assertSame('storage.tables.invalidColumnToDeleteBy', $e->getStringCode());
         }
 
@@ -430,17 +456,17 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
     public function testDeleteByValuesInWorkspaceWithValidData(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $this->skipTestForBackend(['bigquery', 'exasol'], 'Not supported in BQ/Exasol yet');
+        $this->skipTestForBackend([StorageApiTestCase::BACKEND_EXASOL], 'Not supported in Exasol yet.');
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
-        $workspace = $this->initTestWorkspace('snowflake');
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $backend->dropTableIfExists('USERS');
-        $backend->createTable('USERS', ['ID' => 'VARCHAR', 'name' => 'VARCHAR(255)']);
+        $backend->createTable('USERS', ['ID' => 'STRING', 'name' => 'STRING']);
 
         // WS table is empty - should pass and not delete anything
         $result = $this->_client->deleteTableRows($tableId, [
@@ -460,7 +486,12 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
         $this->assertEquals(0, $result['deletedRows']);
 
         // there is one row in WS table - should delete one row
-        $backend->executeQuery("INSERT INTO USERS VALUES ('3', 'ondra');");
+        if ($workspace['connection']['backend'] === 'bigquery') {
+            $backend->executeQuery(sprintf("INSERT INTO %s.%s VALUES ('3', 'ondra');", BigqueryQuote::quoteSingleIdentifier($workspace['connection']['schema']), BigqueryQuote::quoteSingleIdentifier('USERS')));
+        } else {
+            $backend->executeQuery("INSERT INTO USERS VALUES ('3', 'ondra');");
+        }
+
         $result = $this->_client->deleteTableRows($tableId, [
             'whereFilters' => [
                 [
