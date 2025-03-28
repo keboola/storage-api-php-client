@@ -14,6 +14,7 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use Keboola\Test\StorageApiTestCase;
 
 class DeleteRowsTest extends ParallelWorkspacesTestCase
 {
@@ -31,8 +32,8 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
         $tableInfo = $this->_client->getTable($tableId);
-        if ($this->isBigqueryOrExasolWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
-            $this->markTestSkipped('BQ does not new params of valuesBy* yet');
+        if ($this->isExasolWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
+            $this->markTestSkipped('Not supported in Exasol yet.');
         }
 
         $this->_client->deleteTableRows($tableId, $filterParams);
@@ -67,8 +68,8 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
         $tableInfo = $this->_client->getTable($tableId);
-        if ($this->isBigqueryOrExasolWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
-            $this->markTestSkipped('BQ does not new params of valuesBy* yet');
+        if ($this->isExasolWithNewDeleteRows($tableInfo['bucket']['backend'], $filterParams)) {
+            $this->markTestSkipped('Not supported in Exasol yet.');
         }
         $this->_client->deleteTableRowsAsQuery($tableId, $filterParams);
 
@@ -81,9 +82,9 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
     }
 
     // because BQ/exa does not support valuesByTableInWorkspace yet/. Tmp fix
-    private function isBigqueryOrExasolWithNewDeleteRows(string $backendName, array $filterParams): bool
+    private function isExasolWithNewDeleteRows(string $backendName, array $filterParams): bool
     {
-        return in_array($backendName, ['exasol']) &&
+        return $backendName === StorageApiTestCase::BACKEND_EXASOL &&
             array_key_exists('whereFilters', $filterParams) &&
             count($filterParams['whereFilters']) > 0 &&
             (array_key_exists('valuesByTableInWorkspace', $filterParams['whereFilters'][0]));
@@ -324,7 +325,7 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
 
     public function testDeleteByValuesInWorkspaceWithInvalidData(): void
     {
-        $this->skipTestForBackend(['exasol'], 'Not supported in BQ/Exasol yet');
+        $this->skipTestForBackend([StorageApiTestCase::BACKEND_EXASOL], 'Not supported in Exasol yet.');
 
         $importFile = __DIR__ . '/../../_data/users.csv';
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
@@ -430,7 +431,7 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
     public function testDeleteByValuesInWorkspaceWithValidData(): void
     {
         $importFile = __DIR__ . '/../../_data/users.csv';
-        $this->skipTestForBackend(['exasol'], 'Not supported in BQ/Exasol yet');
+        $this->skipTestForBackend([StorageApiTestCase::BACKEND_EXASOL], 'Not supported in Exasol yet.');
         $tableId = $this->_client->createTableAsync($this->getTestBucketId(self::STAGE_IN), 'users', new CsvFile($importFile));
 
         $runId = $this->_client->generateRunId();
