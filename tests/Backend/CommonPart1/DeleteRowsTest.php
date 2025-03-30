@@ -10,6 +10,8 @@
 namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\StorageApi\ClientException;
+use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\Csv\CsvFile;
@@ -22,6 +24,22 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
     {
         parent::setUp();
         $this->initEmptyTestBucketsForParallelTests();
+    }
+
+    protected function initData(WorkspaceBackend $backend, $workspaceResponse): void
+    {
+        switch ($workspaceResponse['connection']['backend']) {
+            case 'snowflake':
+                $backend->executeQuery("INSERT INTO USERS VALUES (1, 'martin');");
+                $backend->executeQuery("INSERT INTO USERS VALUES (3, 'ondra');");
+                break;
+            case 'bigquery':
+                $backend->executeQuery(sprintf("ISERT INTO %s.%s USERS VALUES (1, 'martin');", BigqueryQuote::quoteSingleIdentifier($workspaceResponse['connection']['schema']), BigqueryQuote::quoteSingleIdentifier('USERS')));
+                $backend->executeQuery(sprintf("'INSERT INTO %s.%s USERS VALUES (3, 'ondra');", BigqueryQuote::quoteSingleIdentifier($workspaceResponse['connection']['schema']), BigqueryQuote::quoteSingleIdentifier('USERS')));
+                break;
+            default:
+                throw new \Exception('Unknown backend');
+        }
     }
 
     /**
@@ -333,13 +351,12 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
-        $workspace = $this->initTestWorkspace('snowflake');
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $backend->dropTableIfExists('USERS');
-        $backend->createTable('USERS', ['ID' => 'INT', 'name' => 'VARCHAR(255)']);
-        $backend->executeQuery("INSERT INTO USERS VALUES (1, 'martin');");
-        $backend->executeQuery("INSERT INTO USERS VALUES (3, 'ondra');");
+        $backend->createTable('USERS', ['ID' => 'INT', 'name' => 'STRING']);
+        $this->initData($backend, $workspace);
 
         // test invalid table
         try {
@@ -437,11 +454,11 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
-        $workspace = $this->initTestWorkspace('snowflake');
+        $workspace = $this->initTestWorkspace();
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         $backend->dropTableIfExists('USERS');
-        $backend->createTable('USERS', ['ID' => 'VARCHAR', 'name' => 'VARCHAR(255)']);
+        $backend->createTable('USERS', ['ID' => 'STRING', 'name' => 'STRING']);
 
         // WS table is empty - should pass and not delete anything
         $result = $this->_client->deleteTableRows($tableId, [
