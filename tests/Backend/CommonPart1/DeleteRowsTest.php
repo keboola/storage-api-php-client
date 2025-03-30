@@ -9,7 +9,9 @@
 
 namespace Keboola\Test\Backend\CommonPart1;
 
+use Exception;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackend;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
@@ -18,6 +20,9 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\Test\StorageApiTestCase;
 
+/**
+ * @phpstan-import-type WorkspaceResponse from Workspaces
+ */
 class DeleteRowsTest extends ParallelWorkspacesTestCase
 {
     public function setUp(): void
@@ -26,7 +31,13 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
         $this->initEmptyTestBucketsForParallelTests();
     }
 
-    protected function initData(WorkspaceBackend $backend, $workspaceResponse): void
+    /**
+     * @param WorkspaceBackend $backend
+     * @phpstan-param WorkspaceResponse $workspaceResponse
+     * @return void
+     * @throws Exception
+     */
+    protected function initData(WorkspaceBackend $backend, array $workspaceResponse): void
     {
         switch ($workspaceResponse['connection']['backend']) {
             case 'snowflake':
@@ -38,7 +49,7 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
                 $backend->executeQuery(sprintf("'INSERT INTO %s.%s USERS VALUES (3, 'ondra');", BigqueryQuote::quoteSingleIdentifier($workspaceResponse['connection']['schema']), BigqueryQuote::quoteSingleIdentifier('USERS')));
                 break;
             default:
-                throw new \Exception('Unknown backend');
+                throw new Exception('Unknown backend');
         }
     }
 
