@@ -33,7 +33,7 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
 
     /**
      * @param WorkspaceBackend $backend
-     * @phpstan-param WorkspaceResponse $workspaceResponse
+     * @param array<mixed> $workspaceResponse
      * @return void
      * @throws Exception
      */
