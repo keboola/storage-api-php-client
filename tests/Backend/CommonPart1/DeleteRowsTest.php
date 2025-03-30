@@ -32,21 +32,18 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
     }
 
     /**
-     * @param WorkspaceBackend $backend
-     * @param array<mixed> $workspaceResponse
-     * @return void
      * @throws Exception
      */
-    protected function initData(WorkspaceBackend $backend, array $workspaceResponse): void
+    protected function initData(WorkspaceBackend $backend, string $backendName, string $schemaName): void
     {
-        switch ($workspaceResponse['connection']['backend']) {
+        switch ($backendName) {
             case 'snowflake':
                 $backend->executeQuery("INSERT INTO USERS VALUES (1, 'martin');");
                 $backend->executeQuery("INSERT INTO USERS VALUES (3, 'ondra');");
                 break;
             case 'bigquery':
-                $backend->executeQuery(sprintf("ISERT INTO %s.%s USERS VALUES (1, 'martin');", BigqueryQuote::quoteSingleIdentifier($workspaceResponse['connection']['schema']), BigqueryQuote::quoteSingleIdentifier('USERS')));
-                $backend->executeQuery(sprintf("'INSERT INTO %s.%s USERS VALUES (3, 'ondra');", BigqueryQuote::quoteSingleIdentifier($workspaceResponse['connection']['schema']), BigqueryQuote::quoteSingleIdentifier('USERS')));
+                $backend->executeQuery(sprintf("ISERT INTO %s.%s USERS VALUES (1, 'martin');", BigqueryQuote::quoteSingleIdentifier($schemaName), BigqueryQuote::quoteSingleIdentifier('USERS')));
+                $backend->executeQuery(sprintf("'INSERT INTO %s.%s USERS VALUES (3, 'ondra');", BigqueryQuote::quoteSingleIdentifier($schemaName), BigqueryQuote::quoteSingleIdentifier('USERS')));
                 break;
             default:
                 throw new Exception('Unknown backend');
@@ -367,7 +364,7 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
 
         $backend->dropTableIfExists('USERS');
         $backend->createTable('USERS', ['ID' => 'INT', 'name' => 'STRING']);
-        $this->initData($backend, $workspace);
+        $this->initData($backend, $workspace['connection']['backend'], $workspace['connection']['schema']);
 
         // test invalid table
         try {
