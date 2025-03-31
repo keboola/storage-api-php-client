@@ -43,7 +43,7 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
                 break;
             case 'bigquery':
                 $backend->executeQuery(sprintf("INSERT INTO %s.%s VALUES (1, 'martin');", BigqueryQuote::quoteSingleIdentifier($schemaName), BigqueryQuote::quoteSingleIdentifier('USERS')));
-                $backend->executeQuery(sprintf("'INSERT INTO %s.%s VALUES (3, 'ondra');", BigqueryQuote::quoteSingleIdentifier($schemaName), BigqueryQuote::quoteSingleIdentifier('USERS')));
+                $backend->executeQuery(sprintf("INSERT INTO %s.%s VALUES (3, 'ondra');", BigqueryQuote::quoteSingleIdentifier($schemaName), BigqueryQuote::quoteSingleIdentifier('USERS')));
                 break;
             default:
                 throw new Exception('Unknown backend');
