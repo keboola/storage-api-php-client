@@ -42,8 +42,8 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
                 $backend->executeQuery("INSERT INTO USERS VALUES (3, 'ondra');");
                 break;
             case 'bigquery':
-                $backend->executeQuery(sprintf("ISERT INTO %s.%s USERS VALUES (1, 'martin');", BigqueryQuote::quoteSingleIdentifier($schemaName), BigqueryQuote::quoteSingleIdentifier('USERS')));
-                $backend->executeQuery(sprintf("'INSERT INTO %s.%s USERS VALUES (3, 'ondra');", BigqueryQuote::quoteSingleIdentifier($schemaName), BigqueryQuote::quoteSingleIdentifier('USERS')));
+                $backend->executeQuery(sprintf("INSERT INTO %s.%s VALUES (1, 'martin');", BigqueryQuote::quoteSingleIdentifier($schemaName), BigqueryQuote::quoteSingleIdentifier('USERS')));
+                $backend->executeQuery(sprintf("'INSERT INTO %s.%s VALUES (3, 'ondra');", BigqueryQuote::quoteSingleIdentifier($schemaName), BigqueryQuote::quoteSingleIdentifier('USERS')));
                 break;
             default:
                 throw new Exception('Unknown backend');
@@ -486,7 +486,15 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
         $this->assertEquals(0, $result['deletedRows']);
 
         // there is one row in WS table - should delete one row
-        $backend->executeQuery("INSERT INTO USERS VALUES ('3', 'ondra');");
+//        $backend->executeQuery(
+//            "INSERT INTO USERS VALUES ('3', 'ondra');");
+
+        if ($workspace['connection']['backend'] === 'bigquery') {
+            $backend->executeQuery(sprintf("INSERT INTO %s.%s VALUES ('3', 'ondra');", BigqueryQuote::quoteSingleIdentifier($workspace['connection']['schema']), BigqueryQuote::quoteSingleIdentifier('USERS')));
+        } else {
+            $backend->executeQuery("INSERT INTO USERS VALUES ('3', 'ondra');");
+        }
+
         $result = $this->_client->deleteTableRows($tableId, [
             'whereFilters' => [
                 [
