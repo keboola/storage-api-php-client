@@ -317,6 +317,11 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $tables = $this->_testClient->listTables($idOfBucket);
         $this->assertCount(0, $tables);
 
+        // check if refresh do not add tables in empty bucket
+        $this->_testClient->refreshBucket($idOfBucket);
+        $tables = $this->_testClient->listTables($idOfBucket);
+        $this->assertCount(0, $tables);
+
         // add first table to workspace
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
