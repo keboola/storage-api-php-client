@@ -67,6 +67,12 @@
 			"@phpcs-compatibility",
 			"@phpstan",
 			"@tests"
+		],
+		"pre-autoload-dump": "Aws\\Script\\Composer\\Composer::removeUnusedServices"
+	},
+	"extra": {
+		"aws/aws-sdk-php": [
+			"S3"
 		]
 	}
 }
