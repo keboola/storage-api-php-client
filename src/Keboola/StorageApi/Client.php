@@ -724,32 +724,6 @@ class Client
     }
 
     /**
-     * @deprecated use self::shareBucketToProjects instead
-     * @param string $bucketId
-     * @param array $targetProjectIds
-     * @param bool $async
-     * @return array
-     */
-    public function shareBucketToProjectsAsQuery($bucketId, $targetProjectIds, $async = false)
-    {
-        [$query, $data] = $this->shareBucketToProjectsPrepareOptions($targetProjectIds, $async);
-
-        $query = array_merge($query, $data);
-
-        $url = sprintf('buckets/%s/share-to-projects', $bucketId);
-        if ($query) {
-            $url .= '?' . http_build_query($query);
-        }
-
-        $result = $this->apiPost($url, [], $async);
-        assert(is_array($result));
-
-        $this->log("Bucket {$bucketId} shared", ['result' => $result]);
-
-        return $result;
-    }
-
-    /**
      * @param array $targetUsers
      * @param bool $async
      * @return array{0: array, 1: array}
@@ -787,33 +761,6 @@ class Client
         }
 
         $result = $this->apiPostJson($url, $data, $async);
-        assert(is_array($result));
-
-        $this->log("Bucket {$bucketId} shared", ['result' => $result]);
-
-        return $result;
-    }
-
-    /**
-     * @deprecated use self::shareBucketToUsers instead
-     * @param string $bucketId
-     * @param array $targetUsers
-     * @param bool $async
-     * @return array
-     */
-    public function shareBucketToUsersAsQuery($bucketId, $targetUsers = [], $async = false)
-    {
-        [$query, $data] = $this->shareBucketToUsersPrepareOptions($targetUsers, $async);
-
-        $query = array_merge($query, $data);
-
-        $url = sprintf('buckets/%s/share-to-users', $bucketId);
-        if ($query) {
-            $url .= '?' . http_build_query($query);
-        }
-
-        // keep request with form-data because this endpoint deprecated
-        $result = $this->apiPost($url, [], $async);
         assert(is_array($result));
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
