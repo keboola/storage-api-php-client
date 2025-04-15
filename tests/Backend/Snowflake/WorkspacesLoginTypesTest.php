@@ -139,7 +139,22 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testPersonWorkspaceWithKeyPair(): void
+    public function keyPairLoginTypeProvider(): Generator
+    {
+        yield 'service keypair' => [
+            'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
+            'expectedLoginType' => 'snowflake-service-keypair',
+        ];
+        yield 'person keypair' => [
+            'loginType' => WorkspaceLoginType::SNOWFLAKE_PERSON_KEYPAIR,
+            'expectedLoginType' => 'snowflake-person-keypair',
+        ];
+    }
+
+    /**
+     * @dataProvider keyPairLoginTypeProvider
+     */
+    public function testPersonWorkspaceWithKeyPair(WorkspaceLoginType $loginType, string $expectedLoginType): void
     {
         $this->initEvents($this->workspaceSapiClient);
 
@@ -151,7 +166,7 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $options = [
-            'loginType' => WorkspaceLoginType::SNOWFLAKE_PERSON_KEYPAIR,
+            'loginType' => $loginType,
             'publicKey' => $key->getPublicKey(),
         ];
         $workspace = $this->initTestWorkspace(
@@ -163,7 +178,7 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
         /** @var array $connection */
         $connection = $workspace['connection'];
         $this->assertSame('snowflake', $connection['backend']);
-        $this->assertSame('snowflake-person-keypair', $connection['loginType']);
+        $this->assertSame($expectedLoginType, $connection['loginType']);
         $this->assertArrayNotHasKey('password', $connection);
 
         $workspace['connection']['privateKey'] = $key->getPrivateKey();
