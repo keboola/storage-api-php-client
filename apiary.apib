@@ -4828,6 +4828,7 @@ Creates a new workspace and return its credentials.
             + `snowflake-legacy-service` - LEGACY_SERVICE type user is created with password
             + `snowflake-person-sso` - PERSON type user is created without password, login is possible only from Keboola Connection UI
             + `snowflake-person-keypair` - PERSON type user is created with keypair authentication (publicKey required)
+            + `snowflake-service-keypair` - SERVICE type user is created with keypair authentication (publicKey required)
     + publicKey: (optional, string) - Public key for user authentication. Required when loginType is set to `snowflake-person-keypair`.
 
 + Request (application/json)
@@ -4912,6 +4913,7 @@ Creates a new workspace for [Development Branch](#reference/development-branches
             + `snowflake-legacy-service` - LEGACY_SERVICE type user is created with password
             + `snowflake-person-sso` - PERSON type user is created without password, login is possible only from Keboola Connection UI
             + `snowflake-person-keypair` - PERSON type user is created with keypair authentication (publicKey required)
+            + `snowflake-service-keypair` - SERVICE type user is created with keypair authentication (publicKey required)
     + publicKey: (optional, string) - Public key for user authentication. Required when loginType is set to `snowflake-person-keypair`.
 
 + Request (application/json)
@@ -8493,6 +8495,7 @@ Creates a new workspace for an existing configuration in [Development Branch](#r
             + `snowflake-legacy-service` - LEGACY_SERVICE type user is created with password
             + `snowflake-person-sso` - PERSON type user is created without password, login is possible only from Keboola Connection UI
             + `snowflake-person-keypair` - PERSON type user is created with keypair authentication (publicKey required)
+            + `snowflake-service-keypair` - SERVICE type user is created with keypair authentication (publicKey required)
     + publicKey: (optional, string) - Public key for user authentication. Required when loginType is set to `snowflake-person-keypair`.
 
 + Request (application/json)

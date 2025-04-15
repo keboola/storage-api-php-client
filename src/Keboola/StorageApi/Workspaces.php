@@ -74,6 +74,7 @@ class Workspaces
         if (array_key_exists('loginType', $options) && in_array($options['loginType'], [
                 WorkspaceLoginType::SNOWFLAKE_PERSON_SSO,
                 WorkspaceLoginType::SNOWFLAKE_PERSON_KEYPAIR,
+                WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
             ], true)) {
             // when sso login is created there is no password and reset is forbidden
             return $workspaceResponse;
