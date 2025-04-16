@@ -1504,6 +1504,22 @@ class Client
         }
     }
 
+    public function profileTable(string $tableId): array|null
+    {
+        $url = "tables/$tableId/profile";
+
+        return $this->apiPostJson($url);
+    }
+
+    public function getTableProfile(string $tableId): array
+    {
+        $url = "tables/$tableId/profile";
+
+        /** @var array $result */
+        $result = $this->apiGet($url);
+        return $result;
+    }
+
     /**
      * @param SearchTablesOptions $options
      * @return array
