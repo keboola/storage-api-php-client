@@ -1453,6 +1453,28 @@ class Client
     }
 
     /**
+     * @experimental Under development.
+     */
+    public function profileTable(string $tableId): array|null
+    {
+        $url = "tables/$tableId/profile";
+
+        return $this->apiPostJson($url);
+    }
+
+    /**
+     * @experimental Under development.
+     */
+    public function getTableProfile(string $tableId, string $uuid = 'latest'): array
+    {
+        $url = "tables/$tableId/profile/$uuid";
+
+        /** @var array $result */
+        $result = $this->apiGet($url);
+        return $result;
+    }
+
+    /**
      * @param SearchTablesOptions $options
      * @return array
      * @throws \Exception
