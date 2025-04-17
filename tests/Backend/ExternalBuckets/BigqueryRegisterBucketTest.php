@@ -995,7 +995,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             );
             $this->fail('Should fail');
         } catch (ClientException $e) {
-            $this->assertSame('APPLICATION_ERROR', $e->getStringCode());
+            $this->assertSame('storage.workspace.loadConfigurationNotSupportedByBackend', $e->getStringCode());
             $this->assertStringContainsString(
                 'Cloning data into workspaces is only supported for Snowflake,',
                 $e->getMessage(),
@@ -1018,7 +1018,7 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             );
             $this->fail('Should fail');
         } catch (ClientException $e) {
-            $this->assertSame('APPLICATION_ERROR', $e->getStringCode());
+            $this->assertSame('storage.workspace.loadConfigurationNotSupportedByBackend', $e->getStringCode());
             $this->assertStringContainsString(
                 'Backend "bigquery" does not support: "Other types of loading than view".',
                 $e->getMessage(),
