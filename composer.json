@@ -47,7 +47,7 @@
 		"keboola/php-csv-db-import": "^6",
 		"keboola/phpunit-retry-annotations": "^0.5",
 		"keboola/retry": "^0.5.0",
-		"keboola/table-backend-utils": "^2.1",
+		"keboola/table-backend-utils": ">=2.9.0",
 		"phpcompatibility/php-compatibility": "*",
 		"phpstan/phpstan": "^1",
 		"phpstan/phpstan-phpunit": "^1.0",
