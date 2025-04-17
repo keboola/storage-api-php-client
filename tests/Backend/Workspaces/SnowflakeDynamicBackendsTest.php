@@ -214,7 +214,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
                 '/^Invalid backend size: "ultralarge". Allowed values: [a-z\,\ ]+\.$/',
                 $e->getMessage(),
             );
-            $this->assertSame('workspace.backendNotSupported', $e->getStringCode());
+            $this->assertSame('workspace.unsupportedBackendSize', $e->getStringCode());
         }
     }
 
