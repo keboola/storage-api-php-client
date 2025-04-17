@@ -193,6 +193,149 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
         $this->ensureSharedDatabaseStillExists();
     }
 
+    public function testLoadIntoExternalBucketWithOutdatedViewReturnsMeaningfulError(): void
+    {
+        // Phase 1: Initial Setup
+        $viewName = 'TEMP_VIEW_FOR_LOAD';
+        [$producerDb, $producerSchema] = explode('.', $this->getProducerSharedDatabase());
+        $inboundShareDbName = $this->getInboundSharedDatabaseName();
+        $db = $this->ensureProducerSnowflakeConnection(); // Get producer connection
+
+        // Use a fully qualified name for the table in the view definition
+        $initialSelect = sprintf(
+            'SELECT "ID", "NAME" FROM %s.%s."NAMES_TABLE"',
+            $db->quoteIdentifier($producerDb),
+            $db->quoteIdentifier($producerSchema),
+        );
+
+        $this->dropViewInProducerDatabase($viewName);
+        $this->createOrReplaceViewInProducerDatabase($viewName, $initialSelect);
+
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace(['backend' => 'snowflake']);
+        $projectRole = $workspace['connection']['database'];
+
+        $this->grantImportedPrivilegesToProjectRole($projectRole);
+
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $this->dropBucketIfExists($this->_client, $bucketId);
+
+        $this->_client->registerBucket(
+            $testBucketName,
+            explode('.', $inboundShareDbName),
+            self::STAGE_IN,
+            $description,
+            'snowflake',
+            null,
+            true,
+        );
+
+        $registeredBucket = $this->_client->getBucket($bucketId);
+        $this->assertTrue($registeredBucket['isSnowflakeSharedDatabase']);
+
+        $tables = $this->_client->listTables($bucketId);
+        $foundTable = false;
+        foreach ($tables as $table) {
+            if ($table['name'] === $viewName) {
+                $foundTable = true;
+                break;
+            }
+        }
+        $this->assertTrue($foundTable, sprintf('Table for view "%s" not found in registered bucket.', $viewName));
+
+        // Phase 2: Alter View & Test Load Failure
+        $alteredSelect = sprintf(
+            'SELECT "ID", "NAME", CURRENT_TIMESTAMP() AS "LOAD_TS" FROM %s.%s."NAMES_TABLE"',
+            $db->quoteIdentifier($producerDb),
+            $db->quoteIdentifier($producerSchema),
+        );
+        $this->createOrReplaceViewInProducerDatabase($viewName, $alteredSelect);
+
+        // Find the table ID corresponding to the view in the registered bucket
+        $tables = $this->_client->listTables($bucketId);
+        $sourceTableId = null;
+        foreach ($tables as $table) {
+            if ($table['name'] === $viewName) {
+                $sourceTableId = $table['id'];
+                break;
+            }
+        }
+        $this->assertNotNull($sourceTableId, 'Could not find source table ID for view.');
+        try {
+            $workspaces->loadWorkspaceData($workspace['id'], [
+                'input' => [
+                    [
+                        'source' => $sourceTableId,
+                        'destination' => 'destination_fail_ws',
+                        // We don't specify columns, expecting it to fail on schema mismatch
+                    ],
+                ],
+            ]);
+            $this->fail('Load from outdated view schema should have failed.');
+        } catch (ClientException $e) {
+            $this->assertStringContainsStringIgnoringCase('External object might be out of sync. Please refresh the external bucket to ensure it\'s synchronized, then try again.', $e->getMessage());
+        }
+
+        // Phase 2.5: Test Data Preview and Export Failure
+        try {
+            $this->_client->getTableDataPreview($sourceTableId);
+            $this->fail('Data preview with outdated view schema should have failed.');
+        } catch (ClientException $e) {
+            // Expecting the same error as workspace load
+            $this->assertStringContainsStringIgnoringCase('External object might be out of sync. Please refresh the external bucket to ensure it\'s synchronized, then try again.', $e->getMessage());
+        }
+
+        try {
+            $this->_client->exportTableAsync($sourceTableId);
+            $this->fail('Export job should have failed for outdated view');
+        } catch (ClientException $e) {
+            $this->assertStringContainsStringIgnoringCase(
+                'External object might be out of sync. Please refresh the external bucket to ensure it\'s synchronized, then try again.',
+                $e->getMessage(),
+            );
+        }
+
+        // Phase 3: Refresh Bucket & Test Load Success
+        $this->_client->refreshBucket($bucketId);
+
+        // Verify metadata was updated after refresh
+        $refreshedTable = $this->_client->getTable($sourceTableId);
+        $this->assertCount(3, $refreshedTable['columns']);
+        $this->assertContains('LOAD_TS', $refreshedTable['columns']);
+
+        // Attempt workspace load again, should succeed now
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $sourceTableId,
+                    'destination' => 'destination_success_ws',
+                ],
+            ],
+        ]);
+
+        // Verify data in workspace
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $data = $backend->fetchAll('destination_success_ws');
+        $this->assertCount(5, $data);
+
+        // Assert based on numerical indices
+        $this->assertCount(3, $data[0]); // Check for 3 columns
+        $this->assertIsNumeric($data[0][0]); // ID
+        $this->assertIsString($data[0][1]); // NAME
+        $this->assertIsString($data[0][2]); // LOAD_TS (timestamp as string)
+        $this->assertNotEmpty($data[0][2]); // Ensure timestamp is not empty
+
+        // Phase 4: Cleanup
+        $this->dropViewInProducerDatabase($viewName);
+        $this->_client->dropBucket($bucketId, ['force' => true]); // Force drop
+
+        $bucketExists = $this->_client->bucketExists($bucketId);
+        $this->assertFalse($bucketExists, 'Bucket ' . $bucketId . ' should have been dropped.');
+    }
+
     public function testRefreshBucketInLinkedProject(): void
     {
         $stage = self::STAGE_IN;
@@ -649,6 +792,44 @@ EXPECTED,
             'DROP TABLE IF EXISTS %s.%s',
             $dbName,
             $tableName,
+        ));
+    }
+
+    private function createOrReplaceViewInProducerDatabase(string $viewName, string $selectStatement): void
+    {
+        $db = $this->ensureProducerSnowflakeConnection();
+        $dbName = $this->getProducerSharedDatabase();
+
+        $db->executeQuery('USE ROLE ACCOUNTADMIN');
+        $db->executeQuery(sprintf('USE WAREHOUSE %s', $this->getProducerSnowflakeWarehouse()));
+
+        $db->executeQuery(sprintf(
+            'CREATE OR REPLACE SECURE VIEW %s.%s AS %s',
+            $dbName,
+            $viewName,
+            $selectStatement,
+        ));
+
+        $db->executeQuery(sprintf(
+            'GRANT SELECT ON VIEW %s.%s TO SHARE %s',
+            $dbName,
+            $viewName,
+            $this->getProducerShareName(),
+        ));
+    }
+
+    private function dropViewInProducerDatabase(string $viewName): void
+    {
+        $db = $this->ensureProducerSnowflakeConnection();
+        $dbName = $this->getProducerSharedDatabase();
+
+        $db->executeQuery('USE ROLE ACCOUNTADMIN');
+        $db->executeQuery(sprintf('USE WAREHOUSE %s', $this->getProducerSnowflakeWarehouse()));
+
+        $db->executeQuery(sprintf(
+            'DROP VIEW IF EXISTS %s.%s',
+            $dbName,
+            $viewName,
         ));
     }
 }
