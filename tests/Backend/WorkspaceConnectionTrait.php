@@ -60,15 +60,28 @@ trait WorkspaceConnectionTrait
     public function getDbConnectionSnowflakeDBAL(array $connection): DBALConnection
     {
         assert($connection['backend'] === StorageApiTestCase::BACKEND_SNOWFLAKE);
-        $db = SnowflakeConnectionFactory::getConnection(
-            $connection['host'],
-            $connection['user'],
-            $connection['password'],
-            [
-                'database' => $connection['database'],
-                'warehouse' => $connection['warehouse'],
-            ],
-        );
+        if (!array_key_exists('password', $connection)) {
+            assert(array_key_exists('privateKey', $connection), 'password or privateKey must be set');
+            $db = SnowflakeConnectionFactory::getConnectionWithCert(
+                $connection['host'],
+                $connection['user'],
+                $connection['privateKey'],
+                [
+                    'database' => $connection['database'],
+                    'warehouse' => $connection['warehouse'],
+                ],
+            );
+        } else {
+            $db = SnowflakeConnectionFactory::getConnection(
+                $connection['host'],
+                $connection['user'],
+                $connection['password'],
+                [
+                    'database' => $connection['database'],
+                    'warehouse' => $connection['warehouse'],
+                ],
+            );
+        }
         // set connection to use workspace schema
         $db->executeStatement(sprintf(
             'USE SCHEMA %s;',
