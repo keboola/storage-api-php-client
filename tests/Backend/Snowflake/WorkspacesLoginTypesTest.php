@@ -10,8 +10,10 @@ use Keboola\StorageApi\WorkspaceLoginType;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\Test\Utils\EventsQueryBuilder;
+use Keboola\Test\Utils\PemKeyCertificateGenerator;
 
 class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
 {
@@ -50,8 +52,11 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
     /**
      * @dataProvider createWorkspaceProvider
      */
-    public function testWorkspaceCreate(WorkspaceLoginType|null $loginType, bool $async, string $expectedLoginType): void
-    {
+    public function testWorkspaceCreate(
+        WorkspaceLoginType|null $loginType,
+        bool $async,
+        string $expectedLoginType
+    ): void {
         $this->initEvents($this->workspaceSapiClient);
 
         $runId = $this->_client->generateRunId();
@@ -128,6 +133,64 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
             // try reset password
             $workspaces->resetWorkspacePassword($workspace['id']);
             $this->fail('Password reset should not be supported for SSO login type');
+        } catch (ClientException $e) {
+            $this->assertSame($e->getCode(), 400);
+            $this->assertSame('workspace.resetPasswordNotSupported', $e->getStringCode());
+        }
+    }
+
+    public function keyPairLoginTypeProvider(): Generator
+    {
+        yield 'service keypair' => [
+            'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
+            'expectedLoginType' => 'snowflake-service-keypair',
+        ];
+        yield 'person keypair' => [
+            'loginType' => WorkspaceLoginType::SNOWFLAKE_PERSON_KEYPAIR,
+            'expectedLoginType' => 'snowflake-person-keypair',
+        ];
+    }
+
+    /**
+     * @dataProvider keyPairLoginTypeProvider
+     */
+    public function testPersonWorkspaceWithKeyPair(WorkspaceLoginType $loginType, string $expectedLoginType): void
+    {
+        $this->initEvents($this->workspaceSapiClient);
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+        $this->workspaceSapiClient->setRunId($runId);
+
+        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
+
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+        $options = [
+            'loginType' => $loginType,
+            'publicKey' => $key->getPublicKey(),
+        ];
+        $workspace = $this->initTestWorkspace(
+            'snowflake',
+            $options,
+            true,
+        );
+
+        /** @var array $connection */
+        $connection = $workspace['connection'];
+        $this->assertSame('snowflake', $connection['backend']);
+        $this->assertSame($expectedLoginType, $connection['loginType']);
+        $this->assertArrayNotHasKey('password', $connection);
+
+        $workspace['connection']['privateKey'] = $key->getPrivateKey();
+
+        $backend = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
+
+        $backend->getDb()->executeQuery('SELECT 1');
+
+        try {
+            // try reset password
+            $workspaces->resetWorkspacePassword($workspace['id']);
+            $this->fail('Password reset should not be supported for keypair login type');
         } catch (ClientException $e) {
             $this->assertSame($e->getCode(), 400);
             $this->assertSame('workspace.resetPasswordNotSupported', $e->getStringCode());

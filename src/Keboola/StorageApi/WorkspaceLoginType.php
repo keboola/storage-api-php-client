@@ -9,4 +9,6 @@ enum WorkspaceLoginType: string
     case DEFAULT = 'default';
     case SNOWFLAKE_PERSON_SSO = 'snowflake-person-sso';
     case SNOWFLAKE_LEGACY_SERVICE_PASSWORD = 'snowflake-legacy-service';
+    case SNOWFLAKE_PERSON_KEYPAIR = 'snowflake-person-keypair';
+    case SNOWFLAKE_SERVICE_KEYPAIR = 'snowflake-service-keypair';
 }
