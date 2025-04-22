@@ -1516,4 +1516,74 @@ SQL,
         $this->assertCount(2, $table['columns']);
         $this->assertCount(2, $table['definition']['columns']);
     }
+
+    /**
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testLoadExternalBucketIntoWorkspaceWithoutFeatureFails(): void
+    {
+        $token = $this->_client->verifyToken();
+        if (in_array('external-dataset-input-mapping', $token['owner']['features'], true)) {
+            $this->fail(sprintf('ExternalDatasetInput mapping is enabled for project: "%s" but should\'nt be.', $token['owner']['id']));
+        }
+
+        $workspaces = new Workspaces($this->_client);
+
+        // prepare workspace
+        $workspace = $workspaces->createWorkspace();
+        $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
+        $externalTableName = 'test_table';
+
+        // add first table to workspace with long name, table should be skipped
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        // prepare test table
+        $db->dropTableIfExists($externalTableName);
+        $db->createTable(
+            $externalTableName,
+            [
+                'AMOUNT' => 'INT',
+                'DESCRIPTION' => 'STRING',
+            ],
+        );
+
+        $workspace0 = $workspaces->createWorkspace(['backend' => 'snowflake']);
+
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $this->dropBucketIfExists($this->_client, $bucketId);
+
+        $this->_client->registerBucket(
+            $testBucketName,
+            $externalBucketPath,
+            self::STAGE_IN,
+            $description,
+            'snowflake',
+            'testLoadExternalBucketIntoWorkspaceWithoutFeatureFails',
+            true,
+        );
+
+        try {
+            $workspaces->loadWorkspaceData($workspace0['id'], [
+                'input' => [
+                    [
+                        'source' => $bucketId . '.'.$externalTableName,
+                        'destination' => 'TEST_TABLE_DESTINATION',
+                    ],
+                ],
+            ]);
+            $this->fail('Should fail');
+        } catch (ClientException $e) {
+            $this->assertSame('workspace.loadRequestBadInput', $e->getStringCode(), $e->getMessage());
+            $this->assertStringContainsString(
+                'do not have enabled external schema support in Input Mapping',
+                $e->getMessage(),
+            );
+        }
+
+        $this->_client->dropBucket($bucketId);
+        $workspaces->deleteWorkspace($workspace0['id']);
+    }
 }
