@@ -2,9 +2,11 @@
 
 namespace Keboola\Test\Backend\ExternalBuckets;
 
+use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Utils\ConnectionUtils;
 
 class SnowflakeBYODBTest extends BaseExternalBuckets
@@ -74,6 +76,13 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
                 SnowflakeQuote::quoteSingleIdentifier(self::TEST_TABLE),
             ),
         );
+        $db->executeQuery(
+            sprintf(
+                'INSERT INTO %s VALUES (1, %s);',
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_TABLE),
+                SnowflakeQuote::quote('borat'),
+            ),
+        );
 
         $db->executeQuery(
             sprintf(
@@ -112,6 +121,26 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
 
         $tables = $this->_client->listTables($bucketId);
         $this->assertCount(1, $tables);
+
+        $wsClient = new Workspaces($this->_client);
+        $ws = $wsClient->createWorkspace();
+        $wsClient->loadWorkspaceData(
+            $ws['id'],
+            [
+                'input' => [
+                    [
+                        'source' => $tables[0]['id'],
+                        'destination' => 'COPY_TEST',
+                        'useView' => true,
+                    ],
+                ],
+            ],
+        );
+
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($ws);
+        $data = $db->fetchAll('SELECT * FROM COPY_TEST');
+        $this->assertCount(1, $data);
+        $this->assertEquals([['ID' => 1, 'LASTNAME' => 'borat']], $data);
 
         $this->_client->dropBucket($bucketId);
         $db->executeQuery(
