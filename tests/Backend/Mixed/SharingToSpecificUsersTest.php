@@ -7,17 +7,17 @@ use Keboola\StorageApi\ClientException;
 class SharingToSpecificUsersTest extends StorageApiSharingTestCase
 {
     /**
-     * @dataProvider sharingBackendDataWithAsync
+     * @dataProvider sharingBackendData
      * @throws ClientException
      */
-    public function testShareOrganizationBucketChangeType($backend, $isAsync): void
+    public function testShareOrganizationBucketChangeType($backend): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
         // first share
         $tokenUser = $this->_client->verifyToken()['admin'];
-        $response = $this->_client->shareBucketToUsers($bucketId, [$tokenUser['id']], $isAsync);
+        $response = $this->_client->shareBucketToUsers($bucketId, [$tokenUser['id']]);
 
         $this->assertArrayHasKey('displayName', $response);
 
@@ -28,7 +28,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
         $this->assertNotEmpty($sharedBucket['sharingParameters']);
         $this->assertIsArray($sharedBucket['sharingParameters']);
 
-        $this->_client->shareOrganizationBucket($bucketId, $isAsync);
+        $this->_client->shareOrganizationBucket($bucketId);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);
@@ -37,7 +37,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
         $this->assertEmpty($sharedBucket['sharingParameters']);
         $this->assertIsArray($sharedBucket['sharingParameters']);
 
-        $this->_client->shareOrganizationProjectBucket($bucketId, $isAsync);
+        $this->_client->shareOrganizationProjectBucket($bucketId);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
         $this->assertArrayHasKey('sharing', $sharedBucket);
@@ -48,10 +48,10 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
     }
 
     /**
-     * @dataProvider sharingBackendDataWithAsync
+     * @dataProvider sharingBackendData
      * @throws ClientException
      */
-    public function testShareBucketToUser($backend, $isAsync): void
+    public function testShareBucketToUser($backend): void
     {
         $this->initTestBuckets($backend);
         $bucketIds = $this->_bucketIds;
@@ -63,7 +63,6 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
             $result = $this->_client->shareBucketToUsers(
                 $bucketId,
                 [$targetUser['admin']['id']],
-                $isAsync,
             );
 
             $this->assertArrayHasKey('sharingParameters', $result);
@@ -95,10 +94,10 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
     }
 
     /**
-     * @dataProvider sharingBackendDataWithAsync
+     * @dataProvider sharingBackendData
      * @throws ClientException
      */
-    public function testShareBucketToUserByEmail($backend, $isAsync): void
+    public function testShareBucketToUserByEmail($backend): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -108,7 +107,6 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
         $result = $this->_client->shareBucketToUsers(
             $bucketId,
             [$targetUser['description']],
-            $isAsync,
         );
 
         $this->assertArrayHasKey('sharingParameters', $result);
@@ -137,17 +135,17 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
     }
 
     /**
-     * @dataProvider sharingBackendDataWithAsync
+     * @dataProvider sharingBackendData
      * @throws ClientException
      */
-    public function testUpdateShareBucketToUser($backend, $isAsync): void
+    public function testUpdateShareBucketToUser($backend): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
 
         $targetUser = $this->clientAdmin2InSameOrg->verifyToken()['admin'];
 
-        $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']], $isAsync);
+        $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']]);
 
         $sharedBucket = $this->_client->getBucket($bucketId);
 
@@ -158,7 +156,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
         $this->assertCount(0, $client2SharedBuckets);
 
         $targetUser = $this->_client2->verifyToken()['admin'];
-        $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']], $isAsync);
+        $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']]);
 
         $client2SharedBuckets = $this->_client2->listSharedBuckets();
         $this->assertCount(1, $client2SharedBuckets);
@@ -181,7 +179,6 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
                 $targetUser['id'],
                 $targetAdmin2InSameOrg['id'],
             ],
-            $isAsync,
         );
 
         // link
@@ -238,7 +235,6 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
             [
                 $targetUser['id'],
             ],
-            $isAsync,
         );
 
         $response = $this->clientAdmin2InSameOrg->listSharedBuckets();
@@ -265,7 +261,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
         $bucketId = reset($this->_bucketIds);
 
         $targetUser = $this->clientAdmin2InSameOrg->verifyToken()['admin'];
-        $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']], $isAsync);
+        $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']]);
 
         $SharedBuckets = $this->clientAdmin2InSameOrg->listSharedBuckets();
         $this->assertCount(1, $SharedBuckets);
@@ -292,10 +288,10 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
     }
 
     /**
-     * @dataProvider sharingBackendDataWithAsync
+     * @dataProvider sharingBackendData
      * @throws ClientException
      */
-    public function testShareBucketToAnotherOrganizationUser($backend, $isAsync): void
+    public function testShareBucketToAnotherOrganizationUser($backend): void
     {
         $this->initTestBuckets($backend);
         $bucketId = reset($this->_bucketIds);
@@ -303,7 +299,7 @@ class SharingToSpecificUsersTest extends StorageApiSharingTestCase
         $targetUser = $this->clientAdmin3InOtherOrg->verifyToken()['admin'];
 
         try {
-            $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']], $isAsync);
+            $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']]);
             $this->fail('Sharing bucket to non organization member should fail.');
         } catch (ClientException $e) {
             $this->assertEquals(
