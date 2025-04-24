@@ -41,6 +41,9 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
         if ($tokenData['organization']['id'] !== $this->linkingClient->verifyToken()['organization']['id']) {
             throw new \Exception('STORAGE_API_LINKING_TOKEN is not in the same organization as STORAGE_API_TOKEN');
         }
+
+        // added in testLoadIntoExternalBucketWithOutdatedViewReturnsMeaningfulError
+        $this->dropViewInProducerDatabase('TEMP_VIEW_FOR_LOAD');
     }
 
     public function testRegisterExternalBucket(): void
