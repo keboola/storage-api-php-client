@@ -78,6 +78,11 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
         );
         $db->executeQuery(
             sprintf(
+                'USE WAREHOUSE DEV;',
+            ),
+        );
+        $db->executeQuery(
+            sprintf(
                 'INSERT INTO %s VALUES (1, %s);',
                 SnowflakeQuote::quoteSingleIdentifier(self::TEST_TABLE),
                 SnowflakeQuote::quote('borat'),
@@ -137,10 +142,10 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
             ],
         );
 
-        $db = WorkspaceBackendFactory::createWorkspaceBackend($ws);
-        $data = $db->fetchAll('SELECT * FROM COPY_TEST');
+        $wsDb = WorkspaceBackendFactory::createWorkspaceBackend($ws);
+        $data = $wsDb->fetchAll('COPY_TEST');
         $this->assertCount(1, $data);
-        $this->assertEquals([['ID' => 1, 'LASTNAME' => 'borat']], $data);
+        $this->assertEquals([[1, 'borat']], $data);
 
         $this->_client->dropBucket($bucketId);
         $db->executeQuery(
