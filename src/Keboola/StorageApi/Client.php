@@ -622,30 +622,22 @@ class Client
         return $this->apiDelete($url);
     }
 
-    public function shareOrganizationBucket($bucketId, $async = false)
+    public function shareOrganizationBucket($bucketId)
     {
         $url = 'buckets/' . $bucketId . '/share-organization';
 
-        if ($async) {
-            $url .= '?' . http_build_query(['async' => $async]);
-        }
-
-        $result = $this->apiPostJson($url, [], $async);
+        $result = $this->apiPostJson($url, []);
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
 
         return $result;
     }
 
-    public function shareOrganizationProjectBucket($bucketId, $async = false)
+    public function shareOrganizationProjectBucket($bucketId)
     {
         $url = 'buckets/' . $bucketId . '/share-organization-project';
 
-        if ($async) {
-            $url .= '?' . http_build_query(['async' => $async]);
-        }
-
-        $result = $this->apiPostJson($url, [], $async);
+        $result = $this->apiPostJson($url, []);
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
 
@@ -654,15 +646,11 @@ class Client
 
     /**
      * @param array $targetProjectIds
-     * @param bool $async
      * @return array{0: array, 1: array}
      */
-    private function shareBucketToProjectsPrepareOptions($targetProjectIds, $async): array
+    private function shareBucketToProjectsPrepareOptions($targetProjectIds): array
     {
         $query = [];
-        if ($async) {
-            $query['async'] = $async;
-        }
 
         $data = [
             'targetProjectIds' => $targetProjectIds,
@@ -677,19 +665,18 @@ class Client
     /**
      * @param string $bucketId
      * @param array $targetProjectIds
-     * @param bool $async
      * @return array
      */
-    public function shareBucketToProjects($bucketId, $targetProjectIds, $async = false)
+    public function shareBucketToProjects($bucketId, $targetProjectIds)
     {
-        [$query, $data] = $this->shareBucketToProjectsPrepareOptions($targetProjectIds, $async);
+        [$query, $data] = $this->shareBucketToProjectsPrepareOptions($targetProjectIds);
 
         $url = sprintf('buckets/%s/share-to-projects', $bucketId);
         if ($query) {
             $url .= '?' . http_build_query($query);
         }
 
-        $result = $this->apiPostJson($url, $data, $async);
+        $result = $this->apiPostJson($url, $data);
         assert(is_array($result));
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
@@ -699,15 +686,11 @@ class Client
 
     /**
      * @param array $targetUsers
-     * @param bool $async
      * @return array{0: array, 1: array}
      */
-    private function shareBucketToUsersPrepareOptions($targetUsers, $async = false): array
+    private function shareBucketToUsersPrepareOptions($targetUsers): array
     {
         $query = [];
-        if ($async) {
-            $query['async'] = $async;
-        }
 
         $data = [
             'targetUsers' => $targetUsers,
@@ -722,19 +705,18 @@ class Client
     /**
      * @param string $bucketId
      * @param array $targetUsers
-     * @param bool $async
      * @return array
      */
-    public function shareBucketToUsers($bucketId, $targetUsers = [], $async = false)
+    public function shareBucketToUsers($bucketId, $targetUsers = [])
     {
-        [$query, $data] = $this->shareBucketToUsersPrepareOptions($targetUsers, $async);
+        [$query, $data] = $this->shareBucketToUsersPrepareOptions($targetUsers);
 
         $url = sprintf('buckets/%s/share-to-users', $bucketId);
         if ($query) {
             $url .= '?' . http_build_query($query);
         }
 
-        $result = $this->apiPostJson($url, $data, $async);
+        $result = $this->apiPostJson($url, $data);
         assert(is_array($result));
 
         $this->log("Bucket {$bucketId} shared", ['result' => $result]);
@@ -742,17 +724,13 @@ class Client
         return $result;
     }
 
-    public function changeBucketSharing($bucketId, $sharing, $async = false)
+    public function changeBucketSharing($bucketId, $sharing)
     {
         $url = 'buckets/' . $bucketId . '/share';
 
         $data = [
             'sharing' => $sharing,
         ];
-
-        if ($async) {
-            $url .= '?' . http_build_query(['async' => $async]);
-        }
 
         $result = $this->apiPutJson($url, $data);
 
@@ -761,13 +739,9 @@ class Client
         return $result;
     }
 
-    public function unshareBucket($bucketId, $async = false)
+    public function unshareBucket($bucketId)
     {
         $url = 'buckets/' . $bucketId . '/share';
-
-        if ($async) {
-            $url .= '?' . http_build_query(['async' => $async]);
-        }
 
         return $this->apiDelete($url);
     }
