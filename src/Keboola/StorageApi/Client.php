@@ -622,32 +622,6 @@ class Client
         return $this->apiDelete($url);
     }
 
-    /**
-     * @param string $bucketId
-     * @param array $options
-     * @return mixed
-     * @deprecated use shareBucketToUsers, shareBucketToProjects, shareOrganizationProjectBucket or
-     *     shareOrganizationBucket instead
-     */
-    public function shareBucket($bucketId, $options = [])
-    {
-        $url = 'buckets/' . $bucketId . '/share';
-
-        $isAsync = false;
-        if (array_key_exists('async', $options)) {
-            $isAsync = $options['async'];
-        }
-
-        $url .= '?' . http_build_query($options);
-
-        // keep request with form-data because this endpoint deprecated
-        $result = $this->apiPost($url, [], $isAsync);
-
-        $this->log("Bucket {$bucketId} shared", ['result' => $result]);
-
-        return $result;
-    }
-
     public function shareOrganizationBucket($bucketId, $async = false)
     {
         $url = 'buckets/' . $bucketId . '/share-organization';
