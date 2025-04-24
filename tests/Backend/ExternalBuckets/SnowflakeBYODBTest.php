@@ -76,11 +76,8 @@ class SnowflakeBYODBTest extends BaseExternalBuckets
                 SnowflakeQuote::quoteSingleIdentifier(self::TEST_TABLE),
             ),
         );
-        $db->executeQuery(
-            sprintf(
-                'USE WAREHOUSE DEV;',
-            ),
-        );
+        $db->executeQuery('USE WAREHOUSE DEV;');
+
         $db->executeQuery(
             sprintf(
                 'INSERT INTO %s VALUES (1, %s);',
