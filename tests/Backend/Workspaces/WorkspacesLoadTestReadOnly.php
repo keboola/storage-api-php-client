@@ -85,7 +85,7 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         $this->dropBucketIfExists($this->linkingClient, $sharedBucket, true);
 
         $sharedBucketId = $this->linkingClient->createBucket($sharedBucketName, 'in');
-        $this->linkingClient->shareOrganizationBucket($sharedBucketId, true);
+        $this->linkingClient->shareOrganizationBucket($sharedBucketId);
         $sharingToken = $this->linkingClient->verifyToken();
         $token = $this->_client->verifyToken();
         $sharingProjectId = $sharingToken['owner']['id'];
@@ -193,7 +193,7 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         $this->dropBucketIfExists($this->linkingClient, $sharedBucket, true);
 
         $sharedBucketId = $this->linkingClient->createBucket($sharedBucketName, 'in');
-        $this->linkingClient->shareBucketToProjects($sharedBucketId, [$consumerProjectId], true);
+        $this->linkingClient->shareBucketToProjects($sharedBucketId, [$consumerProjectId]);
 
         $this->_client->linkBucket($linkedBucketName, 'in', $sharingProjectId, $sharedBucketId, null, false);
 
@@ -242,12 +242,12 @@ Object does not exist, or operation cannot be performed., SQL state 02000 in SQL
         assert($this->linkingClient !== null);
         // unshare (unlink first)
         $this->_client->dropBucket($linkedBucketId);
-        $this->linkingClient->unshareBucket($sharedBucketId, true);
+        $this->linkingClient->unshareBucket($sharedBucketId);
         $this->assertCannotAccessLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId);
 
         // force unlink
         assert($this->linkingClient !== null);
-        $this->linkingClient->shareBucketToProjects($sharedBucketId, [$consumerProjectId], true);
+        $this->linkingClient->shareBucketToProjects($sharedBucketId, [$consumerProjectId]);
         $this->_client->linkBucket($linkedBucketName, 'in', $sharingProjectId, $sharedBucketId, null, false);
         // check that the sharing still works
         $this->assertLoadDataFromLinkedBucket($db, $sharingProjectDatabase, $sharedBucketId);

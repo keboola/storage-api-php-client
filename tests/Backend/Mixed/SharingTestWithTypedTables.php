@@ -71,7 +71,7 @@ class SharingTestWithTypedTables extends StorageApiSharingTestCase
         $this->assertArrayHasKey('definition', $alias['sourceTable']);
         $this->assertSame($table2['definition'], $alias['sourceTable']['definition']);
 
-        $this->_client->shareOrganizationBucket($bucketId, true);
+        $this->_client->shareOrganizationBucket($bucketId);
 
         // link
         $response = $this->_client2->listSharedBuckets();

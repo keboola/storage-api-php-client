@@ -28,7 +28,7 @@ class SharingTest extends StorageApiSharingTestCase
      * @throws \Doctrine\DBAL\Exception
      * @throws \Keboola\StorageApi\Exception
      */
-    public function testAccessDataInLinkedBucketFromWSViaROAndViewIM(string $shareMethod, ?bool $async): void
+    public function testAccessDataInLinkedBucketFromWSViaROAndViewIM(string $shareMethod): void
     {
         //setup test tables
         $this->deleteAllWorkspaces();
@@ -42,7 +42,7 @@ class SharingTest extends StorageApiSharingTestCase
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
             [],
         );
-        $this->shareByMethod($shareMethod, $bucketId, $async);
+        $this->shareByMethod($shareMethod, $bucketId);
 
         self::assertTrue($this->_client->isSharedBucket($bucketId));
         $response = $this->_client2->listSharedBuckets();
@@ -215,7 +215,7 @@ class SharingTest extends StorageApiSharingTestCase
         $this->_client->createAliasTable($bucketId, $sourceTableId, 'languages-alias');
 
         $targetProjectId = $this->_client2->verifyToken()['owner']['id'];
-        $this->_client->shareBucketToProjects($bucketId, [$targetProjectId], true);
+        $this->_client->shareBucketToProjects($bucketId, [$targetProjectId]);
 
         self::assertTrue($this->_client->isSharedBucket($bucketId));
         $response = $this->_client2->listSharedBuckets();
@@ -290,7 +290,7 @@ class SharingTest extends StorageApiSharingTestCase
         );
 
         $targetProjectId = $this->_client2->verifyToken()['owner']['id'];
-        $this->_client->shareBucketToProjects($bucketId, [$targetProjectId], true);
+        $this->_client->shareBucketToProjects($bucketId, [$targetProjectId]);
 
         self::assertTrue($this->_client->isSharedBucket($bucketId));
         $response = $this->_client2->listSharedBuckets();

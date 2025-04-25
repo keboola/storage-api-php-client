@@ -93,20 +93,20 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
         }
     }
 
-    protected function shareByMethod(string $shareMethod, string $bucketId, ?bool $async): void
+    protected function shareByMethod(string $shareMethod, string $bucketId): void
     {
         // share and link bucket A->B
         switch ($shareMethod) {
             case 'shareBucketToProjects':
                 $targetProjectId = $this->_client2->verifyToken()['owner']['id'];
-                $this->_client->shareBucketToProjects($bucketId, [$targetProjectId], $async ?? false);
+                $this->_client->shareBucketToProjects($bucketId, [$targetProjectId]);
                 break;
             case 'shareBucketToUsers':
                 $targetUser = $this->_client2->verifyToken()['admin'];
-                $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']], $async ?? false);
+                $this->_client->shareBucketToUsers($bucketId, [$targetUser['id']]);
                 break;
             default:
-                $this->_client->$shareMethod($bucketId, $async);
+                $this->_client->$shareMethod($bucketId);
         }
     }
 
@@ -298,26 +298,20 @@ abstract class StorageApiSharingTestCase extends StorageApiTestCase
 
     public function sharingMethodProvider(): Generator
     {
-        foreach ([true, false] as $async) {
-            yield sprintf('shareOrganizationBucket, async=%b', $async) => [
-                'shareOrganizationBucket',
-                $async,
-            ];
+        yield 'shareOrganizationBucket' => [
+            'shareOrganizationBucket',
+        ];
 
-            yield sprintf('shareOrganizationProjectBucket, async=%b', $async) => [
-                'shareOrganizationProjectBucket',
-                $async,
-            ];
+        yield 'shareOrganizationProjectBucket' => [
+            'shareOrganizationProjectBucket',
+        ];
 
-            yield sprintf('shareBucketToProjects, async=%b', $async) => [
-                'shareBucketToProjects',
-                $async,
-            ];
+        yield 'shareBucketToProjects' => [
+            'shareBucketToProjects',
+        ];
 
-            yield sprintf('shareBucketToUsers, async=%b', $async) => [
-                'shareBucketToUsers',
-                $async,
-            ];
-        }
+        yield 'shareBucketToUsers' => [
+            'shareBucketToUsers',
+        ];
     }
 }
