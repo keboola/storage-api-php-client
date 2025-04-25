@@ -107,7 +107,7 @@ class ShareTest extends StorageApiTestCase
         }
 
         // test PM can unshare bucket
-        $pmBranchClient->unshareBucket($bucketId, ['async' => true]);
+        $pmBranchClient->unshareBucket($bucketId);
         $sharedBucket = SharingUtils::getSharedBucket($pmBranchClient, $bucketId);
         self::assertNull($sharedBucket);
     }
@@ -200,7 +200,7 @@ class ShareTest extends StorageApiTestCase
         $pmBranchClient->dropBucket($linkedBucketId);
 
         try {
-            $otherRoleClient->unshareBucket($productionBucketId, ['async' => true]);
+            $otherRoleClient->unshareBucket($productionBucketId);
             $this->fail('Others should not be able to unshare bucket in branch');
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
@@ -302,7 +302,7 @@ class ShareTest extends StorageApiTestCase
 
         // validate cannot un-share bucket from main in branch
         try {
-            $otherRoleBranchClient->unshareBucket($productionBucketId, ['async' => true]);
+            $otherRoleBranchClient->unshareBucket($productionBucketId);
             $this->fail('Others should not be able to unshare bucket in branch');
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
@@ -365,7 +365,7 @@ class ShareTest extends StorageApiTestCase
 
         // validate cannot un-share bucket from main in branch
         try {
-            $pmBranchAwareClient->unshareBucket($productionBucketId, ['async' => true]);
+            $pmBranchAwareClient->unshareBucket($productionBucketId);
             $this->fail('Production manager should not be able to unshare bucket in branch');
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());

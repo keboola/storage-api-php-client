@@ -603,7 +603,7 @@ abstract class StorageApiTestCase extends ClientTestCase
                     }
                 }
             }
-            $client->unshareBucket($bucket['id'], $async);
+            $client->unshareBucket($bucket['id']);
         }
     }
 

@@ -1631,51 +1631,20 @@ Update information about current bucket owner.
 
 ## Bucket Sharing
 
-### Share Bucket To Organization [POST /v2/storage/buckets/{bucket_id}/share-organization?async={async}]
+### Share Bucket To Organization [POST /v2/storage/buckets/{bucket_id}/share-organization]
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket within the organization.
 Any organization member will be able to link to this bucket from any project within the organization.
 This operations is available only for organization administrators.
 + Parameters
     + bucket_id (required) - Bucket Id
-    + async (optional, boolean) - Share the bucket in a background job.
 
 + Request
     + Headers
 
             X-StorageApi-Token: your_token
 
-+ Response 201 (application/json)
-Synchronous call response (async=false)
-    + Body
-
-            {
-                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket",
-                "id": "in.c-my-bucket",
-                "name": "c-my-bucket",
-                "displayName": "my-bucket",
-                "stage": "in",
-                "description": "Some Description",
-                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket/tables",
-                "created": "2017-02-13T12:01:05+0100",
-                "lastChangeDate": null,
-                "isReadOnly": false,
-                "dataSizeBytes": 0,
-                "rowsCount": 0,
-                "isMaintenance": false,
-                "backend": "snowflake",
-                "sharing": "organization",
-                "sharingParameters": [],
-                "sharedBy": {
-                    "id": 5,
-                    "name": "dev@keboola.com",
-                    "date": "2020-02-03T14:58:29+0100"
-                },
-                "owner": null,
-                "updated": "2024-11-28T13:03:13+0100"
-            }
-
 + Response 202
-Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+Asynchronous call response that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
     + Body
 
             {
@@ -1707,51 +1676,20 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
                 }
             }
 
-### Share Bucket To Organization Project [POST /v2/storage/buckets/{bucket_id}/share-organization-project?async={async}]
+### Share Bucket To Organization Project [POST /v2/storage/buckets/{bucket_id}/share-organization-project]
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket within the organization.
 Any member of a project within the organization will be able to link to this bucket from their project.
 This operations is available only for organization administrators.
 + Parameters
     + bucket_id (required) - Bucket Id
-    + async (optional, boolean) - Share the bucket in a background job.
 
 + Request
     + Headers
 
             X-StorageApi-Token: your_token
 
-+ Response 201 (application/json)
-Synchronous call response (async=false)
-    + Body
-
-            {
-                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket",
-                "id": "in.c-my-bucket",
-                "name": "c-my-bucket",
-                "displayName": "my-bucket",
-                "stage": "in",
-                "description": "Some Description",
-                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket/tables",
-                "created": "2017-02-13T12:01:05+0100",
-                "lastChangeDate": null,
-                "isReadOnly": false,
-                "dataSizeBytes": 0,
-                "rowsCount": 0,
-                "isMaintenance": false,
-                "backend": "snowflake",
-                "sharing": "organization-project",
-                "sharingParameters": [],
-                "sharedBy": {
-                    "id": 5,
-                    "name": "dev@keboola.com",
-                    "date": "2020-02-03T14:58:29+0100"
-                },
-                "owner": null,
-                "updated": "2024-11-28T13:03:13+0100"
-            }
-
 + Response 202
-Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+Asynchronous call response that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
     + Body
 
             {
@@ -1783,14 +1721,13 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
                 }
             }
 
-### Share Bucket To Projects [POST /v2/storage/buckets/{bucket_id}/share-to-projects?async={async}]
+### Share Bucket To Projects [POST /v2/storage/buckets/{bucket_id}/share-to-projects]
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket to a specific set of projects in the organization.
 All users who are member of one of the targeted projects will be able to link to this bucket from that specific project.
 This operations is available only for organization administrators.
 
 + Parameters
     + bucket_id (required) - Bucket Id
-    + async (optional, boolean) - Share the bucket in a background job.
 
 + Attributes
     + targetProjectIds[] (required, array) - array of projects id
@@ -1809,53 +1746,8 @@ This operations is available only for organization administrators.
                 ]
             }
 
-+ Response 201 (application/json)
-Synchronous call response (async=false)
-    + Body
-
-            {
-                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-main",
-                "id": "in.c-main",
-                "name": "c-main",
-                "displayName": "main",
-                "stage": "in",
-                "description": "Main user storage",
-                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-main/tables",
-                "created": "2019-09-25T17:45:11+0200",
-                "lastChangeDate": null,
-                "isReadOnly": false,
-                "dataSizeBytes": 0,
-                "rowsCount": 0,
-                "isMaintenance": false,
-                "backend": "snowflake",
-                "sharing": "specific-project",
-                "sharingParameters": {
-                    "projects": [
-                           {
-                                   "id": 1,
-                                   "name": "Project 1"
-                           },
-                           {
-                                   "id": 2,
-                                   "name": "Project 2"
-                           },
-                           {
-                                   "id": 3,
-                                   "name": "Project 3"
-                           }
-                    ]
-                },
-                "sharedBy": {
-                    "id": 5,
-                    "name": "dev@keboola.com",
-                    "date": "2020-02-03T14:58:29+0100"
-                },
-                "owner": null,
-                "updated": "2024-11-28T13:03:13+0100"
-            }
-
 + Response 202
-Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+Asynchronous call response that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
     + Body
 
             {
@@ -1890,14 +1782,13 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
                 }
             }
 
-### Share Bucket To Users [POST /v2/storage/buckets/{bucket_id}/share-to-users?async={async}]
+### Share Bucket To Users [POST /v2/storage/buckets/{bucket_id}/share-to-users]
 [Enables sharing](https://help.keboola.com/storage/buckets/sharing/) or **update sharing** for this bucket to a specific set of users in the organization.
 All users who are included in the targetUsers array will be able to link to this bucket.
 This operations is available only for organization administrators.
 
 + Parameters
     + bucket_id (required) - Bucket Id
-    + async (optional, boolean) - Share the bucket in a background job.
 
 + Attributes
     + targetUsers[] (required, array) - array of users id or user emails. Users must be member of at least one project in the organization.
@@ -1916,56 +1807,8 @@ This operations is available only for organization administrators.
                 ]
             }
 
-+ Response 201 (application/json)
-Synchronous call response (async=false)
-    + Body
-
-            {
-                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-main",
-                "id": "in.c-main",
-                "name": "c-main",
-                "displayName": "main",
-                "stage": "in",
-                "description": "Main user storage",
-                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-main/tables",
-                "created": "2019-09-25T17:45:11+0200",
-                "lastChangeDate": null,
-                "isReadOnly": false,
-                "dataSizeBytes": 0,
-                "rowsCount": 0,
-                "isMaintenance": false,
-                "backend": "snowflake",
-                "sharing": "specific-users",
-                "sharingParameters": {
-                    "users": [
-                           {
-                                   "id": 1,
-                                   "name": "User Name",
-                                   "email": "dev@keboola.com"
-                           },
-                           {
-                                   "id": 2,
-                                   "name": "User Name",
-                                   "email": "dev2@keboola.com"
-                           },
-                           {
-                                   "id": 3,
-                                   "name": "User Name",
-                                   "email": "dev3@keboola.com"
-                           }
-                    ]
-                },
-                "sharedBy": {
-                    "id": 5,
-                    "name": "dev@keboola.com",
-                    "date": "2020-02-03T14:58:29+0100"
-                },
-                "owner": null,
-                "updated": "2024-11-28T13:03:13+0100"
-            }
-
 + Response 202
-Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+Asynchronous call response that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
     + Body
 
             {
@@ -2000,14 +1843,13 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
                 }
             }
 
-### Change Bucket Sharing [PUT /v2/storage/buckets/{bucket_id}/share?async={async}]
+### Change Bucket Sharing [PUT /v2/storage/buckets/{bucket_id}/share]
 Change [sharing type](https://help.keboola.com/storage/buckets/sharing/#sharing-type) of a bucket.
 This operations is available only for organization administrators.
 
 
 + Parameters
     + bucket_id (required) - Bucket Id
-    + async (optional, boolean) - Share the bucket in a background job.
 
 + Attributes
     + sharing (required, enum[string]) - Sharing type
@@ -2020,38 +1862,8 @@ This operations is available only for organization administrators.
 
             X-StorageApi-Token: your_token
 
-+ Response 200 (application/json)
-Synchronous call response (async=false)
-    + Body
-
-            {
-                "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket",
-                "id": "in.c-my-bucket",
-                "name": "c-my-bucket",
-                "displayName": "my-bucket",
-                "stage": "in",
-                "description": "Some Description",
-                "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-my-bucket/tables",
-                "created": "2017-02-13T12:01:05+0100",
-                "lastChangeDate": null,
-                "isReadOnly": false,
-                "dataSizeBytes": 0,
-                "rowsCount": 0,
-                "isMaintenance": false,
-                "backend": "snowflake",
-                "sharing": "organization",
-                "sharingParameters": [],
-                "sharedBy": {
-                    "id": 5,
-                    "name": "dev@keboola.com",
-                    "date": "2020-02-03T14:58:29+0100"
-                },
-                "owner": null,
-                "updated": "2024-11-28T13:03:13+0100"
-            }
-
 + Response 202
-Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+Asynchronous call response that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
     + Body
 
             {
@@ -2084,7 +1896,7 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
                 }
             }
 
-### Stop Bucket Sharing [DELETE /v2/storage/buckets/{bucket_id}/share?async={async}]
+### Stop Bucket Sharing [DELETE /v2/storage/buckets/{bucket_id}/share]
 Disables sharing of a bucket. A bucket must not be linked to other projects.
 To unshare an already linked bucket, you have to delete the links first - use the
 [Drop Bucket](#reference/buckets/manage-bucket/drop-bucket) in the linking project.
@@ -2092,14 +1904,11 @@ This operations is available only for organization administrators.
 
 + Parameters
     + bucket_id (required) - Bucket Id
-    + async (optional, boolean) - Share the bucket in a background job.
 
 + Request
     + Headers
 
             X-StorageApi-Token: your_token
-
-+ Response 204
 
 + Response 202
 Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
