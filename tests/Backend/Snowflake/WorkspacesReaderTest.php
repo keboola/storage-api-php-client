@@ -3,15 +3,11 @@
 namespace Backend\Snowflake;
 
 use Keboola\Csv\CsvFile;
-use Keboola\StorageApi\Client;
-use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
-use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
-use PDO;
 
 class WorkspacesReaderTest extends ParallelWorkspacesTestCase
 {
@@ -29,7 +25,6 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
 
     public function testLoadToReaderAccount(): void
     {
-
         $defaultBranchId = $this->getDefaultBranchId($this);
         $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
         $workspaces = new Workspaces($branchClient);
@@ -55,10 +50,11 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
                 ],
             ],
         ]);
+        // create the connection after LOAD!! because the schema will be created by LOAD
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
         $db->executeQuery('select 1');
         $data = $db->fetchAll('languages');
-$a = 1;
-    }
 
+        $this->assertCount(5, $data);
+    }
 }
