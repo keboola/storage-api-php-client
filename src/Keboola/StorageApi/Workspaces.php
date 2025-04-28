@@ -9,6 +9,8 @@
 
 namespace Keboola\StorageApi;
 
+use Keboola\KeyGenerator\PemKeyCertificateGenerator;
+
 /**
  * @phpstan-type WorkspaceResponse array{
  *      id: int,
@@ -68,19 +70,15 @@ class Workspaces
      */
     public function createWorkspace(array $options = [], bool $async = false): array
     {
-        $workspaceResponse = $this->internalCreateWorkspace($async, $options, true);
-        assert(is_array($workspaceResponse));
+        return $this->decorateWorkspaceCreateWithCredentials(
+            $options,
+            function (array $options) use ($async) {
+                $workspaceResponse = $this->internalCreateWorkspace($async, $options, true);
+                assert(is_array($workspaceResponse));
 
-        if (array_key_exists('loginType', $options) && in_array($options['loginType'], [
-                WorkspaceLoginType::SNOWFLAKE_PERSON_SSO,
-                WorkspaceLoginType::SNOWFLAKE_PERSON_KEYPAIR,
-                WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
-            ], true)) {
-            // when sso login is created there is no password and reset is forbidden
-            return $workspaceResponse;
-        }
-        $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
-        return Workspaces::addCredentialsToWorkspaceResponse($workspaceResponse, $resetPasswordResponse);
+                return $workspaceResponse;
+            },
+        );
     }
 
     public function queueCreateWorkspace(array $options = []): int
@@ -204,6 +202,43 @@ class Workspaces
         assert(is_array($result));
 
         return $result;
+    }
+
+    /**
+     * @param callable(array $options): array $createWorkspace
+     * @return array
+     */
+    public function decorateWorkspaceCreateWithCredentials(array $options, callable $createWorkspace): array
+    {
+        $loginType = $options['loginType'] ?? null;
+        $isKeypairLogin = in_array($loginType, [
+            WorkspaceLoginType::SNOWFLAKE_PERSON_KEYPAIR,
+            WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
+        ], true);
+
+        if ($isKeypairLogin) {
+            $keyPairGenerator = new PemKeyCertificateGenerator();
+            $keyPair = $keyPairGenerator->createPemKeyCertificate(null);
+
+            $options['connection']['publicKey'] = $keyPair->publicKey;
+        }
+
+        $workspaceResponse = $createWorkspace($options);
+
+        // key-pair login uses generated privateKey as credentials
+        if ($isKeypairLogin) {
+            $workspaceResponse['connection']['privateKey'] = $keyPair->privateKey;
+            return $workspaceResponse;
+        }
+
+        // SSO does not use any explicit credentials
+        if ($loginType === WorkspaceLoginType::SNOWFLAKE_PERSON_SSO) {
+            return $workspaceResponse;
+        }
+
+        // other login types uses password as credentials
+        $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
+        return Workspaces::addCredentialsToWorkspaceResponse($workspaceResponse, $resetPasswordResponse);
     }
 
     public static function addCredentialsToWorkspaceResponse(array $workspaceResponse, array $resetPasswordResponse): array

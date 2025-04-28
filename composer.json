@@ -25,13 +25,14 @@
 		}
 	},
 	"require": {
-		"php": ">=8.1",
+		"php": ">=8.2",
 		"ext-json": "*",
 		"aws/aws-sdk-php": "~3.2",
 		"google/cloud-bigquery-analyticshub": "^0.2.2",
 		"google/cloud-storage": "^1.27",
 		"guzzlehttp/guzzle": "~7.0",
 		"keboola/csv": "^1",
+		"keboola/key-generator": "^1.0",
 		"keboola/php-datatypes": "^7.0",
 		"microsoft/azure-storage-blob": "^1.5",
 		"psr/log": "^1.1|^2.0|^3.0",
