@@ -211,34 +211,48 @@ class Workspaces
     public function decorateWorkspaceCreateWithCredentials(array $options, callable $createWorkspace): array
     {
         $loginType = $options['loginType'] ?? null;
-        $isKeypairLogin = in_array($loginType, [
-            WorkspaceLoginType::SNOWFLAKE_PERSON_KEYPAIR,
-            WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
-        ], true);
+        $publicKey = $options['publicKey'] ?? null;
+        $responseExtra = [];
 
-        if ($isKeypairLogin) {
-            $keyPairGenerator = new PemKeyCertificateGenerator();
-            $keyPair = $keyPairGenerator->createPemKeyCertificate(null);
+        switch($loginType) {
+            case WorkspaceLoginType::SNOWFLAKE_PERSON_KEYPAIR:
+                if ($publicKey === null) {
+                    throw new ClientException('publicKey is required for loginType: snowflake-person-keypair');
+                }
+                break;
 
-            $options['publicKey'] = $keyPair->publicKey;
+            case WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR:
+                if ($publicKey !== null) {
+                    throw new ClientException('publicKey can\'t be provided for loginType: snowflake-service-keypair');
+                }
+
+                $keyPairGenerator = new PemKeyCertificateGenerator();
+                $keyPair = $keyPairGenerator->createPemKeyCertificate(null);
+
+                $options['publicKey'] = $keyPair->publicKey;
+                $responseExtra['privateKey'] = $keyPair->privateKey;
+                break;
         }
 
         $workspaceResponse = $createWorkspace($options);
 
-        // key-pair login uses generated privateKey as credentials
-        if ($isKeypairLogin) {
-            $workspaceResponse['connection']['privateKey'] = $keyPair->privateKey;
-            return $workspaceResponse;
+        $workspaceResponse['connection'] = array_merge(
+            $workspaceResponse['connection'],
+            $responseExtra,
+        );
+
+        if (in_array($loginType, [
+            WorkspaceLoginType::DEFAULT,
+            WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD,
+        ], true)) {
+            $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
+            $workspaceResponse = Workspaces::addCredentialsToWorkspaceResponse(
+                $workspaceResponse,
+                $resetPasswordResponse,
+            );
         }
 
-        // SSO does not use any explicit credentials
-        if ($loginType === WorkspaceLoginType::SNOWFLAKE_PERSON_SSO) {
-            return $workspaceResponse;
-        }
-
-        // other login types uses password as credentials
-        $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
-        return Workspaces::addCredentialsToWorkspaceResponse($workspaceResponse, $resetPasswordResponse);
+        return $workspaceResponse;
     }
 
     public static function addCredentialsToWorkspaceResponse(array $workspaceResponse, array $resetPasswordResponse): array
