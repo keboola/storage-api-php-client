@@ -70,19 +70,15 @@ class Workspaces
      */
     public function createWorkspace(array $options = [], bool $async = false): array
     {
-        $workspaceResponse = $this->internalCreateWorkspace($async, $options, true);
-        assert(is_array($workspaceResponse));
+        return $this->decorateWorkspaceCreateWithCredentials(
+            $options,
+            function (array $options) use ($async) {
+                $workspaceResponse = $this->internalCreateWorkspace($async, $options, true);
+                assert(is_array($workspaceResponse));
 
-        if (array_key_exists('loginType', $options) && in_array($options['loginType'], [
-                WorkspaceLoginType::SNOWFLAKE_PERSON_SSO,
-                WorkspaceLoginType::SNOWFLAKE_PERSON_KEYPAIR,
-                WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
-            ], true)) {
-            // when sso login is created there is no password and reset is forbidden
-            return $workspaceResponse;
-        }
-        $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
-        return Workspaces::addCredentialsToWorkspaceResponse($workspaceResponse, $resetPasswordResponse);
+                return $workspaceResponse;
+            },
+        );
     }
 
     public function queueCreateWorkspace(array $options = []): int
@@ -206,6 +202,26 @@ class Workspaces
         assert(is_array($result));
 
         return $result;
+    }
+
+    /**
+     * @param CreateWorkspaceOptions $options
+     * @param callable(CreateWorkspaceOptions $options): array $createWorkspace
+     * @return array
+     */
+    public function decorateWorkspaceCreateWithCredentials(array $options, callable $createWorkspace): array
+    {
+        $workspaceResponse = $createWorkspace($options);
+
+        if (($options['loginType'] ?? WorkspaceLoginType::DEFAULT)->isPasswordLogin()) {
+            $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
+            $workspaceResponse = Workspaces::addCredentialsToWorkspaceResponse(
+                $workspaceResponse,
+                $resetPasswordResponse,
+            );
+        }
+
+        return $workspaceResponse;
     }
 
     public static function addCredentialsToWorkspaceResponse(array $workspaceResponse, array $resetPasswordResponse): array
