@@ -1,7 +1,6 @@
-ARG PHP_VERSION=8.1
+ARG PHP_VERSION=8.2
 # the default env bellow is used when build pipeline sends "PHP_VERSION=" - the above default value is ignored in that case
-FROM php:${PHP_VERSION:-8.1}-cli-buster as dev
-MAINTAINER Martin Halamicek <martin@keboola.com>
+FROM php:${PHP_VERSION:-8.2}-cli-buster AS dev
 ENV DEBIAN_FRONTEND noninteractive
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
 ARG SNOWFLAKE_ODBC_VERSION=3.4.1
