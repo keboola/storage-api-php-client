@@ -220,7 +220,7 @@ class Workspaces
             $keyPairGenerator = new PemKeyCertificateGenerator();
             $keyPair = $keyPairGenerator->createPemKeyCertificate(null);
 
-            $options['connection']['publicKey'] = $keyPair->publicKey;
+            $options['publicKey'] = $keyPair->publicKey;
         }
 
         $workspaceResponse = $createWorkspace($options);
