@@ -48,7 +48,7 @@
 		"keboola/phpunit-retry-annotations": "^0.5",
 		"keboola/retry": "^0.5.0",
 		"keboola/table-backend-utils": ">=2.9.0",
-		"phpcompatibility/php-compatibility": "*",
+		"phpcompatibility/php-compatibility": "dev-develop",
 		"phpstan/phpstan": "^1",
 		"phpstan/phpstan-phpunit": "^1.0",
 		"phpunit/phpunit": "^7.0|^8.0|^9.0",
