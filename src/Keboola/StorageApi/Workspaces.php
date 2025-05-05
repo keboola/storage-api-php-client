@@ -9,6 +9,7 @@
 
 namespace Keboola\StorageApi;
 
+use Keboola\StorageApi\Workspaces\ResetCredentialsRequest;
 use Keboola\StorageApi\Workspaces\SetPublicKeyRequest;
 
 /**
@@ -98,10 +99,9 @@ class Workspaces
     }
 
     /**
-     * @param int $id
      * @return WorkspaceResponse
      */
-    public function getWorkspace($id): array
+    public function getWorkspace(int|string $id): array
     {
         /** @var WorkspaceResponse $result */
         $result = $this->client->apiGet("workspaces/{$id}");
@@ -160,11 +160,7 @@ class Workspaces
         $this->client->apiPostJson("workspaces/{$id}/load-clone", $options);
     }
 
-    /**
-     * @param int $id
-     * @return array
-     */
-    public function resetWorkspacePassword($id)
+    public function resetWorkspacePassword(int|string $id): array
     {
         $result = $this->client->apiPostJson("workspaces/{$id}/password");
         assert(is_array($result));
@@ -264,5 +260,51 @@ class Workspaces
         $this->client->apiPostJson($url, [
             'publicKey' => $data->publicKey,
         ]);
+    }
+
+    /**
+     * @return array{
+     *     password?: string
+     * }
+     */
+    public function resetCredentials(
+        int|string $workspaceId,
+        ResetCredentialsRequest $data,
+    ): array {
+        $workspaceData = $this->getWorkspace($workspaceId);
+        $loginType = WorkspaceLoginType::from(
+            $workspaceData['connection']['loginType'] ?? WorkspaceLoginType::DEFAULT->value,
+        );
+
+        if ($loginType->isKeyPairLogin()) {
+            if ($data->publicKey === null) {
+                throw new ClientException(sprintf(
+                    'Workspace with login type "%s" requires "publicKey" credentials.',
+                    $loginType->value,
+                ));
+            }
+
+            $this->setPublicKey($workspaceId, new SetPublicKeyRequest(
+                publicKey: $data->publicKey,
+            ));
+
+            return [];
+        }
+
+        if ($loginType->isPasswordLogin()) {
+            if ($data->publicKey !== null) {
+                throw new ClientException(sprintf(
+                    'Workspace with login type "%s" does not support "publicKey" credentials.',
+                    $loginType->value,
+                ));
+            }
+
+            return $this->resetWorkspacePassword($workspaceId);
+        }
+
+        throw new ClientException(sprintf(
+            'Credentials reset is not supported for workspace with login type "%s".',
+            $loginType->value,
+        ));
     }
 }
