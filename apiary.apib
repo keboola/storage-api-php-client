@@ -5383,6 +5383,115 @@ Only for BigQuery workspace
               }
             }
 
+## Workspace set public-key [/v2/storage/workspaces/{workspace_id}/public-key]
+### Workspace set public-key [POST]
+Set public key for workspace user. Supported only on Snowflake. Snowflake supports two public keys to exists, when api is called either new key is created or older one is replaced.
+
++ Parameters
+    + workspace_id (number)
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 201 (application/json)
+
+    + Body
+
+            {
+                "publicKey": "-----BEGIN PUBLIC KEY-----...",
+            }
+
++ Response 200 (application/json)
+
+    + Attributes (Workspace)
+
+
+### Development Branch Workspace set public-key [POST /v2/storage/branch/{branch_id}/workspaces/{workspace_id}/public-key]
+Set public key for workspace user in [Development Branch](#reference/development-branches). Supported only on Snowflake. Snowflake supports two public keys to exists, when api is called either new key is created or older one is replaced.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + workspace_id (number)
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 201 (application/json)
+
+    + Body
+
+            {
+                "publicKey": "-----BEGIN PUBLIC KEY-----...",
+            }
+
++ Response 200 (application/json)
+
+    + Attributes (Workspace)
+
+
+## Workspace set public-key by name [/v2/storage/workspaces/{workspace_id}/public-key/{key_name}]
+### Workspace set public-key by name [POST]
+Set specific public key for workspace user. Supported only on Snowflake. Snowflake supports two public keys to exists, when api is called either new key is created or older one is replaced.
+
++ Parameters
+    + workspace_id (number)
+    + key_name (number)
+    + key_name (enum[string])
+        + Members
+            + RSA_PUBLIC_KEY
+            + RSA_PUBLIC_KEY_2
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 201 (application/json)
+
+    + Body
+
+            {
+                "publicKey": "-----BEGIN PUBLIC KEY-----...",
+            }
+
++ Response 200 (application/json)
+
+    + Attributes (Workspace)
+
+
+### Development Branch Workspace set public-key by name [POST /v2/storage/branch/{branch_id}/workspaces/{workspace_id}/public-key/{key_name}]
+Set specific public key for workspace user in [Development Branch](#reference/development-branches). Supported only on Snowflake. Snowflake supports two public keys to exists, when api is called either new key is created or older one is replaced.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + workspace_id (number)
+    + key_name (enum[string])
+        + Members
+            + RSA_PUBLIC_KEY
+            + RSA_PUBLIC_KEY_2
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 201 (application/json)
+
+    + Body
+
+            {
+                "publicKey": "-----BEGIN PUBLIC KEY-----...",
+            }
+
++ Response 200 (application/json)
+
+    + Attributes (Workspace)
+
+
 ## Execute Query [/v2/storage/branch/{branch_id}/workspaces/{workspace_id}/query]
 ### Execute Query [POST]
 
