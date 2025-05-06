@@ -80,18 +80,7 @@ RUN mkdir -p ~/.gnupg \
     && gpg --batch --delete-key --yes $SNOWFLAKE_GPG_KEY \
     && dpkg -i /tmp/snowflake-odbc.deb
 
-# Synapse ODBC
-RUN set -ex; \
-    pecl install sqlsrv-$SYNAPSE_ODBC_VERSION pdo_sqlsrv-$SYNAPSE_ODBC_VERSION; \
-    docker-php-ext-enable sqlsrv pdo_sqlsrv; \
-    docker-php-source delete
-
-
 # PHP modules
-# needed for Exasol and Teradata
-RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
-  && docker-php-ext-install pdo_odbc
-
 RUN docker-php-ext-install bcmath
 
 WORKDIR /code
