@@ -154,7 +154,7 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
     /**
      * @dataProvider keyPairLoginTypeProvider
      */
-    public function testPersonWorkspaceWithKeyPair(WorkspaceLoginType $loginType, string $expectedLoginType): void
+    public function testWorkspaceWithKeyPair(WorkspaceLoginType $loginType, string $expectedLoginType): void
     {
         $this->initEvents($this->workspaceSapiClient);
 
@@ -195,6 +195,26 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
             $this->assertSame($e->getCode(), 400);
             $this->assertSame('workspace.resetPasswordNotSupported', $e->getStringCode());
         }
+
+        // test universal resetCredentials method
+        try {
+            $workspaces->resetCredentials($workspace['id'], new Workspaces\ResetCredentialsRequest());
+            $this->fail('Password reset should not be supported for keypair login type');
+        } catch (ClientException $e) {
+            $this->assertSame($e->getMessage(), sprintf(
+                'Workspace with login type "%s" requires "publicKey" credentials.',
+                $loginType->value,
+            ));
+        }
+
+        // resetCredentials works with publicKey
+        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
+        $workspaces->resetCredentials($workspace['id'], new Workspaces\ResetCredentialsRequest(
+            publicKey: $key->getPublicKey(),
+        ));
+        $workspace['connection']['privateKey'] = $key->getPrivateKey();
+        $backendKey1 = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
+        $backendKey1->getDb()->executeQuery('SELECT 1');
     }
 
     /**

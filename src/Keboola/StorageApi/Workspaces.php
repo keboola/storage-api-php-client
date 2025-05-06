@@ -220,8 +220,10 @@ class Workspaces
         return $workspaceResponse;
     }
 
-    public static function addCredentialsToWorkspaceResponse(array $workspaceResponse, array $resetPasswordResponse): array
-    {
+    public static function addCredentialsToWorkspaceResponse(
+        array $workspaceResponse,
+        array $resetPasswordResponse,
+    ): array {
         if ($workspaceResponse['type'] === 'file') {
             $secret = 'connectionString';
         } elseif ($workspaceResponse['connection']['backend'] === 'bigquery') {
@@ -264,7 +266,8 @@ class Workspaces
 
     /**
      * @return array{
-     *     password?: string
+     *     password?: string,
+     *     credentials?: array<mixed>,
      * }
      */
     public function resetCredentials(

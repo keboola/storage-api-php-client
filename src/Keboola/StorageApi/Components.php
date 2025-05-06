@@ -336,8 +336,7 @@ class Components
             $url .= '?' . http_build_query(['async' => true]);
         }
 
-        $ws = new Workspaces($this->client);
-        return $ws->decorateWorkspaceCreateWithCredentials(
+        return (new Workspaces($this->client))->decorateWorkspaceCreateWithCredentials(
             $options,
             function (array $options) use ($url) {
                 $workspaceResponse = $this->client->apiPostJson(
