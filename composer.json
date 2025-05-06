@@ -48,7 +48,6 @@
 		"keboola/phpunit-retry-annotations": "^0.5",
 		"keboola/retry": "^0.5.0",
 		"keboola/table-backend-utils": ">=2.9.0",
-		"phpcompatibility/php-compatibility": "dev-develop",
 		"phpstan/phpstan": "^1",
 		"phpstan/phpstan-phpunit": "^1.0",
 		"phpunit/phpunit": "^7.0|^8.0|^9.0",
@@ -58,13 +57,11 @@
     },
 	"scripts": {
 		"phpcs": "phpcs -n .",
-		"phpcs-compatibility": "phpcs --config-set installed_paths vendor/phpcompatibility/php-compatibility && phpcs --ignore=*vendor/*,*cache/* -n . --standard=PHPCompatibility --runtime-set testVersion 8.1-8.3",
 		"phpcbf": "phpcbf -n .",
 		"phpstan": "phpstan analyse --no-progress --level=max . -c phpstan.neon",
 		"tests": "phpunit --testsuite=unit",
 		"ci": [
 			"@phpcs",
-			"@phpcs-compatibility",
 			"@phpstan",
 			"@tests"
 		]
