@@ -9,6 +9,8 @@
 
 namespace Keboola\StorageApi;
 
+use Keboola\StorageApi\Workspaces\SetPublicKeyRequest;
+
 /**
  * @phpstan-type WorkspaceResponse array{
  *      id: int,
@@ -235,5 +237,16 @@ class Workspaces
         }
 
         return $this->client->apiPostJson($url, $options, $handleAsyncTask, $requestOptions);
+    }
+
+    public function setPublicKey(int|string $workspaceId, SetPublicKeyRequest $data): void
+    {
+        $url = sprintf('workspaces/%s/public-key', $workspaceId);
+        if ($data->keyName !== null) {
+            $url .= '/' . $data->keyName->value;
+        }
+        $this->client->apiPostJson($url, [
+            'publicKey' => $data->publicKey,
+        ]);
     }
 }
