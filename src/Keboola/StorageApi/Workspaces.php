@@ -9,6 +9,7 @@
 
 namespace Keboola\StorageApi;
 
+use Keboola\StorageApi\Workspaces\ResetCredentialsRequest;
 use Keboola\StorageApi\Workspaces\SetPublicKeyRequest;
 
 /**
@@ -70,19 +71,15 @@ class Workspaces
      */
     public function createWorkspace(array $options = [], bool $async = false): array
     {
-        $workspaceResponse = $this->internalCreateWorkspace($async, $options, true);
-        assert(is_array($workspaceResponse));
+        return $this->decorateWorkspaceCreateWithCredentials(
+            $options,
+            function (array $options) use ($async) {
+                $workspaceResponse = $this->internalCreateWorkspace($async, $options, true);
+                assert(is_array($workspaceResponse));
 
-        if (array_key_exists('loginType', $options) && in_array($options['loginType'], [
-                WorkspaceLoginType::SNOWFLAKE_PERSON_SSO,
-                WorkspaceLoginType::SNOWFLAKE_PERSON_KEYPAIR,
-                WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
-            ], true)) {
-            // when sso login is created there is no password and reset is forbidden
-            return $workspaceResponse;
-        }
-        $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
-        return Workspaces::addCredentialsToWorkspaceResponse($workspaceResponse, $resetPasswordResponse);
+                return $workspaceResponse;
+            },
+        );
     }
 
     public function queueCreateWorkspace(array $options = []): int
@@ -102,10 +99,9 @@ class Workspaces
     }
 
     /**
-     * @param int $id
      * @return WorkspaceResponse
      */
-    public function getWorkspace($id): array
+    public function getWorkspace(int|string $id): array
     {
         /** @var WorkspaceResponse $result */
         $result = $this->client->apiGet("workspaces/{$id}");
@@ -164,11 +160,7 @@ class Workspaces
         $this->client->apiPostJson("workspaces/{$id}/load-clone", $options);
     }
 
-    /**
-     * @param int $id
-     * @return array
-     */
-    public function resetWorkspacePassword($id)
+    public function resetWorkspacePassword(int|string $id): array
     {
         $result = $this->client->apiPostJson("workspaces/{$id}/password");
         assert(is_array($result));
@@ -208,8 +200,30 @@ class Workspaces
         return $result;
     }
 
-    public static function addCredentialsToWorkspaceResponse(array $workspaceResponse, array $resetPasswordResponse): array
+    /**
+     * @param CreateWorkspaceOptions $options
+     * @param callable(CreateWorkspaceOptions $options): array $createWorkspace
+     * @return array
+     */
+    public function decorateWorkspaceCreateWithCredentials(array $options, callable $createWorkspace): array
     {
+        $workspaceResponse = $createWorkspace($options);
+
+        if (($options['loginType'] ?? WorkspaceLoginType::DEFAULT)->isPasswordLogin()) {
+            $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
+            $workspaceResponse = Workspaces::addCredentialsToWorkspaceResponse(
+                $workspaceResponse,
+                $resetPasswordResponse,
+            );
+        }
+
+        return $workspaceResponse;
+    }
+
+    public static function addCredentialsToWorkspaceResponse(
+        array $workspaceResponse,
+        array $resetPasswordResponse,
+    ): array {
         if ($workspaceResponse['type'] === 'file') {
             $secret = 'connectionString';
         } elseif ($workspaceResponse['connection']['backend'] === 'bigquery') {
@@ -248,5 +262,52 @@ class Workspaces
         $this->client->apiPostJson($url, [
             'publicKey' => $data->publicKey,
         ]);
+    }
+
+    /**
+     * @return array{
+     *     password?: string,
+     *     credentials?: array<mixed>,
+     * }
+     */
+    public function resetCredentials(
+        int|string $workspaceId,
+        ResetCredentialsRequest $data,
+    ): array {
+        $workspaceData = $this->getWorkspace($workspaceId);
+        $loginType = WorkspaceLoginType::from(
+            $workspaceData['connection']['loginType'] ?? WorkspaceLoginType::DEFAULT->value,
+        );
+
+        if ($loginType->isKeyPairLogin()) {
+            if ($data->publicKey === null) {
+                throw new ClientException(sprintf(
+                    'Workspace with login type "%s" requires "publicKey" credentials.',
+                    $loginType->value,
+                ));
+            }
+
+            $this->setPublicKey($workspaceId, new SetPublicKeyRequest(
+                publicKey: $data->publicKey,
+            ));
+
+            return [];
+        }
+
+        if ($loginType->isPasswordLogin()) {
+            if ($data->publicKey !== null) {
+                throw new ClientException(sprintf(
+                    'Workspace with login type "%s" does not support "publicKey" credentials.',
+                    $loginType->value,
+                ));
+            }
+
+            return $this->resetWorkspacePassword($workspaceId);
+        }
+
+        throw new ClientException(sprintf(
+            'Credentials reset is not supported for workspace with login type "%s".',
+            $loginType->value,
+        ));
     }
 }
