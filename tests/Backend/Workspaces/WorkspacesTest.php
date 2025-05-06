@@ -311,6 +311,36 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
         $backend = null; // force odbc disconnect
 
         $this->assertArrayHasKey('mytable', array_flip($tableNames));
+
+        // test universal resetCredentials method
+        if ($this->getDefaultBackend($this->workspaceSapiClient) === self::BACKEND_SNOWFLAKE) {
+            try {
+                $workspaces->resetCredentials($workspace['id'], new Workspaces\ResetCredentialsRequest(
+                    publicKey: 'does not matter',
+                ));
+                $this->fail('Setting public key should not be supported for legacy service password');
+            } catch (ClientException $e) {
+                $this->assertSame(sprintf(
+                    'Workspace with login type "%s" does not support "publicKey" credentials.',
+                    WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD->value,
+                ), $e->getMessage());
+            }
+        }
+
+        // without parameter reset password is called
+        $newCredentials = $workspaces->resetCredentials($workspace['id'], new Workspaces\ResetCredentialsRequest());
+        if ($this->getDefaultBackend($this->workspaceSapiClient) === self::BACKEND_BIGQUERY) {
+            $this->assertArrayHasKey('credentials', $newCredentials);
+            $workspace['connection']['credentials'] = $newCredentials['credentials'];
+        } else {
+            $this->assertArrayHasKey('password', $newCredentials);
+            $workspace['connection']['password'] = $newCredentials['password'];
+        }
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $tableNames = $backend->getTables();
+        $backend = null; // force odbc disconnect
+        $this->assertArrayHasKey('mytable', array_flip($tableNames));
     }
 
     /**

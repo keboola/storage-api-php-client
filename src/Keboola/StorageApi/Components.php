@@ -335,22 +335,20 @@ class Components
         if ($async) {
             $url .= '?' . http_build_query(['async' => true]);
         }
-        $workspaceResponse = $this->client->apiPostJson(
-            $url,
+
+        return (new Workspaces($this->client))->decorateWorkspaceCreateWithCredentials(
             $options,
-            true,
-            [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true],
+            function (array $options) use ($url) {
+                $workspaceResponse = $this->client->apiPostJson(
+                    $url,
+                    $options,
+                    true,
+                    [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true],
+                );
+                assert(is_array($workspaceResponse));
+                return $workspaceResponse;
+            },
         );
-        assert(is_array($workspaceResponse));
-
-        if (array_key_exists('loginType', $options) && $options['loginType'] === WorkspaceLoginType::SNOWFLAKE_PERSON_SSO) {
-            // when sso login is created there is no password and reset is forbidden
-            return $workspaceResponse;
-        }
-
-        $ws = new Workspaces($this->client);
-        $resetPasswordResponse = $ws->resetWorkspacePassword($workspaceResponse['id']);
-        return Workspaces::addCredentialsToWorkspaceResponse($workspaceResponse, $resetPasswordResponse);
     }
 
     public function addConfigurationMetadata(ConfigurationMetadata $options)

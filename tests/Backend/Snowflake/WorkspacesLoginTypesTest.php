@@ -55,7 +55,7 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
     public function testWorkspaceCreate(
         WorkspaceLoginType|null $loginType,
         bool $async,
-        string $expectedLoginType
+        string $expectedLoginType,
     ): void {
         $this->initEvents($this->workspaceSapiClient);
 
@@ -154,7 +154,7 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
     /**
      * @dataProvider keyPairLoginTypeProvider
      */
-    public function testPersonWorkspaceWithKeyPair(WorkspaceLoginType $loginType, string $expectedLoginType): void
+    public function testWorkspaceWithKeyPair(WorkspaceLoginType $loginType, string $expectedLoginType): void
     {
         $this->initEvents($this->workspaceSapiClient);
 
@@ -195,6 +195,26 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
             $this->assertSame($e->getCode(), 400);
             $this->assertSame('workspace.resetPasswordNotSupported', $e->getStringCode());
         }
+
+        // test universal resetCredentials method
+        try {
+            $workspaces->resetCredentials($workspace['id'], new Workspaces\ResetCredentialsRequest());
+            $this->fail('Password reset should not be supported for keypair login type');
+        } catch (ClientException $e) {
+            $this->assertSame($e->getMessage(), sprintf(
+                'Workspace with login type "%s" requires "publicKey" credentials.',
+                $loginType->value,
+            ));
+        }
+
+        // resetCredentials works with publicKey
+        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
+        $workspaces->resetCredentials($workspace['id'], new Workspaces\ResetCredentialsRequest(
+            publicKey: $key->getPublicKey(),
+        ));
+        $workspace['connection']['privateKey'] = $key->getPrivateKey();
+        $backendKey1 = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
+        $backendKey1->getDb()->executeQuery('SELECT 1');
     }
 
     /**
@@ -275,5 +295,115 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
         $workspace['connection']['privateKey'] = $key->getPrivateKey();
         $backendKey1_3 = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
         $backendKey1_3->getDb()->executeQuery('SELECT 1');
+    }
+
+    public static function provideLoginTypesWithPasswordCredentials(): iterable
+    {
+        yield 'no loginType' => [
+            'loginType' => null,
+        ];
+
+        yield 'password loginType' => [
+            'loginType' => WorkspaceLoginType::DEFAULT,
+        ];
+    }
+
+    /** @dataProvider provideLoginTypesWithPasswordCredentials */
+    public function testResetPasswordCredentials(?WorkspaceLoginType $loginType): void
+    {
+        $workspaces = $this->createPartialMock(Workspaces::class, [
+            'getWorkspace',
+            'resetWorkspacePassword',
+            'setPublicKey',
+        ]);
+        $workspaces->expects(self::once())
+            ->method('getWorkspace')
+            ->with('123')
+            ->willReturn([
+                'connection' => [
+                    'loginType' => $loginType?->value,
+                ],
+            ]);
+        $workspaces->expects(self::once())
+            ->method('resetWorkspacePassword')
+            ->with('123')
+            ->willReturn([
+                'password' => 'new-password',
+            ]);
+        $workspaces->expects(self::never())->method('setPublicKey');
+
+        $result = $workspaces->resetCredentials('123', new Workspaces\ResetCredentialsRequest());
+        self::assertSame([
+            'password' => 'new-password',
+        ], $result);
+    }
+
+    public function testResetKeyPairCredentials(): void
+    {
+        $workspaces = $this->createPartialMock(Workspaces::class, [
+            'getWorkspace',
+            'resetWorkspacePassword',
+            'setPublicKey',
+        ]);
+        $workspaces->expects(self::once())
+            ->method('getWorkspace')
+            ->with('123')
+            ->willReturn([
+                'connection' => [
+                    'loginType' => WorkspaceLoginType::SNOWFLAKE_PERSON_KEYPAIR->value,
+                ],
+            ]);
+        $workspaces->expects(self::never())->method('resetWorkspacePassword');
+        $workspaces->expects(self::once())
+            ->method('setPublicKey')
+            ->with('123', new Workspaces\SetPublicKeyRequest(publicKey: 'publicKey'));
+
+        $result = $workspaces->resetCredentials('123', new Workspaces\ResetCredentialsRequest(publicKey: 'publicKey'));
+        self::assertSame([], $result);
+    }
+
+    public static function provideInvalidResetCredentialsRequestParameters(): iterable
+    {
+        yield 'password loginType with publicKey' => [
+            'loginType' => WorkspaceLoginType::DEFAULT,
+            'request' => new Workspaces\ResetCredentialsRequest(
+                publicKey: 'publicKey',
+            ),
+            'expectedError' => 'Workspace with login type "default" does not support "publicKey" credentials.',
+        ];
+
+        yield 'keypair loginType without publicKey' => [
+            'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
+            'request' => new Workspaces\ResetCredentialsRequest(),
+            'expectedError' => 'Workspace with login type "snowflake-service-keypair" requires "publicKey" credentials.',
+        ];
+    }
+
+    /** @dataProvider provideInvalidResetCredentialsRequestParameters */
+    public function testResetCredentialsWithInvalidParametersThrowsException(
+        WorkspaceLoginType $loginType,
+        Workspaces\ResetCredentialsRequest $request,
+        string $expectedError,
+    ): void {
+        $workspaces = $this->createPartialMock(Workspaces::class, [
+            'getWorkspace',
+            'resetWorkspacePassword',
+            'setPublicKey',
+        ]);
+        $workspaces->expects(self::once())
+            ->method('getWorkspace')
+            ->with('123')
+            ->willReturn([
+                'connection' => [
+                    'loginType' => $loginType->value,
+                ],
+            ]);
+        $workspaces->expects(self::never())->method('resetWorkspacePassword');
+        $workspaces->expects(self::never())->method('setPublicKey');
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage($expectedError);
+
+        $workspaces->resetCredentials('123', $request);
     }
 }
