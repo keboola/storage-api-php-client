@@ -196,4 +196,84 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
             $this->assertSame('workspace.resetPasswordNotSupported', $e->getStringCode());
         }
     }
+
+    /**
+     * @dataProvider keyPairLoginTypeProvider
+     */
+    public function testWorkspaceKeyPairRotation(WorkspaceLoginType $loginType, string $expectedLoginType): void
+    {
+        $this->initEvents($this->workspaceSapiClient);
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+        $this->workspaceSapiClient->setRunId($runId);
+
+        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
+
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+        $options = [
+            'loginType' => $loginType,
+            'publicKey' => $key->getPublicKey(),
+        ];
+        $workspace = $this->initTestWorkspace(
+            'snowflake',
+            $options,
+            true,
+        );
+
+        $workspace['connection']['privateKey'] = $key->getPrivateKey();
+        $backendKey1 = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
+        $backendKey1->getDb()->executeQuery('SELECT 1');
+
+        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
+        $workspaces->setPublicKey($workspace['id'], new Workspaces\SetPublicKeyRequest(publicKey: $key->getPublicKey()));
+
+        // old works KEY_1
+        $backendKey1->getDb()->executeQuery('SELECT 1');
+
+        // new works KEY_2
+        $workspace['connection']['privateKey'] = $key->getPrivateKey();
+        $backendKey2 = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
+        $backendKey2->getDb()->executeQuery('SELECT 1');
+
+        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
+        $workspaces->setPublicKey($workspace['id'], new Workspaces\SetPublicKeyRequest(publicKey: $key->getPublicKey()));
+
+        // old KEY_1 is rotated
+        try {
+            $backendKey1->getDb()->executeQuery('SELECT 1');
+            $this->fail('Old key should not work');
+        } catch (\Throwable) {
+            // OK
+        }
+
+        // new works KEY_1
+        $workspace['connection']['privateKey'] = $key->getPrivateKey();
+        $backendKey1_2 = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
+        $backendKey1_2->getDb()->executeQuery('SELECT 1');
+        // old KEY_2 works
+        $backendKey2->getDb()->executeQuery('SELECT 1');
+
+        // rotate again KEY_1
+        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
+        $workspaces->setPublicKey($workspace['id'], new Workspaces\SetPublicKeyRequest(
+            publicKey: $key->getPublicKey(),
+            keyName: Workspaces\PublicKeyName::RSA_PUBLIC_KEY_1,
+        ));
+        // old KEY_2 works
+        $backendKey2->getDb()->executeQuery('SELECT 1');
+
+        // old KEY_1_2 is rotated
+        try {
+            $backendKey1_2->getDb()->executeQuery('SELECT 1');
+            $this->fail('Old key should not work');
+        } catch (\Throwable) {
+            // OK
+        }
+
+        // new KEY_1_3 works
+        $workspace['connection']['privateKey'] = $key->getPrivateKey();
+        $backendKey1_3 = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
+        $backendKey1_3->getDb()->executeQuery('SELECT 1');
+    }
 }
