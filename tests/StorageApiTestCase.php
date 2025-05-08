@@ -893,6 +893,9 @@ abstract class StorageApiTestCase extends ClientTestCase
         $this->assertSame($expectNullable === true ? '1' : '', $nullable['value']);
     }
 
+    /**
+     * @param list<self::BACKEND_*> $backendsWhichAreSkipped
+     */
     protected function skipTestForBackend(
         array $backendsWhichAreSkipped,
         string $reason = '',
@@ -914,6 +917,9 @@ abstract class StorageApiTestCase extends ClientTestCase
         }
     }
 
+    /**
+     * @param list<self::BACKEND_*> $backendsWhichAreAllowed
+     */
     protected function allowTestForBackendsOnly(
         array $backendsWhichAreAllowed,
         string $reason = '',
