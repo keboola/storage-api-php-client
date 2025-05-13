@@ -303,7 +303,7 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
             ));
             $this->fail('Invalid public key should not be accepted');
         } catch (ClientException $e) {
-            $this->assertSame($e->getCode(), 400);
+            $this->assertSame(400, $e->getCode());
             $this->assertSame('validation.failed', $e->getStringCode());
         }
     }
