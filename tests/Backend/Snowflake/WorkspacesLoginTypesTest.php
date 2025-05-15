@@ -295,6 +295,17 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
         $workspace['connection']['privateKey'] = $key->getPrivateKey();
         $backendKey1_3 = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
         $backendKey1_3->getDb()->executeQuery('SELECT 1');
+
+        // try set invalid public key
+        try {
+            $workspaces->setPublicKey($workspace['id'], new Workspaces\SetPublicKeyRequest(
+                publicKey: 'this-is-not-a-valid-rsa-public-key',
+            ));
+            $this->fail('Invalid public key should not be accepted');
+        } catch (ClientException $e) {
+            $this->assertSame(400, $e->getCode());
+            $this->assertSame('validation.failed', $e->getStringCode());
+        }
     }
 
     public static function provideLoginTypesWithPasswordCredentials(): iterable
