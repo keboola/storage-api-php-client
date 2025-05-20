@@ -12,6 +12,7 @@ use Google\Cloud\BigQuery\AnalyticsHub\V1\Listing\BigQueryDatasetSource;
 use Google\Cloud\BigQuery\BigQueryClient;
 use Google\Cloud\Iam\V1\Binding;
 use Google\Cloud\Storage\StorageClient;
+use Google\Protobuf\RepeatedField;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Options\GlobalSearchOptions;
@@ -1478,13 +1479,20 @@ SQL,
         $createdListing = $analyticHubClient->createListing($dataExchange->getName(), $listingId, $listing);
 
         $iamExchangerPolicy = $analyticHubClient->getIamPolicy($dataExchange->getName());
+
+        /**
+         * @todo May be removed after "google/common-protos" update.
+         * @var RepeatedField<Binding> $binding
+         */
         $binding = $iamExchangerPolicy->getBindings();
+
         // 3. Add permission to destination project
         $binding[] = new Binding([
             'role' => 'roles/analyticshub.subscriber',
             'members' => ['serviceAccount:' . BQ_DESTINATION_PROJECT_SERVICE_ACC_EMAIL],
         ]);
-        $iamExchangerPolicy->setBindings($binding);
+
+        $iamExchangerPolicy->setBindings($binding); // @phpstan-ignore-line
         $analyticHubClient->setIamPolicy($dataExchange->getName(), $iamExchangerPolicy);
 
         $parsedName = AnalyticsHubServiceClient::parseName($createdListing->getName());
