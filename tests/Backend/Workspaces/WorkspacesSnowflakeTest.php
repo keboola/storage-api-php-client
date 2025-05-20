@@ -167,6 +167,10 @@ class WorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
         $db = $this->getDbConnectionSnowflake($workspace['connection']);
 
         // check if schema is transient
+        /** @var list<array{
+         *     name: string,
+         *     options: string,
+         * }> $schemas */
         $schemas = $db->fetchAll('SHOW SCHEMAS');
 
         $workspaceSchema = null;
