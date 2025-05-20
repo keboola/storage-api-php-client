@@ -43,20 +43,28 @@ final class ProfileTableTest extends StorageApiTestCase
         $createdAt = DateTime::createFromFormat('Y-m-d H:i:s', $profile['createdAt']);
         $this->assertTrue($createdAt > $started);
 
-        $tableProfile = ['columns' => 2];
+        $tableProfile = [
+            'dataSize' => 106,
+            'rowCount' => 5,
+            'columnCount' => 3,
+        ];
         $this->assertSame($tableProfile, $profile['profile']);
 
         $columnProfiles = [
             [
                 'name' => 'id',
                 'profile' => [
-                    'average' => 42,
+                    'nullCount' => 0,
+                    'distinctCount' => 5,
+                    'duplicateCount' => 0,
                 ],
             ],
             [
                 'name' => 'name',
                 'profile' => [
-                    'average' => 42,
+                    'nullCount' => 0,
+                    'distinctCount' => 5,
+                    'duplicateCount' => 0,
                 ],
             ],
         ];
