@@ -58,7 +58,7 @@ class SnowflakeWorkspaceBackendDBAL implements WorkspaceBackend
     /**
      * @return string[] of table names
      */
-    public function getTables()
+    public function getTables(): array
     {
         $ref = new SnowflakeSchemaReflection($this->db, $this->schema);
         return $ref->getTablesNames();

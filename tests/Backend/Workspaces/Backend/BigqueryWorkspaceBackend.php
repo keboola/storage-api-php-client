@@ -67,9 +67,9 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
     }
 
     /**
-     * @return string[]
+     * @return string[] of table names
      */
-    public function getTables()
+    public function getTables(): array
     {
         $ref = new BigquerySchemaReflection($this->getDb(), $this->schema);
         return $ref->getTablesNames();

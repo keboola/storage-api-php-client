@@ -51,9 +51,9 @@ class ExasolWorkspaceBackend implements WorkspaceBackend
     }
 
     /**
-     * @return array of table names
+     * @return string[] of table names
      */
-    public function getTables()
+    public function getTables(): array
     {
         $ref = new ExasolSchemaReflection($this->db, $this->schema);
         return $ref->getTablesNames();
