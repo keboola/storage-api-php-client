@@ -31,9 +31,19 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         // Workspace not found
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage(sprintf('Workspace "%d" not found.', self::NON_EXISTING_WORKSPACE_ID));
-        $workspaces->executeQuery(self::NON_EXISTING_WORKSPACE_ID, 'SHOW TABLES');
+        $exception = null;
+        try {
+            $workspaces->executeQuery(self::NON_EXISTING_WORKSPACE_ID, 'SHOW TABLES');
+            $this->fail('Executing query on non-existing workspace should fail.');
+        } catch (ClientException $e) {
+            $exception = $e;
+        }
+
+        $this->assertInstanceOf(ClientException::class, $exception);
+        $this->assertSame(
+            sprintf('Workspace "%d" not found.', self::NON_EXISTING_WORKSPACE_ID),
+            $exception->getMessage(),
+        );
 
         // Create new table
         $this->assertEmpty($backend->getTables());
@@ -162,6 +172,7 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
             $updated[0],
         );
 
+        // Delete data
         $workspaces->executeQuery(
             $workspaceId,
             sprintf(
@@ -170,6 +181,26 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
             ),
         );
         $this->assertSame(1, $backend->countRows(self::TABLE));
+
+        // CTAS (CREATE TABLE AS SELECT)
+        $workspaces->executeQuery(
+            $workspaceId,
+            sprintf(
+                'CREATE TABLE CREW_COPY AS SELECT * FROM %s',
+                SnowflakeQuote::quoteSingleIdentifier(self::TABLE),
+            ),
+        );
+        $this->assertCount(2, $backend->getTables());
+
+        // CTE (Common Table Expression)
+        $withSelect = $workspaces->executeQuery(
+            $workspaceId,
+            sprintf(
+                "WITH CONCAT AS (SELECT CONCAT(ID, '-' ,NAME) as SLUG FROM %s) SELECT * FROM CONCAT",
+                SnowflakeQuote::quoteSingleIdentifier(self::TABLE),
+            ),
+        );
+        $this->assertSame($withSelect['data']['rows'][0]['SLUG'], '13-Scoop');
 
         // Error
         $update = $workspaces->executeQuery(
