@@ -51,10 +51,7 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
                 'message' => 'Statement executed successfully.',
             ],
         );
-
-        /** @var list<string> $tables */
-        $tables = $backend->getTables();
-        $this->assertCount(1, $tables);
+        $this->assertCount(1, $backend->getTables());
 
         // Insert data
         $insert = $workspaces->executeQuery(

@@ -12,7 +12,6 @@ use Doctrine\DBAL\Connection as DBALConnection;
 use Google\Cloud\BigQuery\BigQueryClient;
 use Keboola\Db\Import\Snowflake\Connection as SnowflakeConnection;
 use Keboola\TableBackendUtils\Schema\SchemaReflectionInterface;
-use Keboola\TableBackendUtils\Schema\Teradata\TeradataSchemaReflection;
 use Keboola\TableBackendUtils\Table\TableReflectionInterface;
 use Keboola\TableBackendUtils\View\ViewReflectionInterface;
 use PDO;
@@ -26,7 +25,7 @@ interface WorkspaceBackend
 
     public function executeQuery(string $sql): void;
 
-    public function getTables();
+    public function getTables(): array;
 
     public function createTable($tableName, $columns);
 
