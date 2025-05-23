@@ -49,13 +49,19 @@ class SnowflakeWorkspaceBackend implements WorkspaceBackend
     }
 
     /**
-     * @return array of table names
+     * @return string[] of table names
      */
-    public function getTables()
+    public function getTables(): array
     {
-        return array_map(function ($table) {
-            return $table['name'];
-        }, $this->db->fetchAll(sprintf('SHOW TABLES IN SCHEMA %s', $this->db->quoteIdentifier($this->schema))));
+        /** @var string[] $names */
+        $names = array_map(
+            function (array $table) {
+                return $table['name'];
+            },
+            $this->db->fetchAll(sprintf('SHOW TABLES IN SCHEMA %s', $this->db->quoteIdentifier($this->schema))),
+        );
+
+        return $names;
     }
 
     public function dropTable($table)
