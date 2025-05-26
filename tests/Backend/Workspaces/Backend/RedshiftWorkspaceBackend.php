@@ -45,7 +45,10 @@ class RedshiftWorkspaceBackend implements WorkspaceBackend
         }, $all);
     }
 
-    public function getTables()
+    /**
+     * @return string[] of table names
+     */
+    public function getTables(): array
     {
         $stmt = $this->db->prepare('select tablename from PG_TABLES where schemaname = ?');
         $stmt->execute([$this->schema]);
