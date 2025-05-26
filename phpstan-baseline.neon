@@ -3376,11 +3376,6 @@ parameters:
 			path: tests/Backend/Workspaces/Backend/RedshiftWorkspaceBackend.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\RedshiftWorkspaceBackend\\:\\:getTables\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/Backend/RedshiftWorkspaceBackend.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\RedshiftWorkspaceBackend\\:\\:toIdentifier\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/Backend/RedshiftWorkspaceBackend.php
@@ -3697,11 +3692,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\WorkspaceBackend\\:\\:getTableColumns\\(\\) has parameter \\$table with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/Backend/WorkspaceBackend.php
-
-		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\Backend\\\\WorkspaceBackend\\:\\:getTables\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/Backend/WorkspaceBackend.php
 
