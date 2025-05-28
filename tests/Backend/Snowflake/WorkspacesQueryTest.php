@@ -83,7 +83,7 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
         $select = $workspaces->executeQuery(
             $workspaceId,
             sprintf(
-                'SELECT * FROM %s',
+                '    SELECT * FROM %s      ',
                 SnowflakeQuote::quoteSingleIdentifier(self::TABLE),
             ),
         );
