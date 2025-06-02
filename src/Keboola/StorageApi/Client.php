@@ -2596,7 +2596,7 @@ class Client
      * Create new event
      *
      * @param Event $event
-     * @return int - created event id
+     * @return string - created event uuid
      */
     public function createEvent(Event $event)
     {
@@ -2609,7 +2609,7 @@ class Client
      * Create new event with form-data request
      *
      * @param Event $event
-     * @return int - created event id
+     * @return string - created event uuid
      */
     public function createEventWithFormData(Event $event)
     {
