@@ -2602,7 +2602,7 @@ class Client
     {
         $result = $this->apiPostJson('events', $this->prepareDataForCreateEvent($event));
         assert(is_array($result));
-        return $result['id'];
+        return $result['uuid'];
     }
 
     /**
@@ -2615,7 +2615,7 @@ class Client
     {
         $result = $this->apiPost('events', $this->prepareDataForCreateEvent($event, true));
         assert(is_array($result));
-        return $result['id'];
+        return $result['uuid'];
     }
 
     /**

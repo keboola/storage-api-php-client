@@ -106,12 +106,6 @@ class EventsTest extends StorageApiTestCase
             ->setMessage('dummy3'));
 
         // list events since first one
-        // by id
-        $events = $this->_client->listEvents([
-            'runId' => $runId,
-            'sinceId' => $event1['id'],
-        ]);
-        $this->assertCount(2, $events);
         // by uuid
         $events = $this->_client->listEvents([
             'runId' => $runId,
@@ -123,21 +117,12 @@ class EventsTest extends StorageApiTestCase
         // by id
         $events = $this->_client->listEvents([
             'runId' => $runId,
-            'sinceId' => $event1['id'],
-            'maxId' => $event3['id'],
-        ]);
-        $this->assertCount(1, $events);
-        $this->assertSame($event2['id'], $events[0]['id']);
-        $this->assertSame($event2['uuid'], $events[0]['uuid']);
-        // by uuid
-        $events = $this->_client->listEvents([
-            'runId' => $runId,
             'sinceId' => $event1['uuid'],
             'maxId' => $event3['uuid'],
         ]);
         $this->assertCount(1, $events);
-        $this->assertSame($event2['id'], $events[0]['id']);
         $this->assertSame($event2['uuid'], $events[0]['uuid']);
+
         // now do the same but force uuid sorting
         // by uuid
         $events = $this->_client->listEvents([
@@ -147,7 +132,6 @@ class EventsTest extends StorageApiTestCase
             'forceUuid' => true,
         ]);
         $this->assertCount(1, $events);
-        $this->assertSame($event2['id'], $events[0]['id']);
         $this->assertSame($event2['uuid'], $events[0]['uuid']);
     }
 
@@ -174,7 +158,7 @@ class EventsTest extends StorageApiTestCase
         // so we have to use raw Http Client
         $client = $this->getGuzzleClientForClient($this->_client);
 
-        $response = $client->get('/v2/storage/events/' . $event['id']);
+        $response = $client->get('/v2/storage/events/' . $event['uuid']);
 
         $response = json_decode((string) $response->getBody());
 
@@ -362,7 +346,7 @@ class EventsTest extends StorageApiTestCase
         ]);
 
         $this->assertCount(1, $events);
-        $this->assertEquals($searchEvent['id'], $events[0]['id']);
+        $this->assertEquals($searchEvent['uuid'], $events[0]['uuid']);
         $this->assertEventUuid($events[0]);
     }
 
