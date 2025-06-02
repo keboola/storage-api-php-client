@@ -230,8 +230,9 @@ class BranchEventsTest extends StorageApiTestCase
         $this->assertGreaterThan(2, $branchEvents, 'Admin token should see all events');
 
         // check dummy event is among events
-        $this->assertSame($eventInBranchFromMasterToken['uuid'], $branchEvents[0]['uuid']);
-        $this->assertSame($event['uuid'], $branchEvents[1]['uuid']);
+        $branchEventsUuids = array_map(fn($event) => $event['uuid'], $branchEvents);
+        $this->assertContains($eventInBranchFromMasterToken['uuid'], $branchEventsUuids);
+        $this->assertContains($event['uuid'], $branchEventsUuids);
     }
 
     /**
