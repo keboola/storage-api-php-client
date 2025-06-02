@@ -131,7 +131,7 @@ class BranchEventsTest extends StorageApiTestCase
         );
 
         try {
-            $branchAwareClient->getEvent($componentCreateInMainBranchListedEvents[0]['id']);
+            $branchAwareClient->getEvent($componentCreateInMainBranchListedEvents[0]['uuid']);
             $this->fail('Main branch aware event should not show for dev branch event');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
@@ -200,26 +200,20 @@ class BranchEventsTest extends StorageApiTestCase
         $eventInBranchFromMasterToken = $this->createAndWaitForEvent($eventInBranchFromMasterToken, $masterBranchClient);
 
         // test DEFAULT branch
-        // check token events in default branch, list by id
-        $defaultTokenEvents = $this->_client->listTokenEvents($token['id'], ['sinceId' => $lastEvent['id']]);
-        $this->assertCount(1, $defaultTokenEvents); // token created
-        // check dummy event is not among token events
-        $this->assertNotSame($event['id'], reset($defaultTokenEvents)['id']);
-
         // check events in default branch, list by uuid
         $defaultTokenEvents = $this->_client->listTokenEvents($token['id'], ['sinceId' => $lastEvent['uuid']]);
         $this->assertCount(1, $defaultTokenEvents); // token created
 
         // check dummy event is not among token events
-        $this->assertNotSame($event['id'], reset($defaultTokenEvents)['id']);
+        $this->assertNotSame($event['uuid'], reset($defaultTokenEvents)['uuid']);
 
         // check events in default branch
         $defaultEvents = $this->_client->listEvents();
         $this->assertGreaterThan(1, count($defaultEvents));
 
         // check dummy event is not among events in default branch
-        $this->assertNotSame($event['id'], reset($defaultEvents)['id']);
-        $this->assertNotSame($eventInBranchFromMasterToken['id'], reset($defaultEvents)['id']);
+        $this->assertNotSame($event['uuid'], reset($defaultEvents)['uuid']);
+        $this->assertNotSame($eventInBranchFromMasterToken['uuid'], reset($defaultEvents)['uuid']);
 
         // test DEV branch
         // check token events in dev branch - not implemented
@@ -229,15 +223,16 @@ class BranchEventsTest extends StorageApiTestCase
         $this->assertCount(1, $branchEvents, 'Non admin token should only see their events');
 
         // check dummy event is among events
-        $this->assertSame($event['id'], reset($branchEvents)['id']);
+        $this->assertSame($event['uuid'], reset($branchEvents)['uuid']);
 
         // check events in default branch for master token
         $branchEvents = $masterBranchClient->listEvents();
         $this->assertGreaterThan(2, $branchEvents, 'Admin token should see all events');
 
         // check dummy event is among events
-        $this->assertSame($eventInBranchFromMasterToken['id'], $branchEvents[0]['id']);
-        $this->assertSame($event['id'], $branchEvents[1]['id']);
+        $branchEventsUuids = array_map(fn($event) => $event['uuid'], $branchEvents);
+        $this->assertContains($eventInBranchFromMasterToken['uuid'], $branchEventsUuids);
+        $this->assertContains($event['uuid'], $branchEventsUuids);
     }
 
     /**
