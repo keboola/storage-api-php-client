@@ -4178,6 +4178,75 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
                }
             }
 
+## Data profiling [/v2/storage/tables/{table_id}/profile]
+
+### Create profile [POST]
+Create new data profile of table and its columns. Still under development and available only for Big Query backend.
+This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
+
++ Parameters
+    + table_id (required) - Table Id
+
++ Request
+    + Headers
+        X-StorageApi-Token: your_token
+
++ Response 202 (application/json)
+    + Body
+
+            {
+               "id":42,
+               "status":"waiting",
+               "url":"https:\/\/connection.keboola.com\/v2\/storage\/jobs\/42",
+               "tableId":"in.c-main.another",
+               "operationName":"tableProfile",
+               "operationParams":{},
+               "createdTime":"2025-06-02T10:11:12+0200",
+               "startTime":null,
+               "endTime":null,
+               "runId":null,
+               "results":null,
+               "creatorToken":{
+                  "id":"221",
+                  "name":"Master Token"
+               }
+            }
+
+### Get profile [GET /v2/storage/tables/{table_id}/profile/latest]
+Returns latest data profile of table and its columns.
+
++ Parameters
+    + table_id (required) - Table Id
+
++ Request
+    + Headers
+
+        X-StorageApi-Token: your_token
+
++ Response 202 (application/json)
+    + Body
+
+        {
+            "uuid": "019732aa-6f92-77ea-a715-865a695908b8",
+            "bucketId": 13,
+            "tableName": "in.c-main.another",
+            "createdAt": "2025-06-02 11:55:00",
+            "profile": {
+                "dataSize": 1024,
+                "rowCount": 256,
+                "columnCount": 1
+            },
+            "columns": [
+                {
+                    "name": "id",
+                    "profile": {
+                        "nullCount": 7,
+                        "distinctCount": 149,
+                        "duplicateCount": 100
+                    }
+                }
+            ]
+        }
 
 
 # Group Table Aliases
