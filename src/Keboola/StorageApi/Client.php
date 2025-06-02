@@ -2596,26 +2596,26 @@ class Client
      * Create new event
      *
      * @param Event $event
-     * @return int - created event id
+     * @return string - created event uuid
      */
     public function createEvent(Event $event)
     {
         $result = $this->apiPostJson('events', $this->prepareDataForCreateEvent($event));
         assert(is_array($result));
-        return $result['id'];
+        return $result['uuid'];
     }
 
     /**
      * Create new event with form-data request
      *
      * @param Event $event
-     * @return int - created event id
+     * @return string - created event uuid
      */
     public function createEventWithFormData(Event $event)
     {
         $result = $this->apiPost('events', $this->prepareDataForCreateEvent($event, true));
         assert(is_array($result));
-        return $result['id'];
+        return $result['uuid'];
     }
 
     /**

@@ -60,7 +60,7 @@ trait EventTesterUtils
         $lastEvent = $this->createAndWaitForEvent($fireEvent, $client);
 
         if (!empty($lastEvent)) {
-            $this->lastEventId = $lastEvent['id'];
+            $this->lastEventId = $lastEvent['uuid'];
         }
 
         return $lastEvent;
