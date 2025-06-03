@@ -52,8 +52,9 @@ trait WorkspaceConnectionTrait
             'password' => $connection['password'],
         ]);
         // set connection to use workspace schema
-        $db->query(sprintf('USE SCHEMA %s;', $db->quoteIdentifier($connection['schema'])));
-
+        if ($connection['schema'] !== '') {
+            $db->query(sprintf('USE SCHEMA %s;', $db->quoteIdentifier($connection['schema'])));
+        }
         return $db;
     }
 
@@ -82,11 +83,14 @@ trait WorkspaceConnectionTrait
                 ],
             );
         }
-        // set connection to use workspace schema
-        $db->executeStatement(sprintf(
-            'USE SCHEMA %s;',
-            $db->quoteIdentifier($connection['schema']),
-        ));
+
+        if ($connection['schema'] !== '') {
+            // set connection to use workspace schema
+            $db->executeStatement(sprintf(
+                'USE SCHEMA %s;',
+                $db->quoteIdentifier($connection['schema']),
+            ));
+        }
 
         return $db;
     }
