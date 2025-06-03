@@ -275,16 +275,14 @@ class WorkspacesTest extends ParallelWorkspacesTestCase
             $this->assertArrayHasKey('password', $newCredentials);
         }
 
-        $this->createAndWaitForEvent((new \Keboola\StorageApi\Event())->setComponent('dummy')->setMessage('dummy'));
-
-        $events = $this->_client->listEvents([
-            'runId' => $runId,
-        ]);
-
-        $workspaceCreatedEvent = array_pop($events);
-        $this->assertSame($runId, $workspaceCreatedEvent['runId']);
-        $this->assertSame('storage.workspacePasswordReset', $workspaceCreatedEvent['event']);
-        $this->assertSame('storage', $workspaceCreatedEvent['component']);
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.workspacePasswordReset')
+            ->setComponent('storage')
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
 
         if ($connection['backend'] === self::BACKEND_REDSHIFT) {
             try {
