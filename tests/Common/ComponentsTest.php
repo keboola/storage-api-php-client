@@ -3276,7 +3276,7 @@ class ComponentsTest extends StorageApiTestCase
     /**
      * @dataProvider provideComponentsClientType
      */
-    public function testComponentConfigRowVersionCreateWithNumericIds(): void
+    public function testComponentConfigRowVersionCreateWithEmptyRowId(): void
     {
         $components = new \Keboola\StorageApi\Components($this->client);
 
@@ -3352,7 +3352,7 @@ class ComponentsTest extends StorageApiTestCase
         $this->assertArrayHasKey('name', $row);
         $this->assertArrayHasKey('description', $row);
 
-        $this->assertIsNumeric($row['id']); // check auto increment id is numeric
+        $this->assertIsString($row['id']); // check id is string it is ULID
         $this->assertEquals(1, $row['version']);
         $this->assertEquals($configurationData, $row['configuration']);
 
