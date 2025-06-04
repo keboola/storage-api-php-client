@@ -17,8 +17,6 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
     use WorkspaceConnectionTrait;
     use WorkspaceCredentialsAssertTrait;
 
-    private const TABLE = 'CREW';
-    private const NON_EXISTING_WORKSPACE_ID = 2147483647;
 
     public function setUp(): void
     {
@@ -51,18 +49,17 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
         $components->addConfiguration((new Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
-            ->setName('TMP_RA jirka')
+            ->setName('readerWS')
             ->setDescription('some desc'));
 
         $components = new Components($branchClient);
         $workspaces = new Workspaces($branchClient);
 
-        $workspace = $components->createConfigurationWorkspace($componentId, $configurationId, ['async' => false], false);
-//        $workspace = $components->createConfigurationWorkspace($componentId, $configurationId, ['async' => false, 'useCase' => 'reader'], false);
+        $workspace = $components->createConfigurationWorkspace($componentId, $configurationId, ['useCase' => 'reader'],);
 
         //setup test tables
         $tableId = $this->_client->createTableAsync(
-            $this->getTestBucketId(self::STAGE_IN),
+            $this->getTestBucketId(),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
@@ -75,7 +72,7 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
                 ],
                 [
                     'source' => $tableId,
-                    'destination' => 'languagesfiltered',
+                    'destination' => 'languages_filtered',
                     'overwrite' => false,
                     'whereColumn' => 'id',
                     'whereValues' => [1],
@@ -89,7 +86,7 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
         $data = $db->fetchAll('languages');
         $this->assertCount(5, $data);
 
-        $data = $db->fetchAll('languagesfiltered');
+        $data = $db->fetchAll('languages_filtered');
         $this->assertCount(1, $data);
     }
 
@@ -104,13 +101,13 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
         $components->addConfiguration((new Configuration())
             ->setComponentId('wr-db')
             ->setConfigurationId('main-1')
-            ->setName('TMP_RA jirka')
+            ->setName('readerWS_clone')
             ->setDescription('some desc'));
 
         $components = new Components($branchClient);
         $workspaces = new Workspaces($branchClient);
 
-        $workspace = $components->createConfigurationWorkspace($componentId, $configurationId, ['async' => false], false);
+        $workspace = $components->createConfigurationWorkspace($componentId, $configurationId, ['useCase' => 'reader']);
 
         //setup test tables
         $tableId = $this->_client->createTableAsync(
