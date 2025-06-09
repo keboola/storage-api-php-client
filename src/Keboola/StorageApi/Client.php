@@ -2871,7 +2871,7 @@ class Client
         }
 
         $defaultHeaders = [
-            'X-StorageApi-Token' => $this->token,
+            'Authorization' => $this->token,
             'Accept-Encoding' => 'gzip',
             'User-Agent' => $this->getUserAgent(),
         ];
