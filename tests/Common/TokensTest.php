@@ -105,6 +105,7 @@ class TokensTest extends StorageApiTestCase
         $this->assertArrayHasKey('description', $currentToken);
         $this->assertArrayHasKey('id', $currentToken);
 
+        $this->assertFalse($currentToken['admin']['isActivated']);
         $this->assertTrue($currentToken['isMasterToken']);
         $this->assertTrue($currentToken['canManageBuckets']);
         $this->assertTrue($currentToken['canReadAllFileUploads']);
