@@ -568,7 +568,8 @@ and the associated administrator (`admin`) with organization (if any). If the pr
                     "name": "John Doe",
                     "features": [],
                     "isOrganizationMember": true,
-                    "role": "admin"
+                    "role": "admin",
+                    "isActivated": false,
                 },
                 "organization": {
                     "id": 123
@@ -7669,10 +7670,10 @@ Updates an existing configuration for [Development Branch](#reference/developmen
 ### Delete Configuration [DELETE /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}]
 Deletes a configuration in specified branch. When a configuration is deleted, it is only marked as deleted and remains still available in the system.
 You can [list deleted](#reference/components-and-configurations/component-configurations/list-development-branch-configurations) configurations.
-Other operations with deleted configurations are restricted. 
+Other operations with deleted configurations are restricted.
 
-Calling this API call on a deleted configuration in a **development branch** will result in an error. Development branch configuration cannot be permanently removed. 
-Calling this API call on a deleted configuration in a **default branch** will purge the configuration. 
+Calling this API call on a deleted configuration in a **development branch** will result in an error. Development branch configuration cannot be permanently removed.
+Calling this API call on a deleted configuration in a **default branch** will purge the configuration.
 
 + Parameters
     + branch_id (required) - Id of the development branch
