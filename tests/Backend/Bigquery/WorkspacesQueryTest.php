@@ -127,7 +127,7 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
         $cols = $backend->getTableColumns(self::TABLE);
         $this->assertSame(['ID', 'NAME', 'IS_VEHICLE'], $cols);
 
-//         Update data
+        // Update data
         $update = $workspaces->executeQuery(
             $workspaceId,
             sprintf(
@@ -138,17 +138,17 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
         $this->assertStringContainsString('executed successfully', $update['message']);
         $this->assertSame('ok', $update['status']);
 
-        $updated = $backend->fetchAll(self::TABLE, PDO::FETCH_ASSOC, 'ID');
+        $updated = $backend->fetchAll(self::TABLE, PDO::FETCH_NUM, 'ID');
         $this->assertSame(
             [
-                'ID' => '13',
-                'NAME' => 'Scoop',
-                'IS_VEHICLE' => '1',
+                13,
+                'Scoop',
+                true,
             ],
             $updated[0],
         );
 
-//         Delete data
+        // Delete data
         $workspaces->executeQuery(
             $workspaceId,
             sprintf(
