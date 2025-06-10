@@ -154,12 +154,12 @@ class BigqueryWorkspaceBackend implements WorkspaceBackend
 
     /**
      * @param string $table
-     * @return string[]
+     * @return int
      */
     public function countRows($table)
     {
-        $ref = new BigquerySchemaReflection($this->getDb(), $this->schema);
-        return $ref->getTablesNames();
+        $ref = new BigqueryTableReflection($this->getDb(), $this->schema, $table);
+        return $ref->getRowsCount();
     }
 
     /**

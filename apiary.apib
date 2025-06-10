@@ -5565,8 +5565,8 @@ Set specific public key for workspace user in [Development Branch](#reference/de
 ## Execute Query [/v2/storage/branch/{branch_id}/workspaces/{workspace_id}/query]
 ### Execute Query [POST]
 
-Executes a native Snowflake SQL query in given workspace directly without any validation or checks. Query can contain
-only one SQL statement per request. Every request is new Snowflake session. Response has a different format for SELECT
+Executes a native Snowflake/BigQuery SQL query in given workspace directly without any validation or checks. Query can contain
+only one SQL statement per request. Every request is new  session. Response has a different format for SELECT
 query, non-SELECT query and failed query.
 
 + Parameters
