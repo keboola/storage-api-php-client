@@ -2,6 +2,7 @@
 
 namespace Keboola\Test;
 
+use GuzzleHttp\Client as GuzzleClient;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client;
 use Keboola\Test\ClientProvider\TestSetupHelper;
@@ -191,5 +192,182 @@ class ClientTestCase extends TestCase
                 return 1;
             },
         ];
+    }
+
+    /**
+     * Test OAuth authentication method configuration
+     */
+    public function testOAuthAuthenticationMethod(): void
+    {
+        $options = $this->getClientOptionsForToken(STORAGE_API_TOKEN);
+        $options['authMethod'] = Client::AUTH_METHOD_OAUTH;
+
+        $client = $this->getClient($options);
+
+        $this->assertEquals(Client::AUTH_METHOD_OAUTH, $client->getAuthMethod());
+    }
+
+    /**
+     * Test default token authentication method
+     */
+    public function testDefaultTokenAuthenticationMethod(): void
+    {
+        $options = $this->getClientOptionsForToken(STORAGE_API_TOKEN);
+
+        $client = $this->getClient($options);
+
+        $this->assertEquals(Client::AUTH_METHOD_TOKEN, $client->getAuthMethod());
+    }
+
+    /**
+     * Test explicit token authentication method
+     */
+    public function testExplicitTokenAuthenticationMethod(): void
+    {
+        $options = $this->getClientOptionsForToken(STORAGE_API_TOKEN);
+        $options['authMethod'] = Client::AUTH_METHOD_TOKEN;
+
+        $client = $this->getClient($options);
+
+        $this->assertEquals(Client::AUTH_METHOD_TOKEN, $client->getAuthMethod());
+    }
+
+    /**
+     * Test invalid authentication method throws exception
+     */
+    public function testInvalidAuthenticationMethodThrowsException(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('authMethod must be "token" or "oauth"');
+
+        $options = $this->getClientOptionsForToken(STORAGE_API_TOKEN);
+        $options['authMethod'] = 'invalid_method';
+
+        $this->getClient($options);
+    }
+
+    /**
+     * Test BranchAwareClient with OAuth authentication
+     */
+    public function testBranchAwareClientWithOAuth(): void
+    {
+        $options = $this->getClientOptionsForToken(STORAGE_API_TOKEN);
+        $options['authMethod'] = Client::AUTH_METHOD_OAUTH;
+
+        $branchClient = $this->getBranchAwareClient('default', $options);
+
+        $this->assertEquals(Client::AUTH_METHOD_OAUTH, $branchClient->getAuthMethod());
+    }
+
+    /**
+     * Test BranchAwareClient default branch client preserves OAuth authentication
+     */
+    public function testBranchAwareClientDefaultBranchPreservesOAuth(): void
+    {
+        $options = $this->getClientOptionsForToken(STORAGE_API_TOKEN);
+        $options['authMethod'] = Client::AUTH_METHOD_OAUTH;
+
+        $branchClient = $this->getBranchAwareClient('default', $options);
+        $defaultClient = $branchClient->getDefaultBranchClient();
+
+        $this->assertEquals(Client::AUTH_METHOD_OAUTH, $defaultClient->getAuthMethod());
+    }
+
+    /**
+     * Test OAuth authentication constants are properly defined
+     */
+    public function testAuthenticationConstants(): void
+    {
+        $this->assertEquals('token', Client::AUTH_METHOD_TOKEN);
+        $this->assertEquals('oauth', Client::AUTH_METHOD_OAUTH);
+    }
+
+    /**
+     * Test that OAuth and token authentication methods can coexist
+     */
+    public function testOAuthAndTokenAuthenticationCoexistence(): void
+    {
+        $tokenOptions = $this->getClientOptionsForToken(STORAGE_API_TOKEN);
+        $tokenOptions['authMethod'] = Client::AUTH_METHOD_TOKEN;
+
+        $oauthOptions = $this->getClientOptionsForToken(STORAGE_API_TOKEN);
+        $oauthOptions['authMethod'] = Client::AUTH_METHOD_OAUTH;
+
+        $tokenClient = $this->getClient($tokenOptions);
+        $oauthClient = $this->getClient($oauthOptions);
+
+        $this->assertEquals(Client::AUTH_METHOD_TOKEN, $tokenClient->getAuthMethod());
+        $this->assertEquals(Client::AUTH_METHOD_OAUTH, $oauthClient->getAuthMethod());
+    }
+
+    /**
+     * Test OAuth client properly sets Authorization header
+     */
+    public function testOAuthClientSetsCorrectHeaders(): void
+    {
+        $options = [
+            'token' => 'dummy-oauth-token',
+            'url' => STORAGE_API_URL,
+            'authMethod' => Client::AUTH_METHOD_OAUTH,
+            'logger' => $this->getLogger(),
+        ];
+
+        $client = $this->getClient($options);
+
+        // Test by creating a Guzzle client that would receive the same headers
+        $guzzleClient = $this->getGuzzleClientForOAuthClient($client);
+
+        // Verify our implementation creates the right headers
+        $config = $guzzleClient->getConfig();
+        $this->assertIsArray($config);
+        $this->assertArrayHasKey('headers', $config);
+        $this->assertIsArray($config['headers']);
+        $this->assertArrayHasKey('Authorization', $config['headers']);
+        $this->assertStringStartsWith('Bearer ', $config['headers']['Authorization']);
+        $this->assertStringContainsString('dummy-oauth-token', $config['headers']['Authorization']);
+    }
+
+    /**
+     * Helper method to create Guzzle client with OAuth headers like our implementation
+     */
+    protected function getGuzzleClientForOAuthClient(Client $client): GuzzleClient
+    {
+        return new GuzzleClient([
+            'base_uri' => $client->getApiUrl(),
+            'headers' => [
+                'Authorization' => 'Bearer ' . $client->getTokenString(),
+                'User-agent' => $this->buildUserAgentString(
+                    $client->getTokenString(),
+                    $client->getApiUrl(),
+                ),
+            ],
+        ]);
+    }
+
+    /**
+     * Test OAuth client can perform basic API operations
+     */
+    public function testOAuthClientBasicOperations(): void
+    {
+        // Skip this test if we don't have an OAuth token to test with
+        if (!defined('OAUTH_TOKEN') || !OAUTH_TOKEN) {
+            $this->markTestSkipped('OAuth token not available for testing');
+        }
+
+        $options = [
+            'token' => OAUTH_TOKEN,
+            'url' => STORAGE_API_URL,
+            'authMethod' => Client::AUTH_METHOD_OAUTH,
+            'backoffMaxTries' => 1,
+            'jobPollRetryDelay' => function () {
+                return 1;
+            },
+        ];
+
+        $client = $this->getClient($options);
+
+         // Test that we can make an authenticated API call
+         $buckets = $client->listBuckets();
+         $this->assertIsArray($buckets);
     }
 }

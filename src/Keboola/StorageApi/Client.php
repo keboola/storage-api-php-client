@@ -52,6 +52,10 @@ class Client
     const REQUEST_OPTION_EXTENDED_TIMEOUT = 'isExtendedTimeout';
     public const REQUEST_OPTION_HEADERS = 'headers';
 
+    // Authentication methods
+    const AUTH_METHOD_TOKEN = 'token';
+    const AUTH_METHOD_OAUTH = 'oauth';
+
     // Stage names
     const DEFAULT_RETRIES_COUNT = 15;
     const STAGE_IN = 'in';
@@ -70,6 +74,9 @@ class Client
 
     // Token string
     public $token;
+
+    // Authentication method - 'token' (default) or 'oauth'
+    private string $authMethod = self::AUTH_METHOD_TOKEN;
 
     // current run id sent with all request
     private $runId = null;
@@ -134,9 +141,19 @@ class Client
      *         'token' => 'your_sapi_token',
      *     ]);
      *
+     * For OAuth authentication:
+     *
+     *     $client = new Client([
+     *         'url' => 'https://connection.keboola.com'
+     *         'token' => 'your_oauth_token',
+     *         'authMethod' => Client::AUTH_METHOD_OAUTH,
+     *     ]);
+     *
      * @param array $config Client configuration settings
-     *     - token: (required) Storage API token
+     *     - token: (required) Storage API token or OAuth token
      *     - url: (required) Storage API URL
+     *     - authMethod: (optional) Authentication method - 'token' (default) or 'oauth'
+     *                   Use Client::AUTH_METHOD_TOKEN or Client::AUTH_METHOD_OAUTH constants
      *     - userAgent: custom user agent
      *     - backoffMaxTries: backoff maximum number of attempts
      *     - retryOnMaintenance: if client should retry request when server is in maintenance
@@ -161,6 +178,13 @@ class Client
             throw new \InvalidArgumentException('token must be set');
         }
         $this->token = $config['token'];
+
+        if (isset($config['authMethod'])) {
+            if (!in_array($config['authMethod'], [self::AUTH_METHOD_TOKEN, self::AUTH_METHOD_OAUTH])) {
+                throw new \InvalidArgumentException('authMethod must be "' . self::AUTH_METHOD_TOKEN . '" or "' . self::AUTH_METHOD_OAUTH . '"');
+            }
+            $this->authMethod = $config['authMethod'];
+        }
 
         if (isset($config['backoffMaxTries'])) {
             $this->backoffMaxTries = (int) $config['backoffMaxTries'];
@@ -1545,6 +1569,16 @@ class Client
     }
 
     /**
+     * Get current authentication method
+     *
+     * @return string
+     */
+    public function getAuthMethod()
+    {
+        return $this->authMethod;
+    }
+
+    /**
      *
      * Verify the token
      *
@@ -2871,10 +2905,15 @@ class Client
         }
 
         $defaultHeaders = [
-            'X-StorageApi-Token' => $this->token,
             'Accept-Encoding' => 'gzip',
             'User-Agent' => $this->getUserAgent(),
         ];
+
+        if ($this->authMethod === self::AUTH_METHOD_OAUTH) {
+            $defaultHeaders['Authorization'] = 'Bearer ' . $this->token;
+        } else {
+            $defaultHeaders['X-StorageApi-Token'] = $this->token;
+        }
         if (isset($options['headers'])) {
             $requestOptions['headers'] = array_merge($options['headers'], $defaultHeaders);
         } else {
