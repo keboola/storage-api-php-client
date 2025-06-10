@@ -29,20 +29,20 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
 
         $workspaceId = $workspace['id'];
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
-//
-//        // Workspace not found
-//        try {
-//            $workspaces->executeQuery(
-//                self::NON_EXISTING_WORKSPACE_ID,
-//                'SELECT * FROM DOES_NOT_MATTER',
-//            );
-//            $this->fail('Executing query on non-existing workspace should fail.');
-//        } catch (ClientException $e) {
-//            $this->assertSame(
-//                sprintf('Workspace "%d" not found.', self::NON_EXISTING_WORKSPACE_ID),
-//                $e->getMessage(),
-//            );
-//        }
+
+        // Workspace not found
+        try {
+            $workspaces->executeQuery(
+                self::NON_EXISTING_WORKSPACE_ID,
+                'SELECT * FROM DOES_NOT_MATTER',
+            );
+            $this->fail('Executing query on non-existing workspace should fail.');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                sprintf('Workspace "%d" not found.', self::NON_EXISTING_WORKSPACE_ID),
+                $e->getMessage(),
+            );
+        }
 
         // Create new table
         $this->assertEmpty($backend->getTables());
@@ -127,7 +127,7 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
         $cols = $backend->getTableColumns(self::TABLE);
         $this->assertSame(['ID', 'NAME', 'IS_VEHICLE'], $cols);
 
-        // Update data
+//         Update data
         $update = $workspaces->executeQuery(
             $workspaceId,
             sprintf(
@@ -148,7 +148,7 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
             $updated[0],
         );
 
-        // Delete data
+//         Delete data
         $workspaces->executeQuery(
             $workspaceId,
             sprintf(
@@ -179,16 +179,12 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
         $this->assertSame($withSelect['data']['rows'][0]['SLUG'], '13-Scoop');
 
         // Error
-        $update = $workspaces->executeQuery(
+        $errorSQL = $workspaces->executeQuery(
             $workspaceId,
             'SELECT * FROM BLACK_HOLE',
         );
-        $this->assertSame(
-            $update,
-            [
-                'status' => 'error',
-                'message' => "An exception occurred while executing a query: SQL compilation error:\nObject 'BLACK_HOLE' does not exist or not authorized.",
-            ],
-        );
+
+        $this->assertStringContainsString('BLACK_HOLE was not found', $errorSQL['message']);
+        $this->assertSame('error', $errorSQL['status']);
     }
 }
