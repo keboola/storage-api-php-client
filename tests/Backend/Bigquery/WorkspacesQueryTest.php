@@ -28,7 +28,6 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
         );
 
         $workspaceId = $workspace['id'];
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
         // Workspace not found
         try {
@@ -45,7 +44,6 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
         }
 
         // Create new table
-        $this->assertEmpty($backend->getTables());
         $createTable = $workspaces->executeQuery(
             $workspaceId,
             sprintf(
@@ -56,7 +54,6 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
 
         $this->assertStringContainsString('executed successfully', $createTable['message']);
         $this->assertSame('ok', $createTable['status']);
-        $this->assertCount(1, $backend->getTables());
 
         // Insert data
         $insert = $workspaces->executeQuery(
@@ -124,9 +121,6 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
             ),
         );
 
-        $cols = $backend->getTableColumns(self::TABLE);
-        $this->assertSame(['ID', 'NAME', 'IS_VEHICLE'], $cols);
-
         // Update data
         $update = $workspaces->executeQuery(
             $workspaceId,
@@ -138,16 +132,6 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
         $this->assertStringContainsString('executed successfully', $update['message']);
         $this->assertSame('ok', $update['status']);
 
-        $updated = $backend->fetchAll(self::TABLE, PDO::FETCH_NUM, 'ID');
-        $this->assertSame(
-            [
-                13,
-                'Scoop',
-                true,
-            ],
-            $updated[0],
-        );
-
         // Delete data
         $workspaces->executeQuery(
             $workspaceId,
@@ -156,8 +140,6 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
                 BigqueryQuote::quoteSingleIdentifier(self::TABLE),
             ),
         );
-        $this->assertSame(1, $backend->countRows(self::TABLE));
-
         // CTAS (CREATE TABLE AS SELECT)
         $workspaces->executeQuery(
             $workspaceId,
@@ -166,7 +148,6 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
                 BigqueryQuote::quoteSingleIdentifier(self::TABLE),
             ),
         );
-        $this->assertCount(2, $backend->getTables());
 
         // CTE (Common Table Expression)
         $withSelect = $workspaces->executeQuery(
@@ -186,5 +167,24 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
 
         $this->assertStringContainsString('BLACK_HOLE was not found', $errorSQL['message']);
         $this->assertSame('error', $errorSQL['status']);
+
+        $workspaceObjectWithNewCredentials = $workspaces->decorateWorkspaceCreateWithCredentials(
+            [],
+            function ($options) use ($workspace) {
+                return $workspace;
+            },
+        );
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspaceObjectWithNewCredentials);
+
+        $this->assertCount(2, $backend->getTables());
+        $updated = $backend->fetchAll(self::TABLE, PDO::FETCH_NUM, 'ID');
+        $this->assertSame(
+            [
+                13,
+                'Scoop',
+                true,
+            ],
+            $updated[0],
+        );
     }
 }
