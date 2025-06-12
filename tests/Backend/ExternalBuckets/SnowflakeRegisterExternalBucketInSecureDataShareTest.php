@@ -39,7 +39,7 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
 
         $tokenData = $this->shareClient->verifyToken();
         if ($tokenData['organization']['id'] !== $this->linkingClient->verifyToken()['organization']['id']) {
-            throw new \Exception('STORAGE_API_LINKING_TOKEN is not in the same organization as STORAGE_API_TOKEN');
+            $this->fail('STORAGE_API_LINKING_TOKEN is not in the same organization as STORAGE_API_TOKEN');
         }
 
         // added in testLoadIntoExternalBucketWithOutdatedViewReturnsMeaningfulError
@@ -119,6 +119,8 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
         $this->assertFalse($bucketExist, 'Bucket '.$bucketId.' still exist.');
 
         $this->ensureSharedDatabaseStillExists();
+
+        $workspaces->deleteWorkspace($workspace0['id']);
     }
 
     public function testInvalidDbToRegister(): void
@@ -194,6 +196,53 @@ class SnowflakeRegisterExternalBucketInSecureDataShareTest extends StorageApiTes
         $this->assertFalse($bucketExist, 'Bucket '.$bucketId.' still exist.');
         $this->dropTableInProducerDatabase($newTableName);
         $this->ensureSharedDatabaseStillExists();
+
+        $workspaces->deleteWorkspace($workspace0['id']);
+    }
+
+    public function testLoadExternalBucketIntoWorkspace(): void
+    {
+        $token = $this->_client->verifyToken();
+        if (!in_array('external-dataset-input-mapping', $token['owner']['features'], true)) {
+            $this->fail(sprintf('ExternalDatasetInput mapping is not enabled for project: "%s"', $token['owner']['id']));
+        }
+
+        $workspaces = new Workspaces($this->_client);
+        $workspace0 = $workspaces->createWorkspace(['backend' => 'snowflake']);
+        $projectRole = $workspace0['connection']['database'];
+
+        $this->grantImportedPrivilegesToProjectRole($projectRole);
+
+        $description = $this->generateDescriptionForTestObject();
+        $testBucketName = $this->getTestBucketName($description);
+        $bucketId = self::STAGE_IN . '.' . $testBucketName;
+
+        $this->dropBucketIfExists($this->_client, $bucketId);
+
+        $this->_client->registerBucket(
+            $testBucketName,
+            explode('.', $this->getInboundSharedDatabaseName()),
+            self::STAGE_IN,
+            $description,
+            'snowflake',
+            null,
+            true,
+        );
+
+        $registeredBucket = $this->_client->getBucket($bucketId);
+        $this->assertTrue($registeredBucket['isSnowflakeSharedDatabase']);
+
+        $workspaces->loadWorkspaceData($workspace0['id'], [
+            'input' => [
+                [
+                    'source' => $bucketId.'.NAMES_TABLE',
+                    'destination' => 'NAMES_TABLE_DESTINATION',
+                ],
+            ],
+        ]);
+
+        $this->_client->dropBucket($bucketId);
+        $workspaces->deleteWorkspace($workspace0['id']);
     }
 
     public function testLoadIntoExternalBucketWithOutdatedViewReturnsMeaningfulError(): void
@@ -633,6 +682,8 @@ EXPECTED,
         $this->assertFalse($bucketExist, 'Bucket '.$bucketId.' still exist.');
         $this->dropTableInProducerDatabase($newTableName);
         $this->ensureSharedDatabaseStillExists();
+
+        $workspaces->deleteWorkspace($workspace0['id']);
     }
 
     private function getInboundSharedDatabaseName(): string
