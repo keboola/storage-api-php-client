@@ -9,6 +9,8 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use const SUITE_NAME;
+use const TRAVIS_BUILD_ID;
 
 class ClientTestCase extends TestCase
 {
@@ -44,6 +46,58 @@ class ClientTestCase extends TestCase
             $options['url'],
         );
         return new BranchAwareClient($branchId, $options);
+    }
+
+    public function assertManageTokensPresent(): void
+    {
+        if (!defined('MANAGE_API_TOKEN_ADMIN')) {
+            $this->markTestSkipped('Application tokens for tokens tests not configured');
+        }
+    }
+
+    /**
+     * @param array $options
+     */
+    protected function getManageClient(array $options): \Keboola\ManageApi\Client
+    {
+        $tokenParts = explode('-', $options['token']);
+        $tokenAgentString = '';
+        if (count($tokenParts) === 2) {
+            $tokenAgentString = sprintf(
+                'Token: %s, ',
+                $tokenParts[0]
+            );
+        }
+
+        $testSuiteName = '';
+        if (SUITE_NAME) {
+            $testSuiteName = sprintf('Suite: %s, ', SUITE_NAME);
+        }
+
+        $buildId = '';
+        if (TRAVIS_BUILD_ID) {
+            $buildId = sprintf('Build id: %s, ', TRAVIS_BUILD_ID);
+        }
+
+        $options['userAgent'] = sprintf(
+            '%s%sStack: %s, %sTest: %s',
+            $buildId,
+            $testSuiteName,
+            $options['url'],
+            $tokenAgentString,
+            $this->getTestName()
+        );
+        return new \Keboola\ManageApi\Client($options);
+    }
+
+    protected function getManageClientForToken(string $token): \Keboola\ManageApi\Client
+    {
+        return $this->getManageClient($this->getClientOptionsForToken($token));
+    }
+
+    protected function getDefaultManageClient(): \Keboola\ManageApi\Client
+    {
+        return $this->getManageClientForToken(MANAGE_API_TOKEN_ADMIN);
     }
 
     /**
