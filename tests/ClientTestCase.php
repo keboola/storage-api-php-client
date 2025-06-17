@@ -9,8 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
-use const SUITE_NAME;
-use const TRAVIS_BUILD_ID;
 
 class ClientTestCase extends TestCase
 {
@@ -65,7 +63,7 @@ class ClientTestCase extends TestCase
         if (count($tokenParts) === 2) {
             $tokenAgentString = sprintf(
                 'Token: %s, ',
-                $tokenParts[0]
+                $tokenParts[0],
             );
         }
 
@@ -85,7 +83,7 @@ class ClientTestCase extends TestCase
             $testSuiteName,
             $options['url'],
             $tokenAgentString,
-            $this->getTestName()
+            $this->getTestName(),
         );
         return new \Keboola\ManageApi\Client($options);
     }
