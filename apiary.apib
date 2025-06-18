@@ -8886,7 +8886,7 @@ When updating the component of trigger you need permissions for both the current
 + Attributes
     + runWithTokenId (required, number) - ID of token used for running configured component
     + component: `orchestration` (required, enum[string]) - For now we support only 'orchestration'
-    + configurationId (required, number) - Id of component configuration
+    + configurationId (required, string) - Id of component configuration
     + coolDownPeriodMinutes (required, number) - Minimal cool down period before firing action again in minutes (min is 1 minute)
     + tabledIds (required, object) - Array of tables ids
         + tableId (string) - Id of table (like "in.c-test.watched")
@@ -8901,7 +8901,7 @@ When updating the component of trigger you need permissions for both the current
             {
                 "runWithTokenId": 123,
                 "component": "orchestration",
-                "configurationId": 123,
+                "configurationId": "123",
                 "coolDownPeriodMinutes": 20,
                 "tableIds": [
                     "in.c-test.watched-1",
@@ -8937,7 +8937,7 @@ List all token of project with possible filters
 
 + Parameters
     + component (optional, string) - type of component. Now we supports only 'orchestration'
-    + configurationId (optional, number) - id of component configuration
+    + configurationId (optional, string) - id of component configuration
 
 + Response 200 (application/json)
 
