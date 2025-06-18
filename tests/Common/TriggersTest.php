@@ -88,6 +88,48 @@ class TriggersTest extends StorageApiTestCase
         );
     }
 
+
+    /**
+     * @return void
+     */
+    public function testCreateTriggerStringConfiguration(): void
+    {
+        $table1 = $this->createTableWithRandomData('watched-1');
+        $options = (new TokenCreateOptions())
+            ->addBucketPermission($this->getTestBucketId(), TokenAbstractOptions::BUCKET_PERMISSION_READ);
+        $newToken = $this->tokens->createToken($options);
+        $trigger = $this->_client->createTrigger([
+            'component' => 'orchestrator',
+            'configurationId' => 'my-configuration',
+            'coolDownPeriodMinutes' => 1,
+            'runWithTokenId' => $newToken['id'],
+            'tableIds' => [
+                $table1,
+            ],
+        ]);
+
+        $this->assertEquals('orchestrator', $trigger['component']);
+        $this->assertEquals('my-configuration', $trigger['configurationId']);
+        $this->assertEquals(1, $trigger['coolDownPeriodMinutes']);
+        $this->assertEquals($newToken['id'], $trigger['runWithTokenId']);
+        $this->assertNotNull($trigger['lastRun']);
+        $this->assertLessThan((new \DateTime()), (new \DateTime($trigger['lastRun'])));
+        $this->assertEquals(
+            [
+                ['tableId' => 'in.c-API-tests.watched-1'],
+            ],
+            $trigger['tables'],
+        );
+        $token = $this->_client->verifyToken();
+        $this->assertEquals(
+            [
+                'id' => $token['id'],
+                'description' => $token['description'],
+            ],
+            $trigger['creatorToken'],
+        );
+    }
+
     /**
      * @return void
      */
