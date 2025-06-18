@@ -9,9 +9,12 @@ use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
+use Keboola\Test\Utils\EventsQueryBuilder;
+use Keboola\Test\Utils\EventTesterUtils;
 
 class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
 {
+    use EventTesterUtils;
     private string $tableId;
 
     public function setUp(): void
@@ -167,11 +170,33 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
         // but ctas-om does not deduplicate values
         $db->query(sprintf("INSERT INTO %s VALUES (2, 'doesToo');", $quotedTableId));
 
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+        $this->initEvents($this->_client);
+
         // do full load
         $this->_client->writeTableAsyncDirect($this->tableId, [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => $tableId,
         ]);
+        $eventAssertCallback = function ($events) {
+            $this->assertCount(1, $events);
+            $this->assertArrayHasKey('performance', $events[0]);
+            $this->assertIsArray($events[0]['performance']);
+            $this->assertArrayHasKey('importDecomposed', $events[0]['performance']);
+            $this->assertCount(1, $events[0]['performance']['importDecomposed']);
+            $this->assertArrayHasKey('name', $events[0]['performance']['importDecomposed'][0]);
+            // there is only one stage in full load
+            $this->assertSame('ctasLoad', $events[0]['performance']['importDecomposed'][0]['name']);
+
+            // set event as last event
+            $this->lastEventId = $events[0]['uuid'];
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableImportDone')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $eventAssertCallback, $query);
 
         $expectedFullLoad = [
             [
@@ -226,6 +251,22 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
             'dataTableName' => $tableId,
             'incremental' => true,
         ]);
+
+        $eventAssertCallback = function ($events) {
+            $this->assertCount(1, $events);
+            $this->assertArrayHasKey('performance', $events[0]);
+            $this->assertIsArray($events[0]['performance']);
+            $this->assertArrayHasKey('importDecomposed', $events[0]['performance']);
+            $this->assertCount(1, $events[0]['performance']['importDecomposed']);
+            $this->assertArrayHasKey('name', $events[0]['performance']['importDecomposed'][0]);
+            // there is only one stage in incremental load
+            $this->assertSame('insertIntoTargetFromStaging', $events[0]['performance']['importDecomposed'][0]['name']);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableImportDone')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $eventAssertCallback, $query);
 
         $expectedIncrementalLoad = [
             [
