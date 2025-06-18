@@ -3,6 +3,7 @@
 namespace Keboola\Test\Backend\Snowflake;
 
 use Keboola\Datatype\Definition\Snowflake;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
@@ -70,20 +71,6 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
             $tableId,
         );
 
-        $sql = sprintf(
-            '
-            CREATE TABLE %s (
-                "id" FLOAT NOT NULL,
-                "name" VARCHAR(5000)
-            )
-        ',
-            $quotedTableId,
-        );
-        $db->query($sql);
-        $db->query(sprintf("INSERT INTO %s VALUES (1, 'john');", $quotedTableId));
-        $db->query(sprintf("INSERT INTO %s VALUES (2, 'does');", $quotedTableId));
-
-        $db->query(sprintf('DROP TABLE %s', $quotedTableId));
         // length of VARCHAR is lower than what is in storage but it still works
         $sql = sprintf(
             '
@@ -143,21 +130,6 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
             $connection['schema'],
             $tableId,
         );
-
-        $sql = sprintf(
-            '
-            CREATE TABLE %s (
-                "id" FLOAT NOT NULL,
-                "name" VARCHAR(5000)
-            )
-        ',
-            $quotedTableId,
-        );
-        $db->query($sql);
-        $db->query(sprintf("INSERT INTO %s VALUES (1, 'john');", $quotedTableId));
-        $db->query(sprintf("INSERT INTO %s VALUES (2, 'does');", $quotedTableId));
-
-        $db->query(sprintf('DROP TABLE %s', $quotedTableId));
         // exact length is required
         $sql = sprintf(
             '
@@ -201,7 +173,7 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
             'dataTableName' => $tableId,
         ]);
 
-        $expected = [
+        $expectedFullLoad = [
             [
                 [
                     'columnName' => 'id',
@@ -244,7 +216,7 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
         $data = $this->_client->getTableDataPreview($this->tableId, [
             'format' => 'json',
         ]);
-        self::assertEquals($expected, $data['rows']);
+        self::assertEquals($expectedFullLoad, $data['rows']);
 
         // do incremental load
         // incremental load also does not deduplicate values
@@ -255,7 +227,7 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
             'incremental' => true,
         ]);
 
-        $expected = [
+        $expectedIncrementalLoad = [
             [
                 [
                     'columnName' => 'id',
@@ -334,7 +306,17 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
         $data = $this->_client->getTableDataPreview($this->tableId, [
             'format' => 'json',
         ]);
-        self::assertEquals($expected, $data['rows']);
+        self::assertEquals($expectedIncrementalLoad, $data['rows']);
+
+        $this->expectException(ClientException::class);
+        // create table does not support typed tables
+        // tables are created by runner and this is never called
+        $this->expectExceptionMessage('Table import error: Source destination columns mismatch. "id NUMBER (38,0) NOT NULL"->"id VARCHAR NOT NULL DEFAULT \'\'');
+        $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
+            'name' => 'languagesNew',
+            'dataWorkspaceId' => $workspace['id'],
+            'dataObject' => $tableId,
+        ]);
     }
 
     private function unloadAndAssert(int $id, string $tableId): void
