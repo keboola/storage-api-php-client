@@ -6,12 +6,12 @@ namespace Keboola\Test\Backend\NetworkPolicies;
 
 use Doctrine\DBAL\Exception\DriverException;
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Test\Utils\ConnectionUtils;
+use Keboola\Test\Utils\SnowflakeConnectionUtils;
 use Keboola\Test\Utils\IpUtils;
 
 class NetworkPoliciesTestCase extends StorageApiTestCase
 {
-    use ConnectionUtils;
+    use SnowflakeConnectionUtils;
     use IpUtils;
 
     private function getDBPrefix(): string
