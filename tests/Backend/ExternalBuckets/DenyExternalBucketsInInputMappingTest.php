@@ -7,12 +7,11 @@ namespace Keboola\Test\Backend\ExternalBuckets;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\ClientProvider\TestSetupHelper;
-use Keboola\Test\Utils\ConnectionUtils;
+use Keboola\Test\Utils\SnowflakeConnectionUtils;
 
 class DenyExternalBucketsInInputMappingTest extends BaseExternalBuckets
 {
-    use ConnectionUtils;
+    use SnowflakeConnectionUtils;
     protected \Keboola\ManageApi\Client $manageClient;
 
     private const PROJECT_FEATURE_DENY_EXTERNAL_DATASET_INPUT_MAPPING = 'deny-external-dataset-input-mapping';
@@ -23,7 +22,7 @@ class DenyExternalBucketsInInputMappingTest extends BaseExternalBuckets
 
         $this->initEmptyTestBucketsForParallelTests();
 
-        $token = $this->_client->verifyToken();
+        $this->_client->verifyToken();
 
         $this->assertManageTokensPresent();
         $this->manageClient = $this->getDefaultManageClient();
@@ -156,28 +155,5 @@ class DenyExternalBucketsInInputMappingTest extends BaseExternalBuckets
         $this->_client->dropBucket($bucketId);
         $workspaces->deleteWorkspace($workspace0['id']);
         $this->manageClient->removeProjectFeature($token['owner']['id'], self::PROJECT_FEATURE_DENY_EXTERNAL_DATASET_INPUT_MAPPING);
-    }
-
-    private function grantImportedPrivilegesToProjectRole(string $projectRole): void
-    {
-        $db = $this->ensureSnowflakeConnection();
-        $db->executeQuery('USE ROLE ACCOUNTADMIN');
-        $db->executeQuery(sprintf(
-            'GRANT IMPORTED PRIVILEGES ON DATABASE %s TO %s',
-            explode('.', $this->getInboundSharedDatabaseName())[0],
-            $projectRole,
-        ));
-    }
-
-    private function getInboundSharedDatabaseName(): string
-    {
-        $inboundDatabaseName = getenv('SNOWFLAKE_INBOUND_DATABASE_NAME');
-        assert($inboundDatabaseName !== false, 'SNOWFLAKE_INBOUND_DATABASE_NAME env var is not set');
-        $this->assertCount(
-            2,
-            explode('.', $inboundDatabaseName),
-            sprintf('SNOWFLAKE_INBOUND_DATABASE_NAME should have exactly 2 parts: <DATABASE_NAME>.<SCHEMA_NAME> gets %s', $inboundDatabaseName),
-        );
-        return $inboundDatabaseName;
     }
 }
