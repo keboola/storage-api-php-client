@@ -10,14 +10,14 @@ use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\Utils\ConnectionUtils;
+use Keboola\Test\Utils\SnowflakeConnectionUtils;
 use Keboola\Test\Utils\EventsQueryBuilder;
 use Throwable;
 
 class SnowflakeExternalBucketShareTest extends BaseExternalBuckets
 {
     use WorkspaceConnectionTrait;
-    use ConnectionUtils;
+    use SnowflakeConnectionUtils;
 
     protected Client $shareClient;
 
