@@ -49,7 +49,7 @@ class ClientTestCase extends TestCase
     public function assertManageTokensPresent(): void
     {
         if (!defined('MANAGE_API_TOKEN_ADMIN')) {
-            $this->markTestSkipped('Application tokens for tokens tests not configured');
+            $this->fail('Application tokens for tokens tests not configured');
         }
     }
 
