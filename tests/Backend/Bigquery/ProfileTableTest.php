@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Test\Backend\CommonPart1;
+namespace Keboola\Test\Backend\Bigquery;
 
 use DateTime;
+use Keboola\Csv\CsvFile;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\Test\StorageApiTestCase;
-use Keboola\Csv\CsvFile;
 
 final class ProfileTableTest extends StorageApiTestCase
 {
