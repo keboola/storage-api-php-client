@@ -7,12 +7,12 @@ use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\Utils\ConnectionUtils;
+use Keboola\Test\Utils\SnowflakeConnectionUtils;
 
 class SnowflakeBYODBTest extends BaseExternalBuckets
 {
     use WorkspaceConnectionTrait;
-    use ConnectionUtils;
+    use SnowflakeConnectionUtils;
 
     public const TEST_DB = 'TEST_DB';
     public const TEST_SCHEMA = 'TEST_SCHEMA';

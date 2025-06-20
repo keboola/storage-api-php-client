@@ -39,11 +39,12 @@
 		"symfony/process": "^7.0||^6.0||^5.0||^4.0"
 	},
 	"require-dev": {
+		"ext-curl": "*",
 		"ext-pdo": "*",
 		"ext-pdo_pgsql": "*",
-		"ext-curl": "*",
 		"brianium/paratest": "2.*|6.*",
 		"keboola/coding-standard": "^15.0",
+		"keboola/kbc-manage-api-php-client": "^9.0",
 		"keboola/php-csv-db-import": "^6",
 		"keboola/phpunit-retry-annotations": "^0.5",
 		"keboola/retry": "^0.5.0",
@@ -54,7 +55,7 @@
 		"rector/rector": "^0.12.23",
 		"squizlabs/php_codesniffer": "^3",
 		"tomasfejfar/phpstan-phpunit": "^0.1.0"
-    },
+	},
 	"scripts": {
 		"phpcs": "phpcs -n .",
 		"phpcbf": "phpcbf -n .",
