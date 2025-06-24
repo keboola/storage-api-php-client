@@ -6,11 +6,13 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
+use Keboola\StorageApi\WorkspaceLoginType;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
+use Keboola\Test\Utils\PemKeyCertificateGenerator;
 
 class WorkspacesReaderTest extends ParallelWorkspacesTestCase
 {
@@ -55,7 +57,18 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
         $components = new Components($branchClient);
         $workspaces = new Workspaces($branchClient);
 
-        $workspace = $components->createConfigurationWorkspace($componentId, $configurationId, ['useCase' => 'reader'],);
+        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
+
+        $workspace = $components->createConfigurationWorkspace(
+            $componentId,
+            $configurationId,
+            [
+                'useCase' => 'reader',
+                'backend' => 'snowflake',
+                'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
+                'publicKey' => $key->getPublicKey(),
+            ],
+        );
 
         //setup test tables
         $tableId = $this->_client->createTableAsync(
@@ -80,8 +93,11 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
                 ],
             ],
         ]);
+
+        $workspace['connection']['privateKey'] = $key->getPrivateKey();
+
         // create the connection after LOAD!! because the schema will be created by LOAD
-        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace, true);
 
         $data = $db->fetchAll('languages');
         $this->assertCount(5, $data);
@@ -107,7 +123,18 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
         $components = new Components($branchClient);
         $workspaces = new Workspaces($branchClient);
 
-        $workspace = $components->createConfigurationWorkspace($componentId, $configurationId, ['useCase' => 'reader']);
+        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
+
+        $workspace = $components->createConfigurationWorkspace(
+            $componentId,
+            $configurationId,
+            [
+                'useCase' => 'reader',
+                'backend' => 'snowflake',
+                'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
+                'publicKey' => $key->getPublicKey(),
+            ],
+        );
 
         //setup test tables
         $tableId = $this->_client->createTableAsync(
@@ -128,8 +155,11 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
                 ],
             ],
         ]);
+
+        $workspace['connection']['privateKey'] = $key->getPrivateKey();
+
         // create the connection after LOAD!! because the schema will be created by LOAD
-        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace, true);
 
         $data = $db->fetchAll('languages');
         $this->assertCount(5, $data);
