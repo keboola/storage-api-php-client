@@ -424,7 +424,7 @@ class SOXTokensTest extends StorageApiTestCase
         $query = $qb->generateQuery();
 
         $apiCall = fn() => $this->_client->listEvents([
-            'sinceId' => $this->lastEventId,
+            'sinceId' => $this->lastEventId[spl_object_hash($this->_client)],
             'limit' => 1,
             'q' => $query,
         ]);
