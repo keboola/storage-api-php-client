@@ -305,12 +305,14 @@
 	<testsuite name="unit">
 		<directory>tests-unit</directory>
 	</testsuite>
-
 	<testsuite name="snowflake-byodb">
 		<file>tests/Backend/ExternalBuckets/SnowflakeBYODBTest.php</file>
 		<file>tests/Backend/ExternalBuckets/SnowflakeExternalBucketShareTest.php</file>
 		<file>tests/Backend/ExternalBuckets/SnowflakeBucketsRefreshTablesInformationTest.php</file>
 		<file>tests/Backend/ExternalBuckets/SnowflakeRegisterExternalBucketInSecureDataShareTest.php</file>
+	</testsuite>
+	<testsuite name="sync-snowflake-byodb">
+		<file>tests/Backend/ExternalBuckets/DenyExternalBucketsInInputMappingTest.php</file>
 	</testsuite>
 	<testsuite name="snowflake-network-policies">
 		<directory>tests/Backend/NetworkPolicies</directory>
