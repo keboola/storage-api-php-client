@@ -7,11 +7,11 @@ namespace Keboola\Test\Backend\ExternalBuckets;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
-use Keboola\Test\Utils\ConnectionUtils;
+use Keboola\Test\Utils\SnowflakeConnectionUtils;
 
 class SnowflakeBucketsRefreshTablesInformationTest extends BaseExternalBuckets
 {
-    use ConnectionUtils;
+    use SnowflakeConnectionUtils;
 
     const BUCKET_FINANCE = 'test-finance';
     const BUCKET_ACCOUNTING = 'test-accounting';
