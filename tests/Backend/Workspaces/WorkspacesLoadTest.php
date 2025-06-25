@@ -1086,6 +1086,122 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
                     ],
                 ],
             ],
+            // test what happens when whereColumn is empty
+            'whereColumnEmpty' => [
+                [
+                    'whereColumn' => '',
+                    'whereValues' => [''],
+                    'whereOperator' => 'ne',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'city',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'sex',
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ],
+                [
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
+                    ],
+                    [
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
+                    ],
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
+                    ],
+                    [
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
+                    ],
+                    [
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
+                    ],
+                ],
+            ],
+            // test what happens when whereColumn is null
+            'whereColumnNull' => [
+                [
+                    'whereColumn' => null,
+                    'whereValues' => [''],
+                    'whereOperator' => 'ne',
+                    'columns' => [
+                        [
+                            'source' => 'id',
+                            'type' => 'integer',
+                        ],
+                        [
+                            'source' => 'name',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'city',
+                            'type' => 'varchar',
+                        ],
+                        [
+                            'source' => 'sex',
+                            'type' => 'varchar',
+                        ],
+                    ],
+                ],
+                [
+                    [
+                        '4',
+                        'miro',
+                        'BRA',
+                        'male',
+                    ],
+                    [
+                        '1',
+                        'martin',
+                        'PRG',
+                        'male',
+                    ],
+                    [
+                        '2',
+                        'klara',
+                        'PRG',
+                        'female',
+                    ],
+                    [
+                        '3',
+                        'ondra',
+                        'VAN',
+                        'male',
+                    ],
+                    [
+                        '5',
+                        'hidden',
+                        '',
+                        'male',
+                    ],
+                ],
+            ],
         ];
     }
 
