@@ -247,12 +247,15 @@ class BranchStorageTest extends StorageApiTestCase
         [$privilegedClient, $productionTableId, $branchClient, $devTableId] = $this->initResources();
         $prodTable = $privilegedClient->getTable($productionTableId);
         $this->assertBranchEvent($privilegedClient, 'storage.tableDetail', $productionTableId, 'table');
+
+        $this->initEvents($branchClient);
         $devTable = $branchClient->getTable($devTableId);
         $this->assertBranchEvent($branchClient, 'storage.tableDetail', $devTableId, 'table');
         // check that table is and bucket id are same in prod and dev
         $this->assertSame($prodTable['bucket']['id'], $devTable['bucket']['id']);
         $this->assertSame($prodTable['id'], $devTable['id']);
 
+        $this->initEvents($privilegedClient);
         // assert tables listing
         $tablesInProd = array_filter(
             $privilegedClient->listTables(),
@@ -260,8 +263,12 @@ class BranchStorageTest extends StorageApiTestCase
         );
         $this->assertBranchEvent($privilegedClient, 'storage.tablesListed', null, null);
         $this->assertCount(1, $tablesInProd);
+
+        $this->initEvents($branchClient);
         $this->assertCount(1, $branchClient->listTables());
         $this->assertBranchEvent($branchClient, 'storage.tablesListed', null, null);
+
+        $this->initEvents($privilegedClient);
         // assert buckets listing
         $bucketsInProd = array_filter(
             $privilegedClient->listBuckets(),
@@ -269,6 +276,8 @@ class BranchStorageTest extends StorageApiTestCase
         );
         $this->assertBranchEvent($privilegedClient, 'storage.bucketsListed', null, null);
         $this->assertCount(1, $bucketsInProd);
+
+        $this->initEvents($branchClient);
         $this->assertCount(1, $branchClient->listBuckets());
         $this->assertBranchEvent($branchClient, 'storage.bucketsListed', null, null);
     }
