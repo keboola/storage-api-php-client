@@ -68,7 +68,7 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
                 'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
                 'publicKey' => $key->getPublicKey(),
             ],
-            true
+            true,
         );
 
         //setup test tables
@@ -135,7 +135,7 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
                 'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
                 'publicKey' => $key->getPublicKey(),
             ],
-            true
+            true,
         );
 
         //setup test tables
