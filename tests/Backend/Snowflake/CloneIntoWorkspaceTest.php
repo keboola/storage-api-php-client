@@ -468,7 +468,7 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
             $this->assertEquals(400, $e->getCode());
             $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
             $this->assertEquals(
-                'Argument "input" is expected to be type "array", value "this is not array" given.',
+                'This value should be of type array.',
                 $e->getMessage(),
             );
         }
