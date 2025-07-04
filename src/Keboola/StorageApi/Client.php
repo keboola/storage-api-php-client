@@ -3281,6 +3281,28 @@ class Client
         return $result;
     }
 
+    public function scheduleBucketRefresh(
+        string $bucketId,
+        string $cronExpression,
+    ): array {
+        $url = sprintf('buckets/%s/scheduled-tasks/refresh', $bucketId);
+
+        $data = [
+            'cronExpression' =>  $cronExpression,
+        ];
+
+        $result = $this->apiPostJson($url, $data);
+
+        return $result;
+    }
+
+    public function deleteScheduledTask(string $taskId)
+    {
+        $url = sprintf('scheduled-tasks/%s', $taskId);
+
+        $this->apiDelete($url);
+    }
+
     /**
      * @return int
      */
