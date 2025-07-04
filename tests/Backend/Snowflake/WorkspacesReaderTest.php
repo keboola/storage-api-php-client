@@ -2,6 +2,7 @@
 
 namespace Backend\Snowflake;
 
+use Doctrine\DBAL\Exception\DriverException;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
@@ -166,5 +167,84 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
 
         $data = $db->fetchAll('langs');
         $this->assertCount(5, $data);
+    }
+
+    public function testResetPublicKeyForReaderWorkspace(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+        $defaultBranchId = $this->getDefaultBranchId($this);
+        $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
+        // create configuration
+        $components = new Components($branchClient);
+        $components->addConfiguration((new Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('readerWS')
+            ->setDescription('some desc'));
+
+        $components = new Components($branchClient);
+        $workspaces = new Workspaces($branchClient);
+
+        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
+
+        $workspace = $components->createConfigurationWorkspace(
+            $componentId,
+            $configurationId,
+            [
+                'useCase' => 'reader',
+                'backend' => 'snowflake',
+                'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
+                'publicKey' => $key->getPublicKey(),
+            ],
+        );
+
+        //setup test tables
+        $tableId = $this->_client->createTableAsync(
+            $this->getTestBucketId(self::STAGE_IN),
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+        );
+
+        $workspaces->cloneIntoWorkspace($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                ],
+                [
+                    'source' => $tableId,
+                    'destination' => 'langs',
+                ],
+            ],
+        ]);
+
+        // create the connection after LOAD!! because the schema will be created by LOAD
+        $workspace['connection']['privateKey'] = $key->getPrivateKey();
+        $connection = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
+        $connection->executeQuery('SELECT 1;');
+
+        $newKey = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
+        $workspaces->setPublicKey($workspace['id'], new Workspaces\SetPublicKeyRequest(publicKey: $newKey->getPublicKey()));
+
+        // new key should work
+        $workspace['connection']['privateKey'] = $newKey->getPrivateKey();
+        $newConnection = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
+        $newConnection->executeQuery('SELECT 1;');
+
+        // Cannot work with old key
+        try {
+            $connection->getDb()->close();
+            $connection->getDb()->executeQuery('SELECT 1;');
+            $this->fail('Old key should not work');
+        } catch (DriverException $driverException) {
+            // Should throw exception
+        }
+
+        // New should be working always
+        $newConnection->getDb()->close();
+        $newConnection->getDb()->executeQuery('SELECT 1;');
     }
 }
