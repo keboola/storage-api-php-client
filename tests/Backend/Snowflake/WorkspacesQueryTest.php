@@ -3,12 +3,14 @@
 namespace Keboola\Test\Backend\Snowflake;
 
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\WorkspaceLoginType;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
+use Keboola\Test\Utils\PemKeyCertificateGenerator;
 use PDO;
 
 class WorkspacesQueryTest extends ParallelWorkspacesTestCase
@@ -24,11 +26,18 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
         $defaultBranchId = $this->getDefaultBranchId($this);
         $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
         $workspaces = new Workspaces($branchClient);
+        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
         $workspace = $this->initTestWorkspace(
+            options: [
+                'backend' => self::BACKEND_SNOWFLAKE,
+                'loginType' => WorkspaceLoginType::SNOWFLAKE_PERSON_KEYPAIR,
+                'publicKey' => $key->getPublicKey(),
+            ],
             forceRecreate: true,
         );
         $workspaceId = $workspace['id'];
-        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $workspace['connection']['privateKey'] = $key->getPrivateKey();
+        $backend = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
 
         // Workspace not found
         $exception = null;
@@ -212,6 +221,103 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
             [
                 'status' => 'error',
                 'message' => "An exception occurred while executing a query: SQL compilation error:\nObject 'BLACK_HOLE' does not exist or not authorized.",
+            ],
+        );
+
+        $table = $this->_client->createTableAsync(
+            $this->getTestBucketId(self::STAGE_IN),
+            'test',
+            new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/languages.csv'),
+        );
+
+        $testDropDatabase = $workspaces->executeQuery(
+            $workspaceId,
+            sprintf('DROP DATABASE %s', $workspace['connection']['database']),
+        );
+        $this->assertSame(
+            $testDropDatabase,
+            [
+                'status' => 'error',
+                'message' => sprintf("An exception occurred while executing a query: SQL access control error:
+Insufficient privileges to operate on database '%s'", $workspace['connection']['database']),
+            ],
+        );
+
+        $testDropSchema = $workspaces->executeQuery(
+            $workspaceId,
+            sprintf('DROP SCHEMA %s', $workspace['connection']['schema']),
+        );
+        $this->assertSame(
+            $testDropSchema,
+            [
+                'status' => 'error',
+                'message' => sprintf("An exception occurred while executing a query: SQL access control error:
+Insufficient privileges to operate on schema '%s'", $workspace['connection']['schema']),
+            ],
+        );
+
+        // in most cases project role should be same as project database
+        $testUseProjectUserRole = $workspaces->executeQuery(
+            $workspaceId,
+            sprintf('USE ROLE %s', $workspace['connection']['database']),
+        );
+        $this->assertSame(
+            $testUseProjectUserRole,
+            [
+                'status' => 'error',
+                'message' => 'An exception occurred while executing a query: SQL execution error:
+Current session is restricted. USE ROLE not allowed.',
+            ],
+        );
+
+        $this->_client->createTableAsync(
+            $this->getTestBucketId(self::STAGE_IN),
+            'test-delete',
+            new \Keboola\Csv\CsvFile(__DIR__ . '/../../_data/languages.csv'),
+        );
+
+        $testDropTable = $workspaces->executeQuery(
+            $workspaceId,
+            sprintf(
+                'DROP TABLE %s.%s."test-delete"',
+                $workspace['connection']['database'],
+                SnowflakeQuote::quoteSingleIdentifier($this->getTestBucketId(self::STAGE_IN)),
+            ),
+        );
+        $this->assertSame(
+            $testDropTable,
+            [
+                'status' => 'error',
+                'message' => "An exception occurred while executing a query: SQL access control error:
+Insufficient privileges to operate on table 'test-delete'",
+            ],
+        );
+
+        // in most cases project role should be same as project database
+        $executeImmediate = $workspaces->executeQuery(
+            $workspaceId,
+            sprintf(
+                <<<EOD
+EXECUTE IMMEDIATE $$
+BEGIN
+  USE ROLE %s;
+  DROP TABLE %s.%s."test-delete";
+  RETURN 'done';
+END;
+$$
+;
+EOD,
+                $workspace['connection']['database'],
+                $workspace['connection']['database'],
+                SnowflakeQuote::quoteSingleIdentifier($this->getTestBucketId(self::STAGE_IN)),
+            ),
+        );
+        $this->assertSame(
+            $executeImmediate,
+            [
+                'status' => 'error',
+                'message' => "An exception occurred while executing a query: Uncaught exception of type 'STATEMENT_ERROR' on line 3 at position 2 : SQL execution error:
+Current session is restricted. USE ROLE not allowed.",
             ],
         );
     }
