@@ -321,4 +321,50 @@ Current session is restricted. USE ROLE not allowed.",
             ],
         );
     }
+
+    public function testWorkspaceQueryLegacyService(): void
+    {
+        $defaultBranchId = $this->getDefaultBranchId($this);
+        $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
+        $workspaces = new Workspaces($branchClient);
+        $workspace = $this->initTestWorkspace(
+            options: [
+                'backend' => self::BACKEND_SNOWFLAKE,
+                'loginType' => WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD,
+            ],
+            forceRecreate: true,
+        );
+        try {
+            $workspaces->executeQuery(
+                $workspace['id'],
+                sprintf(
+                    'CREATE OR REPLACE TABLE %s (ID INT, NAME VARCHAR(32))',
+                    SnowflakeQuote::quoteSingleIdentifier(self::TABLE),
+                ),
+            );
+            $this->fail('Executing query on workspace with legacy service login type should fail.');
+        } catch (ClientException $e) {
+            $this->assertSame('storage.executeQuery.notSupportedLoginType', $e->getStringCode());
+        }
+
+        $workspace = $this->initTestWorkspace(
+            options: [
+                'backend' => self::BACKEND_SNOWFLAKE,
+                'loginType' => WorkspaceLoginType::DEFAULT,
+            ],
+            forceRecreate: true,
+        );
+        try {
+            $workspaces->executeQuery(
+                $workspace['id'],
+                sprintf(
+                    'CREATE OR REPLACE TABLE %s (ID INT, NAME VARCHAR(32))',
+                    SnowflakeQuote::quoteSingleIdentifier(self::TABLE),
+                ),
+            );
+            $this->fail('Executing query on workspace with legacy service login type should fail.');
+        } catch (ClientException $e) {
+            $this->assertSame('storage.executeQuery.notSupportedLoginType', $e->getStringCode());
+        }
+    }
 }
