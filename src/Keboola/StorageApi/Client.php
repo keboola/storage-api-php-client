@@ -52,6 +52,12 @@ class Client
     const REQUEST_OPTION_EXTENDED_TIMEOUT = 'isExtendedTimeout';
     public const REQUEST_OPTION_HEADERS = 'headers';
 
+    // Allowed authentication headers
+    const ALLOWED_AUTH_HEADERS = [
+        'Authorization',
+        'X-StorageApi-Token',
+    ];
+
     // Stage names
     const DEFAULT_RETRIES_COUNT = 15;
     const STAGE_IN = 'in';
@@ -76,6 +82,10 @@ class Client
 
     // configuration will be send with all requests
     private ?BackendConfiguration $backendConfiguration = null;
+
+    // Custom authentication header support
+    private ?string $authHeader = null;
+    private ?string $authHeaderValue = null;
 
     // API URL
     private $apiUrl;
@@ -161,6 +171,26 @@ class Client
             throw new \InvalidArgumentException('token must be set');
         }
         $this->token = $config['token'];
+
+        // Initialize custom authentication header properties
+        $this->authHeader = $config['authHeader'] ?? null;
+        $this->authHeaderValue = $config['authHeaderValue'] ?? null;
+
+        // Validate custom authentication header if provided
+        if ($this->authHeader !== null && !in_array($this->authHeader, self::ALLOWED_AUTH_HEADERS)) {
+            throw new \InvalidArgumentException(
+                'Invalid authHeader. Only the following headers are allowed: ' . 
+                implode(', ', self::ALLOWED_AUTH_HEADERS)
+            );
+        }
+
+        // Ensure both authHeader and authHeaderValue are provided together
+        if (($this->authHeader !== null && $this->authHeaderValue === null) || 
+            ($this->authHeader === null && $this->authHeaderValue !== null)) {
+            throw new \InvalidArgumentException(
+                'Both authHeader and authHeaderValue must be provided together'
+            );
+        }
 
         if (isset($config['backoffMaxTries'])) {
             $this->backoffMaxTries = (int) $config['backoffMaxTries'];
@@ -2871,10 +2901,17 @@ class Client
         }
 
         $defaultHeaders = [
-            'X-StorageApi-Token' => $this->token,
             'Accept-Encoding' => 'gzip',
             'User-Agent' => $this->getUserAgent(),
         ];
+
+        // Use custom authentication headers if provided, otherwise use default token authentication
+        if ($this->authHeader !== null && $this->authHeaderValue !== null) {
+            $defaultHeaders[$this->authHeader] = $this->authHeaderValue;
+        } else {
+            $defaultHeaders['X-StorageApi-Token'] = $this->token;
+        }
+
         if (isset($options['headers'])) {
             $requestOptions['headers'] = array_merge($options['headers'], $defaultHeaders);
         } else {
