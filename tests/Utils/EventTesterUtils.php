@@ -23,7 +23,7 @@ trait EventTesterUtils
     protected $tokenId;
 
     /**
-     * @var string
+     * @var array<string, string>
      */
     protected $lastEventId;
 
@@ -60,7 +60,7 @@ trait EventTesterUtils
         $lastEvent = $this->createAndWaitForEvent($fireEvent, $client);
 
         if (!empty($lastEvent)) {
-            $this->lastEventId = $lastEvent['uuid'];
+            $this->lastEventId[spl_object_hash($client)] = $lastEvent['uuid'];
         }
 
         return $lastEvent;
@@ -70,7 +70,7 @@ trait EventTesterUtils
     {
         return (array) $this->retryWithCallback(function () use ($client, $limit) {
             return $client->listEvents([
-                'sinceId' => $this->lastEventId,
+                'sinceId' => $this->lastEventId[spl_object_hash($client)],
                 'limit' => $limit,
                 'q' => sprintf('token.id:%s', $this->tokenId),
             ]);
@@ -106,7 +106,7 @@ trait EventTesterUtils
         $query = $query->generateQuery();
 
         $apiCall = fn() => $client->listEvents([
-                'sinceId' => $this->lastEventId,
+                'sinceId' => $this->lastEventId[spl_object_hash($client)],
                 'limit' => $limit,
                 'q' => $query,
             ]);
@@ -117,14 +117,18 @@ trait EventTesterUtils
     /**
      * @param int|string|null $expectedObjectId
      */
-    protected function listEvents(Client $client, string $eventName, $expectedObjectId = null, int $limit = 1): array
+    protected function listEvents(Client $client, string $eventName, $expectedObjectId = null, int $limit = 1, string|null $runId = null): array
     {
-        return $this->retry(function () use ($client, $expectedObjectId, $limit) {
-            $tokenEvents = $client->listEvents([
-                'sinceId' => $this->lastEventId,
+        return $this->retry(function () use ($client, $expectedObjectId, $limit, $runId) {
+            $params = [
+                'sinceId' => $this->lastEventId[spl_object_hash($client)],
                 'limit' => $limit,
                 'q' => sprintf('token.id:%s', $this->tokenId),
-            ]);
+            ];
+            if ($runId !== null) {
+                $params['runId'] = $runId;
+            }
+            $tokenEvents = $client->listEvents($params);
 
             if ($expectedObjectId === null) {
                 return $tokenEvents;
