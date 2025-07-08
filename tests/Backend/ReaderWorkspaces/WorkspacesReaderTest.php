@@ -1,6 +1,6 @@
 <?php
 
-namespace Backend\Snowflake;
+namespace Backend\ReaderWorkspaces;
 
 use Doctrine\DBAL\Exception\DriverException;
 use Keboola\Csv\CsvFile;
@@ -42,7 +42,7 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadToReaderAccount(): void
+    public function testLoadToReaderAccountAndRemove(): void
     {
         $workspaces = $this->createWorkspaces();
         $workspace = $this->prepareWorkspace();
@@ -79,6 +79,28 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
 
         $data = $db->fetchAll('languages_filtered');
         $this->assertCount(1, $data);
+
+        // Ensure workspace is removed correctly and reader account is deleted
+        $backendConnection = $this->ensureSnowflakeConnection();
+        $verifiedToken = $this->_client->verifyToken();
+        $organizationId = $verifiedToken['organization']['id'];
+        $result = $backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
+
+        self::assertTrue(count($result) === 1);
+
+        $workspaces->deleteWorkspace($workspace['id']);
+
+        // Cannot execute query on removed workspace
+        try {
+            $db->executeQuery('SELECT 1;');
+            $this->fail('Removed workspace should not be accessible');
+        } catch (DriverException $driverException) {
+            // Should throw exception
+        }
+
+        $result = $backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
+
+        self::assertTrue(count($result) === 0);
     }
 
     public function testLoadCloneToReaderAccount(): void
@@ -114,6 +136,8 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
 
         $data = $db->fetchAll('langs');
         $this->assertCount(5, $data);
+
+        $workspaces->deleteWorkspace($workspace['id']);
     }
 
     public function testResetPublicKeyForReaderWorkspace(): void
@@ -166,54 +190,8 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
         // New should be working always
         $newConnection->getDb()->close();
         $newConnection->getDb()->executeQuery('SELECT 1;');
-    }
-
-    public function testRemoveWorkspace(): void
-    {
-        $workspaces = $this->createWorkspaces();
-        $workspace = $this->prepareWorkspace();
-
-        $tableId = $this->_client->createTableAsync(
-            $this->getTestBucketId(),
-            'languages',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
-        );
-
-        $workspaces->cloneIntoWorkspace($workspace['id'], [
-            'input' => [
-                [
-                    'source' => $tableId,
-                    'destination' => 'languages',
-                ],
-                [
-                    'source' => $tableId,
-                    'destination' => 'langs',
-                ],
-            ],
-        ]);
-
-        $backendConnection = $this->ensureSnowflakeConnection();
-        $verifiedToken = $this->_client->verifyToken();
-        $organizationId = $verifiedToken['organization']['id'];
-        $result = $backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
-
-        self::assertTrue(count($result) === 1);
-
-        $connection = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
 
         $workspaces->deleteWorkspace($workspace['id']);
-
-        // Cannot execute query on removed workspace
-        try {
-            $connection->executeQuery('SELECT 1;');
-            $this->fail('Removed workspace should not be accessible');
-        } catch (DriverException $driverException) {
-            // Should throw exception
-        }
-
-        $result = $backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
-
-        self::assertTrue(count($result) === 0);
     }
 
     private function prepareWorkspace(): array
