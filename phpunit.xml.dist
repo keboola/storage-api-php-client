@@ -310,7 +310,7 @@
 		<file>tests/Backend/ExternalBuckets/SnowflakeExternalBucketShareTest.php</file>
 		<file>tests/Backend/ExternalBuckets/SnowflakeBucketsRefreshTablesInformationTest.php</file>
 		<file>tests/Backend/ExternalBuckets/SnowflakeRegisterExternalBucketInSecureDataShareTest.php</file>
-		<file>tests/Backend/Snowflake/WorkspacesReaderTest.php</file>
+		<file>tests/Backend/ReaderWorkspaces</file>
 	</testsuite>
 	<testsuite name="sync-snowflake-byodb">
 		<file>tests/Backend/ExternalBuckets/DenyExternalBucketsInInputMappingTest.php</file>
