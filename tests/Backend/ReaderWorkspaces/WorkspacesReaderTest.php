@@ -42,6 +42,12 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
                 $components->deleteConfiguration($component['id'], $configuration['id']);
             }
         }
+
+        $workspaces = new Workspaces($this->_client);
+        $filteredReaderWorkspaces = array_filter($workspaces->listWorkspaces(), static fn ($workspace) => $workspace['platformUsageType'] === 'reader');
+        foreach ($filteredReaderWorkspaces as $workspace) {
+            $workspaces->deleteWorkspace($workspace['id']);
+        }
     }
 
     public function testLoadToReaderAccount(): void
