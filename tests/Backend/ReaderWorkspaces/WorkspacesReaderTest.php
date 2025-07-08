@@ -2,6 +2,7 @@
 
 namespace Backend\ReaderWorkspaces;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\DriverException;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Components;
@@ -11,6 +12,7 @@ use Keboola\StorageApi\WorkspaceLoginType;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
+use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackendDBAL;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
 use Keboola\Test\Utils\PemKeyCertificateGenerator;
@@ -42,7 +44,7 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testLoadToReaderAccountAndRemove(): void
+    public function testLoadToReaderAccount(): void
     {
         $workspaces = $this->createWorkspaces();
         $workspace = $this->prepareWorkspace();
@@ -81,26 +83,7 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
         $this->assertCount(1, $data);
 
         // Ensure workspace is removed correctly and reader account is deleted
-        $backendConnection = $this->ensureSnowflakeConnection();
-        $verifiedToken = $this->_client->verifyToken();
-        $organizationId = $verifiedToken['organization']['id'];
-        $result = $backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
-
-        self::assertTrue(count($result) === 1);
-
-        $workspaces->deleteWorkspace($workspace['id']);
-
-        // Cannot execute query on removed workspace
-        try {
-            $db->executeQuery('SELECT 1;');
-            $this->fail('Removed workspace should not be accessible');
-        } catch (DriverException $driverException) {
-            // Should throw exception
-        }
-
-        $result = $backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
-
-        self::assertTrue(count($result) === 0);
+        $this->ensureWorkspaceIsRemoved($workspaces, $db, (int) $workspace['id']);
     }
 
     public function testLoadCloneToReaderAccount(): void
@@ -137,13 +120,12 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
         $data = $db->fetchAll('langs');
         $this->assertCount(5, $data);
 
-        $workspaces->deleteWorkspace($workspace['id']);
+        // Ensure workspace is removed correctly and reader account is deleted
+        $this->ensureWorkspaceIsRemoved($workspaces, $db, (int) $workspace['id']);
     }
 
     public function testResetPublicKeyForReaderWorkspace(): void
     {
-        $this->expectNotToPerformAssertions();
-
         $workspaces = $this->createWorkspaces();
         $workspace = $this->prepareWorkspace();
 
@@ -191,7 +173,32 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
         $newConnection->getDb()->close();
         $newConnection->getDb()->executeQuery('SELECT 1;');
 
-        $workspaces->deleteWorkspace($workspace['id']);
+        // Ensure workspace is removed correctly and reader account is deleted
+        $this->ensureWorkspaceIsRemoved($workspaces, $newConnection, (int) $workspace['id']);
+    }
+
+    private function ensureWorkspaceIsRemoved(Workspaces $workspaces, SnowflakeWorkspaceBackendDBAL $connection, int $workspaceId): void
+    {
+        $backendConnection = $this->ensureSnowflakeConnection();
+        $verifiedToken = $this->_client->verifyToken();
+        $organizationId = $verifiedToken['organization']['id'];
+        $result = $backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
+
+        self::assertTrue(count($result) === 1);
+
+        $workspaces->deleteWorkspace($workspaceId);
+
+        // Cannot execute query on removed workspace
+        try {
+            $connection->executeQuery('SELECT 1;');
+            $this->fail('Removed workspace should not be accessible');
+        } catch (DriverException $driverException) {
+            // Should throw exception
+        }
+
+        $result = $backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
+
+        self::assertTrue(count($result) === 0);
     }
 
     private function prepareWorkspace(): array
