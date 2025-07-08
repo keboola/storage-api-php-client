@@ -314,7 +314,7 @@
 	</testsuite>
     <testsuite name="sync-snowflake-byodb">
         <file>tests/Backend/ExternalBuckets/DenyExternalBucketsInInputMappingTest.php</file>
-        <file>tests/Backend/ReaderWorkspaces</file>
+        <directory>tests/Backend/ReaderWorkspaces</directory>
     </testsuite>
 	<testsuite name="snowflake-network-policies">
 		<directory>tests/Backend/NetworkPolicies</directory>
