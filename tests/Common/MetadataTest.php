@@ -20,11 +20,10 @@ use Keboola\Test\Utils\MetadataUtils;
 class MetadataTest extends StorageApiTestCase
 {
     use MetadataUtils;
-    const TEST_PROVIDER = 'test';
 
+    const TEST_PROVIDER = 'test';
     const TEST_METADATA_KEY_1 = 'test_metadata_key1';
     const TEST_METADATA_KEY_2 = 'test_metadata_key2';
-
     const ISO8601_REGEXP = '/^([0-9]{4})-(1[0-2]|0[1-9])-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\+([0-9]{4})$/';
     // constants used for data providers in order to run it on all endpoints but also represents part of URL
     const ENDPOINT_TYPE_COLUMNS = 'columns';
@@ -64,7 +63,7 @@ class MetadataTest extends StorageApiTestCase
         $this->_testClient->createTableAsync($this->getTestBucketId(), 'test_table', new CsvFile(__DIR__ . '/../_data/users.csv'));
     }
 
-     /**
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @group SOX-66
      */
@@ -208,7 +207,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertSame($metadata[0]['value'], 'testValue');
     }
 
-     /**
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @group SOX-66
      */
@@ -281,7 +280,7 @@ class MetadataTest extends StorageApiTestCase
     /**
      * @return void
      */
-     /**
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @group SOX-66
      */
@@ -405,7 +404,7 @@ class MetadataTest extends StorageApiTestCase
         }
     }
 
-     /**
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @group SOX-66
      */
@@ -447,10 +446,14 @@ class MetadataTest extends StorageApiTestCase
         $this->assertArrayEqualsExceptKeys($mdForTable, $tableDetail['metadata'][0], ['id', 'provider', 'timestamp']);
 
         $this->assertCount(1, $tableDetail['columnMetadata']);
-        $this->assertArrayEqualsExceptKeys($mdForColumn, $tableDetail['columnMetadata'][0][0], ['id', 'provider', 'timestamp']);
+        $this->assertArrayEqualsExceptKeys($mdForColumn, $tableDetail['columnMetadata'][0][0], [
+            'id',
+            'provider',
+            'timestamp',
+        ]);
     }
 
-     /**
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @group SOX-66
      */
@@ -541,7 +544,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertEquals(self::TEST_PROVIDER, $metadata[0]['provider']);
     }
 
-     /**
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @group SOX-66
      */
@@ -632,7 +635,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertCount(1, $metadataArray);
     }
 
-     /**
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @group SOX-66
      */
@@ -677,7 +680,7 @@ class MetadataTest extends StorageApiTestCase
         $metadataApi->listTableMetadata($columnId);
     }
 
-     /**
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @group SOX-66
      */
@@ -786,7 +789,7 @@ class MetadataTest extends StorageApiTestCase
         );
     }
 
-     /**
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @group SOX-66
      */
@@ -877,7 +880,7 @@ class MetadataTest extends StorageApiTestCase
         $this->assertCount(1, $metadataArray);
     }
 
-     /**
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @group SOX-66
      */
@@ -911,7 +914,7 @@ class MetadataTest extends StorageApiTestCase
         $tableDetail = $this->_testClient->getTable($tableId);
         $this->assertEmpty($tableDetail['columnMetadata']);
 
-        $this->assertEquals(['id','name','city'], $tableDetail['columns']);
+        $this->assertEquals(['id', 'name', 'city'], $tableDetail['columns']);
 
         $this->expectException(ClientException::class);
         $this->expectExceptionCode(404);
@@ -919,7 +922,7 @@ class MetadataTest extends StorageApiTestCase
         $metadataApi->listColumnMetadata($columnId);
     }
 
-     /**
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @group SOX-66
      */
@@ -1025,8 +1028,12 @@ class MetadataTest extends StorageApiTestCase
      * @dataProvider apiEndpoints
      * @group SOX-66
      */
-    public function testInvalidMetadataWhenMetadataIsNotArray(string $devBranchType, string $userRole, $apiEndpoint, $object): void
-    {
+    public function testInvalidMetadataWhenMetadataIsNotArray(
+        string $devBranchType,
+        string $userRole,
+        $apiEndpoint,
+        $object
+    ): void {
         $bucketId = self::getTestBucketId();
         $objectId = $bucketId . $object;
 
@@ -1047,8 +1054,12 @@ class MetadataTest extends StorageApiTestCase
      * @dataProvider apiEndpoints
      * @group SOX-66
      */
-    public function testInvalidMetadataWhenMetadataIsNotPresent(string $devBranchType, string $userRole, $apiEndpoint, $object): void
-    {
+    public function testInvalidMetadataWhenMetadataIsNotPresent(
+        string $devBranchType,
+        string $userRole,
+        $apiEndpoint,
+        $object
+    ): void {
         $bucketId = self::getTestBucketId();
         $objectId = $bucketId . $object;
 
@@ -1069,44 +1080,58 @@ class MetadataTest extends StorageApiTestCase
      */
     public function testMetadata40xs(string $devBranchType, string $userRole, $apiEndpoint, $object): void
     {
-        $bucketId = self::getTestBucketId();
+        $bucketId = $this->getTestBucketId();
         $object = ($apiEndpoint === 'bucket') ? $bucketId : $bucketId . $object;
 
         // test invalid number
-        try {
-            $this->deleteMetadata($apiEndpoint, $object, 9999999);
-            $this->fail('Invalid metadataId');
-        } catch (ClientException $e) {
-            $this->assertEquals(404, $e->getCode());
-            $this->assertEquals('storage.metadata.notFound', $e->getStringCode());
-            $this->assertEquals('The supplied metadata ID was not found', $e->getMessage());
+        if ($apiEndpoint === 'buckets') {
+            // test this on migrated endpoint
+            try {
+                $this->deleteMetadata($apiEndpoint, $object, 9999999);
+                $this->fail('Invalid metadataId');
+            } catch (ClientException $e) {
+                $this->assertEquals(404, $e->getCode());
+                $this->assertEquals('storage.metadata.notFound', $e->getStringCode());
+                $this->assertEquals(sprintf('Metadata "9999999" not found for bucket "%s".', $this->getTestBucketId()), $e->getMessage());
+            }
+        } else {
+            try {
+                $this->deleteMetadata($apiEndpoint, $object, 9999999);
+                $this->fail('Invalid metadataId');
+            } catch (ClientException $e) {
+                $this->assertEquals(404, $e->getCode());
+                $this->assertEquals('storage.metadata.notFound', $e->getStringCode());
+                $this->assertEquals('The supplied metadata ID was not found', $e->getMessage());
+            }
         }
 
         // test null
-        try {
-            $this->deleteMetadata($apiEndpoint, $object, null);
-            $this->fail('Invalid metadataId');
-        } catch (ClientException $e) {
-            $this->assertEquals(400, $e->getCode());
-            $this->assertEquals('APPLICATION_ERROR', $e->getStringCode());
-            $this->assertEquals('exceptions.storage.metadata.invalidDelete', $e->getMessage());
-        }
-
-        // not numeric value
-        try {
-            $this->deleteMetadata($apiEndpoint, $object, 'notNumber');
-            $this->fail('Invalid metadataId');
-        } catch (ClientException $e) {
-            $this->assertEquals(400, $e->getCode());
-            $this->assertEquals('APPLICATION_ERROR', $e->getStringCode());
-            $this->assertEquals(
-                'Argument "subResource" is expected to be type "int", value "notNumber" given.',
-                $e->getMessage(),
-            );
+        if ($apiEndpoint !== 'buckets') {
+            // don't test this on migrated endpoint, this had an extra handling in zend, 404 is returned from Symfony
+            try {
+                $this->deleteMetadata($apiEndpoint, $object, null);
+                $this->fail('Invalid metadataId');
+            } catch (ClientException $e) {
+                $this->assertEquals(400, $e->getCode());
+                $this->assertEquals('APPLICATION_ERROR', $e->getStringCode());
+                $this->assertEquals('exceptions.storage.metadata.invalidDelete', $e->getMessage());
+            }
+            // not numeric value
+            try {
+                $this->deleteMetadata($apiEndpoint, $object, 'notNumber');
+                $this->fail('Invalid metadataId');
+            } catch (ClientException $e) {
+                $this->assertEquals(400, $e->getCode());
+                $this->assertEquals('APPLICATION_ERROR', $e->getStringCode());
+                $this->assertEquals(
+                    'Argument "subResource" is expected to be type "int", value "notNumber" given.',
+                    $e->getMessage(),
+                );
+            }
         }
     }
 
-     /**
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @group SOX-66
      */
@@ -1138,7 +1163,7 @@ class MetadataTest extends StorageApiTestCase
         }
     }
 
-     /**
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @group SOX-66
      */
@@ -1154,11 +1179,11 @@ class MetadataTest extends StorageApiTestCase
         $anotherBucketId = $this->getTestBucketId(self::STAGE_OUT);
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('The supplied metadata ID was not found');
+        $this->expectExceptionMessage(sprintf('Metadata "%s" not found for bucket "%s".', $createdMetadata[0]['id'], $anotherBucketId));
         $medataApi->deleteBucketMetadata($anotherBucketId, $createdMetadata[0]['id']);
     }
 
-     /**
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @group SOX-66
      */
@@ -1174,11 +1199,11 @@ class MetadataTest extends StorageApiTestCase
         $createdMetadata = $medataApi->postTableMetadata($tableId, 'provider', [$md]);
 
         $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('The supplied metadata ID was not found');
+        $this->expectExceptionMessage(sprintf('Metadata "%s" not found for bucket "%s".', $createdMetadata[0]['id'], $this->getTestBucketId()));
         $medataApi->deleteBucketMetadata($this->getTestBucketId(), $createdMetadata[0]['id']);
     }
 
-     /**
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @group SOX-66
      */
@@ -1341,7 +1366,7 @@ class MetadataTest extends StorageApiTestCase
         return sprintf('%s.%s.%s', $this->getTestBucketId(), $tableId, $columnId);
     }
 
-     /**
+    /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      * @group SOX-66
      */
