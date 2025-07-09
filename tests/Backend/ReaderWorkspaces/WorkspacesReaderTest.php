@@ -2,7 +2,6 @@
 
 namespace Backend\ReaderWorkspaces;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\DriverException;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Components;
@@ -14,11 +13,11 @@ use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
 use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackendDBAL;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
+use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 use Keboola\Test\Utils\PemKeyCertificateGenerator;
 use Keboola\Test\Utils\SnowflakeConnectionUtils;
 
-class WorkspacesReaderTest extends ParallelWorkspacesTestCase
+class WorkspacesReaderTest extends WorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
     use WorkspaceCredentialsAssertTrait;
@@ -41,12 +40,6 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
             foreach ($component['configurations'] as $configuration) {
                 $components->deleteConfiguration($component['id'], $configuration['id']);
             }
-        }
-
-        $workspaces = new Workspaces($this->_client);
-        $filteredReaderWorkspaces = array_filter($workspaces->listWorkspaces(), static fn ($workspace) => $workspace['platformUsageType'] === 'reader');
-        foreach ($filteredReaderWorkspaces as $workspace) {
-            $workspaces->deleteWorkspace($workspace['id']);
         }
     }
 
@@ -190,7 +183,7 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
         $organizationId = $verifiedToken['organization']['id'];
         $result = $backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
 
-        self::assertTrue(count($result) === 1);
+        self::assertCount(1, $result);
 
         $workspaces->deleteWorkspace($workspaceId);
 
@@ -199,12 +192,12 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
             $connection->executeQuery('SELECT 1;');
             $this->fail('Removed workspace should not be accessible');
         } catch (DriverException $driverException) {
-            // Should throw exception
+            self::assertStringContainsString('Session no longer exists', $driverException->getMessage());
         }
 
         $result = $backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
 
-        self::assertTrue(count($result) === 0);
+        self::assertCount(0, $result);
     }
 
     private function prepareWorkspace(): array
