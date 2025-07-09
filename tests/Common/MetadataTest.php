@@ -1084,13 +1084,25 @@ class MetadataTest extends StorageApiTestCase
         $object = ($apiEndpoint === 'bucket') ? $bucketId : $bucketId . $object;
 
         // test invalid number
-        try {
-            $this->deleteMetadata($apiEndpoint, $object, 9999999);
-            $this->fail('Invalid metadataId');
-        } catch (ClientException $e) {
-            $this->assertEquals(404, $e->getCode());
-            $this->assertEquals('storage.metadata.notFound', $e->getStringCode());
-            $this->assertEquals(sprintf('Metadata "9999999" not found for bucket "%s".', $this->getTestBucketId()), $e->getMessage());
+        if ($apiEndpoint === 'buckets') {
+            // test this on migrated endpoint
+            try {
+                $this->deleteMetadata($apiEndpoint, $object, 9999999);
+                $this->fail('Invalid metadataId');
+            } catch (ClientException $e) {
+                $this->assertEquals(404, $e->getCode());
+                $this->assertEquals('storage.metadata.notFound', $e->getStringCode());
+                $this->assertEquals(sprintf('Metadata "9999999" not found for bucket "%s".', $this->getTestBucketId()), $e->getMessage());
+            }
+        } else {
+            try {
+                $this->deleteMetadata($apiEndpoint, $object, 9999999);
+                $this->fail('Invalid metadataId');
+            } catch (ClientException $e) {
+                $this->assertEquals(404, $e->getCode());
+                $this->assertEquals('storage.metadata.notFound', $e->getStringCode());
+                $this->assertEquals('The supplied metadata ID was not found', $e->getMessage());
+            }
         }
 
         // test null
