@@ -26,7 +26,6 @@ class WorkspacesReaderTest extends WorkspacesTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->initEmptyTestBucketsForParallelTests();
 
         $components = new Components($this->_client);
         foreach ($components->listComponents() as $component) {
