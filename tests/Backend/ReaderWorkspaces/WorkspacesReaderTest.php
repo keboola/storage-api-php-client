@@ -1,6 +1,6 @@
 <?php
 
-namespace Backend\Snowflake;
+namespace Backend\ReaderWorkspaces;
 
 use Doctrine\DBAL\Exception\DriverException;
 use Keboola\Csv\CsvFile;
@@ -11,20 +11,21 @@ use Keboola\StorageApi\WorkspaceLoginType;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
+use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackendDBAL;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
+use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 use Keboola\Test\Utils\PemKeyCertificateGenerator;
+use Keboola\Test\Utils\SnowflakeConnectionUtils;
 
-class WorkspacesReaderTest extends ParallelWorkspacesTestCase
+class WorkspacesReaderTest extends WorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
     use WorkspaceCredentialsAssertTrait;
-
+    use SnowflakeConnectionUtils;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->initEmptyTestBucketsForParallelTests();
 
         $components = new Components($this->_client);
         foreach ($components->listComponents() as $component) {
@@ -43,33 +44,8 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
 
     public function testLoadToReaderAccount(): void
     {
-        $componentId = 'wr-db';
-        $configurationId = 'main-1';
-        $defaultBranchId = $this->getDefaultBranchId($this);
-        $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
-        // create configuration
-        $components = new Components($branchClient);
-        $components->addConfiguration((new Configuration())
-            ->setComponentId('wr-db')
-            ->setConfigurationId('main-1')
-            ->setName('readerWS')
-            ->setDescription('some desc'));
-
-        $components = new Components($branchClient);
-        $workspaces = new Workspaces($branchClient);
-
-        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
-
-        $workspace = $components->createConfigurationWorkspace(
-            $componentId,
-            $configurationId,
-            [
-                'useCase' => 'reader',
-                'backend' => 'snowflake',
-                'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
-                'publicKey' => $key->getPublicKey(),
-            ],
-        );
+        $workspaces = $this->createWorkspaces();
+        $workspace = $this->prepareWorkspace();
 
         //setup test tables
         $tableId = $this->_client->createTableAsync(
@@ -95,51 +71,27 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
             ],
         ]);
 
-        $workspace['connection']['privateKey'] = $key->getPrivateKey();
-
         // create the connection after LOAD!! because the schema will be created by LOAD
-        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace, true);
+        $db = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
 
         $data = $db->fetchAll('languages');
         $this->assertCount(5, $data);
 
         $data = $db->fetchAll('languages_filtered');
         $this->assertCount(1, $data);
+
+        // Ensure workspace is removed correctly and reader account is deleted
+        $this->ensureWorkspaceIsRemoved($workspaces, $db, (int) $workspace['id']);
     }
 
     public function testLoadCloneToReaderAccount(): void
     {
-        $componentId = 'wr-db';
-        $configurationId = 'main-1';
-        $defaultBranchId = $this->getDefaultBranchId($this);
-        $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
-        // create configuration
-        $components = new Components($branchClient);
-        $components->addConfiguration((new Configuration())
-            ->setComponentId('wr-db')
-            ->setConfigurationId('main-1')
-            ->setName('readerWS_clone')
-            ->setDescription('some desc'));
-
-        $components = new Components($branchClient);
-        $workspaces = new Workspaces($branchClient);
-
-        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
-
-        $workspace = $components->createConfigurationWorkspace(
-            $componentId,
-            $configurationId,
-            [
-                'useCase' => 'reader',
-                'backend' => 'snowflake',
-                'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
-                'publicKey' => $key->getPublicKey(),
-            ],
-        );
+        $workspaces = $this->createWorkspaces();
+        $workspace = $this->prepareWorkspace();
 
         //setup test tables
         $tableId = $this->_client->createTableAsync(
-            $this->getTestBucketId(self::STAGE_IN),
+            $this->getTestBucketId(),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
@@ -157,53 +109,26 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
             ],
         ]);
 
-        $workspace['connection']['privateKey'] = $key->getPrivateKey();
-
         // create the connection after LOAD!! because the schema will be created by LOAD
-        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace, true);
+        $db = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
 
         $data = $db->fetchAll('languages');
         $this->assertCount(5, $data);
 
         $data = $db->fetchAll('langs');
         $this->assertCount(5, $data);
+
+        // Ensure workspace is removed correctly and reader account is deleted
+        $this->ensureWorkspaceIsRemoved($workspaces, $db, (int) $workspace['id']);
     }
 
     public function testResetPublicKeyForReaderWorkspace(): void
     {
-        $this->expectNotToPerformAssertions();
+        $workspaces = $this->createWorkspaces();
+        $workspace = $this->prepareWorkspace();
 
-        $componentId = 'wr-db';
-        $configurationId = 'main-1';
-        $defaultBranchId = $this->getDefaultBranchId($this);
-        $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
-        // create configuration
-        $components = new Components($branchClient);
-        $components->addConfiguration((new Configuration())
-            ->setComponentId('wr-db')
-            ->setConfigurationId('main-1')
-            ->setName('readerWS')
-            ->setDescription('some desc'));
-
-        $components = new Components($branchClient);
-        $workspaces = new Workspaces($branchClient);
-
-        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
-
-        $workspace = $components->createConfigurationWorkspace(
-            $componentId,
-            $configurationId,
-            [
-                'useCase' => 'reader',
-                'backend' => 'snowflake',
-                'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
-                'publicKey' => $key->getPublicKey(),
-            ],
-        );
-
-        //setup test tables
         $tableId = $this->_client->createTableAsync(
-            $this->getTestBucketId(self::STAGE_IN),
+            $this->getTestBucketId(),
             'languages',
             new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
@@ -222,7 +147,6 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
         ]);
 
         // create the connection after LOAD!! because the schema will be created by LOAD
-        $workspace['connection']['privateKey'] = $key->getPrivateKey();
         $connection = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
         $connection->executeQuery('SELECT 1;');
 
@@ -246,5 +170,74 @@ class WorkspacesReaderTest extends ParallelWorkspacesTestCase
         // New should be working always
         $newConnection->getDb()->close();
         $newConnection->getDb()->executeQuery('SELECT 1;');
+
+        // Ensure workspace is removed correctly and reader account is deleted
+        $this->ensureWorkspaceIsRemoved($workspaces, $newConnection, (int) $workspace['id']);
+    }
+
+    private function ensureWorkspaceIsRemoved(Workspaces $workspaces, SnowflakeWorkspaceBackendDBAL $connection, int $workspaceId): void
+    {
+        $backendConnection = $this->ensureSnowflakeConnection();
+        $verifiedToken = $this->_client->verifyToken();
+        $organizationId = $verifiedToken['organization']['id'];
+        $result = $backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
+
+        self::assertCount(1, $result);
+
+        $workspaces->deleteWorkspace($workspaceId);
+
+        // Cannot execute query on removed workspace
+        try {
+            $connection->executeQuery('SELECT 1;');
+            $this->fail('Removed workspace should not be accessible');
+        } catch (DriverException $driverException) {
+            self::assertStringContainsString('Session no longer exists', $driverException->getMessage());
+        }
+
+        $result = $backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
+
+        self::assertCount(0, $result);
+    }
+
+    private function prepareWorkspace(): array
+    {
+        $componentId = 'wr-db';
+        $configurationId = 'main-1';
+        $defaultBranchId = $this->getDefaultBranchId($this);
+        $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
+        // create configuration
+        $components = new Components($branchClient);
+        $components->addConfiguration((new Configuration())
+            ->setComponentId('wr-db')
+            ->setConfigurationId('main-1')
+            ->setName('readerWS')
+            ->setDescription('some desc'));
+
+        $components = new Components($branchClient);
+
+        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
+
+        $workspace = $components->createConfigurationWorkspace(
+            $componentId,
+            $configurationId,
+            [
+                'useCase' => 'reader',
+                'backend' => 'snowflake',
+                'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
+                'publicKey' => $key->getPublicKey(),
+            ],
+        );
+
+        $workspace['connection']['privateKey'] = $key->getPrivateKey();
+
+        return $workspace;
+    }
+
+    private function createWorkspaces(): Workspaces
+    {
+        $defaultBranchId = $this->getDefaultBranchId($this);
+        $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
+
+        return new Workspaces($branchClient);
     }
 }
