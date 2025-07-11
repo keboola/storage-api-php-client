@@ -4715,6 +4715,7 @@ It means that endpoint `GET /v2/storage/workspaces` is the same as `GET /v2/stor
 
 ### Create Workspace [POST /v2/storage/workspaces?async={async}]
 Creates a new workspace and return its credentials.
+NOTE: To create reader workspace, use Create Configuration Workspaces endpoint instead.
 
 + Parameters
     + async (optional, boolean) - Create workspace in a background job. Calling the parameter as `async=false` is deprecated.
