@@ -1,6 +1,6 @@
 ARG PHP_VERSION=8.1
 # the default env bellow is used when build pipeline sends "PHP_VERSION=" - the above default value is ignored in that case
-FROM php:${PHP_VERSION:-8.1}-cli-buster AS dev
+FROM php:${PHP_VERSION:-8.1}-cli-bullseye AS dev
 MAINTAINER Martin Halamicek <martin@keboola.com>
 ENV DEBIAN_FRONTEND noninteractive
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
@@ -22,7 +22,7 @@ ENV LANG=C.UTF-8
 RUN apt-get update -q \
     && apt-get install gnupg -y --no-install-recommends \
     && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-    && curl https://packages.microsoft.com/config/debian/9/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update -q \
     && ACCEPT_EULA=Y apt-get install \
         unzip \
