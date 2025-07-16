@@ -19,6 +19,7 @@ class WorkspaceDetailTest extends ParallelWorkspacesTestCase
         $readOnlyWorkspaces = new Workspaces($readOnlyClient);
 
         // Try to get workspace detail
+        $readOnlyWorkspaces->listWorkspaces();
         $workspaceDetail = $readOnlyWorkspaces->getWorkspace($workspace['id']);
 
         // Assert that workspace detail is returned and does not contain sensitive info
