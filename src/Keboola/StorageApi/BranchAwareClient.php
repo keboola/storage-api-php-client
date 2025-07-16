@@ -8,6 +8,7 @@ class BranchAwareClient extends Client
 {
     private const START_ENDPOINTS_WITHOUT_BRANCH = [
         'jobs', // get list - jobs are are only in main branch
+        'scheduled-tasks', // Scheduled tasks has no direct relation to any branch.
         'snapshot', // get delete - snapshots are created for all tables in main branch
         'triggers', // post, put, get, list, delete - triggers are not supported in branches
         'tickets', // id generator is only in main branch
