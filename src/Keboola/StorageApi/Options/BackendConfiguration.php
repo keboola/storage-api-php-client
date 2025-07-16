@@ -6,16 +6,10 @@ namespace Keboola\StorageApi\Options;
 
 class BackendConfiguration
 {
-    private ?string $context;
-
-    private ?string $size;
-
     public function __construct(
-        ?string $context = null,
-        ?string $size = null
+        public readonly ?string $context = null,
+        public readonly ?string $size = null
     ) {
-        $this->context = $context;
-        $this->size = $size;
     }
 
     /**
