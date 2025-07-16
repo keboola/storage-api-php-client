@@ -1,6 +1,6 @@
 <?php
 
-namespace Common;
+namespace Keboola\Test\Common;
 
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\ParallelWorkspacesTestCase;
