@@ -1492,6 +1492,44 @@ Asynchronous call response that creates a new job. To see job detail use [Job De
                 }
             }
 
+
+### Schedule bucket refresh [POST /v2/storage/branch/{branch_id}/buckets/{bucket_id}/scheduled-tasks/refresh]
+
+**EXPERIMENTAL**
+
+Schedule external bucket refresh to given time or repeating period defined by cron expression.
+
++ Parameters
+    + branch_id (required) - Branch Id
+    + bucket_id (required) - Bucket Id
+
++ Request
+    + Headers
+
+            Content-Type: application/json
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+                "cronExpression": "42 13 * * *"
+            }
+
++ Response 201 (application/json)
+
+    Return scheduled task data.
+
+    + Body
+
+           {
+                "uuid": "0197e22b-379d-7c62-bc6d-88e50c3d0c75",
+                "job": "bucketRefresh",
+                "relatedEntity": "bucket",
+                "relatedId": "in.c-bucket-name",
+                "cronExpression": "42 13 * * *",
+                "createdAt": "2025-07-01T00:08:00+02:00"
+            }
+
 ### Bucket Tables Information Refresh [POST /v2/storage/branch/{branch_id}/buckets/{bucket_id}/refresh-tables-info]
 Refresh tables information in bucket. For **Snowflake** backend only. Aliases with source table in the defined bucket are also refreshed. If alias in the discussed bucket has source table in another bucket, it won't be refreshed.
 
@@ -8567,6 +8605,21 @@ Returns all workspaces for the component configuration in [Development Branch](#
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 + Response 200 (application/json)
+
+# Group Scheduled tasks
+
+# Scheduled tasks [/v2/storage/scheduled-tasks]
+
+## Delete task [DELETE /v2/storage/scheduled-tasks/{task_id}]
+
++ Parameters
+    + taks_id (required) - UUID of scheduled task to delete.
+
++ Request
+    + Headers
+        X-StorageApi-Token: your_token
+
++ Response 204
 
 # Group Search
 ## Search Tables [/v2/storage/search/tables?metadataKey={metadataKey}&metadataValue={metadataValue}&metadataProvider={metadataProvider}&include={include}]
