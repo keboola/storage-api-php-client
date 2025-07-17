@@ -14,7 +14,6 @@ use Keboola\StorageApi\WorkspaceLoginType;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
-use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackendDBAL;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 use Keboola\Test\Utils\PemKeyCertificateGenerator;
@@ -372,20 +371,22 @@ class WorkspacesReaderTest extends WorkspacesTestCase
 
     private static function ensureReaderAccountIsRemoved(): void
     {
-        $verifiedToken = self::$client->verifyToken();
-        $organizationId = $verifiedToken['organization']['id'];
+        $verifiedToken = self::$client?->verifyToken();
+        $organizationId = $verifiedToken['organization']['id'] ?? '';
 
-        $result = self::$backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
+        $result = self::$backendConnection?->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';") ?? [];
 
         self::assertCount(0, $result);
     }
 
     public static function tearDownAfterClass(): void
     {
-        $workspaces = new Workspaces(self::$client);
-        $filteredReaderWorkspaces = array_filter($workspaces->listWorkspaces(), static fn ($workspace) => $workspace['platformUsageType'] === 'reader');
-        foreach ($filteredReaderWorkspaces as $workspace) {
-            $workspaces->deleteWorkspace($workspace['id']);
+        if (self::$client !== null) {
+            $workspaces = new Workspaces(self::$client);
+            $filteredReaderWorkspaces = array_filter($workspaces->listWorkspaces(), static fn ($workspace) => $workspace['platformUsageType'] === 'reader');
+            foreach ($filteredReaderWorkspaces as $workspace) {
+                $workspaces->deleteWorkspace($workspace['id']);
+            }
         }
 
         // ensure the workspace and the reader account is cleaned up.
