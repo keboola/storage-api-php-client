@@ -13,11 +13,13 @@ use Keboola\Test\StorageApiTestCase;
 
 abstract class WorkspacesTestCase extends StorageApiTestCase
 {
-    public function setUp(): void
+    public function setUp(bool $deleteWorkspaces = true): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
-        $this->deleteAllWorkspaces();
+        if ($deleteWorkspaces) {
+            $this->deleteAllWorkspaces();
+        }
     }
 
     private function deleteAllWorkspaces()
