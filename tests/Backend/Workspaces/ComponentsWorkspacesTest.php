@@ -12,7 +12,7 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class ComponentsWorkspacesTest extends WorkspacesTestCase
 {
-    public function setUp(): void
+    public function setUp(bool $deleteWorkspaces = true): void
     {
         parent::setUp();
 
