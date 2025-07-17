@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Test\Backend\CommonPart1;
+namespace Keboola\Test\Backend\ExternalBuckets;
 
 use DateTime;
 use DateTimeInterface;
