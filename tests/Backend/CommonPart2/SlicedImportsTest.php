@@ -26,6 +26,7 @@ class SlicedImportsTest extends StorageApiTestCase
 
     public function testSlicedImportGzipped(): void
     {
+        $this->expectNotToPerformAssertions();
         $slices = [
             __DIR__ . '/../../_data/sliced/neco_0000_part_00.gz',
             __DIR__ . '/../../_data/sliced/neco_0001_part_00.gz',
