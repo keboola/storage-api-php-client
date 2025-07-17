@@ -133,6 +133,7 @@
 		<file>tests/Backend/Snowflake/CopyIntoWorkspaceTest.php</file>
 		<file>tests/Backend/Export/ExportParamsTest.php</file>
 		<file>tests/Backend/ExternalBuckets/SnowflakeRegisterBucketTest.php</file>
+		<file>tests/Backend/ExternalBuckets/ScheduledTasksTest.php</file>
 	</testsuite>
 
 	<testsuite name="paratest-backend-snowflake-part-1">
