@@ -2,9 +2,11 @@
 
 namespace Backend\ReaderWorkspaces;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\DriverException;
 use Exception;
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
@@ -24,9 +26,13 @@ class WorkspacesReaderTest extends WorkspacesTestCase
     use WorkspaceCredentialsAssertTrait;
     use SnowflakeConnectionUtils;
 
-    public function setUp(): void
+    private static ?Client $client = null;
+
+    private static ?Connection $backendConnection = null;
+
+    public function setUp(bool $deleteWorkspaces = false): void
     {
-        parent::setUp();
+        parent::setUp($deleteWorkspaces);
 
         $components = new Components($this->_client);
         foreach ($components->listComponents() as $component) {
@@ -41,35 +47,26 @@ class WorkspacesReaderTest extends WorkspacesTestCase
                 $components->deleteConfiguration($component['id'], $configuration['id']);
             }
         }
+
+        if (self::$client === null) {
+            self::$client = $this->_client;
+        }
+
+        if (self::$backendConnection === null) {
+            self::$backendConnection = $this->ensureSnowflakeConnection();
+        }
     }
 
     public function testDenyCreateReaderWorkspaceWithDifferentBackend(): void
     {
-        $componentId = 'wr-db';
-        $configurationId = 'main-1';
-        $defaultBranchId = $this->getDefaultBranchId($this);
-        $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
-        // create configuration
-        $components = new Components($branchClient);
-        $components->addConfiguration((new Configuration())
-            ->setComponentId('wr-db')
-            ->setConfigurationId('main-1')
-            ->setName('readerWS')
-            ->setDescription('some desc'));
-
-        $components = new Components($branchClient);
-
         try {
-            $components->createConfigurationWorkspace(
-                $componentId,
-                $configurationId,
-                [
-                    'useCase' => 'reader',
-                    'backend' => 'bigquery',
-                    'loginType' => WorkspaceLoginType::DEFAULT,
-                ],
-            );
-            $this->fail('Creating a reader workspace with a backend other than Snowflake should fail.');
+            $this->prepareWorkspace([
+                'useCase' => 'reader',
+                'backend' => 'bigquery',
+                'loginType' => WorkspaceLoginType::DEFAULT,
+            ]);
+
+            self::fail('Creating a reader workspace with a backend other than Snowflake should fail.');
         } catch (Exception $exception) {
             self::assertStringContainsString('Reader workspace is only supported for Snowflake backend, got "bigquery".', $exception->getMessage());
         }
@@ -112,40 +109,12 @@ class WorkspacesReaderTest extends WorkspacesTestCase
 
         $data = $db->fetchAll('languages_filtered');
         $this->assertCount(1, $data);
-
-        // Ensure workspace is removed correctly and reader account is deleted
-        $this->ensureWorkspaceIsRemoved($workspaces, $db, (int) $workspace['id']);
     }
 
     public function testDenyUnloadOnReaderWorkspace(): void
     {
-        $componentId = 'wr-db';
-        $configurationId = 'main-1';
-        $defaultBranchId = $this->getDefaultBranchId($this);
-        $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
-        // create configuration
-        $components = new Components($branchClient);
-        $components->addConfiguration((new Configuration())
-            ->setComponentId('wr-db')
-            ->setConfigurationId('main-1')
-            ->setName('readerWS')
-            ->setDescription('some desc'));
-
-        $components = new Components($branchClient);
-        $workspaces = new Workspaces($branchClient);
-
-        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
-
-        $workspace = $components->createConfigurationWorkspace(
-            $componentId,
-            $configurationId,
-            [
-                'useCase' => 'reader',
-                'backend' => 'snowflake',
-                'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
-                'publicKey' => $key->getPublicKey(),
-            ],
-        );
+        $workspaces = $this->createWorkspaces();
+        $workspace = $this->prepareWorkspace();
 
         //setup test tables
         $tableId = $this->_client->createTableAsync(
@@ -180,7 +149,7 @@ class WorkspacesReaderTest extends WorkspacesTestCase
                     'columns' => ['id', 'name'],
                 ],
             );
-            $this->fail('Writing to a table in a reader workspace should fail.');
+            self::fail('Writing to a table in a reader workspace should fail.');
         } catch (Exception $exception) {
             self::assertStringContainsString('Table import for reader workspaces is not supported.', $exception->getMessage());
         }
@@ -188,33 +157,8 @@ class WorkspacesReaderTest extends WorkspacesTestCase
 
     public function testDenyExecuteQueryOnReaderWorkspace(): void
     {
-        $componentId = 'wr-db';
-        $configurationId = 'main-1';
-        $defaultBranchId = $this->getDefaultBranchId($this);
-        $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
-        // create configuration
-        $components = new Components($branchClient);
-        $components->addConfiguration((new Configuration())
-            ->setComponentId('wr-db')
-            ->setConfigurationId('main-1')
-            ->setName('readerWS')
-            ->setDescription('some desc'));
-
-        $components = new Components($branchClient);
-        $workspaces = new Workspaces($branchClient);
-
-        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
-
-        $workspace = $components->createConfigurationWorkspace(
-            $componentId,
-            $configurationId,
-            [
-                'useCase' => 'reader',
-                'backend' => 'snowflake',
-                'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
-                'publicKey' => $key->getPublicKey(),
-            ],
-        );
+        $workspaces = $this->createWorkspaces();
+        $workspace = $this->prepareWorkspace();
 
         //setup test tables
         $tableId = $this->_client->createTableAsync(
@@ -245,7 +189,7 @@ class WorkspacesReaderTest extends WorkspacesTestCase
                 $workspace['id'],
                 'SELECT * FROM languages',
             );
-            $this->fail('Executing query on reader workspace should fail.');
+            self::fail('Executing query on reader workspace should fail.');
         } catch (Exception $exception) {
             self::assertStringContainsString('Custom query execution is not supported for reader workspace.', $exception->getMessage());
         }
@@ -253,33 +197,8 @@ class WorkspacesReaderTest extends WorkspacesTestCase
 
     public function testDenyDeleteRowsOnReaderWorkspace(): void
     {
-        $componentId = 'wr-db';
-        $configurationId = 'main-1';
-        $defaultBranchId = $this->getDefaultBranchId($this);
-        $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
-        // create configuration
-        $components = new Components($branchClient);
-        $components->addConfiguration((new Configuration())
-            ->setComponentId('wr-db')
-            ->setConfigurationId('main-1')
-            ->setName('readerWS')
-            ->setDescription('some desc'));
-
-        $components = new Components($branchClient);
-        $workspaces = new Workspaces($branchClient);
-
-        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
-
-        $workspace = $components->createConfigurationWorkspace(
-            $componentId,
-            $configurationId,
-            [
-                'useCase' => 'reader',
-                'backend' => 'snowflake',
-                'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
-                'publicKey' => $key->getPublicKey(),
-            ],
-        );
+        $workspaces = $this->createWorkspaces();
+        $workspace = $this->prepareWorkspace();
 
         //setup test tables
         $tableId = $this->_client->createTableAsync(
@@ -318,7 +237,7 @@ class WorkspacesReaderTest extends WorkspacesTestCase
                     ],
                 ],
             ]);
-            $this->fail('Deleting rows from a table in a reader workspace should fail.');
+            self::fail('Deleting rows from a table in a reader workspace should fail.');
         } catch (Exception $exception) {
             self::assertStringContainsString('Cannot delete rows from a table in a reader workspace.', $exception->getMessage());
         }
@@ -357,9 +276,6 @@ class WorkspacesReaderTest extends WorkspacesTestCase
 
         $data = $db->fetchAll('langs');
         $this->assertCount(5, $data);
-
-        // Ensure workspace is removed correctly and reader account is deleted
-        $this->ensureWorkspaceIsRemoved($workspaces, $db, (int) $workspace['id']);
     }
 
     public function testResetPublicKeyForReaderWorkspace(): void
@@ -402,44 +318,17 @@ class WorkspacesReaderTest extends WorkspacesTestCase
         try {
             $connection->getDb()->close();
             $connection->getDb()->executeQuery('SELECT 1;');
-            $this->fail('Old key should not work');
+            self::fail('Old key should not work');
         } catch (DriverException $driverException) {
-            // Should throw exception
+            self::assertStringContainsString('JWT token is invalid', $driverException->getMessage());
         }
 
         // New should be working always
         $newConnection->getDb()->close();
         $newConnection->getDb()->executeQuery('SELECT 1;');
-
-        // Ensure workspace is removed correctly and reader account is deleted
-        $this->ensureWorkspaceIsRemoved($workspaces, $newConnection, (int) $workspace['id']);
     }
 
-    private function ensureWorkspaceIsRemoved(Workspaces $workspaces, SnowflakeWorkspaceBackendDBAL $connection, int $workspaceId): void
-    {
-        $backendConnection = $this->ensureSnowflakeConnection();
-        $verifiedToken = $this->_client->verifyToken();
-        $organizationId = $verifiedToken['organization']['id'];
-        $result = $backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
-
-        self::assertCount(1, $result);
-
-        $workspaces->deleteWorkspace($workspaceId);
-
-        // Cannot execute query on removed workspace
-        try {
-            $connection->executeQuery('SELECT 1;');
-            $this->fail('Removed workspace should not be accessible');
-        } catch (DriverException $driverException) {
-            self::assertStringContainsString('Session no longer exists', $driverException->getMessage());
-        }
-
-        $result = $backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
-
-        self::assertCount(0, $result);
-    }
-
-    private function prepareWorkspace(): array
+    private function prepareWorkspace(?array $options = null): array
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -460,7 +349,7 @@ class WorkspacesReaderTest extends WorkspacesTestCase
         $workspace = $components->createConfigurationWorkspace(
             $componentId,
             $configurationId,
-            [
+            $options ?? [
                 'useCase' => 'reader',
                 'backend' => 'snowflake',
                 'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
@@ -479,5 +368,27 @@ class WorkspacesReaderTest extends WorkspacesTestCase
         $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
 
         return new Workspaces($branchClient);
+    }
+
+    private static function ensureReaderAccountIsRemoved(): void
+    {
+        $verifiedToken = self::$client->verifyToken();
+        $organizationId = $verifiedToken['organization']['id'];
+
+        $result = self::$backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
+
+        self::assertCount(0, $result);
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        $workspaces = new Workspaces(self::$client);
+        $filteredReaderWorkspaces = array_filter($workspaces->listWorkspaces(), static fn ($workspace) => $workspace['platformUsageType'] === 'reader');
+        foreach ($filteredReaderWorkspaces as $workspace) {
+            $workspaces->deleteWorkspace($workspace['id']);
+        }
+
+        // ensure the workspace and the reader account is cleaned up.
+        self::ensureReaderAccountIsRemoved();
     }
 }
