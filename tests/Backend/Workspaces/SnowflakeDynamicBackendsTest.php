@@ -387,6 +387,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             'incremental' => true,
         ]);
         // There is no way to assert the warehouse used for import.
-        // You can only check it in the UI in Snowflake's QueryHistory or in SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
+        // You can only check it in the UI in Snowflake's QueryHistory or in SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY.
+        // You should see the warehouse with suffix "_TESTSIZE" in the name.
     }
 }
