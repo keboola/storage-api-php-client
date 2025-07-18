@@ -57,6 +57,8 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
         foreach ($this->listTestWorkspaces($this->client2) as $workspace) {
             $this->workspaces2->deleteWorkspace($workspace['id'], [], true);
         }
+
+        $this->initEmptyTestBucketsForParallelTests();
     }
 
     /**
@@ -340,5 +342,52 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             $data,
             'id',
         );
+    }
+
+    public function testImportToStorageFromWorkspaceWithDynamicBackend(): void
+    {
+        // trying to add columns on the fly on SNFLK "typed" table
+        $tableDefinition = [
+            'name' => 'MOJE_SUPERKULATOUCKA_TABULECKA',
+            'primaryKeysNames' => ['mujesuperhranateid'],
+            'columns' => [
+                [
+                    'name' => 'mujesuperhranateid',
+                    'basetype' => 'INTEGER',
+                ],
+                [
+                    'name' => 'name',
+                    'basetype' => 'STRING',
+                ],
+            ],
+        ];
+
+        $typedTableId = $this->_client->createTableDefinition($this->getTestBucketId(), $tableDefinition);
+
+        $workspaces = $this->workspaces;
+
+        // 1. Create workspace with dynamic backend size 'testsize'
+        $workspace = $workspaces->createWorkspace([
+            'backend' => StorageApiTestCase::BACKEND_SNOWFLAKE,
+            'backendSize' => 'testsize',
+        ]);
+        $this->assertSame('testsize', $workspace['backendSize']);
+
+        // 2. Prepare table in workspace
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $tableName = 'MOJE_SUPERKULATOUCKA_TABULECKA';
+        $backend->createTable($tableName, ['mujesuperhranateid' => 'INTEGER', 'name' => 'VARCHAR']);
+        $this->assertCount(1, $backend->getTables());
+        $backend->executeQuery("INSERT INTO MOJE_SUPERKULATOUCKA_TABULECKA VALUES (1, 'martin');");
+
+        // 3. Import table from workspace to storage
+        $this->_client->writeTableAsyncDirect($typedTableId, [
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => 'MOJE_SUPERKULATOUCKA_TABULECKA',
+            'incremental' => true,
+        ]);
+        // There is no way to assert the warehouse used for import.
+        // You can only check it in the UI in Snowflake's QueryHistory or in SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY.
+        // You should see the warehouse with suffix "_TESTSIZE" in the name.
     }
 }
