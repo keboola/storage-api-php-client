@@ -1345,13 +1345,23 @@ Obtains information about a bucket.
                     }
                 ],
                 "metadata": [
-                      {
-                            "id": "206180828",
-                            "key": "KBC.createdBy.component.id",
-                            "value": "keboola.ex-db-snowflake",
-                            "provider": "user",
-                            "timestamp": "2019-08-12T14:36:08+0200"
-                        }
+                    {
+                        "id": "206180828",
+                        "key": "KBC.createdBy.component.id",
+                        "value": "keboola.ex-db-snowflake",
+                        "provider": "user",
+                        "timestamp": "2019-08-12T14:36:08+0200"
+                    }
+                ],
+                "scheduledTasks": [
+                    {
+                        "uuid": "0197e22b-379d-7c62-bc6d-88e50c3d0c75",
+                        "job": "bucketRefresh",
+                        "relatedEntity": "bucket",
+                        "relatedId": "in.c-ga",
+                        "cronExpression": "32 16 * * *",
+                        "createdAt": "2025-07-14T00:13:00+02:00"
+                    }
                 ],
                 "owner": {
                     "id": 123,
@@ -1521,7 +1531,7 @@ Schedule external bucket refresh to given time or repeating period defined by cr
 
     + Body
 
-           {
+            {
                 "uuid": "0197e22b-379d-7c62-bc6d-88e50c3d0c75",
                 "job": "bucketRefresh",
                 "relatedEntity": "bucket",
