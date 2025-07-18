@@ -362,7 +362,6 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             ],
         ];
 
-        // RS does not support typed tables
         $typedTableId = $this->_client->createTableDefinition($this->getTestBucketId(), $tableDefinition);
 
         $workspaces = $this->workspaces;
@@ -387,5 +386,7 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             'dataTableName' => 'MOJE_SUPERKULATOUCKA_TABULECKA',
             'incremental' => true,
         ]);
+        // There is no way to assert the warehouse used for import.
+        // You can only check it in the UI in Snowflake's QueryHistory or in SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
     }
 }
