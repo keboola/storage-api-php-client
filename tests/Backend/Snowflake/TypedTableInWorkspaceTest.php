@@ -178,6 +178,7 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
         $this->_client->writeTableAsyncDirect($this->tableId, [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => $tableId,
+            'ctasOutputMapping' => true,
         ]);
         $eventAssertCallback = function ($events) {
             $this->assertCount(1, $events);
