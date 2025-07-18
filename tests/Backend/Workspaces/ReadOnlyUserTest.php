@@ -18,17 +18,19 @@ class ReadOnlyUserTest extends ParallelWorkspacesTestCase
 
         $readOnlyWorkspaces = new Workspaces($readOnlyClient);
 
-        try {
-            $readOnlyWorkspaces->createWorkspace([], true);
-            $this->fail('Workspace request should be restricted for readOnly user');
-        } catch (ClientException $e) {
-            $this->assertSame(403, $e->getCode());
-            $this->assertSame('accessDenied', $e->getStringCode());
-            $this->assertSame($expectedError, $e->getMessage());
-        }
+        // Try to get workspace detail
+        $workspaceDetail = $readOnlyWorkspaces->getWorkspace($workspace['id']);
+
+        // Assert that workspace detail is returned and does not contain sensitive info
+        $this->assertArrayHasKey('id', $workspaceDetail);
+        $this->assertEquals($workspace['id'], $workspaceDetail['id']);
+        $this->assertArrayNotHasKey('password', $workspaceDetail['connection']);
+
+        // listing workspaces should be allowed for readOnly user
+        $readOnlyWorkspaces->listWorkspaces();
 
         try {
-            $readOnlyWorkspaces->listWorkspaces();
+            $readOnlyWorkspaces->createWorkspace([], true);
             $this->fail('Workspace request should be restricted for readOnly user');
         } catch (ClientException $e) {
             $this->assertSame(403, $e->getCode());
