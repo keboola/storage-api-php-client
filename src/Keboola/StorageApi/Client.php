@@ -5,6 +5,7 @@ use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 use Google\Auth\FetchAuthTokenInterface;
 use Google\Cloud\Core\Exception\NotFoundException;
+use Google\Cloud\Storage\StorageClient as GoogleStorageClient;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
@@ -36,7 +37,7 @@ use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Options\FileUploadOptions;
-use Google\Cloud\Storage\StorageClient as GoogleStorageClient;
+use Throwable;
 
 /**
  * @phpstan-type StorageJob array{id: int, status: string, url: string, tableId: ?string, operationName: string, operationParams: array<string, mixed>, createdTime: string, startTime: ?string, endTime: ?string, runId: ?string, results: ?array<string, mixed>, creatorToken: array{id: ?string, description: ?string}, metrics: array{inCompressed: bool, inBytes: int, inBytesUncompressed: int, outCompressed: bool, outBytes: int, outBytesUncompressed: int}, error?: array{code: string, message: string, exceptionId: string, contextParams: ?array<mixed>, uuid: ?string}}
@@ -2438,22 +2439,9 @@ class Client
 
     private function downloadGcsSlicedFile(array $fileInfo, string $destinationFolder): array
     {
-        $options = [
-            'credentials' => [
-                'access_token' => $fileInfo['gcsCredentials']['access_token'],
-                'expires_in' => $fileInfo['gcsCredentials']['expires_in'],
-                'token_type' => $fileInfo['gcsCredentials']['token_type'],
-            ],
-            'projectId' => $fileInfo['gcsCredentials']['projectId'],
-        ];
-
-        $fetchAuthToken = $this->getAuthTokenClass($options['credentials']);
-        $gcsClient = new GoogleStorageClient([
-            'projectId' => $options['projectId'],
-            'credentialsFetcher' => $fetchAuthToken,
-        ]);
-
-        $retBucket = $gcsClient->bucket($fileInfo['gcsPath']['bucket']);
+        $bucket = $fileInfo['gcsPath']['bucket'];
+        $gcsClient = $this->getGcsClient($fileInfo['gcsCredentials']);
+        $retBucket = $gcsClient->bucket($bucket);
 
         if (!file_exists($destinationFolder)) {
             $fs = new Filesystem();
@@ -2471,14 +2459,34 @@ class Client
             $slices = [];
             /** @var array{url: string} $entry */
             foreach ($manifest['entries'] as $entry) {
-                $slices[] = $destinationFile = $destinationFolder . basename($entry['url']);
+                $destinationFile = $destinationFolder . basename($entry['url']);
+                $slices[] = $destinationFile;
 
                 $sprintf = sprintf(
                     '/%s/',
-                    $fileInfo['gcsPath']['bucket'],
+                    $bucket,
                 );
                 $blobPath = explode($sprintf, $entry['url']);
-                $retBucket->object($blobPath[1])->downloadToFile($destinationFile);
+
+                $downloaded = false;
+                $retry = 0;
+                $maxRetries = 2;
+                while (!$downloaded && $retry <= $maxRetries) {
+                    try {
+                        $retBucket->object($blobPath[1])->downloadToFile($destinationFile);
+                        $downloaded = true;
+                    } catch (ServiceException $e) {
+                        if ($e->getCode() === 401 && $retry < $maxRetries) {
+                            // Refresh credentials a znovu vytvoř klienta
+                            $newCreds = $this->refreshFileCredentials($fileInfo['id']);
+                            $gcsClient = $this->getGcsClient($newCreds['gcsCredentials']);
+                            $retBucket = $gcsClient->bucket($bucket);
+                            $retry++;
+                        } else {
+                            throw $e;
+                        }
+                    }
+                }
             }
         } catch (NotFoundException $e) {
             throw new ClientException(
@@ -2489,6 +2497,24 @@ class Client
         }
 
         return $slices;
+    }
+
+    private function getGcsClient(array $gcsCredentials): GoogleStorageClient
+    {
+        $options = [
+            'credentials' => [
+                'access_token' => $gcsCredentials['access_token'],
+                'expires_in' => $gcsCredentials['expires_in'],
+                'token_type' => $gcsCredentials['token_type'],
+            ],
+            'projectId' => $gcsCredentials['projectId'],
+        ];
+
+        $fetchAuthToken = $this->getAuthTokenClass($options['credentials']);
+        return new GoogleStorageClient([
+            'projectId' => $options['projectId'],
+            'credentialsFetcher' => $fetchAuthToken,
+        ]);
     }
 
     /**
