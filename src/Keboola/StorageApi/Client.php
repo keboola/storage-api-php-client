@@ -2479,16 +2479,11 @@ class Client
                         $this->logger->info(get_class($e) . ': ' . $e->getMessage());
                         $this->logger->info($e->getCode());
                         $this->logger->info($retry . ' < ' . $maxRetries);
-                        if ($retry < $maxRetries) {
-                            // Refresh credentials a znovu vytvoř klienta
-                            $newCreds = $this->refreshFileCredentials($fileInfo['id']);
-                            $this->logger->info(var_export($newCreds, true));
-                            $gcsClient = $this->getGcsClient($newCreds['gcsCredentials']);
-                            $retBucket = $gcsClient->bucket($bucket);
-                            $retry++;
-                        } else {
-                            throw $e;
-                        }
+                        // Refresh credentials a znovu vytvoř klienta
+                        $newCreds = $this->refreshFileCredentials($fileInfo['id']);
+                        $this->logger->info(var_export($newCreds, true));
+                        $gcsClient = $this->getGcsClient($newCreds['gcsCredentials']);
+                        $retBucket = $gcsClient->bucket($bucket);
                     }
                 }
             }
