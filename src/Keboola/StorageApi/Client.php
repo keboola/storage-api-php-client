@@ -2475,7 +2475,9 @@ class Client
                     try {
                         $retBucket->object($blobPath[1])->downloadToFile($destinationFile);
                         $downloaded = true;
-                    } catch (ServiceException $e) {
+                    } catch (Throwable $e) {
+                        $this->logger->info(get_class($e) . ': ' . $e->getMessage());
+                        $this->logger->info($e->getCode());
                         if ($e->getCode() === 401 && $retry < $maxRetries) {
                             // Refresh credentials a znovu vytvoř klienta
                             $newCreds = $this->refreshFileCredentials($fileInfo['id']);
