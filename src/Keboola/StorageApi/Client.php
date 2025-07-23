@@ -2478,9 +2478,11 @@ class Client
                     } catch (Throwable $e) {
                         $this->logger->info(get_class($e) . ': ' . $e->getMessage());
                         $this->logger->info($e->getCode());
-                        if ($e->getCode() === 401 && $retry < $maxRetries) {
+                        $this->logger->info($retry . ' < ' . $maxRetries);
+                        if ($retry < $maxRetries) {
                             // Refresh credentials a znovu vytvoř klienta
                             $newCreds = $this->refreshFileCredentials($fileInfo['id']);
+                            $this->logger->info(var_export($newCreds, true));
                             $gcsClient = $this->getGcsClient($newCreds['gcsCredentials']);
                             $retBucket = $gcsClient->bucket($bucket);
                             $retry++;
