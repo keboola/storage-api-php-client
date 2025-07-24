@@ -6,12 +6,14 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\DriverException;
 use Exception;
 use Keboola\Csv\CsvFile;
+use Keboola\Datatype\Definition\Snowflake;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\WorkspaceLoginType;
 use Keboola\StorageApi\Workspaces;
+use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
@@ -54,6 +56,19 @@ class WorkspacesReaderTest extends WorkspacesTestCase
         if (self::$backendConnection === null) {
             self::$backendConnection = $this->ensureSnowflakeConnection();
         }
+
+        // drop all reader workspaces before test
+        $workspaces = new Workspaces(self::$client);
+        $filteredReaderWorkspaces = array_filter($workspaces->listWorkspaces(), static fn($workspace) => $workspace['platformUsageType'] === 'reader');
+        foreach ($filteredReaderWorkspaces as $workspace) {
+            $workspaces->deleteWorkspace($workspace['id']);
+        }
+
+        // drop all readers accounts
+        self::dropReaderAccounts();
+
+        // ensure the workspace and the reader account is cleaned up.
+        self::ensureReaderAccountIsRemoved();
     }
 
     public function testDenyCreateReaderWorkspaceWithDifferentBackend(): void
@@ -369,27 +384,41 @@ class WorkspacesReaderTest extends WorkspacesTestCase
         return new Workspaces($branchClient);
     }
 
+    private static function dropReaderAccounts(): void
+    {
+        $accounts = self::fetchReadersAccountsForCurrentOrganization();
+
+        foreach ($accounts as $account) {
+            self::$backendConnection?->executeQuery(
+                sprintf('DROP MANAGED ACCOUNT %s;', $account['account_name']),
+            );
+        }
+    }
+
     private static function ensureReaderAccountIsRemoved(): void
+    {
+        $accounts = self::fetchReadersAccountsForCurrentOrganization();
+
+        self::assertCount(0, $accounts);
+    }
+
+    /**
+     * @return array<array{account_name: string}>
+     * @throws \Doctrine\DBAL\Exception
+     */
+    private static function fetchReadersAccountsForCurrentOrganization(): array
     {
         $verifiedToken = self::$client?->verifyToken();
         $organizationId = $verifiedToken['organization']['id'] ?? '';
 
-        $result = self::$backendConnection?->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';") ?? [];
+        /** @var array<array{account_name: string}> $result */
+        $result = self::$backendConnection?->fetchAllAssociative(
+            sprintf(
+                'SHOW MANAGED ACCOUNTS LIKE %s;',
+                SnowflakeQuote::quote(sprintf('%%_READER_ACCOUNT_%s', $organizationId)),
+            ),
+        ) ?? [];
 
-        self::assertCount(0, $result);
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        if (self::$client !== null) {
-            $workspaces = new Workspaces(self::$client);
-            $filteredReaderWorkspaces = array_filter($workspaces->listWorkspaces(), static fn($workspace) => $workspace['platformUsageType'] === 'reader');
-            foreach ($filteredReaderWorkspaces as $workspace) {
-                $workspaces->deleteWorkspace($workspace['id']);
-            }
-        }
-
-        // ensure the workspace and the reader account is cleaned up.
-        self::ensureReaderAccountIsRemoved();
+        return $result;
     }
 }
