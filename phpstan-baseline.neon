@@ -4241,11 +4241,6 @@ parameters:
 			path: tests/Backend/Workspaces/WorkspacesSynapseTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\WorkspacesTestCase\\:\\:deleteAllWorkspaces\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/WorkspacesTestCase.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\ClientTestCase\\:\\:getBranchAwareClient\\(\\) has parameter \\$branchId with no type specified\\.$#"
 			count: 1
 			path: tests/ClientTestCase.php
