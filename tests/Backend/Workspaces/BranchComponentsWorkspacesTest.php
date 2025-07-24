@@ -1,4 +1,5 @@
 <?php
+
 namespace Keboola\Test\Backend\Workspaces;
 
 use Keboola\Csv\CsvFile;
@@ -12,12 +13,14 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
 {
+    use DeleteWorkspacesTrait;
     /** @var BranchAwareClient */
     private $branchAwareClient;
 
-    public function setUp(bool $deleteWorkspaces = true): void
+    public function setUp(): void
     {
         parent::setUp();
+        $this->deleteAllWorkspaces();
 
         $branches = new DevBranches($this->_client);
         $this->deleteBranchesByPrefix($branches, $this->generateBranchNameForParallelTest());
@@ -121,8 +124,8 @@ class BranchComponentsWorkspacesTest extends ComponentsWorkspacesTest
             return $workspace['id'];
         }, $branchComponents->listConfigurationWorkspaces(
             (new ListConfigurationWorkspacesOptions())
-            ->setComponentId($componentId)
-            ->setConfigurationId($configurationId),
+                ->setComponentId($componentId)
+                ->setConfigurationId($configurationId),
         ));
 
         $this->assertCount(2, $componentWorkspacesIds);
