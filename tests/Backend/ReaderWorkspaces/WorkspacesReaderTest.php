@@ -29,9 +29,9 @@ class WorkspacesReaderTest extends WorkspacesTestCase
 
     private static ?Connection $backendConnection = null;
 
-    public function setUp(bool $deleteWorkspaces = false): void
+    public function setUp(): void
     {
-        parent::setUp($deleteWorkspaces);
+        parent::setUp();
 
         $components = new Components($this->_client);
         foreach ($components->listComponents() as $component) {
@@ -383,7 +383,7 @@ class WorkspacesReaderTest extends WorkspacesTestCase
     {
         if (self::$client !== null) {
             $workspaces = new Workspaces(self::$client);
-            $filteredReaderWorkspaces = array_filter($workspaces->listWorkspaces(), static fn ($workspace) => $workspace['platformUsageType'] === 'reader');
+            $filteredReaderWorkspaces = array_filter($workspaces->listWorkspaces(), static fn($workspace) => $workspace['platformUsageType'] === 'reader');
             foreach ($filteredReaderWorkspaces as $workspace) {
                 $workspaces->deleteWorkspace($workspace['id']);
             }
