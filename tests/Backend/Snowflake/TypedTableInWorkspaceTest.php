@@ -3,7 +3,7 @@
 namespace Keboola\Test\Backend\Snowflake;
 
 use Keboola\Datatype\Definition\Snowflake;
-use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\Options\TableImport\DeduplicationStrategy;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
@@ -109,13 +109,8 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
         $this->unloadAndAssert($workspace['id'], $tableId);
     }
 
-    public function testUnloadFromWSToTypedTableCTAS(): void
+    public function testUnloadFromWSToTypedTableWithoutDeduplication(): void
     {
-        if (!in_array('ctas-om', $this->_client->verifyToken()['owner']['features'], true)) {
-            $this->markTestSkipped(
-                'CTAS is not enabled for this project, skipping test.',
-            );
-        }
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
@@ -178,6 +173,7 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
         $this->_client->writeTableAsyncDirect($this->tableId, [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => $tableId,
+            'deduplicationStrategy' => DeduplicationStrategy::INSERT->value,
         ]);
         $eventAssertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -250,6 +246,7 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => $tableId,
             'incremental' => true,
+            'deduplicationStrategy' => DeduplicationStrategy::INSERT->value,
         ]);
 
         $eventAssertCallback = function ($events) {
@@ -348,16 +345,6 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
             'format' => 'json',
         ]);
         self::assertEquals($expectedIncrementalLoad, $data['rows']);
-
-        $this->expectException(ClientException::class);
-        // create table does not support typed tables
-        // tables are created by runner and this is never called
-        $this->expectExceptionMessage('Table import error: Source destination columns mismatch. "id NUMBER (38,0) NOT NULL"->"id VARCHAR NOT NULL DEFAULT \'\'');
-        $this->_client->createTableAsyncDirect($this->getTestBucketId(self::STAGE_IN), [
-            'name' => 'languagesNew',
-            'dataWorkspaceId' => $workspace['id'],
-            'dataObject' => $tableId,
-        ]);
     }
 
     private function unloadAndAssert(int $id, string $tableId): void
