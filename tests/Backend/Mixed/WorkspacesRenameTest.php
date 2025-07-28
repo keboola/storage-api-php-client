@@ -11,6 +11,12 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class WorkspacesRenameTest extends WorkspacesTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->deleteAllWorkspaces();
+    }
+
     /**
      * @dataProvider workspaceMixedBackendData
      * @param $backend

@@ -10,6 +10,12 @@ use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 
 class WorkspacesTest extends FileWorkspaceTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->deleteAllWorkspaces();
+    }
+
     public function testWorkspaceCreate(): void
     {
         $this->initEvents($this->_client);
