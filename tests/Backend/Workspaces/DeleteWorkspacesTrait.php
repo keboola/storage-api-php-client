@@ -8,7 +8,7 @@ use Keboola\StorageApi\Workspaces;
 
 trait DeleteWorkspacesTrait
 {
-    private function deleteAllWorkspaces(): void
+    public function deleteAllWorkspaces(): void
     {
         $workspaces = new Workspaces($this->_client);
         foreach ($workspaces->listWorkspaces() as $workspace) {
