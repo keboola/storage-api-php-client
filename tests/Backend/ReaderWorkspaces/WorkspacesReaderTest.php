@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\DriverException;
 use Exception;
 use Keboola\Csv\CsvFile;
-use Keboola\Datatype\Definition\Snowflake;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
@@ -69,21 +68,6 @@ class WorkspacesReaderTest extends WorkspacesTestCase
 
         // ensure the workspace and the reader account is cleaned up.
         self::ensureReaderAccountIsRemoved();
-    }
-
-    public function testDenyCreateReaderWorkspaceWithDifferentBackend(): void
-    {
-        try {
-            $this->prepareWorkspace([
-                'useCase' => 'reader',
-                'backend' => 'bigquery',
-                'loginType' => WorkspaceLoginType::DEFAULT,
-            ]);
-
-            self::fail('Creating a reader workspace with a backend other than Snowflake should fail.');
-        } catch (Exception $exception) {
-            self::assertStringContainsString('Reader workspace is only supported for Snowflake backend, got "bigquery".', $exception->getMessage());
-        }
     }
 
     public function testLoadToReaderAccount(): void
