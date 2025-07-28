@@ -14,6 +14,12 @@ use Keboola\Test\Backend\Workspaces\Backend\InputMappingConverter;
 
 class WorkspacesLoadTest extends FileWorkspaceTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->deleteAllWorkspaces();
+    }
+
     public function testWorkspaceLoadData(): void
     {
         $workspaces = new Workspaces($this->_client);
