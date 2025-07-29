@@ -109,7 +109,7 @@ final class ProfileTableTest extends StorageApiTestCase
         $this->assertTrue($createdAt > $started);
 
         $tableProfile = [
-//            'dataSize' => 547,
+            'dataSize' => 3072,
             'rowCount' => 8,
             'columnCount' => 8,
         ];
