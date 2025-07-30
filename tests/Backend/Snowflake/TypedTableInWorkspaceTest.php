@@ -173,7 +173,7 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
         $this->_client->writeTableAsyncDirect($this->tableId, [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => $tableId,
-            'deduplicationStrategy' => DeduplicationStrategy::INSERT->value,
+            'deduplicationStrategy' => DeduplicationStrategy::INSERT,
         ]);
         $eventAssertCallback = function ($events) {
             $this->assertCount(1, $events);
@@ -247,6 +247,251 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
             'dataTableName' => $tableId,
             'incremental' => true,
             'deduplicationStrategy' => DeduplicationStrategy::INSERT->value,
+        ]);
+
+        $eventAssertCallback = function ($events) {
+            $this->assertCount(1, $events);
+            $this->assertArrayHasKey('performance', $events[0]);
+            $this->assertIsArray($events[0]['performance']);
+            $this->assertArrayHasKey('importDecomposed', $events[0]['performance']);
+            $this->assertCount(1, $events[0]['performance']['importDecomposed']);
+            $this->assertArrayHasKey('name', $events[0]['performance']['importDecomposed'][0]);
+            // there is only one stage in incremental load
+            $this->assertSame('insertIntoTargetFromStaging', $events[0]['performance']['importDecomposed'][0]['name']);
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableImportDone')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $eventAssertCallback, $query);
+
+        $expectedIncrementalLoad = [
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'name',
+                    'value' => 'john',
+                    'isTruncated' => false,
+                ],
+            ],
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '2',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'name',
+                    'value' => 'does',
+                    'isTruncated' => false,
+                ],
+            ],
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '2',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'name',
+                    'value' => 'doesToo',
+                    'isTruncated' => false,
+                ],
+            ],
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'name',
+                    'value' => 'john',
+                    'isTruncated' => false,
+                ],
+            ],
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '2',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'name',
+                    'value' => 'does',
+                    'isTruncated' => false,
+                ],
+            ],
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '2',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'name',
+                    'value' => 'doesToo',
+                    'isTruncated' => false,
+                ],
+            ],
+        ];
+
+        /** @var array $data */
+        $data = $this->_client->getTableDataPreview($this->tableId, [
+            'format' => 'json',
+        ]);
+        self::assertEquals($expectedIncrementalLoad, $data['rows']);
+    }
+
+    /**
+     * "Copy" of until there is a "ctas-om" feature.
+     * @see TypedTableInWorkspaceTest::testUnloadFromWSToTypedTableWithoutDeduplication
+     */
+    public function testUnloadFromWSToTypedTableWithoutDeduplicationByFeature(): void
+    {
+        if (!in_array('ctas-om', $this->_client->verifyToken()['owner']['features'], true)) {
+            $this->markTestSkipped(
+                'CTAS is not enabled for this project, skipping test.',
+            );
+        }
+        // create workspace and source table in workspace
+        $workspace = $this->initTestWorkspace();
+
+        $tableId = 'Languages3';
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $backend->dropTableIfExists($tableId);
+
+        $connection = $workspace['connection'];
+
+        $db = $backend->getDb();
+
+        $quotedTableId = sprintf(
+            '"%s"."%s"',
+            $connection['schema'],
+            $tableId,
+        );
+        // exact length is required
+        $sql = sprintf(
+            '
+            CREATE TABLE %s (
+                "id" INT NOT NULL,
+                "name" VARCHAR(16777216),
+                PRIMARY KEY ("id")
+            )
+        ',
+            $quotedTableId,
+        );
+        $db->query($sql);
+        $db->query(sprintf("INSERT INTO %s VALUES (1, 'john');", $quotedTableId));
+        $db->query(sprintf("INSERT INTO %s VALUES (2, 'does');", $quotedTableId));
+
+        $this->unloadAndAssert($workspace['id'], $tableId);
+
+        // test unload from workspace with _timestamp column exist
+        $db->query(sprintf('DROP TABLE %s', $quotedTableId));
+        $sql = sprintf(
+            '
+            CREATE TABLE %s (
+                "id" INT NOT NULL,
+                "name" VARCHAR(16777216),
+                PRIMARY KEY ("id")
+            )
+        ',
+            $quotedTableId,
+        );
+        $db->query($sql);
+        $db->query(sprintf("INSERT INTO %s VALUES (1, 'john');", $quotedTableId));
+        $db->query(sprintf("INSERT INTO %s VALUES (2, 'does');", $quotedTableId));
+        // snowflake does not enforce primary key so this is allowed
+        // normally such value would be deduplicated in storage
+        // but ctas-om does not deduplicate values
+        $db->query(sprintf("INSERT INTO %s VALUES (2, 'doesToo');", $quotedTableId));
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+        $this->initEvents($this->_client);
+
+        // do full load
+        $this->_client->writeTableAsyncDirect($this->tableId, [
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => $tableId,
+        ]);
+        $eventAssertCallback = function ($events) {
+            $this->assertCount(1, $events);
+            $this->assertArrayHasKey('performance', $events[0]);
+            $this->assertIsArray($events[0]['performance']);
+            $this->assertArrayHasKey('importDecomposed', $events[0]['performance']);
+            $this->assertCount(1, $events[0]['performance']['importDecomposed']);
+            $this->assertArrayHasKey('name', $events[0]['performance']['importDecomposed'][0]);
+            // there is only one stage in full load
+            $this->assertSame('ctasLoad', $events[0]['performance']['importDecomposed'][0]['name']);
+
+            // set event as last event
+            $this->lastEventId = $events[0]['uuid'];
+        };
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.tableImportDone')
+            ->setTokenId($this->tokenId)
+            ->setRunId($runId);
+        $this->assertEventWithRetries($this->_client, $eventAssertCallback, $query);
+
+        $expectedFullLoad = [
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '1',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'name',
+                    'value' => 'john',
+                    'isTruncated' => false,
+                ],
+            ],
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '2',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'name',
+                    'value' => 'does',
+                    'isTruncated' => false,
+                ],
+            ],
+            [
+                [
+                    'columnName' => 'id',
+                    'value' => '2',
+                    'isTruncated' => false,
+                ],
+                [
+                    'columnName' => 'name',
+                    'value' => 'doesToo',
+                    'isTruncated' => false,
+                ],
+            ],
+        ];
+
+        /** @var array $data */
+        $data = $this->_client->getTableDataPreview($this->tableId, [
+            'format' => 'json',
+        ]);
+        self::assertEquals($expectedFullLoad, $data['rows']);
+
+        // do incremental load
+        // incremental load also does not deduplicate values
+        // this will cause that all values are present twice
+        $this->_client->writeTableAsyncDirect($this->tableId, [
+            'dataWorkspaceId' => $workspace['id'],
+            'dataTableName' => $tableId,
+            'incremental' => true,
         ]);
 
         $eventAssertCallback = function ($events) {
