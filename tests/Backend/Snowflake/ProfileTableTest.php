@@ -98,7 +98,10 @@ final class ProfileTableTest extends StorageApiTestCase
         $this->assertEquals($job, $profile);
 
         $keys = array_keys($profile);
-        $this->assertSame(['uuid', 'bucketId', 'tableName', 'createdAt', 'profile', 'columns'], $keys);
+        $this->assertSame(
+            ['uuid', 'bucketId', 'tableName', 'createdAt', 'profile', 'columns', 'profiledByToken'],
+            $keys,
+        );
 
         $this->assertSame($tableId, $profile['tableName']);
 
@@ -106,7 +109,7 @@ final class ProfileTableTest extends StorageApiTestCase
         $this->assertTrue($createdAt > $started);
 
         $tableProfile = [
-//            'dataSize' => 547,
+            'dataSize' => 3072,
             'rowCount' => 8,
             'columnCount' => 8,
         ];
@@ -171,5 +174,14 @@ final class ProfileTableTest extends StorageApiTestCase
             ],
         ];
         $this->assertSame($columnProfiles, $profile['columns']);
+
+        $token = $this->_client->verifyToken();
+        $this->assertSame(
+            [
+                'id' => (int) $token['id'],
+                'name' => $token['description'],
+            ],
+            $profile['profiledByToken'],
+        );
     }
 }
