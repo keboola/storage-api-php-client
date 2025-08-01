@@ -8,12 +8,14 @@ use DateTime;
 use DateTimeInterface;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\StorageApiTestCase;
 
 class ScheduledTasksTest extends StorageApiTestCase
 {
     private const NON_EXISTING_BUCKET_ID = 'in.c-API-tests-nevim-dal';
     private const EXISTING_BUCKET_NAME = 'test-successful-schedule';
+    private const WORKER_BUCKET_NAME = 'test-scheduler-worker';
 
     public function setUp(): void
     {
@@ -139,5 +141,65 @@ class ScheduledTasksTest extends StorageApiTestCase
         // Drop bucket
         // Related scheduled tasks are deleted in cascade, but we're not able to verify it).
         $this->_client->dropBucket($bucketId);
+    }
+
+    public function testSchedulerWorker(): void
+    {
+        $this->dropBucketIfExists(
+            $this->_client,
+            sprintf('%s.%s', self::STAGE_IN, self::WORKER_BUCKET_NAME),
+            true,
+        );
+
+        $workspaces = new Workspaces($this->_client);
+        $workspace = $workspaces->createWorkspace();
+
+        // Register workspace as external bucket
+        $bucketId = $this->_client->registerBucket(
+            self::WORKER_BUCKET_NAME,
+            [$workspace['connection']['database'], $workspace['connection']['schema']],
+            self::STAGE_IN,
+            'Workspace bucket registered as external',
+            self::BACKEND_SNOWFLAKE,
+            self::WORKER_BUCKET_NAME,
+        );
+
+        // Check: No tables before
+        $tablesBeforeAutoRefresh = $this->_client->listTables($bucketId);
+        $this->assertCount(0, $tablesBeforeAutoRefresh);
+
+        // Create table in workspace
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $db->createTable('TO-AUTO-REFRESH', ['ID' => 'NUMBER', 'NAME' => 'TEXT']);
+
+        // Schedule external bucket refresh task
+        $task = $this->_client->scheduleBucketRefresh($bucketId, '* * * * *');
+
+        sleep(67); // Wait for the Scheduler restart (every 60 seconds)
+
+        // Check: Table created in workspace is after auto-refresh available in bucket
+        $tablesAfterAutoRefresh = $this->_client->listTables($bucketId);
+        $this->assertCount(1, $tablesAfterAutoRefresh);
+        $this->assertSame('TO-AUTO-REFRESH', $tablesAfterAutoRefresh[0]['name']);
+
+        // Delete scheduled task
+        $this->_client->deleteScheduledTask($task['uuid']);
+
+        // Create another table in workspace
+        $db->createTable('TO-MANUAL-REFRESH', ['ID' => 'NUMBER', 'NAME' => 'TEXT']);
+
+        sleep(67); // Wait for the Scheduler restart
+
+        // Check: Second table created in workspace is not available in bucket because of stopped auto-refresh
+        $tablesOutdated = $this->_client->listTables($bucketId);
+        $this->assertCount(1, $tablesOutdated);
+
+        $this->_client->refreshBucket($bucketId);
+
+        // Check: All tables created in workspace ale available after manual refresh of bucket
+        $tablesAfterManualRefresh = $this->_client->listTables($bucketId);
+        $this->assertCount(2, $tablesAfterManualRefresh);
+        $this->assertSame('TO-AUTO-REFRESH', $tablesAfterManualRefresh[0]['name']);
+        $this->assertSame('TO-MANUAL-REFRESH', $tablesAfterManualRefresh[1]['name']);
     }
 }
