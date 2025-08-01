@@ -109,7 +109,7 @@ class ScheduledTasksTest extends StorageApiTestCase
         $this->assertSame($task1['relatedId'], $bucketId);
         $this->assertSame($task1['cronExpression'], '42 13 * * 3');
 
-        $createdAt = DateTime::createFromFormat(DateTimeInterface::RFC3339, $task1['createdAt']);
+        $createdAt = DateTime::createFromFormat(DateTimeInterface::RFC3339_EXTENDED, $task1['createdAt']);
         $this->assertTrue($createdAt > $started);
 
         // Schedule another task
