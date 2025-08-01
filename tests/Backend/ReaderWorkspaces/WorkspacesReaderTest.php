@@ -2,16 +2,19 @@
 
 namespace Backend\ReaderWorkspaces;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\DriverException;
+use Exception;
 use Keboola\Csv\CsvFile;
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\WorkspaceLoginType;
 use Keboola\StorageApi\Workspaces;
+use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
-use Keboola\Test\Backend\Workspaces\Backend\SnowflakeWorkspaceBackendDBAL;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 use Keboola\Test\Utils\PemKeyCertificateGenerator;
@@ -22,6 +25,10 @@ class WorkspacesReaderTest extends WorkspacesTestCase
     use WorkspaceConnectionTrait;
     use WorkspaceCredentialsAssertTrait;
     use SnowflakeConnectionUtils;
+
+    private static ?Client $client = null;
+
+    private static ?Connection $backendConnection = null;
 
     public function setUp(): void
     {
@@ -40,6 +47,27 @@ class WorkspacesReaderTest extends WorkspacesTestCase
                 $components->deleteConfiguration($component['id'], $configuration['id']);
             }
         }
+
+        if (self::$client === null) {
+            self::$client = $this->_client;
+        }
+
+        if (self::$backendConnection === null) {
+            self::$backendConnection = $this->ensureSnowflakeConnection();
+        }
+
+        // drop all reader workspaces before test
+        $workspaces = new Workspaces(self::$client);
+        $filteredReaderWorkspaces = array_filter($workspaces->listWorkspaces(), static fn($workspace) => $workspace['platformUsageType'] === 'reader');
+        foreach ($filteredReaderWorkspaces as $workspace) {
+            $workspaces->deleteWorkspace($workspace['id']);
+        }
+
+        // drop all readers accounts
+        self::dropReaderAccounts();
+
+        // ensure the workspace and the reader account is cleaned up.
+        self::ensureReaderAccountIsRemoved();
     }
 
     public function testLoadToReaderAccount(): void
@@ -79,9 +107,138 @@ class WorkspacesReaderTest extends WorkspacesTestCase
 
         $data = $db->fetchAll('languages_filtered');
         $this->assertCount(1, $data);
+    }
 
-        // Ensure workspace is removed correctly and reader account is deleted
-        $this->ensureWorkspaceIsRemoved($workspaces, $db, (int) $workspace['id']);
+    public function testDenyUnloadOnReaderWorkspace(): void
+    {
+        $workspaces = $this->createWorkspaces();
+        $workspace = $this->prepareWorkspace();
+
+        //setup test tables
+        $tableId = $this->_client->createTableAsync(
+            $this->getTestBucketId(),
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                ],
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages_filtered',
+                    'overwrite' => false,
+                    'whereColumn' => 'id',
+                    'whereValues' => [1],
+                    'whereOperator' => 'eq',
+                ],
+            ],
+        ]);
+
+        try {
+            $this->_client->writeTableAsyncDirect(
+                $tableId,
+                [
+                    'dataWorkspaceId' => $workspace['id'],
+                    'dataObject' => 'languagesLoaded/',
+                    'columns' => ['id', 'name'],
+                ],
+            );
+            self::fail('Writing to a table in a reader workspace should fail.');
+        } catch (Exception $exception) {
+            self::assertStringContainsString('Table import for reader workspaces is not supported.', $exception->getMessage());
+        }
+    }
+
+    public function testDenyExecuteQueryOnReaderWorkspace(): void
+    {
+        $workspaces = $this->createWorkspaces();
+        $workspace = $this->prepareWorkspace();
+
+        //setup test tables
+        $tableId = $this->_client->createTableAsync(
+            $this->getTestBucketId(),
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                ],
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages_filtered',
+                    'overwrite' => false,
+                    'whereColumn' => 'id',
+                    'whereValues' => [1],
+                    'whereOperator' => 'eq',
+                ],
+            ],
+        ]);
+
+        try {
+            $workspaces->executeQuery(
+                $workspace['id'],
+                'SELECT * FROM languages',
+            );
+            self::fail('Executing query on reader workspace should fail.');
+        } catch (Exception $exception) {
+            self::assertStringContainsString('Custom query execution is not supported for reader workspace.', $exception->getMessage());
+        }
+    }
+
+    public function testDenyDeleteRowsOnReaderWorkspace(): void
+    {
+        $workspaces = $this->createWorkspaces();
+        $workspace = $this->prepareWorkspace();
+
+        //setup test tables
+        $tableId = $this->_client->createTableAsync(
+            $this->getTestBucketId(),
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                ],
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages_filtered',
+                    'overwrite' => false,
+                    'whereColumn' => 'id',
+                    'whereValues' => [1],
+                    'whereOperator' => 'eq',
+                ],
+            ],
+        ]);
+
+        try {
+            $this->_client->deleteTableRows($tableId, [
+                'whereFilters' => [
+                    [
+                        'column' => 'id',
+                        'valuesByTableInWorkspace' => [
+                            'workspaceId' => $workspace['id'],
+                            'table' => 'languages',
+                            'column' => 'id',
+                        ],
+                    ],
+                ],
+            ]);
+            self::fail('Deleting rows from a table in a reader workspace should fail.');
+        } catch (Exception $exception) {
+            self::assertStringContainsString('Cannot delete rows from a table in a reader workspace.', $exception->getMessage());
+        }
     }
 
     public function testLoadCloneToReaderAccount(): void
@@ -117,9 +274,6 @@ class WorkspacesReaderTest extends WorkspacesTestCase
 
         $data = $db->fetchAll('langs');
         $this->assertCount(5, $data);
-
-        // Ensure workspace is removed correctly and reader account is deleted
-        $this->ensureWorkspaceIsRemoved($workspaces, $db, (int) $workspace['id']);
     }
 
     public function testResetPublicKeyForReaderWorkspace(): void
@@ -162,44 +316,17 @@ class WorkspacesReaderTest extends WorkspacesTestCase
         try {
             $connection->getDb()->close();
             $connection->getDb()->executeQuery('SELECT 1;');
-            $this->fail('Old key should not work');
+            self::fail('Old key should not work');
         } catch (DriverException $driverException) {
-            // Should throw exception
+            self::assertStringContainsString('JWT token is invalid', $driverException->getMessage());
         }
 
         // New should be working always
         $newConnection->getDb()->close();
         $newConnection->getDb()->executeQuery('SELECT 1;');
-
-        // Ensure workspace is removed correctly and reader account is deleted
-        $this->ensureWorkspaceIsRemoved($workspaces, $newConnection, (int) $workspace['id']);
     }
 
-    private function ensureWorkspaceIsRemoved(Workspaces $workspaces, SnowflakeWorkspaceBackendDBAL $connection, int $workspaceId): void
-    {
-        $backendConnection = $this->ensureSnowflakeConnection();
-        $verifiedToken = $this->_client->verifyToken();
-        $organizationId = $verifiedToken['organization']['id'];
-        $result = $backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
-
-        self::assertCount(1, $result);
-
-        $workspaces->deleteWorkspace($workspaceId);
-
-        // Cannot execute query on removed workspace
-        try {
-            $connection->executeQuery('SELECT 1;');
-            $this->fail('Removed workspace should not be accessible');
-        } catch (DriverException $driverException) {
-            self::assertStringContainsString('Session no longer exists', $driverException->getMessage());
-        }
-
-        $result = $backendConnection->fetchAllAssociative("SHOW MANAGED ACCOUNTS LIKE '%_READER_ACCOUNT_{$organizationId}';");
-
-        self::assertCount(0, $result);
-    }
-
-    private function prepareWorkspace(): array
+    private function prepareWorkspace(?array $options = null): array
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -220,7 +347,7 @@ class WorkspacesReaderTest extends WorkspacesTestCase
         $workspace = $components->createConfigurationWorkspace(
             $componentId,
             $configurationId,
-            [
+            $options ?? [
                 'useCase' => 'reader',
                 'backend' => 'snowflake',
                 'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
@@ -239,5 +366,43 @@ class WorkspacesReaderTest extends WorkspacesTestCase
         $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
 
         return new Workspaces($branchClient);
+    }
+
+    private static function dropReaderAccounts(): void
+    {
+        $accounts = self::fetchReadersAccountsForCurrentOrganization();
+
+        foreach ($accounts as $account) {
+            self::$backendConnection?->executeQuery(
+                sprintf('DROP MANAGED ACCOUNT %s;', $account['account_name']),
+            );
+        }
+    }
+
+    private static function ensureReaderAccountIsRemoved(): void
+    {
+        $accounts = self::fetchReadersAccountsForCurrentOrganization();
+
+        self::assertCount(0, $accounts);
+    }
+
+    /**
+     * @return array<array{account_name: string}>
+     * @throws \Doctrine\DBAL\Exception
+     */
+    private static function fetchReadersAccountsForCurrentOrganization(): array
+    {
+        $verifiedToken = self::$client?->verifyToken();
+        $organizationId = $verifiedToken['organization']['id'] ?? '';
+
+        /** @var array<array{account_name: string}> $result */
+        $result = self::$backendConnection?->fetchAllAssociative(
+            sprintf(
+                'SHOW MANAGED ACCOUNTS LIKE %s;',
+                SnowflakeQuote::quote(sprintf('%%_READER_ACCOUNT_%s', $organizationId)),
+            ),
+        ) ?? [];
+
+        return $result;
     }
 }

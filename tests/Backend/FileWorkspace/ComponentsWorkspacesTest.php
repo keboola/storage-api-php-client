@@ -8,12 +8,15 @@ use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationWorkspacesOptions;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\FileWorkspace\Backend\Abs;
+use Keboola\Test\Backend\Workspaces\DeleteWorkspacesTrait;
 
 class ComponentsWorkspacesTest extends FileWorkspaceTestCase
 {
+    use DeleteWorkspacesTrait;
     public function setUp(): void
     {
         parent::setUp();
+        $this->deleteAllWorkspaces();
 
         $components = new Components($this->_client);
         foreach ($components->listComponents() as $component) {

@@ -1,4 +1,5 @@
 <?php
+
 namespace Keboola\Test\Backend\Workspaces;
 
 use Generator;
@@ -12,9 +13,11 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class ComponentsWorkspacesTest extends WorkspacesTestCase
 {
+    use DeleteWorkspacesTrait;
     public function setUp(): void
     {
         parent::setUp();
+        $this->deleteAllWorkspaces();
 
         $components = new Components($this->_client);
         foreach ($components->listComponents() as $component) {
@@ -118,8 +121,8 @@ class ComponentsWorkspacesTest extends WorkspacesTestCase
             return $workspace['id'];
         }, $components->listConfigurationWorkspaces(
             (new ListConfigurationWorkspacesOptions())
-            ->setComponentId($componentId)
-            ->setConfigurationId($configurationId),
+                ->setComponentId($componentId)
+                ->setConfigurationId($configurationId),
         ));
 
         $this->assertCount(2, $componentWorkspacesIds);

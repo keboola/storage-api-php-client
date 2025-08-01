@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: marc
@@ -13,18 +14,11 @@ use Keboola\Test\StorageApiTestCase;
 
 abstract class WorkspacesTestCase extends StorageApiTestCase
 {
+    use DeleteWorkspacesTrait;
+
     public function setUp(): void
     {
         parent::setUp();
         $this->_initEmptyTestBuckets();
-        $this->deleteAllWorkspaces();
-    }
-
-    private function deleteAllWorkspaces()
-    {
-        $workspaces = new Workspaces($this->_client);
-        foreach ($workspaces->listWorkspaces() as $workspace) {
-            $workspaces->deleteWorkspace($workspace['id'], [], true);
-        }
     }
 }

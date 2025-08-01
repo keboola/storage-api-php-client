@@ -10,6 +10,12 @@ use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 
 abstract class BaseWorkSpacesTestCase extends WorkspacesTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->deleteAllWorkspaces();
+    }
+
     abstract public function workspaceBackendData();
 
     abstract public function workspaceMixedAndSameBackendDataWithDataTypes();
