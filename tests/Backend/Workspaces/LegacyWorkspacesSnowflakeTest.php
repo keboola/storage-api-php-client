@@ -301,6 +301,7 @@ class LegacyWorkspacesSnowflakeTest extends ParallelWorkspacesTestCase
             }
         } else {
             $workspaces->loadWorkspaceData($workspace['id'], $options);
+            $this->expectNotToPerformAssertions();
         }
     }
 
