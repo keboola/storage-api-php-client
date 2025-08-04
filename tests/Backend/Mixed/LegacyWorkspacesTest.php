@@ -15,6 +15,11 @@ use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 
 class LegacyWorkspacesTest extends WorkspacesTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->deleteAllWorkspaces();
+    }
 
     /**
      * @dataProvider loadToRedshiftDataTypes
