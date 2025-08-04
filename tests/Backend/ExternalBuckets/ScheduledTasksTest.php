@@ -58,7 +58,8 @@ class ScheduledTasksTest extends StorageApiTestCase
             self::EXISTING_BUCKET_NAME,
         );
 
-        $started = new DateTime();
+        // To avoid collision with $createdAt which has only seconds precision.
+        $started = new DateTime('now - 1 second');
 
         // Schedule task for non-existing bucket
         $exception = null;
