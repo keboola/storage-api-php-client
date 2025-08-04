@@ -7,6 +7,12 @@ use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
 
 class FileWorkspaceTestCase extends WorkspacesTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->deleteAllWorkspaces();
+    }
+
     /**
      * @return string
      */
