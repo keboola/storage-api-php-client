@@ -8,7 +8,7 @@ final class AbsUrlParser
 {
     /**
      * @param string $url
-     * @return array
+     * @return array{0: string, 1: string, 2: string, 3: string}
      */
     public static function parseAbsUrl($url)
     {

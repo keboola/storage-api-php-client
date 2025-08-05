@@ -23,7 +23,7 @@ class GcsDownloader implements DownloaderInterface
 
     public function downloadManifestEntry($fileResponse, $entry, $tmpFilePath)
     {
-        $fileKey = substr($entry['url'], strpos($entry['url'], '/', 5) + 1);
+        $fileKey = $this->getEntryKey($entry['url']);
         $filePath = $tmpFilePath . '_' . md5(str_replace('/', '_', $fileKey));
 
         $bucket = $this->client->bucket($fileResponse['gcsPath']['bucket']);
@@ -31,5 +31,10 @@ class GcsDownloader implements DownloaderInterface
         file_put_contents($filePath, $object->downloadAsString());
 
         return $filePath;
+    }
+
+    public function getEntryKey(string $entryUrl): string
+    {
+        return substr($entryUrl, strpos($entryUrl, '/', 5) + 1);
     }
 }
