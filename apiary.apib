@@ -3339,6 +3339,11 @@ will show information about the created file and caching:
     + orderBy (optional, array[OrderByObject]) - Not supported for Redshift
     + gzip (optional, boolean) - The response will be gzipped if set to true.
     + includeInternalTimestamp (optional, boolean) - Include internal _timestamp column in the exported data (column is included even when not in columns list). This is timestamp of row last change. (Available only for Snowflake)
+    + fileType (optional, enum[string]) - Type of the file to be created in File Storage.
+        + Members
+            + csv - CSV file
+            + parquet - Parquet file
+        + Default: csv
 
 + Request (application/json)
     + Headers
@@ -3365,7 +3370,8 @@ will show information about the created file and caching:
                         "changedUntil": null,
                         "gzipOutput": false,
                         "format": "rfc",
-                        "whereFilters": []
+                        "whereFilters": [],
+                        "fileType": 1
                     },
                     "queue": "main_fast"
                 },
