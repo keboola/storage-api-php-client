@@ -13,9 +13,10 @@ namespace Keboola\StorageApi;
 
 use GuzzleHttp\Client as HttpClient;
 use Keboola\StorageApi\Downloader\DownloaderFactory;
+use Keboola\StorageApi\Downloader\DownloaderInterface;
+use Keboola\StorageApi\Exporter\DownloadedSliceEntry;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
 class TableExporter
 {
@@ -67,24 +68,16 @@ class TableExporter
             $this->client->getAwsRetries(),
         );
 
-        if ($getFileResponse['isSliced'] === true) {
+        if ($getFileResponse['isSliced'] === true && $getFileResponse['fileType'] === 'csv') {
             /**
              * sliced file - combine files together
+             * Only CSV files are combined
              */
-
-            // Download manifest with all sliced files
-            $client = new HttpClient([
-                'handler' => HandlerStack::create([
-                    'backoffMaxTries' => 10,
-                ]),
-            ]);
-            $manifest = json_decode($client->get($getFileResponse['url'])->getBody(), true);
-            $fileSlices = [];
-
-            // Download all sliced files
-            foreach ($manifest['entries'] as $part) {
-                $fileSlices[] = $downloader->downloadManifestEntry($getFileResponse, $part, $tmpFilePath);
-            }
+            $fileSlices = $this->downloadSlices(
+                $getFileResponse,
+                $downloader,
+                $tmpFilePath,
+            );
 
             // Create file with header
             $delimiter = ',';
@@ -105,18 +98,18 @@ class TableExporter
 
             // Concat all files into one, compressed files need to be decompressed first
             foreach ($fileSlices as $fileSlice) {
-                $catCmd = 'gunzip ' . escapeshellarg($fileSlice) . ' --to-stdout >> ' . escapeshellarg($destination . '.tmp');
+                $catCmd = 'gunzip ' . escapeshellarg($fileSlice->filePath) . ' --to-stdout >> ' . escapeshellarg($destination . '.tmp');
                 $process = ProcessPolyfill::createProcess($catCmd);
                 $process->setTimeout(null);
                 if (0 !== $process->run()) {
                     throw new ProcessFailedException($process);
                 }
-                $fs->remove($fileSlice);
+                $fs->remove($fileSlice->filePath);
             }
 
             // Compress the file afterwards if required
             if ($gzipOutput) {
-                $gZipCmd = 'gzip ' . escapeshellarg($destination . '.tmp')  . ' --fast';
+                $gZipCmd = 'gzip ' . escapeshellarg($destination . '.tmp') . ' --fast';
                 $process = ProcessPolyfill::createProcess($gZipCmd);
                 $process->setTimeout(null);
                 if (0 !== $process->run()) {
@@ -125,6 +118,21 @@ class TableExporter
                 $fs->rename($destination . '.tmp.gz', $destination);
             } else {
                 $fs->rename($destination . '.tmp', $destination);
+            }
+        } elseif ($getFileResponse['isSliced'] === true) {
+            /**
+             * Sliced file, but not CSV - download all slices
+             * This is used for files like Parquet
+             */
+            $fileSlices = $this->downloadSlices(
+                $getFileResponse,
+                $downloader,
+                $tmpFilePath,
+            );
+            $fs->mkdir($destination);
+            foreach ($fileSlices as $fileSlice) {
+                $sliceName = $fileSlice->getFileName($downloader);
+                $fs->rename($fileSlice->filePath, $destination . '/' . $sliceName);
             }
         } else {
             /**
@@ -206,14 +214,51 @@ class TableExporter
         $jobResults = $this->client->handleAsyncTasks(array_keys($exportJobs));
         foreach ($jobResults as $jobResult) {
             $exportJob = $exportJobs[$jobResult['id']];
+            $isGzip = false;
+            if ($exportOptions[$exportJob['tableId']]['gzip'] === true) {
+                $isGzip = true;
+                if ($exportOptions[$exportJob['tableId']]['fileType'] === 'parquet') {
+                    // parquet files are not gzipped, but snappy compressed
+                    $isGzip = false;
+                }
+            }
             $this->handleExportedFile(
                 $exportJob['tableId'],
                 $jobResult['results']['file']['id'],
                 $exportJob['destination'],
                 $exportJob['exportOptions'],
-                isset($exportOptions[$exportJob['tableId']]['gzip']) ? $exportOptions[$exportJob['tableId']]['gzip'] : false,
+                $isGzip,
             );
         }
         return $jobResults;
+    }
+
+    /**
+     * @return DownloadedSliceEntry[]
+     */
+    private function downloadSlices(
+        array $getFileResponse,
+        DownloaderInterface $downloader,
+        string $tmpFilePath
+    ): array {
+        // Download manifest with all sliced files
+        $client = new HttpClient([
+            'handler' => HandlerStack::create([
+                'backoffMaxTries' => 10,
+            ]),
+        ]);
+        $manifest = json_decode($client->get($getFileResponse['url'])->getBody(), true);
+        assert(is_array($manifest) && isset($manifest['entries']), 'Invalid manifest format');
+        $fileSlices = [];
+
+        // Download all sliced files
+        foreach ($manifest['entries'] as $part) {
+            $fileSlices[] = new DownloadedSliceEntry(
+                (string) $part['url'],
+                $tmpFilePath,
+                $downloader->downloadManifestEntry($getFileResponse, $part, $tmpFilePath),
+            );
+        }
+        return $fileSlices;
     }
 }
