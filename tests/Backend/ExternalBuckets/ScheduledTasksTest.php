@@ -176,7 +176,7 @@ class ScheduledTasksTest extends StorageApiTestCase
         // Schedule external bucket refresh task
         $task = $this->_client->scheduleBucketRefresh($bucketId, '* * * * *');
 
-        sleep(67); // Wait for the Scheduler restart (every 60 seconds)
+        sleep(120); // Wait for the Scheduler restart (every 60 seconds)
 
         // Check: Table created in workspace is after auto-refresh available in bucket
         $tablesAfterAutoRefresh = $this->_client->listTables($bucketId);
@@ -189,7 +189,7 @@ class ScheduledTasksTest extends StorageApiTestCase
         // Create another table in workspace
         $db->createTable('TO-MANUAL-REFRESH', ['ID' => 'NUMBER', 'NAME' => 'TEXT']);
 
-        sleep(67); // Wait for the Scheduler restart
+        sleep(120); // Wait for the Scheduler restart
 
         // Check: Second table created in workspace is not available in bucket because of stopped auto-refresh
         $tablesOutdated = $this->_client->listTables($bucketId);
