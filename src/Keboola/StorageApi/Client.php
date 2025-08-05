@@ -1715,6 +1715,7 @@ class Client
             'orderBy',
             'fulltextSearch',
             'includeInternalTimestamp',
+            'fileType',
         ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
