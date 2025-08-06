@@ -85,7 +85,7 @@ class ExportParquetTest extends StorageApiTestCase
         $this->assertNotEmpty($job['operationParams']['export']['columns']);
         $this->assertSame($expectedColumns, $job['operationParams']['export']['columns']);
         $this->assertTrue($job['operationParams']['export']['gzipOutput']);
-        $this->assertSame(2, $job['operationParams']['export']['fileType']);
+        $this->assertSame('parquet', $job['operationParams']['export']['fileType']);
     }
 
     // bigquery exports data different, so we create new files for BQ
