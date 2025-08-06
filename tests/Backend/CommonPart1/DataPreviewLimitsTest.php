@@ -71,6 +71,7 @@ class DataPreviewLimitsTest extends StorageApiTestCase
         try {
             $this->_client->getTableDataPreview(
                 $tableId,
+                //@phpstan-ignore-next-line
                 [
                     'format' => 'json',
                     'whereFilters' => [

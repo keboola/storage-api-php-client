@@ -41,6 +41,7 @@ use Google\Cloud\Storage\StorageClient as GoogleStorageClient;
 /**
  * @phpstan-type StorageJob array{id: int, status: string, url: string, tableId: ?string, operationName: string, operationParams: array<string, mixed>, createdTime: string, startTime: ?string, endTime: ?string, runId: ?string, results: ?array<string, mixed>, creatorToken: array{id: ?string, description: ?string}, metrics: array{inCompressed: bool, inBytes: int, inBytesUncompressed: int, outCompressed: bool, outBytes: int, outBytesUncompressed: int}, error?: array{code: string, message: string, exceptionId: string, contextParams: ?array<mixed>, uuid: ?string}}
  * @phpstan-type GlobalSearchResult array{all: int, items: array<mixed>, aggregations: array<mixed>}
+ * @phpstan-import-type ExportOptions from TableExporter
  */
 class Client
 {
@@ -1307,7 +1308,7 @@ class Client
 
     /**
      * @param $tableId
-     * @param $options
+     * @param ExportOptions $options
      * @return int
      */
     public function queueTableExport($tableId, $options = [])
@@ -1661,7 +1662,7 @@ class Client
      * Table data preview
      *
      * @param string $tableId
-     * @param array $options all options are optional
+     * @param ExportOptions $options all options are optional
      *    - (int) limit,
      *  - (timestamp | strtotime format) changedSince
      *  - (timestamp | strtotime format) changedUntil
@@ -1684,11 +1685,9 @@ class Client
      * http://docs.keboola.apiary.io/#post-%2Fv2%2Fstorage%2Ftables%2F%7Btable_id%7D%2Fexport-async
      *
      * @param string $tableId
-     * @param array<mixed> $options
-     *    - (int) limit,
+     * @param ExportOptions $options
      *  - (timestamp | strtotime format) changedSince
      *  - (timestamp | strtotime format) changedUntil
-     *  - (bool) escape
      *  - (array) columns
      * @return array job results
      */
