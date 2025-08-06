@@ -30,4 +30,17 @@ trait ParquetUtils
         }
         return $content;
     }
+    /**
+     * @param string[] $files
+     * @return array<int<0, max>, array<string, mixed>>
+     */
+    public function getParquetContentNoKeys(array $files): array
+    {
+        $content = $this->getParquetContent($files);
+        // Remove keys from the content
+        foreach ($content as &$row) {
+            $row = array_values($row);
+        }
+        return $content;
+    }
 }
