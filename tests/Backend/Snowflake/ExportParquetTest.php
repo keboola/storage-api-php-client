@@ -15,6 +15,9 @@ use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\ParquetUtils;
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @phpstan-import-type ExportOptions from TableExporter
+ */
 class ExportParquetTest extends StorageApiTestCase
 {
     use TestExportDataProvidersTrait;
@@ -31,6 +34,7 @@ class ExportParquetTest extends StorageApiTestCase
 
     /**
      * @dataProvider tableExportData
+     * @param ExportOptions $exportOptions
      */
     public function testTableAsyncExport(CsvFile $importFile, string $expectationsFileName, array $exportOptions = [], string|int $orderBy = 'id'): void
     {
@@ -106,7 +110,7 @@ class ExportParquetTest extends StorageApiTestCase
     /**
      * Tests downloadSlicedFile method with sliced Parquet files
      *
-     * @param array<mixed> $exportOptions
+     * @param ExportOptions $exportOptions
      * @param array<mixed> $expectedResult
      * @dataProvider tableExportFiltersData
      */
