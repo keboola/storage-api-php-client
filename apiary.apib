@@ -1198,7 +1198,7 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
 ### Register bucket [POST /v2/storage/buckets/register]
 **EXPERIMENTAL**
 
-Use this API call to create a new bucket from existing resource (schema or DB - depends on backend). Available for **Snowflake**, **Teradata** and **BigQuery** backends only
+Use this API call to create a new bucket from existing resource (schema or DB - depends on backend). Available for **Snowflake** and **BigQuery** backends only
 
 + Attributes
     + name (required) - New bucket name; only alphanumeric characters and underscores are allowed.
@@ -1211,10 +1211,9 @@ Use this API call to create a new bucket from existing resource (schema or DB - 
     + backend (optional, enum[string]) - Bucket backend type; the default value is determined by the project settings.
         + Members
             + snowflake
-            + teradata
             + bigquery
     + displayName (optional) - Bucket displayName, this name is displayed in UI and can be changed anytime; only alphanumeric characters,underscores and dashes are allowed.
-    + path (required, array) - Path to the schema. On SNFLK ['database-name','schema-name'], Teradata ['database-name'], BigQuery ['projectId', 'location', 'exchangerName', 'listingName']
+    + path (required, array) - Path to the schema. On SNFLK ['database-name','schema-name'], BigQuery ['projectId', 'location', 'exchangerName', 'listingName']
     + isSnowflakeSharedDatabase (optional, boolean) - Flag if external bucket uses Snowflake Secure Data Share feature
 
 + Request (application/json)
@@ -1457,7 +1456,7 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
 ### Bucket Refresh [PUT /v2/storage/buckets/{bucket_id}/refresh]
 **EXPERIMENTAL**
 
-Refresh external bucket. For **Snowflake**, **Teradata** and **Bigquery** backends only. If database object (DB, Schema...) isn't available anymore (was deleted or revoked), the bucket in Storage will be deleted.
+Refresh external bucket. For **Snowflake** and **Bigquery** backends only. If database object (DB, Schema...) isn't available anymore (was deleted or revoked), the bucket in Storage will be deleted.
 
 
 + Parameters
@@ -2279,7 +2278,7 @@ Lists tables in a given bucket.
 
 ### Create new table definition [POST]
 
-Creates a table with typed columns. *Synapse|Exasol|Snowflake|Teradata|BigQuery only.*
+Creates a table with typed columns. *Snowflake|BigQuery only.*
 
 Request is handled asynchronously which means that the create request is created and added to a queue and the job resource URL for status polling is returned.
 
@@ -2294,7 +2293,7 @@ If there is no column datatype specified (column.definition.type or column.baset
     + columns[] (required) - definition of table columns
        + name (required, string) - column name
        + definition (object) - column settings
-            + type (string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP), [Synapse](https://bit.ly/3uZjN60), [Snowflake](https://docs.snowflake.com/en/sql-reference/intro-summary-data-types.html), [Teradata](https://docs.teradata.com/r/Teradata-VantageTM-Data-Types-and-Literals/July-2021/SQL-Data-Definition/Data-Definition-Phrases/Data-Type-Phrases), [BigQuery](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types)
+            + type (string) - datatype of this column, choose build in types for used backend [Snowflake](https://docs.snowflake.com/en/sql-reference/intro-summary-data-types.html), [BigQuery](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types)
             + length (string) - optional, default: depends on type
             + nullable (boolean) - optional, default: true (when column is part of primary key and nullable is not set default will be set to false)
             + default (string) - optional, default value for column
@@ -2307,20 +2306,6 @@ If there is no column datatype specified (column.definition.type or column.baset
                 + NUMERIC
                 + STRING
                 + TIMESTAMP
-    + distribution - Synapse only
-        + type (required, enum[string])
-            + Members
-                + HASH - requires exactly one column in `distributionColumnsNames`
-                + REPLICATE
-                + ROUND_ROBIN
-        + distributionColumnsNames[] (required) - has to be subset of column names
-    + index - Synapse only
-        + type (required, enum[string])
-            + Members
-                + CLUSTERED INDEX - requires exactly one column in `indexColumnsNames`
-                + CLUSTERED CLOUMNSTORE INDEX
-                + HEAP
-        + indexColumnsNames[] (required) - has to be subset of column names
     + timePartitioning - BigQuery only [(documentation)](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#timepartitioning)
         + type (required, enum[string])
             + Members
@@ -3102,7 +3087,7 @@ To enable compression of API response traffic, please include the following HTTP
         + Default: rfc
     + whereFilters (optional, array[WhereFiltersObject])
     + orderBy (optional, array[OrderByObject]) - Not supported for Redshift
-    + fulltextSearch (optional, string) - Makes fulltext search over all data in table. It cannot be combined with `whereFilters`. On Teradata search only over char-base columns. Snowflake/Synapse/Teradata/BigQuery only
+    + fulltextSearch (optional, string) - Makes fulltext search over all data in table. It cannot be combined with `whereFilters`. Snowflake/BigQuery only
 
 + Request with default `rfc` format (`CSV` data)
 
@@ -3954,7 +3939,7 @@ Adds a new column to an existing table. This request is [asynchronous](#introduc
 + Attributes
     + name (required, string) - column name
     + definition (optional, object) - column settings, this object is applicable when table is typed. Otherwise it is ignored
-        + type (required, string) - datatype of this column, choose build in types for used backend [Exasol](https://bit.ly/3s2n4AP) [Synapse](https://bit.ly/3uZjN60) [Snowflake](https://bit.ly/3A5CkT8), [BigQuery](https://bit.ly/3jcQ8VX), [Teradata](https://bit.ly/3jj3r7h)
+        + type (required, string) - datatype of this column, choose build in types for used backend [Snowflake](https://bit.ly/3A5CkT8), [BigQuery](https://bit.ly/3jcQ8VX)
         + length (string) - optional, default: depends on type
         + nullable (boolean) - optional, default: true; BigQuery: BQ doesn't support adding a REQUIRED column to an existing table schema so if this parameter is present, it has to be true.
         + default (string) - optional, default value for column, not supported by BigQuery
@@ -4157,11 +4142,11 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
 
         + dataType (optional, enum[string]) - Not supported for Redshift - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type. BigQuery supports all listed types and converts them to BigQuery equivalent in the background
             + Members
-                + INTEGER - for numbers without a decimal point (Snowflake, Teradata, BigQuery)
+                + INTEGER - for numbers without a decimal point (Snowflake, BigQuery)
                 + DOUBLE - for number with a decimal point (Snowflake, BigQuery)
-                + BIGINT - for number without a decimal point (Synapse, BigQuery)
-                + REAL - for number with a decimal point (Synapse, Teradata, BigQuery)
-                + DECIMAL - for numbers (Exasol, BigQuery)
+                + BIGINT - for number without a decimal point (BigQuery)
+                + REAL - for number with a decimal point (BigQuery)
+                + DECIMAL - for numbers (BigQuery)
     + allowTruncate - (optional, boolean) is used to confirm that you really want to delete all rows in case you did not specify any filters.
         + default: false
 
@@ -4740,9 +4725,6 @@ NOTE: To create reader workspace, use Create Configuration Workspaces endpoint i
         + Members
             + redshift
             + snowflake
-            + synapse
-            + exasol
-            + teradata
             + bigquery
             + abs - Azure blob storage file workspace
     + backendSize: small (optional, enum[string]) - Workspace backend size. Available only for `snowflake` backend and projects having `workspace-snowflake-dynamic-backend-size` feature enabled.
@@ -4825,9 +4807,6 @@ Creates a new workspace for [Development Branch](#reference/development-branches
         + Members
             + redshift
             + snowflake
-            + synapse
-            + exasol
-            + teradata
             + bigquery
             + abs - Azure blob storage file workspace
     + backendSize: small (optional, enum[string]) - Workspace backend size. Available only for `snowflake` backend and projects having `workspace-snowflake-dynamic-backend-size` feature enabled.
@@ -4992,7 +4971,7 @@ Deletes a workspace in [Development Branch](#reference/development-branches). Th
 
 ### Load Data [POST]
 
-Loads tables from Storage into a Workspace. Not supported for Teradata. BigQuery supports only loading as view.
+Loads tables from Storage into a Workspace. BigQuery supports only loading as view.
 
 + Parameters
     + workspace_id (required, number)
@@ -5057,7 +5036,7 @@ Loads tables from Storage into a Workspace. Not supported for Teradata. BigQuery
                         Default: false
                     + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
                         Default: false
-                    + useView (optional, boolean) - (experimental) Synapse (requires feature `workspace-view-load`, aliases and linked bucket don't work),SNFLK (requires feature `input-mapping-read-only-storage`, aliases are not supported), BigQuery (working without feature, aliases are not supported) view will be created in workspace instead of loading table (only source and destination options are allowed)
+                    + useView (optional, boolean) - (experimental) SNFLK (requires feature `input-mapping-read-only-storage`, aliases are not supported), BigQuery (working without feature, aliases are not supported) view will be created in workspace instead of loading table (only source and destination options are allowed)
                         Default: false
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
         Default: false
@@ -5126,7 +5105,7 @@ Loads tables from Storage into a Workspace. Not supported for Teradata. BigQuery
             }
 
 ### Load Data into Development Branch Workspace [POST /v2/storage/branch/{branch_id}/workspaces/{workspace_id}/load]
-Loads tables from Storage into a Workspace in [Development Branch](#reference/development-branches). Not supported for Teradata and BigQuery backends.
+Loads tables from Storage into a Workspace in [Development Branch](#reference/development-branches). Not supported for BigQuery backend.
 
 + Parameters
     + branch_id (required) - Id of the development branch
@@ -5192,7 +5171,7 @@ Loads tables from Storage into a Workspace in [Development Branch](#reference/de
                         Default: false
                     + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
                         Default: false
-                    + useView (optional, boolean) - (experimental) Synapse (requires feature `workspace-view-load`, aliases and linked bucket don't work),SNFLK (requires feature `input-mapping-read-only-storage`, aliases don't work) view will be created in workspace instead of loading table (only source and destination options are allowed)
+                    + useView (optional, boolean) - (experimental) SNFLK (requires feature `input-mapping-read-only-storage`, aliases don't work) view will be created in workspace instead of loading table (only source and destination options are allowed)
                         Default: false
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
         Default: false
@@ -8522,6 +8501,8 @@ Creates a new workspace for an existing configuration in [Development Branch](#r
         + Members
             + redshift
             + snowflake
+            + bigquery
+            + abs - Azure blob storage file workspace
     + backendSize: small (optional, enum[string]) - Workspace backend size. Available only for `snowflake` backend and projects having `workspace-snowflake-dynamic-backend-size` feature enabled.
         + Members
             + small
@@ -9940,11 +9921,11 @@ Requesting changes will remove all approvals and move the Merge request to `deve
     + Default: ASC
 + dataType (optional, enum[string]) - required when sorting by column contains numeric value, disallowed for tables with native types
     + Members
-        + INTEGER - for numbers without a decimal point (Snowflake, Teradata, BigQuery)
+        + INTEGER - for numbers without a decimal point (Snowflake, BigQuery)
         + DOUBLE - for number with a decimal point (Snowflake, BigQuery)
-        + BIGINT - for number without a decimal point (Synapse, BigQuery)
-        + REAL - for number with a decimal point (Synapse, Teradata, BigQuery)
-        + DECIMAL - for numbers (Exasol, BigQuery)
+        + BIGINT - for number without a decimal point (BigQuery)
+        + REAL - for number with a decimal point (BigQuery)
+        + DECIMAL - for numbers (BigQuery)
 
 
 ### WhereFiltersObject (object)
@@ -9961,11 +9942,11 @@ Requesting changes will remove all approvals and move the Merge request to `deve
 + values (required, array[string]) - array of variables to compare
 + dataType (optional, enum[string]) - Not supported for Redshift - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type. BigQuery supports all listed types and converts them to BigQuery equivalent in the background
     + Members
-        + INTEGER - for numbers without a decimal point (Snowflake, Teradata, BigQuery)
+        + INTEGER - for numbers without a decimal point (Snowflake, BigQuery)
         + DOUBLE - for number with a decimal point (Snowflake, BigQuery)
-        + BIGINT - for number without a decimal point (Synapse, BigQuery)
-        + REAL - for number with a decimal point (Synapse, Teradata, BigQuery)
-        + DECIMAL - for numbers (Exasol, BigQuery)
+        + BIGINT - for number without a decimal point (BigQuery)
+        + REAL - for number with a decimal point (BigQuery)
+        + DECIMAL - for numbers (BigQuery)
 
 
 ### CreateTableDefinitionAsyncBase
@@ -9974,8 +9955,7 @@ Requesting changes will remove all approvals and move the Merge request to `deve
 + delimiter (optional) - Field delimiter used in the CSV file. The default value is ','.  Use '\t' or type the tab char for the tabulator.
 + enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
 + escapedBy (optional) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
-+ primaryKey (optional) - Primary key of a table. If the primary key is set, updates can be done on the table. See CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma. For Synapse if single primary key is set, it's also used as distribution key, if distribution key option is empty.
-+ distributionKey (optional) - (Synapse only) Distribution key of a table. If the distribution key is set, table will use HASH distribution.
++ primaryKey (optional) - Primary key of a table. If the primary key is set, updates can be done on the table. See CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma.
 
 ### CreateTableDefinitionAsyncFile(CreateTableDefinitionAsyncBase)
 
