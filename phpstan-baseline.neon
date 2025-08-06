@@ -571,11 +571,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:queueTableExport\\(\\) has parameter \\$options with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:queueTableExport\\(\\) has parameter \\$tableId with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php

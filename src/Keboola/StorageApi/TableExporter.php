@@ -15,9 +15,38 @@ use GuzzleHttp\Client as HttpClient;
 use Keboola\StorageApi\Downloader\DownloaderFactory;
 use Keboola\StorageApi\Downloader\DownloaderInterface;
 use Keboola\StorageApi\Exporter\DownloadedSliceEntry;
+use Keboola\StorageApi\Exporter\FileType;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
+/**
+ * @phpstan-type ExportOptions array{
+ *      limit?: int,
+ *      changedSince?: string,
+ *      changedUntil?: string,
+ *      columns?: string[],
+ *      sourceBranchId?: int,
+ *      format?: string,
+ *      whereFilters?: array<array{
+ *        column: string,
+ *        operator: string,
+ *        values: array<int,string|int>,
+ *        dataType?: string,
+ *      }>,
+ *      orderBy?: array<array{
+ *        column: string,
+ *        dataType?: string,
+ *        order?: string,
+ *      }>,
+ *      gzip?: bool,
+ *      includeInternalTimestamp?: bool,
+ *      fileType?: string|FileType,
+ *      days?: int,
+ *      whereColumn?: string,
+ *      whereValues?: string[],
+ *      whereOperator?: string,
+ *  }
+ */
 class TableExporter
 {
     /**
