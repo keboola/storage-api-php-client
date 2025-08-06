@@ -151,6 +151,7 @@
 		<file>tests/Backend/Workspaces/WorkspacesUnloadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesRenameLoadTest.php</file>
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesCredentialsTest.php</file>
 	</testsuite>
 
 	<testsuite name="backend-mixed">
@@ -263,6 +264,7 @@
 		<!--		Workspaces-->
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/BigqueryWorkspacesUnloadTest.php</file>
+		<file>tests/Backend/Workspaces/WorkspacesCredentialsTest.php</file>
 		<!--	External bucket	-->
 		<file>tests/Backend/ExternalBuckets/BigqueryRegisterBucketTest.php</file>
 	</testsuite>
