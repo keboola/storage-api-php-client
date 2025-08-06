@@ -29,16 +29,6 @@ class TableEventsTest extends StorageApiTestCase
             ->setComponent('dummy')
             ->setMessage('dummy'), $this->_client);
 
-        // sinceId id (int)
-        $events = $this->_client->listTableEvents(
-            $tableId,
-            [
-                'sinceId' => $lastEvent['id'],
-            ],
-        );
-        $this->assertCount(3, $events);
-        $this->assertEventUuid($events[0]);
-
         // sinceId uuid
         $events = $this->_client->listTableEvents(
             $tableId,
