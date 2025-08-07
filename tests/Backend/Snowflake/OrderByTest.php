@@ -151,6 +151,7 @@ class OrderByTest extends StorageApiTestCase
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage("All items in param \"orderBy\" should be an arrays, but parameter contains:\n" . json_encode($orderBy));
+        //@phpstan-ignore-next-line
         $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
     }
 
@@ -163,6 +164,7 @@ class OrderByTest extends StorageApiTestCase
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage("Parameter \"orderBy\" should be an array, but parameter contains:\n" . json_encode($orderBy));
+        //@phpstan-ignore-next-line
         $this->_client->getTableDataPreview($tableId, ['orderBy' => $orderBy]);
     }
 

@@ -36,7 +36,7 @@ class S3Downloader implements DownloaderInterface
      */
     public function downloadManifestEntry($fileResponse, $entry, $tmpFilePath)
     {
-        $fileKey = substr($entry['url'], strpos($entry['url'], '/', 5) + 1);
+        $fileKey = $this->getEntryKey($entry['url']);
         $filePath = $tmpFilePath . '_' . md5(str_replace('/', '_', $fileKey));
 
         $this->client->getObject([
@@ -46,5 +46,10 @@ class S3Downloader implements DownloaderInterface
         ]);
 
         return $filePath;
+    }
+
+    public function getEntryKey(string $entryUrl): string
+    {
+        return substr($entryUrl, strpos($entryUrl, '/', 5) + 1);
     }
 }

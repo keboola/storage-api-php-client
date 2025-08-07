@@ -18,4 +18,6 @@ interface DownloaderInterface
      * @return string
      */
     public function downloadManifestEntry($fileResponse, $entry, $tmpFilePath);
+
+    public function getEntryKey(string $entryUrl): string;
 }

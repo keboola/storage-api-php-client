@@ -202,6 +202,7 @@ class WhereFilterTest extends StorageApiTestCase
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage("Parameter \"whereFilters\" should be an array, but parameter contains:\n" . json_encode($where));
+        //@phpstan-ignore-next-line
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 
@@ -213,6 +214,7 @@ class WhereFilterTest extends StorageApiTestCase
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage("All items in param \"whereFilters\" should be an arrays, but parameter contains:\n" . json_encode($where));
+        //@phpstan-ignore-next-line
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => $where]);
     }
 

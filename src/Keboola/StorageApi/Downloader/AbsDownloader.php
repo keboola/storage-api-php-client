@@ -33,7 +33,7 @@ class AbsDownloader implements DownloaderInterface
      */
     public function downloadManifestEntry($fileResponse, $entry, $tmpFilePath)
     {
-        list($protocol, $account, $container, $file) = AbsUrlParser::parseAbsUrl($entry['url']);
+        [, , $container, $file] = $this->parseEntryUrl($entry['url']);
 
         $filePath = $tmpFilePath . '_' . md5(str_replace('/', '_', $file));
 
@@ -43,5 +43,19 @@ class AbsDownloader implements DownloaderInterface
         );
         file_put_contents($filePath, $result->getContentStream());
         return $filePath;
+    }
+
+    public function getEntryKey(string $entryUrl): string
+    {
+        [, , , $file] = AbsUrlParser::parseAbsUrl($entryUrl);
+        return $file;
+    }
+
+    /**
+     * @return array{0: string, 1: string, 2: string, 3: string}
+     */
+    private function parseEntryUrl(string $entryUrl): array
+    {
+        return AbsUrlParser::parseAbsUrl($entryUrl);
     }
 }

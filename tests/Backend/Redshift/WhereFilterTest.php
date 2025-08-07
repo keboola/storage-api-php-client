@@ -27,6 +27,7 @@ class WhereFilterTest extends StorageApiTestCase
 
         $this->expectException(ClientException::class);
         $this->expectExceptionMessageMatches('~Operator ' . $where['operator'] . ' not allowed .* Available operators are~');
+        //@phpstan-ignore-next-line
         $this->_client->getTableDataPreview($tableId, ['whereFilters' => [$where]]);
     }
 
