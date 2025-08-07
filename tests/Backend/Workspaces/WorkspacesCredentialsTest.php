@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Test\Backend\Workspaces;
 
+use Exception;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
@@ -13,8 +14,17 @@ class WorkspacesCredentialsTest extends ParallelWorkspacesTestCase
 {
     use WorkspaceConnectionTrait;
 
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->allowTestForBackendsOnly(['snowflake', 'bigquery'], 'Workspace credentials are implemented only for Snowflake and BigQuery');
+    }
+
     public function testConnectByCredentials(): void
     {
+        $this->skipTestForBackend(['bigquery'], 'BigQuery is WIP');
+
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
@@ -37,17 +47,17 @@ class WorkspacesCredentialsTest extends ParallelWorkspacesTestCase
                 SnowflakeQuote::quoteSingleIdentifier('id'),
                 SnowflakeQuote::quoteSingleIdentifier('name'),
             ));
-        } elseif ($workspace['connection']['backend'] === 'bigquery') {
+        } else {
+            // BigQuery
             $backend->executeQuery(sprintf(
                 'INSERT INTO %s.`test_Languages` (`id`, `name`) VALUES (1, \'cz\'), (2, \'en\');',
                 $workspace['connection']['schema'],
             ));
-        } else {
-            $this->fail(sprintf('Unsupported workspace backend: %s', $workspace['connection']['backend']));
         }
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
+        // credentials creation
         $workspaceCredentials = $workspaces->createCredentials($workspace['id']);
         $workspaceBackend = WorkspaceBackendFactory::createWorkspaceBackend($workspaceCredentials, true);
 
@@ -60,5 +70,30 @@ class WorkspacesCredentialsTest extends ParallelWorkspacesTestCase
                 ],
             $dbResult,
         );
+
+        // credentials detail is working and returning correct object
+        $credentialsId = $workspaceCredentials['connection']['credentials']['id'];
+
+        $workspaceCredentialsRefreshed = $workspaces->getCredentials($workspace['id'], $credentialsId);
+        $workspaceBackendRefreshed = WOrkspaceBackendFactory::createWorkspaceBackend($workspaceCredentialsRefreshed, true);
+
+        $dbResultRefreshed = $workspaceBackendRefreshed->fetchAll('test_Languages');
+
+        $this->assertEquals(
+            [
+                0 => [1, 'cz'],
+                1 => [2, 'en'],
+            ],
+            $dbResultRefreshed,
+        );
+
+        $workspaces->deleteCredentials($workspace['id'], $credentialsId);
+
+        try {
+            WorkspaceBackendFactory::createWorkspaceBackend($workspaceCredentialsRefreshed, true);
+            $this->fail('Expected exception to be thrown.');
+        } catch (Exception $e) {
+            $this->assertTrue(str_contains($e->getMessage(), 'JWT token is invalid.'));
+        }
     }
 }

@@ -264,8 +264,7 @@
 		<!--		Workspaces-->
 		<file>tests/Backend/Workspaces/WorkspacesTest.php</file>
 		<file>tests/Backend/Workspaces/BigqueryWorkspacesUnloadTest.php</file>
-<!--        temporarily disabled - will be enabled in next PR when BQ will be ready-->
-<!--		<file>tests/Backend/Workspaces/WorkspacesCredentialsTest.php</file>-->
+		<file>tests/Backend/Workspaces/WorkspacesCredentialsTest.php</file>
 		<!--	External bucket	-->
 		<file>tests/Backend/ExternalBuckets/BigqueryRegisterBucketTest.php</file>
 	</testsuite>
