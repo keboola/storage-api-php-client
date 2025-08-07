@@ -310,4 +310,23 @@ class Workspaces
             $loginType->value,
         ));
     }
+
+    public function createCredentials(int|string $workspaceId): array
+    {
+        $result = $this->client->apiPostJson("workspaces/{$workspaceId}/credentials");
+        assert(is_array($result));
+        return $result;
+    }
+
+    public function getCredentials(int|string $workspaceId, int|string $credentialsId): array
+    {
+        $result = $this->client->apiGet("workspaces/{$workspaceId}/credentials/{$credentialsId}");
+        assert(is_array($result));
+        return $result;
+    }
+
+    public function deleteCredentials(int|string $workspaceId, int|string $credentialsId): void
+    {
+        $this->client->apiDelete("workspaces/{$workspaceId}/credentials/{$credentialsId}");
+    }
 }
