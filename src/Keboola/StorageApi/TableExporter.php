@@ -244,7 +244,7 @@ class TableExporter
         foreach ($jobResults as $jobResult) {
             $exportJob = $exportJobs[$jobResult['id']];
             $isGzip = false;
-            if ($exportOptions[$exportJob['tableId']]['gzip'] === true) {
+            if (isset($exportOptions[$exportJob['tableId']]['gzip']) && $exportOptions[$exportJob['tableId']]['gzip'] === true) {
                 $isGzip = true;
                 if ($exportOptions[$exportJob['tableId']]['fileType'] === 'parquet') {
                     // parquet files are not gzipped, but snappy compressed
