@@ -320,8 +320,8 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         // add first table to workspace
         $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
 
-        $db->createTable('TEST', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT']);
-        $db->executeQuery('INSERT INTO "TEST" VALUES (1, \'test\')');
+        $db->createTable('TEST', ['AMOUNT' => 'NUMBER', 'DESCRIPTION' => 'TEXT', 'A_PROPS' => 'ARRAY', 'PROPS' => 'VECTOR(INT,2)']);
+        $db->executeQuery('INSERT INTO "TEST" SELECT 1, \'test\', ARRAY_CONSTRUCT(5,6), ARRAY_CONSTRUCT(1,2)::VECTOR(INT,2)');
 
         // refresh external bucket
         $runId = $this->setRunId();
@@ -355,7 +355,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $this->assertSame('true', $tableDetail['metadata'][0]['value']);
         $this->assertTrue($tableDetail['isTyped']);
 
-        $this->assertCount(2, $tableDetail['columns']);
+        $this->assertCount(4, $tableDetail['columns']);
 
         $this->assertColumnMetadata(
             'NUMBER',
@@ -370,6 +370,20 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             'STRING',
             '16777216',
             $tableDetail['columnMetadata']['DESCRIPTION'],
+        );
+        $this->assertColumnMetadata(
+            'ARRAY',
+            '1',
+            'STRING',
+            null,
+            $tableDetail['columnMetadata']['A_PROPS'],
+        );
+        $this->assertColumnMetadata(
+            'VECTOR',
+            '1',
+            'STRING',
+            'INT, 2',
+            $tableDetail['columnMetadata']['PROPS'],
         );
 
         // export table from external bucket
@@ -461,7 +475,7 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         $this->assertCount(2, $tables);
 
         $tableDetail = $this->_testClient->getTable($tables[0]['id']);
-        $this->assertSame(['DESCRIPTION', 'XXX'], $tableDetail['columns']);
+        $this->assertSame(['DESCRIPTION', 'A_PROPS', 'PROPS', 'XXX'], $tableDetail['columns']);
 
         $this->assertColumnMetadata(
             'VARCHAR',
@@ -470,7 +484,20 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
             '16777216',
             $tableDetail['columnMetadata']['DESCRIPTION'],
         );
-
+        $this->assertColumnMetadata(
+            'ARRAY',
+            '1',
+            'STRING',
+            null,
+            $tableDetail['columnMetadata']['A_PROPS'],
+        );
+        $this->assertColumnMetadata(
+            'VECTOR',
+            '1',
+            'STRING',
+            'INT, 2',
+            $tableDetail['columnMetadata']['PROPS'],
+        );
         $this->assertColumnMetadata(
             'FLOAT',
             '1',
