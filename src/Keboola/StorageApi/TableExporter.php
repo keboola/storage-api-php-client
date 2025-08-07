@@ -246,7 +246,7 @@ class TableExporter
             $isGzip = false;
             if (isset($exportOptions[$exportJob['tableId']]['gzip']) && $exportOptions[$exportJob['tableId']]['gzip'] === true) {
                 $isGzip = true;
-                if ($exportOptions[$exportJob['tableId']]['fileType'] === 'parquet') {
+                if (isset($exportOptions[$exportJob['tableId']]['fileType']) && $exportOptions[$exportJob['tableId']]['fileType'] === 'parquet') {
                     // parquet files are not gzipped, but snappy compressed
                     $isGzip = false;
                 }
