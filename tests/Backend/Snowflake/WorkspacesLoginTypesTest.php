@@ -8,6 +8,7 @@ use Generator;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\WorkspaceLoginType;
 use Keboola\StorageApi\Workspaces;
+use Keboola\TableBackendUtils\Connection\Exception\ConnectionException;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
@@ -47,6 +48,64 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
                 'expectedLoginType' => WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD->value,
             ];
         }
+    }
+
+    public function legacyLoginTypeProvider(): Generator
+    {
+        yield 'Login type "snowflake-legacy-service"' => [
+            WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD,
+        ];
+        yield 'Login type "default"' => [
+            WorkspaceLoginType::DEFAULT,
+        ];
+    }
+
+    /**
+     * @dataProvider legacyLoginTypeProvider
+     */
+    public function testCreateLegacyWsAndMigrateToPersonKeypairTypeBySetPublicKeyEndpoint(WorkspaceLoginType $loginType): void
+    {
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+        $options['loginType'] = $loginType;
+        $workspace = $this->initTestWorkspace('snowflake', $options, true);
+
+        $connection = $workspace['connection'];
+        $this->assertSame('snowflake', $connection['backend']);
+        $this->assertSame('snowflake-legacy-service', $connection['loginType']); // it's always snowflake-legacy-service
+
+        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
+        $workspaces->setPublicKey($workspace['id'], new Workspaces\SetPublicKeyRequest(publicKey: $key->getPublicKey()));
+        $updatedWs = $workspaces->getWorkspace($workspace['id']);
+
+        $connectionWs = $updatedWs['connection'];
+        $this->assertSame('snowflake', $connectionWs['backend']);
+        assert(array_key_exists('loginType', $connectionWs));
+        $this->assertSame(WorkspaceLoginType::SNOWFLAKE_PERSON_KEYPAIR->value, $connectionWs['loginType']);
+
+        try {
+            $backendKey = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
+            $backendKey->getDb()->executeQuery('SELECT 1');
+            $this->fail('Original password should not work');
+        } catch (ConnectionException $e) {
+            $this->assertSame('An exception occurred in the driver: Incorrect username or password was specified.', $e->getMessage());
+        }
+
+        // new key pair should work
+        unset($workspace['connection']['password']);
+        $workspace['connection']['privateKey'] = $key->getPrivateKey();
+        $backendKey = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
+        $backendKey->getDb()->executeQuery('SELECT 1');
+
+        try {
+            // try reset password
+            $workspaces->resetWorkspacePassword($workspace['id']);
+            $this->fail('Password reset should not be supported for keypair login type');
+        } catch (ClientException $e) {
+            $this->assertSame($e->getCode(), 400);
+            $this->assertSame('workspace.resetPasswordNotSupported', $e->getStringCode());
+        }
+
+        $workspaces->deleteWorkspace($workspace['id'], [], true);
     }
 
     /**
