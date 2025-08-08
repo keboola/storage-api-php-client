@@ -42,6 +42,7 @@ use Keboola\StorageApi\Workspaces\SetPublicKeyRequest;
  *      },
  *      readOnlyStorageAccess: bool,
  *      platformUsageType: string|null,
+ *      loginType: string,
  *  }
  *
  * @phpstan-type CreateWorkspaceOptions array{
