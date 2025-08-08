@@ -49,6 +49,28 @@ class WorkspacesLoginTypesTest extends ParallelWorkspacesTestCase
         }
     }
 
+    public function testCreateLegacyWsAndMigrateToPersonKeypairTypeBySetPublicKeyEndpoint(): void
+    {
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+        $options['loginType'] = WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD;
+        $workspace = $this->initTestWorkspace('snowflake', $options, true);
+
+        $connection = $workspace['connection'];
+        $this->assertSame('snowflake', $connection['backend']);
+        $this->assertSame(WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD->value, $connection['loginType']);
+
+        //test refresh legacy pass
+        $key = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
+        $workspaces->setPublicKey($workspace['id'], new Workspaces\SetPublicKeyRequest(publicKey: $key->getPublicKey()));
+        $updatedWs = $workspaces->getWorkspace($workspace['id']);
+
+        $connection = $updatedWs['connection'];
+        $this->assertSame('snowflake', $connection['backend']);
+        $this->assertSame(WorkspaceLoginType::SNOWFLAKE_PERSON_KEYPAIR->value, $connection['loginType']);
+
+        $workspaces->deleteWorkspace($workspace['id'], [], true);
+    }
+
     /**
      * @dataProvider createWorkspaceProvider
      */
