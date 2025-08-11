@@ -326,7 +326,7 @@ class SharingTest extends StorageApiSharingTestCase
         $fullTableData = $this->_client2->getTableDataPreview($storageTablesInDestProject[0]['id']);
         $this->assertCount((2 * ($originalFileLinesCount - 1)) + 1, Client::parseCsv($fullTableData, false), 'lines count after incremental load');
 
-        $changeTime = sprintf('-%d second', ceil(time() - $startTime) + 5);
+        $changeTime = (string) (time() - (ceil(time() - $startTime) + 5));
         $changeSincePreviewData = $this->_client2->getTableDataPreview($storageTablesInDestProject[0]['id'], [
             'changedSince' => $changeTime,
         ]);
@@ -369,14 +369,11 @@ class SharingTest extends StorageApiSharingTestCase
                 'changedUntil' => $changeTime,
             ],
         );
-        // TODO: This comparison is disabled because of the issue with BigQuery export
-        // For some reason, the export does contain more values, but from checks in BQ export query is correct.
-        // https://keboola.atlassian.net/browse/CT-2187
-//        $this->assertArrayEqualsSorted(
-//            Client::parseCsv($changeUntilPreviewData),
-//            Client::parseCsv((string) file_get_contents($changeUntilPath)),
-//            'id',
-//        );
+        $this->assertArrayEqualsSorted(
+            Client::parseCsv($changeUntilPreviewData),
+            Client::parseCsv((string) file_get_contents($changeUntilPath)),
+            'id',
+        );
     }
 
     public function testBucketShareUpdate(): void
