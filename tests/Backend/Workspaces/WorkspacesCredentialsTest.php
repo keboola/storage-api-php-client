@@ -113,7 +113,6 @@ class WorkspacesCredentialsTest extends ParallelWorkspacesTestCase
             $dbResultRefreshed,
         );
 
-
         $query = new EventsQueryBuilder();
         $query->setEvent('storage.workspaceCredentialsDeleted')
             ->setTokenId($this->tokenId);
