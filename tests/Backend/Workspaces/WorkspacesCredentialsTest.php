@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Keboola\Test\Backend\Workspaces;
 
 use Exception;
+use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
+use Keboola\Test\ClientProvider\ClientProvider;
+use Keboola\Test\Utils\EventsQueryBuilder;
 
 class WorkspacesCredentialsTest extends ParallelWorkspacesTestCase
 {
@@ -57,7 +60,17 @@ class WorkspacesCredentialsTest extends ParallelWorkspacesTestCase
 
         $workspaces = new Workspaces($this->workspaceSapiClient);
 
+        $this->initEvents($this->_client);
         // credentials creation
+        $assertCallback = function ($events) {
+            $this->assertCount(1, $events);
+        };
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.workspaceCredentialsCreated')
+            ->setTokenId($this->tokenId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+
         $workspaceCredentials = $workspaces->createCredentials($workspace['id']);
         $workspaceBackend = WorkspaceBackendFactory::createWorkspaceBackend($workspaceCredentials, true);
 
@@ -71,10 +84,23 @@ class WorkspacesCredentialsTest extends ParallelWorkspacesTestCase
             $dbResult,
         );
 
-        // credentials detail is working and returning correct object
+        // should just return the same credentials
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.workspaceCredentialsRetrieved')
+            ->setTokenId($this->tokenId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
+        $retrievedCredentials = $workspaces->createCredentials($workspace['id']);
+        $this->assertEquals($workspaceCredentials['connection']['private_key'], $retrievedCredentials['connection']['private_key']);
+
+        // credential detail is working and returning a correct object
         $credentialsId = $workspaceCredentials['connection']['credentials']['id'];
 
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.workspaceCredentialsDetail')
+            ->setTokenId($this->tokenId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
         $workspaceCredentialsRefreshed = $workspaces->getCredentials($workspace['id'], $credentialsId);
+        $this->assertEquals($workspaceCredentials['connection']['private_key'], $workspaceCredentialsRefreshed['connection']['private_key']);
         $workspaceBackendRefreshed = WOrkspaceBackendFactory::createWorkspaceBackend($workspaceCredentialsRefreshed, true);
 
         $dbResultRefreshed = $workspaceBackendRefreshed->fetchAll('test_Languages');
@@ -87,6 +113,11 @@ class WorkspacesCredentialsTest extends ParallelWorkspacesTestCase
             $dbResultRefreshed,
         );
 
+
+        $query = new EventsQueryBuilder();
+        $query->setEvent('storage.workspaceCredentialsDeleted')
+            ->setTokenId($this->tokenId);
+        $this->assertEventWithRetries($this->_client, $assertCallback, $query);
         $workspaces->deleteCredentials($workspace['id'], $credentialsId);
 
         try {
