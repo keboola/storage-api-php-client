@@ -3047,7 +3047,6 @@ Further information can be found in the [Developers Documentation](https://devel
                 }
             }
 
-
 ## Data Preview [/v2/storage/tables/{table_id}/data-preview/]
 ### Data preview [GET]
 
@@ -5660,6 +5659,121 @@ query, non-SELECT query and failed query.
             "status": "error",
             "message": "An exception occurred while executing a query: SQL compilation error: error line 1 at position 7 invalid identifier 'BIRTHDATE'"
         }
+
+
+## Workspace credentials [/v2/storage/workspaces/{workspaceId}/credentials]
+
+Manage dedicated workspace credentials to be used in Query Service
+### Create credentials [POST]
+
++ Request (application/json)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+            }
+
++ Response 200 (application/json)
+
+        {
+            "id": 254,
+            "type": "table",
+            "name": "WORKSPACE_123",
+            "component": null,
+            "configurationId": null,
+            "created": "2025-08-13T15:03:18+0200",
+            "connection": {
+                "backend": "snowflake",
+                "region": "eu-central-1",
+                "host": "kebooladev.snowflakecomputing.com",
+                "database": "DB_123",
+                "schema": "WORKSPACE_123",
+                "warehouse": "DEV",
+                "user": "JSWORKSPACE_123_QS",
+                "loginType": "snowflake-service-keypair",
+                "ssoLoginAvailable": false,
+                "account": "kebooladev",
+                "role": "JSWORKSPACE_123",
+                "privateKey": "-----BEGIN PRIVATE KEY--....",
+                "credentials": {
+                    "id": 356
+                }
+            },
+            "backendSize": "small",
+            "statementTimeoutSeconds": 0,
+            "creatorToken": {
+                "id": 1,
+                "description": "token"
+            },
+            "readOnlyStorageAccess": true,
+            "platformUsageType": "user"
+        }
+
+
+
+Create new or fetch existing credentials for dedicated workspace.
+
+### Credentials detail [GET /v2/storage/workspaces/{workspaceId}/credentials/{id}]
+
++ Request (application/json)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 204 (application/json)
+
+            {
+            "id": 254,
+            "type": "table",
+            "name": "WORKSPACE_123",
+            "component": null,
+            "configurationId": null,
+            "created": "2025-08-13T15:03:18+0200",
+            "connection": {
+                "backend": "snowflake",
+                "region": "eu-central-1",
+                "host": "kebooladev.snowflakecomputing.com",
+                "database": "DB_123",
+                "schema": "WORKSPACE_123",
+                "warehouse": "DEV",
+                "user": "JSWORKSPACE_123_QS",
+                "loginType": "snowflake-service-keypair",
+                "ssoLoginAvailable": false,
+                "account": "kebooladev",
+                "role": "JSWORKSPACE_123",
+                "privateKey": "-----BEGIN PRIVATE KEY--....",
+                "credentials": {
+                    "id": 356
+                }
+            },
+            "backendSize": "small",
+            "statementTimeoutSeconds": 0,
+            "creatorToken": {
+                "id": 1,
+                "description": "token"
+            },
+            "readOnlyStorageAccess": true,
+            "platformUsageType": "user"
+        }
+
+Get details of specified workspace credentials
+
+### Delete credentials [DELETE /v2/storage/workspaces/{workspaceId}/credentials/{id}]
+
+Delete specified workspace credentials. User will be invalidated
+
+
++ Request (application/json)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 204 (application/json)
+
+
 
 ## Data Structures
 
