@@ -571,11 +571,6 @@ parameters:
 			path: src/Keboola/StorageApi/Client.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:queueTableExport\\(\\) has parameter \\$options with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Client.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Client\\:\\:queueTableExport\\(\\) has parameter \\$tableId with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Client.php
@@ -1981,16 +1976,6 @@ parameters:
 			path: src/Keboola/StorageApi/S3Uploader/PromiseResultHandler.php
 
 		-
-			message: "#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/TableExporter.php
-
-		-
-			message: "#^Cannot access offset 'entries' on mixed\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/TableExporter.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\TableExporter\\:\\:exportTable\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/TableExporter.php
@@ -2037,11 +2022,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\TableExporter\\:\\:handleExportedFile\\(\\) has parameter \\$tableId with no type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/TableExporter.php
-
-		-
-			message: "#^Parameter \\#2 \\$entry of method Keboola\\\\StorageApi\\\\Downloader\\\\DownloaderInterface\\:\\:downloadManifestEntry\\(\\) expects array, mixed given\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/TableExporter.php
 
