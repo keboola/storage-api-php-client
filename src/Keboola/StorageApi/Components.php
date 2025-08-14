@@ -131,6 +131,11 @@ class Components
         return $this->client->apiGet($this->branchPrefix . "components/{$componentId}");
     }
 
+    public function getPublicComponentDetail(string $componentId): array
+    {
+        return $this->client->apiGet('components/'.$componentId);
+    }
+
     public function listComponentConfigurations(ListComponentConfigurationsOptions $options)
     {
         return $this->client->apiGet($this->branchPrefix . "components/{$options->getComponentId()}/configs?" . http_build_query($options->toParamsArray()));
