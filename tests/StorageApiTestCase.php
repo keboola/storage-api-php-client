@@ -265,6 +265,9 @@ abstract class StorageApiTestCase extends ClientTestCase
     public function assertArrayEqualsSorted($expected, $actual, $sortKey, $message = '')
     {
         $comparsion = function ($attrLeft, $attrRight) use ($sortKey) {
+            var_export($attrLeft);
+            var_export($sortKey);
+            var_export($attrRight);
             if ($attrLeft[$sortKey] == $attrRight[$sortKey]) {
                 return 0;
             }

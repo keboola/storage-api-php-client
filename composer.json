@@ -39,10 +39,14 @@
 		"symfony/process": "^7.0||^6.0||^5.0||^4.0"
 	},
 	"require-dev": {
+		"ext-bcmath": "*",
 		"ext-curl": "*",
 		"ext-pdo": "*",
 		"ext-pdo_pgsql": "*",
 		"brianium/paratest": "2.*|6.*",
+		"flow-php/filesystem": "^0.21.0",
+		"flow-php/parquet": "^0.21.0",
+		"flow-php/types": "^0.21.0",
 		"keboola/coding-standard": "^15.0",
 		"keboola/kbc-manage-api-php-client": "^9.0",
 		"keboola/php-csv-db-import": "^6",

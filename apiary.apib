@@ -3324,6 +3324,11 @@ will show information about the created file and caching:
     + orderBy (optional, array[OrderByObject]) - Not supported for Redshift
     + gzip (optional, boolean) - The response will be gzipped if set to true.
     + includeInternalTimestamp (optional, boolean) - Include internal _timestamp column in the exported data (column is included even when not in columns list). This is timestamp of row last change. (Available only for Snowflake)
+    + fileType (optional, enum[string]) - Type of the file to be created in File Storage.
+        + Members
+            + csv - CSV file
+            + parquet - Parquet file
+        + Default: csv
 
 + Request (application/json)
     + Headers
@@ -3350,7 +3355,8 @@ will show information about the created file and caching:
                         "changedUntil": null,
                         "gzipOutput": false,
                         "format": "rfc",
-                        "whereFilters": []
+                        "whereFilters": [],
+                        "fileType": "csv",
                     },
                     "queue": "main_fast"
                 },
@@ -6795,6 +6801,7 @@ For a more detailed guide on the file upload, see the corresponding part of the
                 "isSliced": false,
                 "isEncrypted": false,
                 "name": "somefile.csv",
+                "fileType": "csv",
                 "url": "https://s3.amazonaws.com/kbc-sapi-files/exp-180/578/files/2017/02/14/236518630.somefile.csv?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKI...0214%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20170214T093446Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Signature=374...a4c",
                 "provider": "aws",
                 "region": "us-east-1",
@@ -6834,6 +6841,7 @@ For a more detailed guide on the file upload, see the corresponding part of the
                 "isSliced": false,
                 "isEncrypted": true,
                 "name": "somefile.csv",
+                "fileType": "csv",
                 "url": "https://kbcfshc7chguaeh2km.blob.core.windows.net/exp-15-files-4516-27364641-2022-11-09/somefile.csv?sv=2017-11-09&sr=c&st=2022-11-09T16:55:44Z&se=2022-11-10T04:55:44Z&sp=rl&sig=tBsXf...",
                 "provider": "azure",
                 "region": "us-east-1",
@@ -6871,6 +6879,7 @@ For a more detailed guide on the file upload, see the corresponding part of the
                 "isSliced": false,
                 "isEncrypted": true,
                 "name": "somefile.csv",
+                "fileType": "csv",
                 "url": "https://storage.googleapis.com/kbc-ci-connection-files-storage/exp-15/23058/files/2022/11/09/851783.somefile.csv?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=ci-connection-file-storage%40ci-connection-361807.iam.gserviceaccount.com%2F20221109%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20221109T193733Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&response-content-disposition=attachment&X-Goog-Signature=57f3...",
                 "provider": "gcp",
                 "region": "us-east-1",
@@ -6924,6 +6933,7 @@ so if in case of longer uploads than one hour we have to generate a new credenti
                 "isSliced": false,
                 "isEncrypted": true,
                 "name": "somefile.csv",
+                "fileType": "csv",
                 "url": "https://storage.googleapis.com/kbc-ci-connection-files-storage/exp-15/23058/files/2022/11/09/851783.somefile.csv?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=ci-connection-file-storage%40ci-connection-361807.iam.gserviceaccount.com%2F20221109%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20221109T193733Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&response-content-disposition=attachment&X-Goog-Signature=57f3...",
                 "provider": "gcp",
                 "region": "us-east-1",
@@ -6987,6 +6997,7 @@ list of files (including addition and removal of a file).
                     "isSliced": false,
                     "isEncrypted": true,
                     "name": "235728260.csvmanifest",
+                    "fileType": "csv",
                     "url": "https://s3.amazonaws.com/kbc-sapi-files/exp-180/578/files/2017/02/14/236504176.235728260.csvmanifest?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAJ2N244XSWYVVYVLQ%2F20170214%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20170214T094038Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Signature=9872bf99808caf6e65bab96f8b2fb5ed9d35fa12ef33d90a56bfc6253634ffe8",
                     "region": "us-east-1",
                     "sizeBytes": 133,
@@ -7025,6 +7036,7 @@ Returns detailed information about a single file.
                 "isSliced": false,
                 "isEncrypted": true,
                 "name": "235728260.csvmanifest",
+                "fileType": "csv",
                 "url": "https://s3.amazonaws.com/kbc-sapi-files/exp-180/578/files/2017/02/14/236504176.235728260.csvmanifest?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKI...214%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20170214T101017Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Signature=d76...288",
                 "region": "us-east-1",
                 "sizeBytes": 133,
