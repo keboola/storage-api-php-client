@@ -6,10 +6,14 @@ namespace Keboola\Test\Backend\ExternalBuckets;
 
 use DateTime;
 use DateTimeInterface;
+use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Workspaces;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\StorageApiTestCase;
+use Retry\BackOff\FixedBackOffPolicy;
+use Retry\Policy\SimpleRetryPolicy;
+use Retry\RetryProxy;
 
 class ScheduledTasksTest extends StorageApiTestCase
 {
@@ -176,10 +180,10 @@ class ScheduledTasksTest extends StorageApiTestCase
         // Schedule external bucket refresh task
         $task = $this->_client->scheduleBucketRefresh($bucketId, '* * * * *');
 
-        sleep(120); // Wait for the Scheduler restart (every 60 seconds)
+        sleep(60); // Wait for the Scheduler reload tasks from the database
 
         // Check: Table created in workspace is after auto-refresh available in bucket
-        $tablesAfterAutoRefresh = $this->_client->listTables($bucketId);
+        $tablesAfterAutoRefresh = $this->listTablesWithRetry($this->_client, $bucketId);
         $this->assertCount(1, $tablesAfterAutoRefresh);
         $this->assertSame('TO-AUTO-REFRESH', $tablesAfterAutoRefresh[0]['name']);
 
@@ -189,7 +193,7 @@ class ScheduledTasksTest extends StorageApiTestCase
         // Create another table in workspace
         $db->createTable('TO-MANUAL-REFRESH', ['ID' => 'NUMBER', 'NAME' => 'TEXT']);
 
-        sleep(120); // Wait for the Scheduler restart
+        sleep(90); // Wait for the Scheduler restart
 
         // Check: Second table created in workspace is not available in bucket because of stopped auto-refresh
         $tablesOutdated = $this->_client->listTables($bucketId);
@@ -202,5 +206,24 @@ class ScheduledTasksTest extends StorageApiTestCase
         $this->assertCount(2, $tablesAfterManualRefresh);
         $this->assertSame('TO-AUTO-REFRESH', $tablesAfterManualRefresh[0]['name']);
         $this->assertSame('TO-MANUAL-REFRESH', $tablesAfterManualRefresh[1]['name']);
+    }
+
+    private function listTablesWithRetry(Client $client, string $bucketId): array
+    {
+        $proxy = new RetryProxy(
+            new SimpleRetryPolicy(10),
+            new FixedBackOffPolicy(6000),
+        );
+
+        /** @var array $tables */
+        $tables = $proxy->call(function () use ($client, $bucketId): array {
+            $tables = $client->listTables($bucketId);
+
+            $this->assertNotEmpty($tables, 'There must be at least one table in the bucket.');
+
+            return $tables;
+        });
+
+        return $tables;
     }
 }
