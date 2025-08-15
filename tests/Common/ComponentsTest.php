@@ -47,8 +47,10 @@ class ComponentsTest extends StorageApiTestCase
     public function testPublicGetComponentDetail(): void
     {
         $componentId = 'wr-db';
-        $componentsClient = new \Keboola\StorageApi\Components($this->client);
 
+        $componentsClient = new \Keboola\StorageApi\Components(new Client(
+            ['url' => $this->client->getApiUrl(), 'token' => ''],
+        ));
         $component = $componentsClient->getPublicComponentDetail($componentId);
 
         $this->assertEquals('wr-db', $component['id']);
