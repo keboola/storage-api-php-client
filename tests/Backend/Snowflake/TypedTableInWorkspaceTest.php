@@ -111,6 +111,12 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
 
     public function testUnloadFromWSToTypedTableWithoutDeduplication(): void
     {
+        if (in_array('ctas-om', $this->_client->verifyToken()['owner']['features'], true)) {
+            $this->markTestSkipped(
+                'Feature "ctas-om" is enabled for project, skipping test.',
+            );
+        }
+
         // create workspace and source table in workspace
         $workspace = $this->initTestWorkspace();
 
