@@ -127,7 +127,7 @@ class WorkspacesCredentialsTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function testCredentialsWithROAccess()
+    public function testCredentialsWithROAccess(): void
     {
         $this->expectNotToPerformAssertions();
         $workspace = $this->initTestWorkspace(
@@ -156,7 +156,7 @@ class WorkspacesCredentialsTest extends ParallelWorkspacesTestCase
         );
     }
 
-    public function testCredentialsWithoutROAccess()
+    public function testCredentialsWithoutROAccess(): void
     {
         $workspace = $this->initTestWorkspace(
             options: ['backend' => 'snowflake', 'readOnlyStorageAccess' => false],
