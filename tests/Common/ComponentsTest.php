@@ -491,8 +491,8 @@ class ComponentsTest extends StorageApiTestCase
             $this->fail('Configuration rows for deleted configuration should not be listed');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
-            $this->assertSame('notFound', $e->getStringCode());
-            $this->assertStringContainsString('Configuration main-1 not found', $e->getMessage());
+            $this->assertSame('storage.configuration.notFound', $e->getStringCode());
+            $this->assertStringContainsString('Configuration "main-1" not found', $e->getMessage());
         }
 
         // restore configuration with create same configuration id and test number of rows
