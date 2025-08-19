@@ -129,6 +129,8 @@ class WorkspacesCredentialsTest extends ParallelWorkspacesTestCase
 
     public function testCredentialsWithROAccess(): void
     {
+        $this->skipTestForBackend(['bigquery'], 'BigQuery is WIP');
+
         $this->expectNotToPerformAssertions();
         $workspace = $this->initTestWorkspace(
             options: ['backend' => 'snowflake', 'readOnlyStorageAccess' => true],
@@ -158,6 +160,8 @@ class WorkspacesCredentialsTest extends ParallelWorkspacesTestCase
 
     public function testCredentialsWithoutROAccess(): void
     {
+        $this->skipTestForBackend(['bigquery'], 'BigQuery is WIP');
+
         $workspace = $this->initTestWorkspace(
             options: ['backend' => 'snowflake', 'readOnlyStorageAccess' => false],
             forceRecreate: true,
