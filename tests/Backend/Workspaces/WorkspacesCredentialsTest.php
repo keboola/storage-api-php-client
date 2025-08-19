@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Test\Backend\Workspaces;
 
 use Exception;
-use Keboola\StorageApi\BranchAwareClient;
+use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
@@ -102,7 +102,7 @@ class WorkspacesCredentialsTest extends ParallelWorkspacesTestCase
         $workspaceCredentialsRefreshed = $workspaces->getCredentials($workspace['id'], $credentialsId);
         $this->assertEventWithRetries($this->_client, $assertCallback, $query);
         $this->assertEquals($workspaceCredentials['connection']['privateKey'], $workspaceCredentialsRefreshed['connection']['privateKey']);
-        $workspaceBackendRefreshed = WOrkspaceBackendFactory::createWorkspaceBackend($workspaceCredentialsRefreshed, true);
+        $workspaceBackendRefreshed = WorkspaceBackendFactory::createWorkspaceBackend($workspaceCredentialsRefreshed, true);
 
         $dbResultRefreshed = $workspaceBackendRefreshed->fetchAll('test_Languages');
 
@@ -124,6 +124,69 @@ class WorkspacesCredentialsTest extends ParallelWorkspacesTestCase
             $this->fail('Expected exception to be thrown.');
         } catch (Exception $e) {
             $this->assertTrue(str_contains($e->getMessage(), 'JWT token is invalid.'));
+        }
+    }
+
+    public function testCredentialsWithROAccess(): void
+    {
+        $this->expectNotToPerformAssertions();
+        $workspace = $this->initTestWorkspace(
+            options: ['backend' => 'snowflake', 'readOnlyStorageAccess' => true],
+            forceRecreate: true,
+        );
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+        $retrievedCredentials = $workspaces->createCredentials($workspace['id']);
+
+        // Create table in storage
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketDetail = $this->_client->getBucket($bucketId);
+        $this->_client->createTableAsync(
+            $bucketId,
+            'test-table',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+        );
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($retrievedCredentials, true);
+        $backend->executeQuery(
+            sprintf(
+                'SELECT * FROM %s.%s',
+                SnowflakeQuote::quoteSingleIdentifier($bucketDetail['path']),
+                SnowflakeQuote::quoteSingleIdentifier('test-table'),
+            ),
+        );
+    }
+
+    public function testCredentialsWithoutROAccess(): void
+    {
+        $workspace = $this->initTestWorkspace(
+            options: ['backend' => 'snowflake', 'readOnlyStorageAccess' => false],
+            forceRecreate: true,
+        );
+        $workspaces = new Workspaces($this->workspaceSapiClient);
+        $retrievedCredentials = $workspaces->createCredentials($workspace['id']);
+
+        // Create table in storage
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $bucketDetail = $this->_client->getBucket($bucketId);
+        $this->_client->createTableAsync(
+            $bucketId,
+            'test-table',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+        );
+
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($retrievedCredentials, true);
+
+        try {
+            $backend->executeQuery(
+                sprintf(
+                    'SELECT * FROM %s.%s',
+                    SnowflakeQuote::quoteSingleIdentifier($bucketDetail['path']),
+                    SnowflakeQuote::quoteSingleIdentifier('test-table'),
+                ),
+            );
+            $this->fail('Expected exception to be thrown.');
+        } catch (Exception $e) {
+            $this->assertStringContainsString('does not exist or not authorized', $e->getMessage());
         }
     }
 }
