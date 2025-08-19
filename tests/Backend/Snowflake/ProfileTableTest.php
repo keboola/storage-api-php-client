@@ -109,7 +109,7 @@ final class ProfileTableTest extends StorageApiTestCase
         $this->assertTrue($createdAt > $started);
 
         $tableProfile = [
-            'dataSize' => 3072,
+            'dataSize' => 3584,
             'rowCount' => 8,
             'columnCount' => 8,
         ];
@@ -122,11 +122,23 @@ final class ProfileTableTest extends StorageApiTestCase
                     'nullCount' => 0,
                     'distinctCount' => 8,
                     'duplicateCount' => 0,
+                    'numericStatistics' => [
+                        'avg' => 4.5,
+                        'max' => 8,
+                        'min' => 1,
+                        'mode' => 6,
+                        'median' => 4.5,
+                    ],
                 ],
             ],
             [
                 'name' => 'col_string',
                 'profile' => [
+                    'length' => [
+                        'avg' => 14.5,
+                        'max' => 20,
+                        'min' => 9,
+                    ],
                     'nullCount' => 0,
                     'distinctCount' => 7,
                     'duplicateCount' => 1,
@@ -146,6 +158,13 @@ final class ProfileTableTest extends StorageApiTestCase
                     'nullCount' => 1,
                     'distinctCount' => 5,
                     'duplicateCount' => 2,
+                    'numericStatistics' => [
+                        'avg' => 75.714286,
+                        'max' => 200,
+                        'min' => 0,
+                        'mode' => 120,
+                        'median' => 60,
+                    ],
                 ],
             ],
             [
@@ -154,6 +173,13 @@ final class ProfileTableTest extends StorageApiTestCase
                     'nullCount' => 1,
                     'distinctCount' => 6,
                     'duplicateCount' => 1,
+                    'numericStatistics' => [
+                        'avg' => 108.857143,
+                        'max' => 499,
+                        'min' => 16,
+                        'mode' => 30,
+                        'median' => 30,
+                    ],
                 ],
             ],
             [
@@ -162,6 +188,13 @@ final class ProfileTableTest extends StorageApiTestCase
                     'nullCount' => 1,
                     'distinctCount' => 5,
                     'duplicateCount' => 2,
+                    'numericStatistics' => [
+                        'avg' => 4.11428571428571,
+                        'max' => 4.9,
+                        'min' => 2.4,
+                        'mode' => 4.5,
+                        'median' => 4.5,
+                    ],
                 ],
             ],
             [
