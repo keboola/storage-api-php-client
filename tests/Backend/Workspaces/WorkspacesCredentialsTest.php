@@ -143,15 +143,16 @@ class WorkspacesCredentialsTest extends ParallelWorkspacesTestCase
         $this->_client->createTableAsync(
             $bucketId,
             'test-table',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($retrievedCredentials, true);
         $backend->executeQuery(
-            sprintf('SELECT * FROM %s.%s',
+            sprintf(
+                'SELECT * FROM %s.%s',
                 SnowflakeQuote::quoteSingleIdentifier($bucketDetail['path']),
                 SnowflakeQuote::quoteSingleIdentifier('test-table'),
-            )
+            ),
         );
     }
 
@@ -170,17 +171,18 @@ class WorkspacesCredentialsTest extends ParallelWorkspacesTestCase
         $this->_client->createTableAsync(
             $bucketId,
             'test-table',
-            new CsvFile(__DIR__ . '/../../_data/languages.csv')
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
         );
 
         $backend = WorkspaceBackendFactory::createWorkspaceBackend($retrievedCredentials, true);
 
         try {
             $backend->executeQuery(
-                sprintf('SELECT * FROM %s.%s',
+                sprintf(
+                    'SELECT * FROM %s.%s',
                     SnowflakeQuote::quoteSingleIdentifier($bucketDetail['path']),
                     SnowflakeQuote::quoteSingleIdentifier('test-table'),
-                )
+                ),
             );
             $this->fail('Expected exception to be thrown.');
         } catch (Exception $e) {
