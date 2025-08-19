@@ -121,11 +121,23 @@ final class ProfileTableTest extends StorageApiTestCase
                     'nullCount' => 0,
                     'distinctCount' => 8,
                     'duplicateCount' => 0,
+                    'numericStatistics' => [
+                        'avg' => 4.5,
+                        'max' => 8,
+                        'min' => 1,
+                        'mode' => 8,
+                        'median' => 4.5,
+                    ],
                 ],
             ],
             [
                 'name' => 'col_string',
                 'profile' => [
+                    'length' => [
+                        'avg' => 14.5,
+                        'max' => 20,
+                        'min' => 9,
+                    ],
                     'nullCount' => 0,
                     'distinctCount' => 7,
                     'duplicateCount' => 1,
@@ -145,6 +157,13 @@ final class ProfileTableTest extends StorageApiTestCase
                     'nullCount' => 1,
                     'distinctCount' => 5,
                     'duplicateCount' => 2,
+                    'numericStatistics' => [
+                        'avg' => 75.714286,
+                        'max' => 200,
+                        'min' => 0,
+                        'mode' => 120,
+                        'median' => 60,
+                    ],
                 ],
             ],
             [
@@ -153,6 +172,13 @@ final class ProfileTableTest extends StorageApiTestCase
                     'nullCount' => 1,
                     'distinctCount' => 6,
                     'duplicateCount' => 1,
+                    'numericStatistics' => [
+                        'avg' => 108.838571,
+                        'max' => 499,
+                        'min' => 15.5,
+                        'mode' => 29.99,
+                        'median' => 29.99,
+                    ],
                 ],
             ],
             [
@@ -161,6 +187,13 @@ final class ProfileTableTest extends StorageApiTestCase
                     'nullCount' => 1,
                     'distinctCount' => 5,
                     'duplicateCount' => 2,
+                    'numericStatistics' => [
+                        'avg' => 4.114286,
+                        'max' => 4.9,
+                        'min' => 2.4,
+                        'mode' => 4.5,
+                        'median' => 4.5,
+                    ],
                 ],
             ],
             [
