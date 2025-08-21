@@ -797,21 +797,21 @@ class MergeRequestsTest extends StorageApiTestCase
             $components->getConfiguration($componentId, $configMain1);
             $this->fail('Config should be deleted in default branch');
         } catch (ClientException $e) {
-            $this->assertSame('Configuration main-1 not found', $e->getMessage());
+            $this->assertSame('Configuration "main-1" not found', $e->getMessage());
         }
 
         try {
             $components->getConfigurationRow($componentId, $configMain1, 'firstRow');
             $this->fail('Row should be deleted in default branch');
         } catch (ClientException $e) {
-            $this->assertSame('Configuration main-1 not found', $e->getMessage());
+            $this->assertSame('Configuration "main-1" not found', $e->getMessage());
         }
 
         try {
             $components->getConfigurationRow($componentId, $configMain1, 'secondRow');
             $this->fail('Row should be deleted in default branch');
         } catch (ClientException $e) {
-            $this->assertSame('Configuration main-1 not found', $e->getMessage());
+            $this->assertSame('Configuration "main-1" not found', $e->getMessage());
         }
 
         // test is firstRow deleted in config main-2 in default branch

@@ -328,7 +328,7 @@ class BranchComponentTest extends StorageApiTestCase
             $branchComponents->getConfiguration($componentId, $configurationId);
             $this->fail('Should have thrown');
         } catch (ClientException $e) {
-            $this->assertSame('Configuration main-1 not found', $e->getMessage());
+            $this->assertSame('Configuration "main-1" not found', $e->getMessage());
         }
 
         $branchComponents->resetToDefault($componentId, $configurationId);
@@ -373,7 +373,7 @@ class BranchComponentTest extends StorageApiTestCase
             $updatedConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
             $this->fail('Should have thrown');
         } catch (ClientException $e) {
-            $this->assertSame('Configuration main-1 not found', $e->getMessage());
+            $this->assertSame('Configuration "main-1" not found', $e->getMessage());
         }
 
         // can be reset when existing default and deleted branch (new config in default scenario)
@@ -385,7 +385,7 @@ class BranchComponentTest extends StorageApiTestCase
             $branchComponents->getConfiguration($componentId, $configurationId);
             $this->fail('Should have thrown');
         } catch (ClientException $e) {
-            $this->assertSame('Configuration main-1 not found', $e->getMessage());
+            $this->assertSame('Configuration "main-1" not found', $e->getMessage());
         }
         $branchComponents->resetToDefault($componentId, $configurationId);
         // assert that exists in branch (won't throw 404)
@@ -409,7 +409,7 @@ class BranchComponentTest extends StorageApiTestCase
             $updatedConfigurationInBranch = $branchComponents->getConfiguration($componentId, $configurationId);
             $this->fail('Should have thrown as reset to purged means deleted');
         } catch (ClientException $e) {
-            $this->assertSame('Configuration main-1 not found', $e->getMessage());
+            $this->assertSame('Configuration "main-1" not found', $e->getMessage());
         }
     }
 
@@ -471,8 +471,8 @@ class BranchComponentTest extends StorageApiTestCase
             $this->fail('Configuration should be deleted in the main branch');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
-            $this->assertSame('notFound', $e->getStringCode());
-            $this->assertStringContainsString('Configuration deleted-main not found', $e->getMessage());
+            $this->assertSame('storage.configuration.notFound', $e->getStringCode());
+            $this->assertStringContainsString('Configuration "deleted-main" not found', $e->getMessage());
         }
 
         $branch = $this->createDevBranchForTestCase($this);
@@ -484,8 +484,8 @@ class BranchComponentTest extends StorageApiTestCase
             $this->fail('Configuration deleted in the main branch shouldn\'t exist in dev branch');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
-            $this->assertSame('notFound', $e->getStringCode());
-            $this->assertStringContainsString('Configuration deleted-main not found', $e->getMessage());
+            $this->assertSame('storage.configuration.notFound', $e->getStringCode());
+            $this->assertStringContainsString('Configuration "deleted-main" not found', $e->getMessage());
         }
 
         $configFromMain = $branchComponents->getConfiguration($componentId, 'main-1');
@@ -643,8 +643,8 @@ class BranchComponentTest extends StorageApiTestCase
             $this->fail('Configuration created in main branch after branching shouldn\'t exist in dev branch');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
-            $this->assertSame('notFound', $e->getStringCode());
-            $this->assertStringContainsString('Configuration main-2 not found', $e->getMessage());
+            $this->assertSame('storage.configuration.notFound', $e->getStringCode());
+            $this->assertStringContainsString('Configuration "main-2" not found', $e->getMessage());
         }
 
         $mainComponentDetail  = $components->getConfiguration($componentId, 'main-1');
@@ -964,8 +964,8 @@ class BranchComponentTest extends StorageApiTestCase
             $this->fail('Configuration created in dev branch shouldn\'t exist in main branch');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
-            $this->assertSame('notFound', $e->getStringCode());
-            $this->assertStringContainsString('Configuration dev-branch-1 not found', $e->getMessage());
+            $this->assertSame('storage.configuration.notFound', $e->getStringCode());
+            $this->assertStringContainsString('Configuration "dev-branch-1" not found', $e->getMessage());
         }
 
         //Update
@@ -1264,8 +1264,8 @@ class BranchComponentTest extends StorageApiTestCase
             $this->fail('Configuration should be deleted in the dev branch');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
-            $this->assertSame('notFound', $e->getStringCode());
-            $this->assertStringContainsString('Configuration main-1 not found', $e->getMessage());
+            $this->assertSame('storage.configuration.notFound', $e->getStringCode());
+            $this->assertStringContainsString('Configuration "main-1" not found', $e->getMessage());
         }
 
         try {
@@ -1275,8 +1275,8 @@ class BranchComponentTest extends StorageApiTestCase
             $this->fail('Configuration rows should not be listed in the dev branch');
         } catch (ClientException $e) {
             $this->assertSame(404, $e->getCode());
-            $this->assertSame('notFound', $e->getStringCode());
-            $this->assertStringContainsString('Configuration main-1 not found', $e->getMessage());
+            $this->assertSame('storage.configuration.notFound', $e->getStringCode());
+            $this->assertStringContainsString('Configuration "main-1" not found', $e->getMessage());
         }
 
         // check main branch
