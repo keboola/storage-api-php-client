@@ -44,6 +44,25 @@ class ComponentsTest extends StorageApiTestCase
         $this->client = $this->clientProvider->createClientForCurrentTest();
     }
 
+    public function testPublicGetComponentDetail(): void
+    {
+        $componentId = 'wr-db';
+
+        $componentsClient = new \Keboola\StorageApi\Components(new Client(
+            ['url' => $this->client->getApiUrl(), 'token' => ''],
+        ));
+        $component = $componentsClient->getPublicComponentDetail($componentId);
+
+        $this->assertEquals('wr-db', $component['id']);
+
+        $this->assertArrayHasKey('name', $component);
+        $this->assertArrayHasKey('type', $component);
+        $this->assertArrayHasKey('description', $component);
+        $this->assertArrayHasKey('uri', $component);
+
+        $this->assertArrayNotHasKey('configurations', $component);
+    }
+
     public function testDeprecatedUrlWithoutBranchIdStillWorks(): void
     {
         /** @var array $configuration */
