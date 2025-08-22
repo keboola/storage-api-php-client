@@ -158,18 +158,24 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
             CREATE TABLE %s (
                 "id" INT NOT NULL,
                 "name" VARCHAR(16777216),
+                "_timestamp" TIMESTAMP_NTZ(9),
                 PRIMARY KEY ("id")
             )
         ',
             $quotedTableId,
         );
         $db->query($sql);
-        $db->query(sprintf("INSERT INTO %s VALUES (1, 'john');", $quotedTableId));
-        $db->query(sprintf("INSERT INTO %s VALUES (2, 'does');", $quotedTableId));
+        $db->query(sprintf("INSERT INTO %s VALUES (1, 'john', '1990-01-01 12:00:00'::TIMESTAMP_NTZ);", $quotedTableId));
+        $db->query(sprintf("INSERT INTO %s VALUES (2, 'does', '2000-01-01 12:00:00'::TIMESTAMP_NTZ);", $quotedTableId));
+
+//        $db->query(sprintf("INSERT INTO %s VALUES (1, 'john');", $quotedTableId));
+//        $db->query(sprintf("INSERT INTO %s VALUES (2, 'does');", $quotedTableId));
+
         // snowflake does not enforce primary key so this is allowed
         // normally such value would be deduplicated in storage
         // but ctas-om does not deduplicate values
-        $db->query(sprintf("INSERT INTO %s VALUES (2, 'doesToo');", $quotedTableId));
+//        $db->query(sprintf("INSERT INTO %s VALUES (2, 'doesToo');", $quotedTableId));
+        $db->query(sprintf("INSERT INTO %s VALUES (2, 'doesToo', '2010-01-01 12:00:00'::TIMESTAMP_NTZ);", $quotedTableId));
 
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
@@ -179,6 +185,7 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
         $this->_client->writeTableAsyncDirect($this->tableId, [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => $tableId,
+            'incremental' => true,
             'deduplicationStrategy' => DeduplicationStrategy::INSERT,
         ]);
         $eventAssertCallback = function ($events) {
@@ -251,8 +258,8 @@ class TypedTableInWorkspaceTest extends ParallelWorkspacesTestCase
         $this->_client->writeTableAsyncDirect($this->tableId, [
             'dataWorkspaceId' => $workspace['id'],
             'dataTableName' => $tableId,
-            'incremental' => true,
-            'deduplicationStrategy' => DeduplicationStrategy::INSERT->value,
+//            'incremental' => true,
+            'deduplicationStrategy' => DeduplicationStrategy::INSERT,
         ]);
 
         $eventAssertCallback = function ($events) {
