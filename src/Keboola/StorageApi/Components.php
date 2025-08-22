@@ -131,6 +131,100 @@ class Components
         return $this->client->apiGet($this->branchPrefix . "components/{$componentId}");
     }
 
+    /**
+     * Get public component detail
+     * @return array{
+     *   id: string,
+     *   type: string,
+     *   name: string,
+     *   description: string,
+     *   longDescription: string,
+     *   hasUI: bool,
+     *   hasRun: bool,
+     *   ico32: string,
+     *   ico64: string,
+     *   ico128: string,
+     *   data: array{
+     *     definition: array{
+     *       type: string,
+     *       uri: string,
+     *       tag: string,
+     *       repository: array{
+     *         region: string
+     *       }
+     *     },
+     *     cpu_shares: int,
+     *     memory: string,
+     *     configuration_format: string,
+     *     process_timeout: int
+     *   },
+     *   flags: array<string>,
+     *   configurationSchema: array{
+     *     title: string,
+     *     type: string,
+     *     properties: array<string, array{
+     *       type: string,
+     *       title: string,
+     *       description: string,
+     *       default?: string
+     *     }>,
+     *     required: array<string>
+     *   },
+     *   emptyConfiguration: array<mixed>,
+     *   uiOptions: array<mixed>,
+     *   configurationDescription: string,
+     *   uri: string
+     * }
+     */
+    public function getPublicComponentDetail(string $componentId): array
+    {
+        /** @var array{
+         *   id: string,
+         *   type: string,
+         *   name: string,
+         *   description: string,
+         *   longDescription: string,
+         *   hasUI: bool,
+         *   hasRun: bool,
+         *   ico32: string,
+         *   ico64: string,
+         *   ico128: string,
+         *   data: array{
+         *     definition: array{
+         *       type: string,
+         *       uri: string,
+         *       tag: string,
+         *       repository: array{
+         *         region: string
+         *       }
+         *     },
+         *     cpu_shares: int,
+         *     memory: string,
+         *     configuration_format: string,
+         *     process_timeout: int
+         *   },
+         *   flags: array<string>,
+         *   configurationSchema: array{
+         *     title: string,
+         *     type: string,
+         *     properties: array<string, array{
+         *       type: string,
+         *       title: string,
+         *       description: string,
+         *       default?: string
+         *     }>,
+         *     required: array<string>
+         *   },
+         *   emptyConfiguration: array<mixed>,
+         *   uiOptions: array<mixed>,
+         *   configurationDescription: string,
+         *   uri: string
+         * } $result
+         */
+        $result = $this->client->apiGet('components/'.$componentId);
+        return $result;
+    }
+
     public function listComponentConfigurations(ListComponentConfigurationsOptions $options)
     {
         return $this->client->apiGet($this->branchPrefix . "components/{$options->getComponentId()}/configs?" . http_build_query($options->toParamsArray()));
