@@ -2226,10 +2226,6 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
 
     public function testCreateTableBasetypes(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
-        $runId = $this->_client->generateRunId();
-        $this->_client->setRunId($runId);
-
         $data = [
             'name' => 'table_basetypes',
             'primaryKeysNames' => ['id'],
@@ -2269,6 +2265,7 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
             ],
         ];
 
+        $bucketId = $this->getTestBucketId();
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
