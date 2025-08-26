@@ -55,10 +55,34 @@ class ComponentsTest extends StorageApiTestCase
 
         $this->assertEquals('wr-db', $component['id']);
 
-        $this->assertArrayHasKey('name', $component);
-        $this->assertArrayHasKey('type', $component);
-        $this->assertArrayHasKey('description', $component);
+        $this->assertArrayHasKey('id', $component);
         $this->assertArrayHasKey('uri', $component);
+        $this->assertArrayHasKey('name', $component);
+        $this->assertArrayHasKey('description', $component);
+        $this->assertArrayHasKey('version', $component);
+        $this->assertArrayHasKey('complexity', $component);
+        $this->assertArrayHasKey('categories', $component);
+        $this->assertArrayHasKey('hasRun', $component);
+        $this->assertArrayHasKey('hasUI', $component);
+        $this->assertArrayHasKey('ico32', $component);
+        $this->assertArrayHasKey('ico64', $component);
+        $this->assertArrayHasKey('ico128', $component);
+        $this->assertArrayHasKey('type', $component);
+        $this->assertArrayHasKey('data', $component);
+        $this->assertArrayHasKey('flags', $component);
+        $this->assertArrayHasKey('documentationUrl', $component);
+        $this->assertArrayHasKey('longDescription', $component);
+        $this->assertArrayHasKey('configurationSchema', $component);
+        $this->assertArrayHasKey('configurationRowSchema', $component);
+        $this->assertArrayHasKey('emptyConfiguration', $component);
+        $this->assertArrayHasKey('emptyConfigurationRow', $component);
+        $this->assertArrayHasKey('createConfigurationRowSchema', $component);
+        $this->assertArrayHasKey('configurationDescription', $component);
+        $this->assertArrayHasKey('uiOptions', $component);
+        $this->assertArrayHasKey('features', $component);
+        $this->assertArrayHasKey('expiredOn', $component);
+        $this->assertArrayHasKey('dataTypesConfiguration', $component);
+        $this->assertArrayHasKey('processorConfiguration', $component);
 
         $this->assertArrayNotHasKey('configurations', $component);
     }
@@ -87,10 +111,34 @@ class ComponentsTest extends StorageApiTestCase
 
         $this->assertEquals('wr-db', $component['id']);
 
-        $this->assertArrayHasKey('name', $component);
-        $this->assertArrayHasKey('type', $component);
-        $this->assertArrayHasKey('description', $component);
+        $this->assertArrayHasKey('id', $component);
         $this->assertArrayHasKey('uri', $component);
+        $this->assertArrayHasKey('name', $component);
+        $this->assertArrayHasKey('description', $component);
+        $this->assertArrayHasKey('version', $component);
+        $this->assertArrayHasKey('complexity', $component);
+        $this->assertArrayHasKey('categories', $component);
+        $this->assertArrayHasKey('hasRun', $component);
+        $this->assertArrayHasKey('hasUI', $component);
+        $this->assertArrayHasKey('ico32', $component);
+        $this->assertArrayHasKey('ico64', $component);
+        $this->assertArrayHasKey('ico128', $component);
+        $this->assertArrayHasKey('type', $component);
+        $this->assertArrayHasKey('data', $component);
+        $this->assertArrayHasKey('flags', $component);
+        $this->assertArrayHasKey('documentationUrl', $component);
+        $this->assertArrayHasKey('longDescription', $component);
+        $this->assertArrayHasKey('configurationSchema', $component);
+        $this->assertArrayHasKey('configurationRowSchema', $component);
+        $this->assertArrayHasKey('emptyConfiguration', $component);
+        $this->assertArrayHasKey('emptyConfigurationRow', $component);
+        $this->assertArrayHasKey('createConfigurationRowSchema', $component);
+        $this->assertArrayHasKey('configurationDescription', $component);
+        $this->assertArrayHasKey('uiOptions', $component);
+        $this->assertArrayHasKey('features', $component);
+        $this->assertArrayHasKey('expiredOn', $component);
+        $this->assertArrayHasKey('dataTypesConfiguration', $component);
+        $this->assertArrayHasKey('processorConfiguration', $component);
 
         $this->assertArrayNotHasKey('configurations', $component);
     }
