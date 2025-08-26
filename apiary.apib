@@ -7377,11 +7377,78 @@ Use this API call to obtain the definition of component for [Development Branch]
                 "uri": "https://syrup.keboola.com/docker/keboola.app-tree",
             }
 
-### Get component - without branch in URL (deprecated) [GET]
+### Get component - without branch in URL (without authentification) [GET]
 
-***Deprecated**, use the branch endpoint and set `branch/default`.*
+**Without authentication**, you can call this endpoint without the `X-StorageApi-Token` and still get the component details.
+
++ Parameters
+    + componentId - Component ID - e.g. `keboola.app-tree`
+
 
 + Response 200
+    + Headers
+
+            Content-type: application/json
+    + Body
+
+            {
+                "id": "keboola.app-tree",
+                "type": "application",
+                "name": "Tree depth",
+                "description": "Application which computes a tree depth.",
+                "longDescription": "This application computes levels in a table representing a tree (e.g. product categories). The tree data must be stored in a child-parent relationship. A column named **levels** will be added to the table (root nodes will have number 1). Additionally, a column named **root** will be added, containing the ID of the root item.",
+                "hasUI": false,
+                "hasRun": false,
+                "ico32": "https://d3iz2gfan5zufq.cloudfront.net/images/cloud-services/keboola.app-tree-32-1.png",
+                "ico64": "https://d3iz2gfan5zufq.cloudfront.net/images/cloud-services/keboola.app-tree-64-1.png",
+                "ico128": "https://d3iz2gfan5zufq.cloudfront.net/images/cloud-services/keboola.app-tree-128-1.png",
+                "data": {
+                    "definition": {
+                        "type": "aws-ecr",
+                        "uri": "147946154733.dkr.ecr.us-east-1.amazonaws.com/keboola/app-tree",
+                        "tag": "latest",
+                        "repository": {
+                            "region": "us-east-1"
+                        }
+                    },
+                    "cpu_shares": 1024,
+                    "memory": "8024m",
+                    "configuration_format": "json",
+                    "process_timeout": 10800
+                },
+                "flags": [
+                    "genericDockerUI",
+                    "genericDockerUI-tableInput",
+                    "genericDockerUI-tableOutput",
+                    "excludeFromNewList"
+                ],
+                "configurationSchema": {
+                    "title": "Parameters",
+                    "type": "object",
+                    "properties": {
+                        "idColumn": {
+                            "type": "string",
+                            "title": "ID Column",
+                            "description": "Name of the column containing row identifier",
+                            "default": "categoryId"
+                        },
+                        "parentColumn": {
+                            "type": "string",
+                            "title": "Parent Column",
+                            "description": "Name of the column containing parent identifier",
+                            "default": "categoryParentId"
+                        }
+                    },
+                    "required": [
+                        "idColumn",
+                        "parentColumn"
+                    ]
+                },
+                "emptyConfiguration": {},
+                "uiOptions": {},
+                "configurationDescription": "The tree data must be stored in a child-parent relationship. A column named **levels** will be added to the table (root nodes will have number 1). Additionally, a column named **root** will be added, containing the ID of the root item.\n\nSample input \n-------------------\n\ncategoryId | categoryParentId\t| title\n--- | --- | --- \n1 |\t0 | foo\n2 | 1 | bar\n3 | 1 | baz\n4 | 2 | buzz\n\n\nSample output\n-------------------\n\ncategoryId | categoryParentId | title | levels | root\n--- | --- | --- | --- | --- |\n1 |\t0 | foo | 1 | 1 |\n2 | 1 | bar | 2 | 1 |\n3 | 1 | baz | 2 | 1 |\n4 | 2 | buzz | 3 | 1 |",
+                "uri": "https://syrup.keboola.com/docker/keboola.app-tree",
+            }
 
 ## Get components [/v2/storage/components]
 ### Get components [GET /v2/storage/branch/{branch_id}/components?include={include}&componentType={componentType}&isDeleted={isDeleted}]
