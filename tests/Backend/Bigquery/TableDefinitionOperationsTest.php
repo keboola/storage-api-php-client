@@ -5,6 +5,7 @@ namespace Keboola\Test\Backend\Bigquery;
 use Generator;
 use Google\Cloud\BigQuery\BigQueryClient;
 use Keboola\Csv\CsvFile;
+use Keboola\Datatype\Definition\BaseType;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
@@ -2226,10 +2227,6 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
 
     public function testCreateTableBasetypes(): void
     {
-        $bucketId = $this->getTestBucketId(self::STAGE_IN);
-        $runId = $this->_client->generateRunId();
-        $this->_client->setRunId($runId);
-
         $data = [
             'name' => 'table_basetypes',
             'primaryKeysNames' => ['id'],
@@ -2269,6 +2266,7 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
             ],
         ];
 
+        $bucketId = $this->getTestBucketId();
         $runId = $this->_client->generateRunId();
         $this->_client->setRunId($runId);
 
@@ -2351,5 +2349,57 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                 ],
             ],
         ], $tableDetail['definition']);
+    }
+
+    public function testCreateTableWithTypeAliases(): void
+    {
+        $aliases = [
+            'column_bigdecimal' => [Bigquery::TYPE_BIGDECIMAL, Bigquery::TYPE_BIGNUMERIC, BaseType::NUMERIC],
+            'column_bigint' => [Bigquery::TYPE_BIGINT, Bigquery::TYPE_INTEGER, BaseType::INTEGER],
+            'column_boolean' => [Bigquery::TYPE_BOOLEAN, Bigquery::TYPE_BOOL, BaseType::BOOLEAN],
+            'column_byteint' => [Bigquery::TYPE_BYTEINT, Bigquery::TYPE_INTEGER, BaseType::INTEGER],
+            'column_decimal' => [Bigquery::TYPE_DECIMAL, Bigquery::TYPE_NUMERIC, BaseType::NUMERIC],
+            'column_float' => [Bigquery::TYPE_FLOAT, Bigquery::TYPE_FLOAT64, BaseType::FLOAT],
+            'column_int' => [Bigquery::TYPE_INT, Bigquery::TYPE_INTEGER, BaseType::INTEGER],
+            'column_integer' => [Bigquery::TYPE_INTEGER, Bigquery::TYPE_INTEGER, BaseType::INTEGER],
+            'column_smallint' => [Bigquery::TYPE_SMALLINT, Bigquery::TYPE_INTEGER, BaseType::INTEGER],
+            'column_tinyint' => [Bigquery::TYPE_TINYINT, Bigquery::TYPE_INTEGER, BaseType::INTEGER],
+        ];
+
+        $columns = [];
+        foreach ($aliases as $columnName => [$alias, , ]) {
+            $columns[] = [
+                'name' => $columnName,
+                'definition' => ['type' => $alias],
+            ];
+        }
+
+        $data = [
+            'name' => 'table_type_aliases',
+            'columns' => $columns,
+        ];
+
+        $bucketId = $this->getTestBucketId();
+
+        $runId = $this->_client->generateRunId();
+        $this->_client->setRunId($runId);
+
+        $newTableId = $this->_client->createTableDefinition($bucketId, $data);
+        $tableDetail = $this->_client->getTable($newTableId);
+
+        $expected = [];
+        foreach ($aliases as $columnName => [, $type, $baseType]) {
+            $expected[] = [
+                'name' => $columnName,
+                'definition' => [
+                    'type' => $type,
+                    'nullable' => true,
+                ],
+                'basetype' => $baseType,
+                'canBeFiltered' => true,
+            ];
+        }
+
+        $this->assertSame($expected, $tableDetail['definition']['columns']);
     }
 }
