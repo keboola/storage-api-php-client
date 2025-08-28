@@ -7375,6 +7375,8 @@ Use this API call to obtain the definition of component for [Development Branch]
                 "uiOptions": {},
                 "configurationDescription": "The tree data must be stored in a child-parent relationship. A column named **levels** will be added to the table (root nodes will have number 1). Additionally, a column named **root** will be added, containing the ID of the root item.\n\nSample input \n-------------------\n\ncategoryId | categoryParentId\t| title\n--- | --- | --- \n1 |\t0 | foo\n2 | 1 | bar\n3 | 1 | baz\n4 | 2 | buzz\n\n\nSample output\n-------------------\n\ncategoryId | categoryParentId | title | levels | root\n--- | --- | --- | --- | --- |\n1 |\t0 | foo | 1 | 1 |\n2 | 1 | bar | 2 | 1 |\n3 | 1 | baz | 2 | 1 |\n4 | 2 | buzz | 3 | 1 |",
                 "uri": "https://syrup.keboola.com/docker/keboola.app-tree",
+                "dataTypesConfiguration": {},
+                "processorConfiguration": {}
             }
 
 ### Get component - without branch in URL (without authentification) [GET]
@@ -7448,6 +7450,8 @@ Use this API call to obtain the definition of component for [Development Branch]
                 "uiOptions": {},
                 "configurationDescription": "The tree data must be stored in a child-parent relationship. A column named **levels** will be added to the table (root nodes will have number 1). Additionally, a column named **root** will be added, containing the ID of the root item.\n\nSample input \n-------------------\n\ncategoryId | categoryParentId\t| title\n--- | --- | --- \n1 |\t0 | foo\n2 | 1 | bar\n3 | 1 | baz\n4 | 2 | buzz\n\n\nSample output\n-------------------\n\ncategoryId | categoryParentId | title | levels | root\n--- | --- | --- | --- | --- |\n1 |\t0 | foo | 1 | 1 |\n2 | 1 | bar | 2 | 1 |\n3 | 1 | baz | 2 | 1 |\n4 | 2 | buzz | 3 | 1 |",
                 "uri": "https://syrup.keboola.com/docker/keboola.app-tree",
+                "dataTypesConfiguration": {},
+                "processorConfiguration": {}
             }
 
 ## Get components [/v2/storage/components]
@@ -7554,7 +7558,9 @@ KBC Component architecture, see the [Developers documentation](https://developer
                                 "changeDescription": "Configuration deleted"
                             }
                         }
-                    ]
+                    ],
+                    "dataTypesConfiguration": {},
+                    "processorConfiguration": {}
                 }
             ]
 
