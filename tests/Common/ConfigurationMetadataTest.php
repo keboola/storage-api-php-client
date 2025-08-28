@@ -128,7 +128,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
             $components->addConfigurationMetadata($configurationMetadataOptions);
             $this->fail('configuration desn\'t exist');
         } catch (ClientException $e) {
-            $this->assertSame(sprintf('Configuration %s not found', $configurationNameMain1), $e->getMessage());
+            $this->assertSame(sprintf('Configuration "%s" not found', $configurationNameMain1), $e->getMessage());
             $this->assertSame(404, $e->getCode());
         }
 
@@ -138,7 +138,7 @@ class ConfigurationMetadataTest extends StorageApiTestCase
                 ->setConfigurationId($configurationNameMain1));
             $this->fail('configuration desn\'t exist');
         } catch (ClientException $e) {
-            $this->assertSame(sprintf('Configuration %s not found', $configurationNameMain1), $e->getMessage());
+            $this->assertSame(sprintf('Configuration "%s" not found', $configurationNameMain1), $e->getMessage());
             $this->assertSame(404, $e->getCode());
         }
 
