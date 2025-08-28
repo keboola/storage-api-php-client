@@ -14,6 +14,10 @@ use Keboola\StorageApi\Options\Components\ListComponentsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationVersionsOptions;
 use Keboola\StorageApi\Options\Components\ListConfigurationWorkspacesOptions;
 
+/**
+ * @phpstan-type Component array{id: string, type: string, name: string, description: string, longDescription: string, version: int, complexity: string, categories: list<string>, hasUI: bool, hasRun: bool, ico32: string, ico64: string, ico128: string, data: array, flags: list<string>, configurationSchema: array, configurationRowSchema: array, emptyConfiguration: array, emptyConfigurationRow: array, createConfigurationRowSchema: array, uiOptions: array, configurationDescription: string, features: list<string>, expiredOn: string, dataTypesConfiguration: array, processorConfiguration: array, uri: string, documentationUrl: string}
+ * @phpstan-type ComponentListItem array{id: string, type: string, name: string, description: string, longDescription: string, version: int, complexity: string, categories: list<string>, hasUI: bool, hasRun: bool, ico32: string, ico64: string, ico128: string, data: array, flags: list<string>, configurationSchema: array, configurationRowSchema: array, emptyConfiguration: array, emptyConfigurationRow: array, createConfigurationRowSchema: array, uiOptions: array, configurationDescription: string, features: list<string>, expiredOn: string, dataTypesConfiguration: array, configurations: array, processorConfiguration: array, uri: string, documentationUrl: string}
+ */
 class Components
 {
     private string $branchPrefix = '';
@@ -118,109 +122,29 @@ class Components
         return $this->client->apiPostJson($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/reset-to-default");
     }
 
-    public function listComponents(?ListComponentsOptions $options = null)
+    /** @return ComponentListItem[] */
+    public function listComponents(?ListComponentsOptions $options = null): array
     {
         if (!$options) {
             $options = new ListComponentsOptions();
         }
-        return $this->client->apiGet($this->branchPrefix . 'components?' . http_build_query($options->toParamsArray()));
+        /** @var ComponentListItem[] $result */
+        $result = $this->client->apiGet($this->branchPrefix . 'components?' . http_build_query($options->toParamsArray()));
+        return $result;
     }
 
-    public function getComponent($componentId)
+    /** @return Component */
+    public function getComponent($componentId): array
     {
-        return $this->client->apiGet($this->branchPrefix . "components/{$componentId}");
+        /** @var Component $result */
+        $result = $this->client->apiGet($this->branchPrefix . "components/{$componentId}");
+        return $result;
     }
 
-    /**
-     * Get public component detail
-     * @return array{
-     *   id: string,
-     *   type: string,
-     *   name: string,
-     *   description: string,
-     *   longDescription: string,
-     *   hasUI: bool,
-     *   hasRun: bool,
-     *   ico32: string,
-     *   ico64: string,
-     *   ico128: string,
-     *   data: array{
-     *     definition: array{
-     *       type: string,
-     *       uri: string,
-     *       tag: string,
-     *       repository: array{
-     *         region: string
-     *       }
-     *     },
-     *     cpu_shares: int,
-     *     memory: string,
-     *     configuration_format: string,
-     *     process_timeout: int
-     *   },
-     *   flags: array<string>,
-     *   configurationSchema: array{
-     *     title: string,
-     *     type: string,
-     *     properties: array<string, array{
-     *       type: string,
-     *       title: string,
-     *       description: string,
-     *       default?: string
-     *     }>,
-     *     required: array<string>
-     *   },
-     *   emptyConfiguration: array<mixed>,
-     *   uiOptions: array<mixed>,
-     *   configurationDescription: string,
-     *   uri: string
-     * }
-     */
+    /** @return Component */
     public function getPublicComponentDetail(string $componentId): array
     {
-        /** @var array{
-         *   id: string,
-         *   type: string,
-         *   name: string,
-         *   description: string,
-         *   longDescription: string,
-         *   hasUI: bool,
-         *   hasRun: bool,
-         *   ico32: string,
-         *   ico64: string,
-         *   ico128: string,
-         *   data: array{
-         *     definition: array{
-         *       type: string,
-         *       uri: string,
-         *       tag: string,
-         *       repository: array{
-         *         region: string
-         *       }
-         *     },
-         *     cpu_shares: int,
-         *     memory: string,
-         *     configuration_format: string,
-         *     process_timeout: int
-         *   },
-         *   flags: array<string>,
-         *   configurationSchema: array{
-         *     title: string,
-         *     type: string,
-         *     properties: array<string, array{
-         *       type: string,
-         *       title: string,
-         *       description: string,
-         *       default?: string
-         *     }>,
-         *     required: array<string>
-         *   },
-         *   emptyConfiguration: array<mixed>,
-         *   uiOptions: array<mixed>,
-         *   configurationDescription: string,
-         *   uri: string
-         * } $result
-         */
+        /** @var Component $result */
         $result = $this->client->apiGet('components/'.$componentId);
         return $result;
     }
