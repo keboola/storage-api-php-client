@@ -4,7 +4,6 @@ namespace Keboola\Test\Common;
 use Keboola\StorageApi\BranchAwareClient;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
-use Keboola\StorageApi\Event;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ConfigurationRow;
 use Keboola\StorageApi\Options\Components\ConfigurationRowState;
@@ -17,10 +16,7 @@ use Keboola\StorageApi\Options\TokenCreateOptions;
 use Keboola\Test\ClientProvider\ClientProvider;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\EventsQueryBuilder;
-use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Output\BufferedOutput;
 use function json_decode;
-use function var_dump;
 
 class ComponentsTest extends StorageApiTestCase
 {
@@ -42,6 +38,22 @@ class ComponentsTest extends StorageApiTestCase
 
         $this->clientProvider = new ClientProvider($this);
         $this->client = $this->clientProvider->createClientForCurrentTest();
+    }
+
+    public function testPublicGetComponentDetail(): void
+    {
+        $componentId = 'wr-db';
+
+        $componentsClient = new \Keboola\StorageApi\Components(new Client(
+            ['url' => $this->client->getApiUrl(), 'token' => ''],
+        ));
+        $component = $componentsClient->getPublicComponentDetail($componentId);
+
+        $this->assertEquals('wr-db', $component['id']);
+
+        $this->assertComponentsHasKeys($component);
+
+        $this->assertArrayNotHasKey('configurations', $component);
     }
 
     public function testDeprecatedUrlWithoutBranchIdStillWorks(): void
@@ -68,10 +80,7 @@ class ComponentsTest extends StorageApiTestCase
 
         $this->assertEquals('wr-db', $component['id']);
 
-        $this->assertArrayHasKey('name', $component);
-        $this->assertArrayHasKey('type', $component);
-        $this->assertArrayHasKey('description', $component);
-        $this->assertArrayHasKey('uri', $component);
+        $this->assertComponentsHasKeys($component);
 
         $this->assertArrayNotHasKey('configurations', $component);
     }
@@ -137,6 +146,8 @@ class ComponentsTest extends StorageApiTestCase
         $component = reset($componentsNoInclude);
 
         $configuration = reset($component['configurations']);
+        $this->assertComponentsHasKeys($component);
+
         $this->assertArrayNotHasKey('configuration', $configuration);
         $this->assertArrayNotHasKey('rows', $configuration);
         $this->assertArrayNotHasKey('state', $configuration);
@@ -4071,5 +4082,37 @@ class ComponentsTest extends StorageApiTestCase
         }
 
         $this->assertSame($configuration, $components->getConfiguration($componentId, $configurationId));
+    }
+
+    public function assertComponentsHasKeys(array $component): void
+    {
+        $this->assertArrayHasKey('id', $component);
+        $this->assertArrayHasKey('uri', $component);
+        $this->assertArrayHasKey('name', $component);
+        $this->assertArrayHasKey('description', $component);
+        $this->assertArrayHasKey('version', $component);
+        $this->assertArrayHasKey('complexity', $component);
+        $this->assertArrayHasKey('categories', $component);
+        $this->assertArrayHasKey('hasRun', $component);
+        $this->assertArrayHasKey('hasUI', $component);
+        $this->assertArrayHasKey('ico32', $component);
+        $this->assertArrayHasKey('ico64', $component);
+        $this->assertArrayHasKey('ico128', $component);
+        $this->assertArrayHasKey('type', $component);
+        $this->assertArrayHasKey('data', $component);
+        $this->assertArrayHasKey('flags', $component);
+        $this->assertArrayHasKey('documentationUrl', $component);
+        $this->assertArrayHasKey('longDescription', $component);
+        $this->assertArrayHasKey('configurationSchema', $component);
+        $this->assertArrayHasKey('configurationRowSchema', $component);
+        $this->assertArrayHasKey('emptyConfiguration', $component);
+        $this->assertArrayHasKey('emptyConfigurationRow', $component);
+        $this->assertArrayHasKey('createConfigurationRowSchema', $component);
+        $this->assertArrayHasKey('configurationDescription', $component);
+        $this->assertArrayHasKey('uiOptions', $component);
+        $this->assertArrayHasKey('features', $component);
+        $this->assertArrayHasKey('expiredOn', $component);
+        $this->assertArrayHasKey('dataTypesConfiguration', $component);
+        $this->assertArrayHasKey('processorConfiguration', $component);
     }
 }

@@ -991,11 +991,6 @@ parameters:
 			path: src/Keboola/StorageApi/Components.php
 
 		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Components\\:\\:getComponent\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Components.php
-
-		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Components\\:\\:getComponent\\(\\) has parameter \\$componentId with no type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Components.php
@@ -1082,11 +1077,6 @@ parameters:
 
 		-
 			message: "#^Method Keboola\\\\StorageApi\\\\Components\\:\\:listComponentConfigurations\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Keboola/StorageApi/Components.php
-
-		-
-			message: "#^Method Keboola\\\\StorageApi\\\\Components\\:\\:listComponents\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Keboola/StorageApi/Components.php
 
