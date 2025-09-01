@@ -1010,6 +1010,10 @@ All buckets are returned.
                     },
                     "updated": "2024-11-28T13:03:13+0100",
                     "color": null
+                    "backendPath": [
+                        "KBC_PRJ_123",
+                        "in.c-main"
+                    ],
                 },
                 {
                     "uri": "https://connection.keboola.com/v2/storage/buckets/in.c-organizationData",
@@ -1021,6 +1025,10 @@ All buckets are returned.
                     "tables": "https://connection.keboola.com/v2/storage/buckets/in.c-organizationData/tables",
                     "backend": "snowflake",
                     "isReadonly": true,
+                    "backendPath": [
+                        "KBC_PRJ_123",
+                        "in.c-main"
+                    ],
                     "sourceBucket": {
                         "id": "in.c-main",
                         "name": "c-main",
@@ -1092,7 +1100,11 @@ existing bucket from another project (see below).
                 "path": "database_name.c-my-new-bucket",
                 "sharing": null,
                 "updated": "2024-11-28T13:03:13+0100",
-                "color": null
+                "color": null,
+                "backendPath": [
+                    "KBC_PRJ_123",
+                    "in.c-main"
+                ],
             }
 
 ### Link Shared Bucket [POST /v2/storage/buckets?async={async}]
@@ -1153,7 +1165,11 @@ Synchronous call response (async=false)
                     }
                 },
                 "owner": null,
-                "updated": "2024-11-28T13:03:13+0100"
+                "updated": "2024-11-28T13:03:13+0100",
+                "backendPath": [
+                    "KBC_PRJ_123",
+                    "in.c-main"
+                ],
             }
 
 + Response 202
@@ -1367,7 +1383,11 @@ Obtains information about a bucket.
                     "name": "Jan Developer",
                     "email": "jan.dev@keboola.com"
                 },
-                "updated": "2024-11-28T13:03:13+0100"
+                "updated": "2024-11-28T13:03:13+0100",
+                "backendPath": [
+                    "KBC_PRJ_123",
+                    "in.c-main"
+                ],
             }
 
 ### Bucket Update [PUT /v2/storage/buckets/{bucket_id}/?async={async}]
@@ -1416,7 +1436,11 @@ Synchronous call response (async=false)
                 "sharing": null,
                 "owner": null,
                 "updated": "2024-11-28T13:03:13+0100",
-                "color": "#00FF00"
+                "color": "#00FF00",
+                "backendPath": [
+                    "KBC_PRJ_123",
+                    "in.c-main"
+                ],
             }
 + Response 202
 Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
@@ -3555,7 +3579,11 @@ Obtains information about a table.
                     "isMaintenance": false,
                     "backend": "snowflake",
                     "sharing": null,
-                    "metadata": []
+                    "metadata": [],
+                    "backendPath": [
+                        "KBC_PRJ_123",
+                        "in.c-main"
+                    ],
                 },
                 "configuration": {
                     "componentId": "keboola.app-custom-query-manager",
@@ -3654,7 +3682,11 @@ Synchronous call response (async=false)
                     "isMaintenance": false,
                     "backend": "snowflake",
                     "sharing": null,
-                    "metadata": []
+                    "metadata": [],
+                    "backendPath": [
+                        "KBC_PRJ_123",
+                        "in.c-main"
+                    ],
                 },
                  "configuration": {
                      "componentId": "keboola.app-custom-query-manager",
@@ -4411,6 +4443,10 @@ An alias cannot be created from tables in an external bucket or from a table in 
                     "isMaintenance": false,
                     "backend": "snowflake",
                     "sharing": null,
+                    "backendPath": [
+                        "KBC_PRJ_123",
+                        "in.c-main"
+                    ],
                 }
             }
 
