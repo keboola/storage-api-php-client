@@ -1719,7 +1719,7 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                     'value' => '\'T\'',
                     'expectFail' => [
                         'message' => 'Invalid request:
- - columns[0][definition][type]: "Type ARRAY not recognized. Possible values are [BOOL|BYTES|DATE|DATETIME|TIME|TIMESTAMP|GEOGRAPHY|JSON|INT64|NUMERIC|BIGNUMERIC|FLOAT64|STRING|STRUCT|INT|SMALLINT|INTEGER|BIGINT|TINYINT|BYTEINT|DECIMAL|BIGDECIMAL]"',
+ - columns[0][definition][type]: "Type ARRAY not recognized. Possible values are [BOOL|BYTES|DATE|DATETIME|TIME|TIMESTAMP|GEOGRAPHY|JSON|INT64|NUMERIC|BIGNUMERIC|FLOAT64|STRING|STRUCT|INT|SMALLINT|INTEGER|BIGINT|TINYINT|BYTEINT|DECIMAL|BIGDECIMAL|FLOAT|BOOLEAN]"',
                     ],
                 ],
             ],
@@ -1728,7 +1728,7 @@ INSERT INTO %s.`test_prices` (`id`, `price`) VALUES (1, \'too expensive\') ;',
                     'value' => '\'T\'',
                     'expectFail' => [
                         'message' => 'Invalid request:
- - columns[0][definition][type]: "Type INTERVAL not recognized. Possible values are [BOOL|BYTES|DATE|DATETIME|TIME|TIMESTAMP|GEOGRAPHY|JSON|INT64|NUMERIC|BIGNUMERIC|FLOAT64|STRING|STRUCT|INT|SMALLINT|INTEGER|BIGINT|TINYINT|BYTEINT|DECIMAL|BIGDECIMAL]"',
+ - columns[0][definition][type]: "Type INTERVAL not recognized. Possible values are [BOOL|BYTES|DATE|DATETIME|TIME|TIMESTAMP|GEOGRAPHY|JSON|INT64|NUMERIC|BIGNUMERIC|FLOAT64|STRING|STRUCT|INT|SMALLINT|INTEGER|BIGINT|TINYINT|BYTEINT|DECIMAL|BIGDECIMAL|FLOAT|BOOLEAN]"',
                     ],
                 ],
             ],
