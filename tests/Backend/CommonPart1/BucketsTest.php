@@ -60,11 +60,13 @@ class BucketsTest extends StorageApiTestCase
 
         $this->assertTrue(count($buckets) >= 2);
 
+        $firstBucket = null;
         $inBucketFound = false;
         $outBucketFound = false;
         foreach ($buckets as $bucket) {
             if ($bucket['id'] == $this->getTestBucketId(self::STAGE_IN)) {
                 $inBucketFound = true;
+                $firstBucket = $bucket;
             }
             if ($bucket['id'] == $this->getTestBucketId(self::STAGE_OUT)) {
                 $outBucketFound = true;
@@ -72,11 +74,37 @@ class BucketsTest extends StorageApiTestCase
         }
         $this->assertTrue($inBucketFound);
         $this->assertTrue($outBucketFound);
+        $this->assertNotNull($firstBucket);
 
-        $firstBucket = reset($buckets);
+        $this->assertArrayHasKey('id', $firstBucket);
+        $this->assertSame($this->getTestBucketId(self::STAGE_IN), $firstBucket['id']);
+        $this->assertArrayHasKey('name', $firstBucket);
         $this->assertArrayHasKey('displayName', $firstBucket);
         $this->assertNotEquals('', $firstBucket['displayName']);
         $this->assertArrayHasKey('created', $firstBucket);
+        $this->assertArrayHasKey('uri', $firstBucket);
+        $this->assertArrayHasKey('tables', $firstBucket);
+        $this->assertArrayHasKey('created', $firstBucket);
+        $this->assertArrayHasKey('lastChangeDate', $firstBucket);
+        $this->assertArrayHasKey('updated', $firstBucket);
+        $this->assertArrayHasKey('idBranch', $firstBucket);
+        $this->assertArrayHasKey('stage', $firstBucket);
+        $this->assertSame('in', $firstBucket['stage']);
+        $this->assertArrayHasKey('description', $firstBucket);
+        $this->assertArrayHasKey('dataSizeBytes', $firstBucket);
+        $this->assertArrayHasKey('rowsCount', $firstBucket);
+        $this->assertArrayHasKey('backend', $firstBucket);
+        $this->assertArrayHasKey('sharing', $firstBucket);
+        $this->assertArrayHasKey('databaseName', $firstBucket);
+        $this->assertArrayHasKey('path', $firstBucket);
+        $this->assertArrayHasKey('color', $firstBucket);
+        $this->assertArrayHasKey('owner', $firstBucket);
+        $this->assertArrayHasKey('backendPath', $firstBucket);
+        $this->assertFalse($firstBucket['isReadOnly']);
+        $this->assertFalse($firstBucket['isMaintenance']);
+        $this->assertFalse($firstBucket['hasExternalSchema']);
+        $this->assertFalse($firstBucket['isSnowflakeSharedDatabase']);
+
         if ($devBranchType === ClientProvider::DEV_BRANCH) {
             $this->assertEquals($this->clientProvider->getExistingBranchForTestCase()['id'], $firstBucket['idBranch']);
         } elseif ($devBranchType === ClientProvider::DEFAULT_BRANCH) {
@@ -87,6 +115,9 @@ class BucketsTest extends StorageApiTestCase
         } else {
             throw new \Exception(sprintf('Unknown devBranchType "%s"', $devBranchType));
         }
+
+        //@phpstan-ignore-next-line
+        $this->assertBucketBackendPath($firstBucket);
     }
 
     /**
@@ -109,6 +140,8 @@ class BucketsTest extends StorageApiTestCase
         $bucketId = $this->_testClient->createBucket(name: $bucketName, stage: self::STAGE_IN, color: '#00FF00');
 
         $bucket = $this->_testClient->getBucket($bucketId);
+        //@phpstan-ignore-next-line
+        $this->assertBucketBackendPath($bucket);
         $this->assertEquals($branch['id'], $bucket['idBranch']);
 
         $this->assertEquals($tokenData['owner']['defaultBackend'], $bucket['backend']);
@@ -149,6 +182,8 @@ class BucketsTest extends StorageApiTestCase
         $bucketUpdateOptions = new BucketUpdateOptions($bucketId, $displayName);
         $bucketUpdateOptions->deleteColor();
         $bucket = $this->_testClient->updateBucket($bucketUpdateOptions);
+        //@phpstan-ignore-next-line
+        $this->assertBucketBackendPath($bucket);
         try {
             $this->_testClient->createBucket($displayName, self::STAGE_IN);
             $this->fail('Should throw exception');
@@ -244,6 +279,29 @@ class BucketsTest extends StorageApiTestCase
 
         $this->_testClient->dropTable($tableId);
         $this->_testClient->dropBucket($bucket['id']);
+    }
+
+
+    /**
+     * @param array{
+     *     backendPath: string[],
+     *     backend: string,
+     *     path: string,
+     * } $bucket
+     */
+    private function assertBucketBackendPath(array $bucket): void
+    {
+        if ($bucket['backend'] === self::BACKEND_SNOWFLAKE) {
+            $projectId = $this->getProjectId($this->_testClient);
+            $this->assertCount(2, $bucket['backendPath']);
+            $this->assertStringContainsString((string) $projectId, $bucket['backendPath'][0]);
+            $this->assertSame($bucket['path'], $bucket['backendPath'][1]);
+        } elseif ($bucket['backend'] === self::BACKEND_BIGQUERY) {
+            $this->assertCount(1, $bucket['backendPath']);
+            $this->assertSame($bucket['path'], $bucket['backendPath'][0]);
+        } else {
+            $this->fail('Unknown backend ' . $bucket['backend']);
+        }
     }
 
     private function assertBucketWithColumnMetadata(array $bucket): void
