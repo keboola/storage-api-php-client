@@ -77,9 +77,33 @@ class SnowflakeDynamicBackendsTest extends ParallelWorkspacesTestCase
             true,
         );
 
+        // Check queries against warehouse - no exception expected
+        $db = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
+        // -- Pick the warehouse you want to test
+        $db->executeQuery("USE WAREHOUSE {$workspace['connection']['warehouse']};");
+        // -- Ensure it actually spins compute (no result cache)
+        $db->executeQuery('ALTER SESSION SET USE_CACHED_RESULT = FALSE;');
+        // -- Easiest dummy SELECT that runs on the warehouse
+        $db->executeQuery('SELECT CURRENT_WAREHOUSE(), CURRENT_TIMESTAMP(), RANDOM();');
+
         $this->assertSame('snowflake', $workspace['connection']['backend']);
         $this->assertSame($expectedBackendSize, $workspace['backendSize']);
         $this->assertStringEndsWith($expectedWarehouseSuffix, $workspace['connection']['warehouse']);
+
+        $credentials = $this->workspaces->createCredentials($workspace['id']);
+
+        // Check queries against warehouse - no exception expected
+        $db2 = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($credentials);
+        // -- Pick the warehouse you want to test
+        $db2->executeQuery("USE WAREHOUSE {$credentials['connection']['warehouse']};");
+        // -- Ensure it actually spins compute (no result cache)
+        $db2->executeQuery('ALTER SESSION SET USE_CACHED_RESULT = FALSE;');
+        // -- Easiest dummy SELECT that runs on the warehouse
+        $db2->executeQuery('SELECT CURRENT_WAREHOUSE(), CURRENT_TIMESTAMP(), RANDOM();');
+
+        $this->assertSame('snowflake', $credentials['connection']['backend']);
+        $this->assertSame($expectedBackendSize, $credentials['backendSize']);
+        $this->assertStringEndsWith($expectedWarehouseSuffix, $credentials['connection']['warehouse']);
     }
 
     public function testWorkspaceLoadLinkedDataFromProjectWithDynamicBackends(): void
