@@ -239,7 +239,7 @@ class WorkspacesQueryTest extends ParallelWorkspacesTestCase
             [
                 'status' => 'error',
                 'message' => sprintf("An exception occurred while executing a query: SQL access control error:
-Insufficient privileges to operate on database '%s'", $workspace['connection']['database']),
+Insufficient privileges to operate on database '%s'.", $workspace['connection']['database']),
             ],
         );
 
