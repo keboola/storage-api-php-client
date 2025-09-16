@@ -44,7 +44,8 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         array $options = [],
         bool $forceRecreate = false,
         bool $async = true,
-        ?Client $client = null
+        ?Client $client = null,
+        ?Client $workspaceClient = null
     ): array {
         if ($backend) {
             $options['backend'] = $backend;
@@ -52,9 +53,12 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
         if ($client === null) {
             $client = $this->_client;
         }
+        if ($workspaceClient === null) {
+            $workspaceClient = $this->workspaceSapiClient;
+        }
 
         $oldWorkspaces = $this->listTestWorkspaces($client);
-        $workspaces = new Workspaces($this->workspaceSapiClient);
+        $workspaces = new Workspaces($workspaceClient);
 
         $oldWorkspace = $oldWorkspaces ? reset($oldWorkspaces) : null;
         if (!$oldWorkspace) {
@@ -64,7 +68,7 @@ abstract class ParallelWorkspacesTestCase extends StorageApiTestCase
             || $oldWorkspace['connection']['backend'] === $options['backend'];
         if (!$forceRecreate && $couldReuseExistingWorkspace) {
             $result = $workspaces->resetWorkspacePassword($oldWorkspace['id']);
-            if ($this->getDefaultBackend($this->workspaceSapiClient) === self::BACKEND_BIGQUERY) {
+            if ($this->getDefaultBackend($workspaceClient) === self::BACKEND_BIGQUERY) {
                 $oldWorkspace['connection']['credentials'] = $result['credentials'];
             } else {
                 $oldWorkspace['connection']['password'] = $result['password'];
