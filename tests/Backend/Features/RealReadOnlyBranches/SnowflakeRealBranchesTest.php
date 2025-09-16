@@ -108,6 +108,7 @@ class SnowflakeRealBranchesTest extends ParallelWorkspacesTestCase
             true,
             true,
             $devClient,
+            $this->workspaceSapiClient->getBranchAwareClient($branchId),
         );
         $wsDevBackend = WorkspaceBackendFactory::createWorkspaceBackend($wsDev, true);
         /**
