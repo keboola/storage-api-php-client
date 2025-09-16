@@ -1,0 +1,87 @@
+name: Tag PR on label
+
+on:
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: write       # to create/push tags
+  pull-requests: write  # to remove labels / comment
+
+env:
+  LABEL_NAME: tag-e2e
+  POST_COMMENT: "true"
+
+jobs:
+  tag-on-label:
+    if: github.event.label.name == 'tag-e2e'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (full history for tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute next tag
+        id: compute
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+
+          # Take everything before the first slash (or whole branch if no slash)
+          PREFIX_PART="test"
+          PREFIX="dev-${PREFIX_PART}-${PR_NUMBER}"
+
+          # Ensure we know about remote tags
+          git fetch --tags origin
+
+          # List existing matching tags from remote
+          EXISTING_TAGS="$(git ls-remote --tags origin "${PREFIX}-*" | awk -F'refs/tags/' '{print $2}')"
+
+          NEXT=1
+          if [[ -n "${EXISTING_TAGS}" ]]; then
+            MAX=0
+            # Extract numeric suffix and find max
+            while IFS= read -r TAG; do
+              NUM="${TAG##*-}"
+              if [[ "$NUM" =~ ^[0-9]+$ ]] && (( NUM > MAX )); then
+                MAX="$NUM"
+              fi
+            done <<< "$EXISTING_TAGS"
+            NEXT=$((MAX + 1))
+          fi
+
+          NEW_TAG="${PREFIX}-${NEXT}"
+          echo "new_tag=${NEW_TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "${{ steps.compute.outputs.new_tag }}"
+          git push origin "${{ steps.compute.outputs.new_tag }}"
+
+      - name: Remove triggering label
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue edit ${{ github.event.pull_request.number }} \
+          --remove-label "${LABEL_NAME}" \
+          --repo "${{ github.repository }}"
+
+      - name: Comment with created tag (optional)
+        if: env.POST_COMMENT == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} \
+            --repo "${{ github.repository }}" \
+            --body "Created tag \`${{ steps.compute.outputs.new_tag }}\`."
