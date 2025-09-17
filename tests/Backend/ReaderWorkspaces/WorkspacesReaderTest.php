@@ -109,6 +109,60 @@ class WorkspacesReaderTest extends WorkspacesTestCase
         $this->assertCount(1, $data);
     }
 
+    public function testLoadToReaderAccountAndChangeDataType(): void
+    {
+        $workspaces = $this->createWorkspaces();
+        $workspace = $this->prepareWorkspace();
+
+        //setup test tables
+        $tableId = $this->_client->createTableAsync(
+            $this->getTestBucketId(),
+            'languages',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+        );
+
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'columns' => [
+                        ['source' => 'id', 'type' => 'INT'],
+                        ['source' => 'name', 'type' => 'STRING'],
+                    ],
+                ],
+            ],
+        ]);
+
+        // create the connection after LOAD!! because the schema will be created by LOAD
+        $db = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
+
+        $types1 = $db->getTableReflection('languages');
+
+        $workspaces->loadWorkspaceData($workspace['id'], [
+            'input' => [
+                [
+                    'source' => $tableId,
+                    'destination' => 'languages',
+                    'columns' => [
+                        ['source' => 'id', 'type' => 'STRING'],
+                        ['source' => 'name', 'type' => 'STRING'],
+                    ],
+                    'overwrite' => true,
+                ],
+            ],
+            'preserve' => true,
+        ]);
+
+        // create the connection after LOAD!! because the schema will be created by LOAD
+        $db = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
+
+        $types2 = $db->getTableReflection('languages');
+
+        // expecting that the type of 'id' column changed from INT to STRING
+        $this->assertEquals('VARCHAR', iterator_to_array($types2->getColumnsDefinitions()->getIterator())[0]->getColumnDefinition()->getType());
+    }
+
     public function testDenyUnloadOnReaderWorkspace(): void
     {
         $workspaces = $this->createWorkspaces();
