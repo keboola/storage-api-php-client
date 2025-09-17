@@ -1101,7 +1101,22 @@ class MetadataTest extends StorageApiTestCase
             } catch (ClientException $e) {
                 $this->assertEquals(404, $e->getCode());
                 $this->assertEquals('storage.metadata.notFound', $e->getStringCode());
-                $this->assertEquals('The supplied metadata ID was not found', $e->getMessage());
+
+                // different exception message for columns and tables
+                $metadataNotFoundEntity = [
+                    self::ENDPOINT_TYPE_COLUMNS => 'column',
+                    self::ENDPOINT_TYPE_TABLES => 'table',
+                ][$apiEndpoint] ?? 'object';
+
+                $this->assertEquals(
+                    sprintf(
+                        'Metadata "%s" was not found for %s "%s".',
+                        9999999,
+                        $metadataNotFoundEntity,
+                        $object,
+                    ),
+                    $e->getMessage(),
+                );
             }
         }
 
