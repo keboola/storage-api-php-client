@@ -252,7 +252,7 @@ Insufficient privileges to operate on database '%s'.", $workspace['connection'][
             [
                 'status' => 'error',
                 'message' => sprintf("An exception occurred while executing a query: SQL access control error:
-Insufficient privileges to operate on schema '%s'", $workspace['connection']['schema']),
+Insufficient privileges to operate on schema '%s'.", $workspace['connection']['schema']),
             ],
         );
 
@@ -289,7 +289,7 @@ Current session is restricted. USE ROLE not allowed.',
             [
                 'status' => 'error',
                 'message' => "An exception occurred while executing a query: SQL access control error:
-Insufficient privileges to operate on table 'test-delete'",
+Insufficient privileges to operate on table 'test-delete'.",
             ],
         );
 
