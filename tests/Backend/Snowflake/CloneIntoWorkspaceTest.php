@@ -1,7 +1,5 @@
 <?php
 
-
-
 namespace Keboola\Test\Backend\Snowflake;
 
 use Keboola\Csv\CsvFile;
@@ -161,15 +159,15 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
     public function cloneProvider(): array
     {
         return [
-          'normal table' => [
-              0,
-          ],
-          'simple alias' => [
-              1,
-          ],
-          'simple alias 2 levels' =>[
-              2,
-          ],
+            'normal table' => [
+                0,
+            ],
+            'simple alias' => [
+                1,
+            ],
+            'simple alias 2 levels' => [
+                2,
+            ],
         ];
     }
 
@@ -192,16 +190,16 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         $workspacesClient->cloneIntoWorkspace($workspace['id'], [
-           'input' => [
-               [
-                   'source' => $table1Id,
-                   'destination' => 'languages',
-               ],
-               [
-                   'source' => $table2Id,
-                   'destination' => 'rates',
-               ],
-           ],
+            'input' => [
+                [
+                    'source' => $table1Id,
+                    'destination' => 'languages',
+                ],
+                [
+                    'source' => $table2Id,
+                    'destination' => 'rates',
+                ],
+            ],
         ]);
 
         $actualJob = null;
@@ -524,6 +522,54 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertEquals($options['input'], $job['operationParams']['input']);
     }
 
+    public function testCloneUsingLoadEndpoint(): void
+    {
+        $bucketId = $this->getTestBucketId(self::STAGE_IN);
+        $table1Id = $this->workspaceSapiClient->createTableAsync(
+            $bucketId,
+            'languages',
+            new CsvFile(self::IMPORT_FILE_PATH),
+        );
+
+        $workspacesClient = new Workspaces($this->workspaceSapiClient);
+        $workspace = $this->initTestWorkspace();
+
+        $options = [
+            'input' => [
+                [
+                    'source' => $table1Id,
+                    'destination' => 'languages',
+                    'loadType' => 'CLONE',
+                ],
+            ],
+        ];
+
+        $jobId = $workspacesClient->queueWorkspaceLoadData($workspace['id'], $options);
+        $job = $this->_client->getJob($jobId);
+        $this->assertIsArray($job['operationParams']['input']);
+        $this->assertIsArray($job['operationParams']['input'][0]);
+        $this->assertArrayHasKey('loadType', $job['operationParams']['input'][0]);
+        $this->assertSame('CLONE', $job['operationParams']['input'][0]['loadType']);
+
+        // test load auto
+        $options = [
+            'input' => [
+                [
+                    'source' => $table1Id,
+                    'destination' => 'languages',
+                    'loadType' => 'AUTO',
+                ],
+            ],
+        ];
+
+        $jobId = $workspacesClient->queueWorkspaceLoadData($workspace['id'], $options);
+        $job = $this->_client->getJob($jobId);
+        $this->assertIsArray($job['operationParams']['input']);
+        $this->assertIsArray($job['operationParams']['input'][0]);
+        $this->assertArrayHasKey('loadType', $job['operationParams']['input'][0]);
+        $this->assertSame('CLONE', $job['operationParams']['input'][0]['loadType']);
+    }
+
     /**
      * @param Client $client
      * @param string $bucketId
@@ -539,7 +585,6 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         $primaryKey = 'id',
         $tableName = 'languagesDetails'
     ) {
-
         return $client->createTableAsync(
             $bucketId,
             $tableName,
@@ -552,7 +597,7 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
     {
         $i = 0;
         while ($i < $nestingLevel) {
-            $sourceTableId  = $this->workspaceSapiClient->createAliasTable(
+            $sourceTableId = $this->workspaceSapiClient->createAliasTable(
                 $this->getTestBucketId(self::STAGE_OUT),
                 $sourceTableId,
                 sprintf('%s-%s', $aliasNamePrefix, $i),
