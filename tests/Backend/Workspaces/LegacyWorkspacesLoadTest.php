@@ -1006,7 +1006,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             $workspaces->loadWorkspaceData($workspace['id'], $input);
             $this->fail('Should return bad request, input is required');
         } catch (ClientException $e) {
-            $this->assertEquals('workspace.loadRequestInputRequired', $e->getStringCode());
+            $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }
 
         try {
