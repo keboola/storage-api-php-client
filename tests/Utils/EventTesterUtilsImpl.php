@@ -18,6 +18,6 @@ class EventTesterUtilsImpl extends TestCase
     {
         parent::__construct();
         $this->tokenId = '7';
-        $this->lastEventId = '10';
+        $this->lastEventId['test'] = '10';
     }
 }
