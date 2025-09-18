@@ -736,11 +736,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         ];
     }
 
-    /**
-     * @dataProvider notExistingColumnUserErrorDataTypesDefinitions
-     * @param $dataTypesDefinition
-     */
-    public function testDataTypeForNotExistingColumnUserError($dataTypesDefinition): void
+    public function testDataTypeForNotExistingColumnUserError(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
