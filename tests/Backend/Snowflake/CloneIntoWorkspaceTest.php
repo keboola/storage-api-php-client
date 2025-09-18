@@ -539,7 +539,7 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
                 [
                     'source' => $table1Id,
                     'destination' => 'languages',
-                    'loadType' => 'clone',
+                    'loadType' => 'CLONE',
                 ],
             ],
         ];
@@ -549,7 +549,7 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertIsArray($job['operationParams']['input']);
         $this->assertIsArray($job['operationParams']['input'][0]);
         $this->assertArrayHasKey('loadType', $job['operationParams']['input'][0]);
-        $this->assertSame('clone', $job['operationParams']['input'][0]['loadType']);
+        $this->assertSame('CLONE', $job['operationParams']['input'][0]['loadType']);
 
         // test load auto
         $options = [
@@ -557,7 +557,7 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
                 [
                     'source' => $table1Id,
                     'destination' => 'languages',
-                    'loadType' => 'auto',
+                    'loadType' => 'AUTO',
                 ],
             ],
         ];
@@ -567,7 +567,7 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertIsArray($job['operationParams']['input']);
         $this->assertIsArray($job['operationParams']['input'][0]);
         $this->assertArrayHasKey('loadType', $job['operationParams']['input'][0]);
-        $this->assertSame('clone', $job['operationParams']['input'][0]['loadType']);
+        $this->assertSame('CLONE', $job['operationParams']['input'][0]['loadType']);
     }
 
     /**

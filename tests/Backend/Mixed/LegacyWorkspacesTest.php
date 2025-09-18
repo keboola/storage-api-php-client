@@ -354,7 +354,7 @@ class LegacyWorkspacesTest extends WorkspacesTestCase
                 $this->fail('Should have thrown');
             }
         } catch (ClientException $e) {
-            $this->assertEquals('workspace.tableLoad', $e->getStringCode());
+            $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }
     }
 
