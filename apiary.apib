@@ -5027,7 +5027,6 @@ Loads tables from Storage into a Workspace. BigQuery supports only loading as vi
                     + dataFileId (optional, number) - Required for loading file. File upload id. Can be used only to load file to file workspace.
                     + destination (required) - Destination table name or folder for file workspace
                     + rows (optional, number) - Limits the number of returned rows
-                    + days (optional, number) - `DEPRECATED will be removed in the future.` Return rows created or updated in the last X days.
                     + seconds (optional, number) - Returns rows created or updated in the last X seconds.
                     + changedSince (optional) - Currently only supported for Snowflake - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp.
                         **If the `days` or `seconds` parameter is set, this value is ignored.**
@@ -5077,7 +5076,13 @@ Loads tables from Storage into a Workspace. BigQuery supports only loading as vi
                         Default: false
                     + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
                         Default: false
-                    + useView (optional, boolean) - (experimental) SNFLK (requires feature `input-mapping-read-only-storage`, aliases are not supported), BigQuery (working without feature, aliases are not supported) view will be created in workspace instead of loading table (only source and destination options are allowed)
+                    + loadType (optional, enum[string]) - Select load type. Default: COPY. Use AUTO to let Storage API decide the best load type. Copy will be used always when filters or columns are set. Clone accepts only "source","destination" and "overwrite" options. View load type is experimental for SNFLK requires feature `input-mapping-read-only-storage`, aliases are not supported, for BigQuery working without feature, aliases are not supported. View will be created in workspace instead of loading table (View accepts only "source","destination" and "overwrite" options).
+                        + Members
+                            + COPY
+                            + CLONE
+                            + VIEW
+                            + AUTO
+                    + dropTimestampColumn (optional, boolean) - (CLONE loadType only) When true _timestamp column is removed after table load
                         Default: false
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
         Default: false
@@ -5162,7 +5167,6 @@ Loads tables from Storage into a Workspace in [Development Branch](#reference/de
                     + dataFileId (optional, number) - Required for loading file. File upload id. Can be used only to load file to file workspace.
                     + destination (required) - Destination table name or folder for file workspace
                     + rows (optional, number) - Limits the number of returned rows
-                    + days (optional, number) - `DEPRECATED will be removed in the future.` Return rows created or updated in the last X days.
                     + seconds (optional, number) - Returns rows created or updated in the last X seconds.
                     + changedSince (optional) - Currently only supported for Snowflake - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp.
                         **If the `days` or `seconds` parameter is set, this value is ignored.**
@@ -5212,7 +5216,13 @@ Loads tables from Storage into a Workspace in [Development Branch](#reference/de
                         Default: false
                     + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
                         Default: false
-                    + useView (optional, boolean) - (experimental) SNFLK (requires feature `input-mapping-read-only-storage`, aliases don't work) view will be created in workspace instead of loading table (only source and destination options are allowed)
+                    + loadType (optional, enum[string]) - Select load type. Default: COPY. Use AUTO to let Storage API decide the best load type. Copy will be used always when filters or columns are set. Clone accepts only "source","destination" and "overwrite" options. View load type is experimental for SNFLK requires feature `input-mapping-read-only-storage`, aliases are not supported, for BigQuery working without feature, aliases are not supported. View will be created in workspace instead of loading table (View accepts only "source","destination" and "overwrite" options).
+                        + Members
+                            + COPY
+                            + CLONE
+                            + VIEW
+                            + AUTO
+                    + dropTimestampColumn (optional, boolean) - (CLONE loadType only) When true _timestamp column is removed after table load
                         Default: false
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
         Default: false
@@ -5281,9 +5291,13 @@ Loads tables from Storage into a Workspace in [Development Branch](#reference/de
             }
 
 
-## Load Data using CLONE [/v2/storage/workspaces/{workspace_id}/load-clone]
+## DEPRECATED: Load Data using CLONE [/v2/storage/branch/{branch_id}/workspaces/{workspace_id}/load-clone]
 
-### Load Data using CLONE [POST]
+**Deprecated use /load endpoint with loadType:CLONE**
+
+### Load Data using CLONE [POST /v2/storage/branch/{branch_id}/workspaces/{workspace_id}/load-clone]
+**Deprecated use /load endpoint with loadType:CLONE**
+
 Load tables from Storage into a Workspace using zero-copy cloning functionality in Snowflake. This load type does not
 support any filtering or processing parameters. Only tables stored in Snowflake are supported.
 
@@ -5368,6 +5382,7 @@ when any of the row values were changed during an incremental import.
 
 
 ### Load Data using CLONE into Development Branch Workspace [POST /v2/storage/branch/{branch_id}/workspaces/{workspace_id}/load-clone]
+**Deprecated use /load endpoint with loadType:CLONE**
 
 Load tables from Storage into a Workspace in [Development Branch](#reference/development-branches) using zero-copy cloning functionality in Snowflake. This load type does not
 support any filtering or processing parameters. Only tables stored in Snowflake are supported.
