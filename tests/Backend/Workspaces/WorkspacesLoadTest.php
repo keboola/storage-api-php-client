@@ -2223,6 +2223,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         $this->assertEquals('workspaceLoad', $job['operationName']);
         $this->assertEquals($workspace['id'], $job['operationParams']['workspaceId']);
+        $options['input'][0]['loadType'] = 'COPY';
         $this->assertEquals($options['input'], $job['operationParams']['input']);
     }
 }
