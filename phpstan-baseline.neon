@@ -3746,11 +3746,6 @@ parameters:
 			path: tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php
 
 		-
-			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\LegacyWorkspacesLoadTest\\:\\:testDataTypeForNotExistingColumnUserError\\(\\) has parameter \\$dataTypesDefinition with no type specified\\.$#"
-			count: 1
-			path: tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php
-
-		-
 			message: "#^Method Keboola\\\\Test\\\\Backend\\\\Workspaces\\\\LegacyWorkspacesLoadTest\\:\\:testDataTypes\\(\\) has parameter \\$dataTypesDefinition with no type specified\\.$#"
 			count: 1
 			path: tests/Backend/Workspaces/LegacyWorkspacesLoadTest.php
