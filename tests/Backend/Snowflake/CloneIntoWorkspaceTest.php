@@ -2,6 +2,7 @@
 
 namespace Keboola\Test\Backend\Snowflake;
 
+use Generator;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
@@ -19,7 +20,7 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
     /**
      * @dataProvider cloneProvider
      */
-    public function testClone(int $aliasNestingLevel): void
+    public function testClone(int $aliasNestingLevel, string $method, array $extraInput): void
     {
         $this->initEvents($this->workspaceSapiClient);
 
@@ -38,11 +39,12 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         $runId = $this->workspaceSapiClient->generateRunId();
         $this->workspaceSapiClient->setRunId($runId);
 
-        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
+        $workspacesClient->{$method}($workspace['id'], [
             'input' => [
                 [
                     'source' => $sourceTableId,
                     'destination' => 'languagesDetails',
+                    ...$extraInput,
                 ],
             ],
         ]);
@@ -125,12 +127,13 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         }
 
         // clone again but drop timestamp
-        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
+        $workspacesClient->{$method}($workspace['id'], [
             'input' => [
                 [
                     'source' => $sourceTableId,
                     'destination' => 'languagesDetailsNoTimestamp',
                     'dropTimestampColumn' => true,
+                    ...$extraInput,
                 ],
             ],
         ]);
@@ -156,22 +159,50 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         );
     }
 
-    public function cloneProvider(): array
+    /**
+     * @return Generator<string, array{method: string, extraInputsOptions: array, operationName: string}>
+     */
+    public function cloneEndpointProvider(): Generator
     {
-        return [
-            'normal table' => [
-                0,
+        yield 'cloneUsingCloneEndpoint' => [
+            'method' => 'cloneIntoWorkspace',
+            'extraInputsOptions' => [],
+            'operationName' => 'workspaceLoadClone',
+        ];
+        yield 'cloneUsingLoadEndpoint' => [
+            'method' => 'loadWorkspaceData',
+            'extraInputsOptions' => [
+                'loadType' => 'CLONE',
             ],
-            'simple alias' => [
-                1,
-            ],
-            'simple alias 2 levels' => [
-                2,
-            ],
+            'operationName' => 'workspaceLoad',
         ];
     }
 
-    public function testCloneMultipleTables(): void
+    public function cloneProvider(): Generator
+    {
+        foreach ($this->cloneEndpointProvider() as $name => $data) {
+            yield $name . ' - normal table' => [
+                0,
+                $data['method'],
+                $data['extraInputsOptions'],
+            ];
+            yield $name . ' - simple alias' => [
+                1,
+                $data['method'],
+                $data['extraInputsOptions'],
+            ];
+            yield $name . ' - simple alias 2 levels' => [
+                2,
+                $data['method'],
+                $data['extraInputsOptions'],
+            ];
+        }
+    }
+
+    /**
+     * @dataProvider cloneEndpointProvider
+     */
+    public function testCloneMultipleTables(string $method, array $extraInput, string $operationName): void
     {
         $bucketId = $this->getTestBucketId(self::STAGE_IN);
         $table1Id = $this->workspaceSapiClient->createTableAsync(
@@ -189,22 +220,24 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         $workspacesClient = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
 
-        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
+        $workspacesClient->{$method}($workspace['id'], [
             'input' => [
                 [
                     'source' => $table1Id,
                     'destination' => 'languages',
+                    ...$extraInput,
                 ],
                 [
                     'source' => $table2Id,
                     'destination' => 'rates',
+                    ...$extraInput,
                 ],
             ],
         ]);
 
         $actualJob = null;
         foreach ($this->workspaceSapiClient->listJobs() as $job) {
-            if ($job['operationName'] === 'workspaceLoadClone') {
+            if ($job['operationName'] === $operationName) {
                 if ((int) $job['operationParams']['workspaceId'] === $workspace['id']) {
                     $actualJob = $job;
                 }
@@ -224,7 +257,7 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
      * @dataProvider aliasSettingsProvider
      * @param array $aliasSettings
      */
-    public function testCloneOtherAliasesNotAllowed(array $aliasSettings): void
+    public function testCloneOtherAliasesNotAllowed(array $aliasSettings, string $method, array $extraInput): void
     {
         $sourceBucketId = $this->getTestBucketId();
         $sourceTableId = $this->createTableFromFile(
@@ -244,17 +277,21 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         $this->expectException(Exception::class);
-        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
+        $workspacesClient->{$method}($workspace['id'], [
             'input' => [
                 [
                     'source' => $aliasTableId,
                     'destination' => 'languagesDetails',
+                    ...$extraInput,
                 ],
             ],
         ]);
     }
 
-    public function testClonePreserveOffByDefault(): void
+    /**
+     * @dataProvider cloneEndpointProvider
+     */
+    public function testClonePreserveOffByDefault(string $method, array $extraInput): void
     {
         $sourceBucketId = $this->getTestBucketId();
         $sourceTableId = $this->createTableFromFile(
@@ -267,21 +304,23 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         // first load
-        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
+        $workspacesClient->{$method}($workspace['id'], [
             'input' => [
                 [
                     'source' => $sourceTableId,
                     'destination' => 'languagesDetails',
+                    ...$extraInput,
                 ],
             ],
         ]);
 
         // second load will overwrite
-        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
+        $workspacesClient->{$method}($workspace['id'], [
             'input' => [
                 [
                     'source' => $sourceTableId,
                     'destination' => 'languages-2',
+                    ...$extraInput,
                 ],
             ],
         ]);
@@ -291,7 +330,10 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertEquals(['languages-2'], $backendTables);
     }
 
-    public function testClonePreserve(): void
+    /**
+     * @dataProvider cloneEndpointProvider
+     */
+    public function testClonePreserve(string $method, array $extraInput): void
     {
         $sourceBucketId = $this->getTestBucketId();
         $sourceTableId = $this->createTableFromFile(
@@ -304,21 +346,23 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         $workspace = $this->initTestWorkspace();
 
         // first load
-        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
+        $workspacesClient->{$method}($workspace['id'], [
             'input' => [
                 [
                     'source' => $sourceTableId,
                     'destination' => 'languagesDetails',
+                    ...$extraInput,
                 ],
             ],
         ]);
 
         // second load with preserve
-        $workspacesClient->cloneIntoWorkspace($workspace['id'], [
+        $workspacesClient->{$method}($workspace['id'], [
             'input' => [
                 [
                     'source' => $sourceTableId,
                     'destination' => 'languages-2',
+                    ...$extraInput,
                 ],
             ],
             'preserve' => true,
@@ -335,7 +379,10 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         );
     }
 
-    public function testTableAlreadyExistsAndOverwrite(): void
+    /**
+     * @dataProvider cloneEndpointProvider
+     */
+    public function testTableAlreadyExistsAndOverwrite(string $method, array $extraInput): void
     {
         $description = $this->generateDescriptionForTestObject();
         $workspaces = new Workspaces($this->workspaceSapiClient);
@@ -384,13 +431,14 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         );
 
         // first load
-        $workspaces->cloneIntoWorkspace(
+        $workspaces->{$method}(
             $workspace['id'],
             [
                 'input' => [
                     [
                         'source' => $tableId,
                         'destination' => 'Langs',
+                        ...$extraInput,
                     ],
                 ],
             ],
@@ -402,13 +450,14 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
 
         // second load of same table with preserve
         try {
-            $workspaces->cloneIntoWorkspace(
+            $workspaces->{$method}(
                 $workspace['id'],
                 [
                     'input' => [
                         [
                             'source' => $tableId,
                             'destination' => 'Langs',
+                            ...$extraInput,
                         ],
                     ],
                     'preserve' => true,
@@ -421,12 +470,13 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
 
         try {
             // Invalid option combination
-            $workspaces->cloneIntoWorkspace($workspace['id'], [
+            $workspaces->{$method}($workspace['id'], [
                 'input' => [
                     [
                         'source' => $tableId,
                         'destination' => 'Langs',
                         'overwrite' => true,
+                        ...$extraInput,
                     ],
                 ],
                 'preserve' => false,
@@ -437,12 +487,13 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         }
 
         // third load table with more rows, preserve and overwrite
-        $workspaces->cloneIntoWorkspace($workspace['id'], [
+        $workspaces->{$method}($workspace['id'], [
             'input' => [
                 [
                     'source' => $linkedBucketId . '.languagesDetails2',
                     'destination' => 'Langs',
                     'overwrite' => true,
+                    ...$extraInput,
                 ],
             ],
             'preserve' => true,
@@ -452,13 +503,16 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         $this->assertCount(6, $workspaceTableData);
     }
 
-    public function testCloneWithWrongInput(): void
+    /**
+     * @dataProvider cloneEndpointProvider
+     */
+    public function testCloneWithWrongInput(string $method): void
     {
         $workspacesClient = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
 
         try {
-            $workspacesClient->cloneIntoWorkspace($workspace['id'], [
+            $workspacesClient->{$method}($workspace['id'], [
                 'input' => 'this is not array',
             ]);
             $this->fail('Test should not reach this line');
@@ -472,25 +526,29 @@ class CloneIntoWorkspaceTest extends ParallelWorkspacesTestCase
         }
     }
 
-    public function aliasSettingsProvider()
+    public function aliasSettingsProvider(): Generator
     {
-        return [
-            'filtered alias' => [
+        foreach ($this->cloneEndpointProvider() as $name => $data) {
+            yield $name . ' - filtered alias' => [
                 [
                     'aliasFilter' => [
                         'column' => 'id',
                         'values' => [26],
                     ],
                 ],
-            ],
-            'selected columns' => [
+                $data['method'],
+                $data['extraInputsOptions'],
+            ];
+            yield $name . ' - selected columns' => [
                 [
                     'aliasColumns' => [
                         'id',
                     ],
                 ],
-            ],
-        ];
+                $data['method'],
+                $data['extraInputsOptions'],
+            ];
+        }
     }
 
     public function testQueueWorkspaceCloneInto(): void
