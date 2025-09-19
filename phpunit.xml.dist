@@ -321,7 +321,7 @@
 	<testsuite name="snowflake-network-policies">
 		<directory>tests/Backend/NetworkPolicies</directory>
 	</testsuite>
-    <testsuite name="paratest-snowflake-real-storage">
+    <testsuite name="paratest-snowflake-storage-branches">
         <directory>tests/Backend/Features/RealReadOnlyBranches</directory>
     </testsuite>
 </testsuites>
