@@ -996,11 +996,11 @@ class BigqueryRegisterBucketTest extends BaseExternalBuckets
             );
             $this->fail('Should fail');
         } catch (ClientException $e) {
-            $this->assertSame('APPLICATION_ERROR', $e->getStringCode());
-            $this->assertStringContainsString(
-                'Cloning data into workspaces is only supported for Snowflake,',
-                $e->getMessage(),
-            );
+            $this->assertSame('workspace.loadRequestCloneNotSupported', $e->getStringCode());
+            $this->assertStringContainsString(sprintf(
+                'Clone load is not supported for workspace "%s" on backend "bigquery"',
+                $workspace['id'],
+            ), $e->getMessage(),);
         }
 
         // load from external bucket
