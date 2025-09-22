@@ -11,8 +11,8 @@
 		}
 	},
 	"autoload": {
-		"psr-0": {
-			"Keboola\\StorageApi": "src/"
+		"psr-4": {
+			"Keboola\\StorageApi\\": "src/Keboola/StorageApi/"
 		},
 		"files": [
 			"src/Keboola/StorageApi/createSimpleJobPollDelay.php"
