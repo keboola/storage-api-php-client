@@ -1106,7 +1106,7 @@ class MetadataTest extends StorageApiTestCase
         }
 
         // test null
-        if ($apiEndpoint !== 'buckets') {
+        if (!in_array($apiEndpoint, [self::ENDPOINT_TYPE_BUCKETS, self::ENDPOINT_TYPE_COLUMNS])) {
             // don't test this on migrated endpoint, this had an extra handling in zend, 404 is returned from Symfony
             try {
                 $this->deleteMetadata($apiEndpoint, $object, null);
