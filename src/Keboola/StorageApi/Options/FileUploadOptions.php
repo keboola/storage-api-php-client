@@ -9,8 +9,6 @@
 
 namespace Keboola\StorageApi\Options;
 
-use Keboola\StorageApi\ClientException;
-
 class FileUploadOptions
 {
 

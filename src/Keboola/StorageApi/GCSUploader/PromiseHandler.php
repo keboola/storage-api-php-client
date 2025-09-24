@@ -2,6 +2,7 @@
 
 namespace Keboola\StorageApi\GCSUploader;
 
+use UnexpectedValueException;
 use Google\Cloud\Core\Exception\ServiceException;
 
 class PromiseHandler
@@ -14,7 +15,7 @@ class PromiseHandler
                 if ($uploadInfo['reason'] instanceof ServiceException) {
                     $rejected[$filePath] = $uploadInfo['reason'];
                 } else {
-                    throw new \UnexpectedValueException('Not an instance of Google Cloud ServiceException');
+                    throw new UnexpectedValueException('Not an instance of Google Cloud ServiceException');
                 }
             }
         }

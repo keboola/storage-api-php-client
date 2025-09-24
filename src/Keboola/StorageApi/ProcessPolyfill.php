@@ -2,6 +2,7 @@
 
 namespace Keboola\StorageApi;
 
+use ReflectionClass;
 use Symfony\Component\Process\Process;
 
 final class ProcessPolyfill
@@ -12,7 +13,7 @@ final class ProcessPolyfill
      */
     public static function createProcess($cmdString)
     {
-        $ref = new \ReflectionClass(Process::class);
+        $ref = new ReflectionClass(Process::class);
         if ($ref->hasMethod('fromShellCommandline')) {
             return $ref->getMethod('fromShellCommandline')->invoke(null, $cmdString);
         }

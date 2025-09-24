@@ -2,6 +2,8 @@
 
 namespace Keboola\StorageApi;
 
+use InvalidArgumentException;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientTrait;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -20,7 +22,7 @@ class BranchAwareGuzzleClient
     public function __construct($branchId, array $config = [])
     {
         if (empty($branchId)) {
-            throw new \InvalidArgumentException(sprintf('Branch "%s" is not valid.', $branchId));
+            throw new InvalidArgumentException(sprintf('Branch "%s" is not valid.', $branchId));
         }
         $this->branchId = $branchId;
         $this->client = new Client($config);
@@ -55,6 +57,6 @@ class BranchAwareGuzzleClient
      */
     public function requestAsync(string $method, $uri, array $options = []): PromiseInterface
     {
-        throw new \Exception('requestAsync not suppoted');
+        throw new Exception('requestAsync not suppoted');
     }
 }

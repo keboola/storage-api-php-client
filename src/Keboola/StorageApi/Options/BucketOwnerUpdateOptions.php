@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Keboola\StorageApi\Options;
 
 use InvalidArgumentException;
-use const JSON_THROW_ON_ERROR;
 
 class BucketOwnerUpdateOptions
 {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\StorageApi;
 
+use GuzzleHttp\Promise\Utils;
 use Google\Auth\FetchAuthTokenInterface;
 use Google\Cloud\Core\Exception\ServiceException;
 use Google\Cloud\Storage\Bucket;
@@ -180,7 +181,7 @@ class GCSUploader
             if ($retries >= $this->transferOptions->getMaxRetriesPerChunk()) {
                 throw new ClientException('Exceeded maximum number of retries per chunk upload');
             }
-            $results = \GuzzleHttp\Promise\Utils::settle($promises)->wait();
+            $results = Utils::settle($promises)->wait();
             if (!is_array($results)) {
                 throw new ClientException('Wrong response.');
             }

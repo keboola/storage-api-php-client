@@ -2,6 +2,8 @@
 
 namespace Keboola\StorageApi\Options\Components;
 
+use LogicException;
+
 class ConfigurationMetadata
 {
     /** @var Configuration */
@@ -39,7 +41,7 @@ class ConfigurationMetadata
     public function setMetadata($metadata): static
     {
         if (!is_array($metadata) || count($metadata) === 0) {
-            throw new \LogicException('Argument must be a non-empty array of metadata objects');
+            throw new LogicException('Argument must be a non-empty array of metadata objects');
         }
 
         $this->metadata = $metadata;

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Keboola\StorageApi\Options;
 
+use JsonException;
+
 class BackendConfiguration
 {
     public function __construct(
@@ -13,7 +15,7 @@ class BackendConfiguration
     }
 
     /**
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function toJson(): string
     {
