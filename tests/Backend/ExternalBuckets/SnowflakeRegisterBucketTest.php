@@ -537,6 +537,49 @@ class SnowflakeRegisterBucketTest extends BaseExternalBuckets
         // drop external bucket
         $this->_testClient->dropBucket($idOfBucket, ['force' => true]);
     }
+
+    /**
+     * this test has to stay in sync-suite
+     * checking if the dropping of the external
+     * @dataProvider provideComponentsClientTypeBasedOnSuite
+     */
+    public function testDroppingLastExternalBucket(): void
+    {
+        $allBuckets = $this->_testClient->listBuckets();
+        foreach ($allBuckets as $bucket) {
+            $this->_client->dropBucket($bucket['id'], ['force' => true]);
+        }
+
+        // bucket to check if the RO has access to the bucket
+        $this->_client->createBucket('existing-bucket', 'in');
+
+        // create a workspace
+        $ws = new Workspaces($this->_testClient);
+        $workspace = $ws->createWorkspace();
+        $externalBucketPath = [$workspace['connection']['database'], $workspace['connection']['schema']];
+        $externalBucketBackend = 'snowflake';
+        $db = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+        $dataBefore = $db->getDb()->fetchAll(sprintf('SHOW SCHEMAS IN DATABASE %s', SnowflakeQuote::quoteSingleIdentifier($workspace['connection']['database'])));
+
+        // register the workspace as an external bucket
+        $idOfBucket = $this->_testClient->registerBucket(
+            'test-bucket-registration',
+            $externalBucketPath,
+            'in',
+            'Registered from test',
+            $externalBucketBackend,
+            'test-bucket-registration',
+        );
+        // drop external bucket
+        $this->_testClient->dropBucket($idOfBucket, ['force' => true]);
+        $db->getDb()->disconnect();
+        $db2 = WorkspaceBackendFactory::createWorkspaceBackend($workspace);
+
+        $data = $db2->getDb()->fetchAll(sprintf('SHOW SCHEMAS IN DATABASE %s', SnowflakeQuote::quoteSingleIdentifier($workspace['connection']['database'])));
+
+        $this->assertSame($dataBefore, $data);
+    }
+
     /**
      * @dataProvider provideComponentsClientTypeBasedOnSuite
      */
