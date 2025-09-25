@@ -5,11 +5,13 @@ use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 use Google\Auth\FetchAuthTokenInterface;
 use Google\Cloud\Core\Exception\NotFoundException;
+use Google\Cloud\Storage\StorageClient as GoogleStorageClient;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Utils;
+use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client\RequestTimeoutMiddleware;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Options\BackendConfiguration;
@@ -17,6 +19,7 @@ use Keboola\StorageApi\Options\BucketDetailOptions;
 use Keboola\StorageApi\Options\BucketOwnerUpdateOptions;
 use Keboola\StorageApi\Options\BucketUpdateOptions;
 use Keboola\StorageApi\Options\Components\SearchComponentConfigurationsOptions;
+use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\Options\FileUploadTransferOptions;
 use Keboola\StorageApi\Options\GetFileOptions;
 use Keboola\StorageApi\Options\GlobalSearchOptions;
@@ -34,9 +37,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
-use Keboola\Csv\CsvFile;
-use Keboola\StorageApi\Options\FileUploadOptions;
-use Google\Cloud\Storage\StorageClient as GoogleStorageClient;
 
 /**
  * @phpstan-type StorageJob array{id: int, status: string, url: string, tableId: ?string, operationName: string, operationParams: array<string, mixed>, createdTime: string, startTime: ?string, endTime: ?string, runId: ?string, results: ?array<string, mixed>, creatorToken: array{id: ?string, description: ?string}, metrics: array{inCompressed: bool, inBytes: int, inBytesUncompressed: int, outCompressed: bool, outBytes: int, outBytesUncompressed: int}, error?: array{code: string, message: string, exceptionId: string, contextParams: ?array<mixed>, uuid: ?string}}
@@ -2936,7 +2936,7 @@ class Client
         }
 
         if ($response->hasHeader('Content-Type') && $response->getHeader('Content-Type')[0] == 'application/json') {
-            return json_decode((string) $response->getBody(), true);
+            return json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
         }
 
         return (string) $response->getBody();
