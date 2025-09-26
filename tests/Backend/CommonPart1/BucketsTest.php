@@ -590,7 +590,8 @@ class BucketsTest extends StorageApiTestCase
             );
             $this->fail('Display name provided is invalid');
         } catch (ClientException $e) {
-            $this->assertEquals('Invalid data - displayName: \'$$$$$\' contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.', $e->getMessage());
+            $this->assertEquals('Invalid request:
+ - displayName: "\'$$$$$\' contains not allowed characters. Only alphanumeric characters dash and underscores are allowed."', $e->getMessage());
             $this->assertEquals('storage.buckets.validation', $e->getStringCode());
         }
 
