@@ -145,7 +145,7 @@ class SharingTest extends StorageApiSharingTestCase
             );
             $this->fail('bucket can\'t be linked with same name');
         } catch (ClientException $e) {
-            $this->assertEquals(sprintf('The bucket %s already exists.', self::BUCKET_API_SHARING), $e->getMessage());
+            $this->assertEquals(sprintf('The bucket "%s" already exists.', self::BUCKET_API_SHARING), $e->getMessage());
             $this->assertEquals(400, $e->getCode());
             $this->assertEquals('storage.buckets.alreadyExists', $e->getStringCode());
         }
@@ -251,10 +251,8 @@ class SharingTest extends StorageApiSharingTestCase
             );
             $this->fail('bucket can\'t be linked with same displayName');
         } catch (ClientException $e) {
-            $this->assertEquals(
-                'Invalid data - displayName: \'&&&&&&\' contains not allowed characters. Only alphanumeric characters dash and underscores are allowed.',
-                $e->getMessage(),
-            );
+            $this->assertEquals('Invalid request:
+ - displayName: "\'&&&&&&\' contains not allowed characters. Only alphanumeric characters dash and underscores are allowed."', $e->getMessage());
             $this->assertEquals(400, $e->getCode());
             $this->assertEquals('storage.buckets.validation', $e->getStringCode());
         }
