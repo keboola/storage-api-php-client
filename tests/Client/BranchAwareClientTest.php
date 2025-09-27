@@ -30,7 +30,7 @@ class BranchAwareClientTest extends TestCase
         new BranchAwareClient('', ['token' => 'token', 'url' => 'url']);
     }
 
-    public function endpointsProvider(): Generator
+    public static function endpointsProvider(): Generator
     {
         yield 'listJobs' => [
             'methodCall' => ['listJobs'],
@@ -112,9 +112,7 @@ class BranchAwareClientTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider endpointsProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('endpointsProvider')]
     public function testBranchedAwareEndpointsCall(
         array $methodCall,
         string $httpMethod,
