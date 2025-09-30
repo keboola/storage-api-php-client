@@ -27,10 +27,11 @@ class SnowflakeRealBranchesTest extends ParallelWorkspacesTestCase
      * Scenario:
      *  1. Create bucket in default branch.
      *  2. Create dev branch and create bucket inside it.
-     *  3. Assert backendPath for both buckets.
-     *  4. Create workspace in default branch – ensure dev bucket NOT visible.
-     *  5. Create workspace in dev branch – ensure BOTH buckets visible.
-     *  6. Drop dev branch – ensure its bucket and workspace are deleted (no longer accessible).
+     *  2. Create second dev branch and create bucket inside it.
+     *  4. Assert backendPath for both buckets.
+     *  5. Create workspace in default branch – ensure dev bucket NOT visible.
+     *  6. Create workspace in dev branch – ensure BOTH buckets visible.
+     *  7. Drop dev branch – ensure its bucket and workspace are deleted (no longer accessible).
      */
     public function testBucketsVisibilityBetweenBranchWorkspaces(): void
     {
@@ -61,14 +62,21 @@ class SnowflakeRealBranchesTest extends ParallelWorkspacesTestCase
 
         // Create dev branch and its bucket
         $branch = $this->branches->createBranch($this->generateDescriptionForTestObject());
-        $branchId = $branch['id'];
-
-        $devClient = $this->_client->getBranchAwareClient($branchId);
-
+        $devClient = $this->_client->getBranchAwareClient($branch['id']);
         $devBucketId = $this->initEmptyBucket($devBucketName, self::STAGE_IN, $this->generateDescriptionForTestObject(), $devClient);
         $devBucket = $devClient->getBucket($devBucketId);
         $devClient->createTableAsync(
             $devBucket['id'],
+            'test1',
+            $csv,
+        );
+        // Create second dev branch and its bucket
+        $branch2 = $this->branches->createBranch($this->generateDescriptionForTestObject() . '_2');
+        $devClient2 = $this->_client->getBranchAwareClient($branch2['id']);
+        $devBucketId2 = $this->initEmptyBucket($devBucketName, self::STAGE_IN, $this->generateDescriptionForTestObject(), $devClient2);
+        $devBucket2 = $devClient2->getBucket($devBucketId2);
+        $devClient2->createTableAsync(
+            $devBucket2['id'],
             'test1',
             $csv,
         );
@@ -91,14 +99,16 @@ class SnowflakeRealBranchesTest extends ParallelWorkspacesTestCase
          * @var array<array{name:string}> $schemas
          */
         //@phpstan-ignore-next-line
-        $schemas = $wsBackend->getDb()->fetchAllAssociative('SHOW SCHEMAS WITH PRIVILEGES USAGE;');
+        $schemas = $wsBackend->getDb()->fetchAllAssociative('SHOW SCHEMAS;');
         $this->assertExpectedContainsSchemaNames([
             $wsDefault['connection']['schema'],
             $defaultInBucket['backendPath'][1],
             $defaultOutBucket['backendPath'][1],
         ], $schemas);
+        // dev bucket must NOT be visible
         $this->assertExpectedNotContainsSchemaNames([
             $devBucket['backendPath'][1],
+            $devBucket2['backendPath'][1],
         ], $schemas);
 
         // Workspace in dev branch – should see both buckets (create via helpers with dev client)
@@ -108,14 +118,14 @@ class SnowflakeRealBranchesTest extends ParallelWorkspacesTestCase
             true,
             true,
             $devClient,
-            $this->workspaceSapiClient->getBranchAwareClient($branchId),
+            $this->workspaceSapiClient->getBranchAwareClient($branch['id']),
         );
         $wsDevBackend = WorkspaceBackendFactory::createWorkspaceBackend($wsDev, true);
         /**
          * @var array<array{name:string}> $schemas
          */
         //@phpstan-ignore-next-line
-        $schemas = $wsDevBackend->getDb()->fetchAllAssociative('SHOW SCHEMAS WITH PRIVILEGES USAGE;');
+        $schemas = $wsDevBackend->getDb()->fetchAllAssociative('SHOW SCHEMAS;');
         // get list of schemas visible to workspace user in dv branch
         $this->assertExpectedContainsSchemaNames([
             $devBucket['backendPath'][1],
@@ -123,16 +133,19 @@ class SnowflakeRealBranchesTest extends ParallelWorkspacesTestCase
             $defaultInBucket['backendPath'][1],
             $defaultOutBucket['backendPath'][1],
         ], $schemas);
+        $this->assertExpectedNotContainsSchemaNames([
+            $devBucket2['backendPath'][1], // other dev branch bucket not visible
+        ], $schemas);
 
         // Drop dev branch – dev bucket + dev workspace should be gone
-        $this->branches->deleteBranch($branchId);
+        $this->branches->deleteBranch($branch['id']);
 
         // Default bucket must still exist
         $remainingDefaultBucket = $this->_client->getBucket($defaultBucketId);
         $this->assertSame($defaultBucketId, $remainingDefaultBucket['id']);
 
         try {
-            (new Workspaces($this->workspaceSapiClient->getBranchAwareClient($branchId)))
+            (new Workspaces($this->workspaceSapiClient->getBranchAwareClient($branch['id'])))
                 ->getWorkspace($wsDev['id']);
             $this->fail('Dev workspace still exists after branch deletion');
         } catch (ClientException $e) {
@@ -166,7 +179,7 @@ class SnowflakeRealBranchesTest extends ParallelWorkspacesTestCase
     /**
      * @param string[] $notExpected
      * @param array<array{name:string}> $schemas
- */
+     */
     private function assertExpectedNotContainsSchemaNames(array $notExpected, array $schemas): void
     {
         $schemaNames = array_map(fn($r) => $r['name'], $schemas);
