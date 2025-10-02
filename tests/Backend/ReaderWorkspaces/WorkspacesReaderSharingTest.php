@@ -8,18 +8,17 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\StorageApi\Options\Components\ListComponentsOptions;
-use Keboola\StorageApi\Tokens;
 use Keboola\StorageApi\WorkspaceLoginType;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\Test\Backend\WorkspaceConnectionTrait;
 use Keboola\Test\Backend\WorkspaceCredentialsAssertTrait;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
-use Keboola\Test\Backend\Workspaces\WorkspacesTestCase;
+use Keboola\Test\StorageApiTestCase;
 use Keboola\Test\Utils\PemKeyCertificateGenerator;
 use Keboola\Test\Utils\SnowflakeConnectionUtils;
 
-class WorkspacesReaderSharingTest extends WorkspacesTestCase
+class WorkspacesReaderSharingTest extends StorageApiTestCase
 {
     use WorkspaceConnectionTrait;
     use WorkspaceCredentialsAssertTrait;
@@ -31,9 +30,7 @@ class WorkspacesReaderSharingTest extends WorkspacesTestCase
 
     public function setUp(): void
     {
-        $this->_client = $this->getDefaultClient();
-        $this->tokens = new Tokens($this->_client);
-
+        parent::setUp();
         $linkClient = $this->getClient([
             'token' => STORAGE_API_LINKING_TOKEN,
             'url' => STORAGE_API_URL,
@@ -78,7 +75,7 @@ class WorkspacesReaderSharingTest extends WorkspacesTestCase
         // unlink buckets
         $linkedBuckets = $linkClient->listBuckets();
         foreach ($linkedBuckets as $bucket) {
-            $linkClient->dropBucket($bucket['id']);
+            $linkClient->dropBucket($bucket['id'], ['force' => true]);
         }
 
         $shareClient = $this->getClient([
@@ -133,14 +130,26 @@ class WorkspacesReaderSharingTest extends WorkspacesTestCase
             false,
         );
 
+        // Step 3.1: Create another table in the linked project that is not linked
+        $nativeBucketInLinkedProject = $linkClient->createBucket($this->getTestBucketName($this->generateDescriptionForTestObject()), self::STAGE_IN);
+        $notLinkedTable = $linkClient->createTableAsync(
+            $nativeBucketInLinkedProject,
+            'not-linked-table',
+            new CsvFile(__DIR__ . '/../../_data/languages.csv'),
+        );
+
         // Step 4: Create a reader workspace
         $workspaces = new Workspaces($linkClient);
-        $workspace = $this->prepareWorkspace(null, $linkClient);
+        $workspace = $this->prepareWorkspace($linkClient);
 
         // Step 5: Load the linked table into the reader workspace
         $linkedTableId = $linkedBucketId . '.languages';
         $workspaces->loadWorkspaceData($workspace['id'], [
             'input' => [
+                [
+                    'source' => $notLinkedTable,
+                    'destination' => 'not-linked-table',
+                ],
                 [
                     'source' => $linkedTableId,
                     'destination' => 'languages',
@@ -152,9 +161,11 @@ class WorkspacesReaderSharingTest extends WorkspacesTestCase
         $db = WorkspaceBackendFactory::createWorkspaceForSnowflakeDbal($workspace);
         $data = $db->fetchAll('languages');
         $this->assertCount(5, $data); // languages.csv has 5 rows
+        $data = $db->fetchAll('not-linked-table');
+        $this->assertCount(5, $data); // languages.csv has 5 rows
     }
 
-    private function prepareWorkspace(?array $options = null, $client): array
+    private function prepareWorkspace(Client $client): array
     {
         $componentId = 'wr-db';
         $configurationId = 'main-1';
@@ -174,25 +185,17 @@ class WorkspacesReaderSharingTest extends WorkspacesTestCase
         $workspace = $components->createConfigurationWorkspace(
             $componentId,
             $configurationId,
-            $options ?? [
-            'useCase' => 'reader',
-            'backend' => 'snowflake',
-            'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
-            'publicKey' => $key->getPublicKey(),
+            [
+                'useCase' => 'reader',
+                'backend' => 'snowflake',
+                'loginType' => WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR,
+                'publicKey' => $key->getPublicKey(),
             ],
         );
 
         $workspace['connection']['privateKey'] = $key->getPrivateKey();
 
         return $workspace;
-    }
-
-    private function createWorkspaces(): Workspaces
-    {
-        $defaultBranchId = $this->getDefaultBranchId($this);
-        $branchClient = $this->getBranchAwareDefaultClient($defaultBranchId);
-
-        return new Workspaces($branchClient);
     }
 
     private static function dropReaderAccounts(): void
