@@ -1640,7 +1640,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
             $workspaces->loadWorkspaceData($workspace['id'], $input);
             $this->fail('Should return bad request, input is required');
         } catch (ClientException $e) {
-            $this->assertEquals('workspace.loadRequestInputRequired', $e->getStringCode());
+            $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }
 
         $testMapping = $mapping1;
@@ -2223,6 +2223,7 @@ class WorkspacesLoadTest extends ParallelWorkspacesTestCase
 
         $this->assertEquals('workspaceLoad', $job['operationName']);
         $this->assertEquals($workspace['id'], $job['operationParams']['workspaceId']);
+        $options['input'][0]['loadType'] = 'COPY';
         $this->assertEquals($options['input'], $job['operationParams']['input']);
     }
 }

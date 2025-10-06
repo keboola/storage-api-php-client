@@ -736,11 +736,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
         ];
     }
 
-    /**
-     * @dataProvider notExistingColumnUserErrorDataTypesDefinitions
-     * @param $dataTypesDefinition
-     */
-    public function testDataTypeForNotExistingColumnUserError($dataTypesDefinition): void
+    public function testDataTypeForNotExistingColumnUserError(): void
     {
         $workspaces = new Workspaces($this->workspaceSapiClient);
         $workspace = $this->initTestWorkspace();
@@ -1006,7 +1002,7 @@ class LegacyWorkspacesLoadTest extends ParallelWorkspacesTestCase
             $workspaces->loadWorkspaceData($workspace['id'], $input);
             $this->fail('Should return bad request, input is required');
         } catch (ClientException $e) {
-            $this->assertEquals('workspace.loadRequestInputRequired', $e->getStringCode());
+            $this->assertEquals('workspace.loadRequestBadInput', $e->getStringCode());
         }
 
         try {
