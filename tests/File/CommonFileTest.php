@@ -103,7 +103,6 @@ class CommonFileTest extends StorageApiTestCase
      */
     public function testFilesListFilterByInvalidValues(): void
     {
-        // old filter
         try {
             $this->_testClient->apiGet(
                 'files?' . http_build_query([
@@ -115,33 +114,6 @@ class CommonFileTest extends StorageApiTestCase
             $this->assertEquals('storage.validation', $e->getStringCode());
             $this->assertStringContainsString('This value should be of type array', $e->getMessage());
         }
-
-        // new filter
-        try {
-            $this->_testClient->apiGet(
-                'files?' . http_build_query([
-                    'isPublic' => 999987,
-                ]),
-            );
-            $this->fail('Validation error should be thrown');
-        } catch (\Keboola\StorageApi\ClientException $e) {
-            $this->assertEquals('storage.validation', $e->getStringCode());
-            $this->assertStringContainsString('is not boolean. Possible values are', $e->getMessage());
-        }
-    }
-
-    /**
-     * @dataProvider provideComponentsClientTypeBasedOnSuite
-     */
-    public function testNewCodepathForFileFilteringIsDisabled(): void
-    {
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('FileListFilter is not yet implemented');
-        $this->_testClient->apiGet(
-            'files?' . http_build_query([
-                'isPublic' => false,
-            ]),
-        );
     }
 
     /**
