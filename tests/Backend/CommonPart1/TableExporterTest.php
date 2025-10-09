@@ -12,7 +12,10 @@ namespace Keboola\Test\Backend\CommonPart1;
 
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Exception;
+use Keboola\StorageApi\Options\FileUploadOptions;
 use Keboola\StorageApi\ProcessPolyfill;
+use Keboola\StorageApi\Workspaces;
+use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackendFactory;
 use Keboola\Test\StorageApiTestCase;
 use Keboola\StorageApi\Client;
 use Keboola\Csv\CsvFile;
@@ -111,6 +114,67 @@ class TableExporterTest extends StorageApiTestCase
         $this->assertTrue(file_exists($this->downloadPath));
         $parsed = Client::parseCsv(file_get_contents($this->downloadPath));
         $this->assertCount($exportOptions['limit'], $parsed);
+    }
+
+
+    public function testWorkspaceLoadingMilliseconds(): void
+    {
+        $data = [
+            'name' => 'test-table',
+            'primaryKeysNames' => ['id'],
+            'columns' => [
+                [
+                    'name' => 'id',
+                    'definition' => [
+                        'type' => 'INTEGER',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'name',
+                    'definition' => [
+                        'type' => 'VARCHAR',
+                        'nullable' => false,
+                    ],
+                ],
+                [
+                    'name' => 'created_at',
+                    'definition' => [
+                        'type' => 'TIMESTAMP_NTZ',
+                        'nullable' => false,
+                    ],
+                ],
+            ],
+        ];
+
+        $tableId = $this->_client->createTableDefinition(
+            $this->getTestBucketId(),
+            $data,
+        );
+
+        $fileId = $this->_client->uploadFile(
+            __DIR__ . '/../../_data/languages_mili.csv',
+            (new FileUploadOptions())
+                ->setNotify(false)
+                ->setIsPublic(false)
+                ->setCompress(true)
+                ->setTags(['file-import']),
+        );
+        $options['dataFileId'] = $fileId;
+
+        $this->_client->writeTableAsyncDirect($tableId, $options);
+
+        $dataPreview = $this->_client->getTableDataPreview($tableId, ['format' => 'json']);
+        $this->_client->exportTableAsync($tableId);
+        $exportOptions = [
+            'limit' => 2,
+        ];
+        $exporter = new TableExporter($this->_client);
+        $exporter->exportTable($tableId, $this->downloadPath, $exportOptions);
+        $this->assertTrue(file_exists($this->downloadPath));
+        $parsed = Client::parseCsv(file_get_contents($this->downloadPath));
+        $this->assertCount($exportOptions['limit'], $parsed);
+        echo \json_encode($parsed);
     }
 
 
