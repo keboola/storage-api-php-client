@@ -11,6 +11,7 @@ namespace Keboola\Test\Backend\CommonPart1;
 
 use Exception;
 use Keboola\StorageApi\ClientException;
+use Keboola\StorageApi\DevBranches;
 use Keboola\StorageApi\Workspaces;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\Test\Backend\Workspaces\Backend\WorkspaceBackend;
@@ -540,5 +541,49 @@ class DeleteRowsTest extends ParallelWorkspacesTestCase
             ],
         ];
         $this->assertArrayEqualsSorted($expectedTableContent, $parsedData, 0);
+    }
+    public function testDeleteByValuesInWorkspaceWithValidDataInBranch(): void
+    {
+
+        $this->skipTestForBackend([StorageApiTestCase::BACKEND_EXASOL], 'Not supported in Exasol yet.');
+
+        $branches = new DevBranches($this->_client);
+        $this->cleanupTestBranches($this->_client);
+        $newBranch = $branches->createBranch($this->generateDescriptionForTestObject() . '_aaaa');
+
+        $branchClient = $this->getBranchAwareClient($newBranch['id'], [
+            'token' => STORAGE_API_TOKEN,
+            'url' => STORAGE_API_URL,
+        ]);
+
+        $this->workspaceSapiClient = $branchClient;
+        $importFile = __DIR__ . '/../../_data/users.csv';
+
+        $bucketId = $branchClient->createBucket('aaaa' . time(), self::STAGE_IN);
+
+        $tableId = $branchClient->createTableAsync($bucketId, 'users', new CsvFile($importFile));
+
+        $branchWorkspace = $this->initTestWorkspace(client: $branchClient);
+        $backend = WorkspaceBackendFactory::createWorkspaceBackend($branchWorkspace);
+
+        $backend->dropTableIfExists('USERS');
+        $backend->createTable('USERS', ['ID' => 'STRING', 'name' => 'STRING']);
+        $backend->executeQuery("INSERT INTO USERS VALUES ('1', 'BOB')");
+
+        $result = $branchClient->deleteTableRows($tableId, [
+            'whereFilters' => [
+                [
+                    'column' => 'id',
+                    'valuesByTableInWorkspace' => [
+                        'workspaceId' => $branchWorkspace['id'],
+                        'table' => 'USERS',
+                        'column' => 'ID',
+                    ],
+                ],
+            ],
+        ]);
+        assert(is_array($result));
+        assert(array_key_exists('deletedRows', $result));
+        $this->assertEquals(1, $result['deletedRows']);
     }
 }
