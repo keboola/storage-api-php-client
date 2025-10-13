@@ -1727,6 +1727,34 @@ class Client
         );
     }
 
+    /**
+     * Export a table from workspace to file storage
+     *
+     * @param string|null $format Optional format (csv or parquet), defaults to csv
+     * @return array{
+     *     file: array{
+     *         id: int
+     *     }
+     * }
+     */
+    public function exportWorkspaceTable(
+        int $workspaceId,
+        string $tableName,
+        string $fileName,
+        ?string $format = null
+    ): array {
+        $params = [
+            'tableName' => $tableName,
+            'fileName' => $fileName,
+        ];
+
+        if ($format !== null) {
+            $params['format'] = $format;
+        }
+
+        return $this->apiPostJson("workspaces/{$workspaceId}/table-export", $params);
+    }
+
     private function prepareExportOptions(array $options)
     {
         $allowedOptions = [
