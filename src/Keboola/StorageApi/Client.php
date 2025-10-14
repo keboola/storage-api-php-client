@@ -1699,6 +1699,33 @@ class Client
         );
     }
 
+    /**
+     * Export a table from workspace to file storage
+     *
+     * @param int $workspaceId
+     * @param string $tableName
+     * @param string $fileName
+     * @param string|null $format Optional format (csv or parquet), defaults to csv
+     * @return array Job data with id and url
+     */
+    public function exportWorkspaceTable(
+        int $workspaceId,
+        string $tableName,
+        string $fileName,
+        ?string $format = null
+    ): array {
+        $params = [
+            'tableName' => $tableName,
+            'fileName' => $fileName,
+        ];
+
+        if ($format !== null) {
+            $params['format'] = $format;
+        }
+
+        return $this->apiPost("workspaces/{$workspaceId}/table-export", $params);
+    }
+
     private function prepareExportOptions(array $options)
     {
         $allowedOptions = [
