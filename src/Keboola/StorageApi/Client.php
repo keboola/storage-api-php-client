@@ -1713,7 +1713,7 @@ class Client
         string $tableName,
         string $fileName,
         ?string $format = null
-    ) {
+    ): array {
         $params = [
             'tableName' => $tableName,
             'fileName' => $fileName,
@@ -1723,7 +1723,7 @@ class Client
             $params['format'] = $format;
         }
 
-        return $this->apiPost("workspaces/{$workspaceId}/table-export", $params);
+        return $this->apiPostJson("workspaces/{$workspaceId}/table-export", $params);
     }
 
     private function prepareExportOptions(array $options)
