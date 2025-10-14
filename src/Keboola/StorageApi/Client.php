@@ -1713,7 +1713,7 @@ class Client
         string $tableName,
         string $fileName,
         ?string $format = null
-    ): array {
+    ) {
         $params = [
             'tableName' => $tableName,
             'fileName' => $fileName,
