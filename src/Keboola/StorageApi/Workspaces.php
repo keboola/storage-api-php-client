@@ -189,7 +189,7 @@ class Workspaces
 
     /**
      * Queue workspace unload operation
-     * 
+     *
      * @param int $id Workspace ID
      * @param array $options Optional parameters (e.g., only-direct-grants)
      * @return array Array of job IDs
@@ -200,11 +200,11 @@ class Workspaces
         if (!empty($options)) {
             $url .= '?' . http_build_query($options);
         }
-        
+
         $jobs = $this->client->apiPostJson($url, [], false);
         assert(is_array($jobs));
-        
-        return array_map(fn($job) => (int)$job['id'], $jobs);
+
+        return array_map(fn($job) => (int) $job['id'], $jobs);
     }
 
     public function executeQuery(int $id, string $query): array
