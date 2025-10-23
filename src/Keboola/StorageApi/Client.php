@@ -2309,6 +2309,7 @@ class Client
         $object = $retBucket->object($fileInfo['gcsPath']['key']);
         try {
             $object->downloadToFile($destination);
+            // @phpstan-ignore-next-line catch.neverThrown
         } catch (NotFoundException $e) {
             throw new ClientException(
                 sprintf(self::ERROR_CANNOT_DOWNLOAD_FILE, $fileInfo['name'], $fileInfo['id']),
