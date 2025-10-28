@@ -2309,7 +2309,6 @@ class Client
         $object = $retBucket->object($fileInfo['gcsPath']['key']);
         try {
             $object->downloadToFile($destination);
-        // @phpstan-ignore-next-line - I believe that it is still valid, but google code simply does not have the exception defined
         } catch (NotFoundException $e) {
             throw new ClientException(
                 sprintf(self::ERROR_CANNOT_DOWNLOAD_FILE, $fileInfo['name'], $fileInfo['id']),
