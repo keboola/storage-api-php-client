@@ -5828,6 +5828,63 @@ Delete specified workspace credentials. User will be invalidated
 
 
 
+## Workspace Unload [/v2/storage/workspaces/{workspace_id}/unload]
+
+### Unload workspace data [POST]
+
+Validates Snowflake transformation component configuration and examines output mapping strategies for direct-grant tables.
+Returns an array of jobs instead of a single job.
+
++ Parameters
+    + workspace_id (required, number) - Workspace ID
+
++ Attributes
+    + only-direct-grants (optional, boolean) - Will unload only tables with direct-grant unload strategy no others.
+        Default: false
+
++ Request (application/json)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202 (application/json)
+    + Body
+
+            [
+                {
+                    "id": 75682260,
+                    "status": "created",
+                    "url": "https://connection.keboola.com/v2/storage/jobs/75682260",
+                    "tableId": null,
+                    "operationName": "workspaceUnload",
+                    "operationParams": {
+                        "workspaceId": "504345774",
+                        "table": {
+                            "source": "out.c-bucket.table1",
+                            "outputMappingStrategy": "direct-grant"
+                        },
+                        "onlyDirectGrants": false
+                    },
+                    "createdTime": "2025-10-22T10:15:52+0200",
+                    "startTime": null,
+                    "endTime": null,
+                    "runId": null,
+                    "results": null,
+                    "creatorToken": {
+                        "id": "27978",
+                        "description": "user@keboola.com"
+                    },
+                    "metrics": {
+                        "inCompressed": false,
+                        "inBytes": 0,
+                        "inBytesUncompressed": 0,
+                        "outCompressed": false,
+                        "outBytes": 0,
+                        "outBytesUncompressed": 0
+                    }
+                }
+            ]
+
 ## Data Structures
 
 ### Workspace
