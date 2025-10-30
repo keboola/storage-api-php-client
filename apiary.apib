@@ -1325,7 +1325,8 @@ Obtains information about a bucket.
             + `metadata` - each table will include list of it's metadata
             + `columns` - each table will include list of it's columns
             + `columnMetadata` - each table will include list of it's columns metadata
-            + `sourceMetadata` - For alias tables, includes source table metadata in sourceTable.metadata and source column metadata in sourceTable.columnMetadata (when used with columnMetadata). Works across projects for linked buckets
+            + `sourceMetadata` - For alias tables, includes source table metadata in sourceTable.metadata. Works across projects for linked buckets
+            + `sourceColumnMetadata` - For alias tables, includes source column metadata in sourceTable.columnMetadata. Works across projects for linked buckets
 
 + Request
     + Headers
@@ -3841,7 +3842,8 @@ attributes and information about the containing bucket.
             + columns
             + metadata
             + columnMetadata
-            + sourceMetadata - For alias tables, includes source table metadata in sourceTable.metadata and source column metadata in sourceTable.columnMetadata (when used with columnMetadata). Works across projects for linked buckets
+            + sourceMetadata - For alias tables, includes source table metadata in sourceTable.metadata. Works across projects for linked buckets
+            + sourceColumnMetadata - For alias tables, includes source column metadata in sourceTable.columnMetadata. Works across projects for linked buckets
         + Default: metadata
 
 + Request
@@ -8958,7 +8960,8 @@ attributes and information about the containing bucket. At least one of paramete
             + columns
             + metadata
             + columnMetadata
-            + sourceMetadata - For alias tables, includes source table metadata in sourceTable.metadata and source column metadata in sourceTable.columnMetadata (when used with columnMetadata). Works across projects for linked buckets
+            + sourceMetadata - For alias tables, includes source table metadata in sourceTable.metadata. Works across projects for linked buckets
+            + sourceColumnMetadata - For alias tables, includes source column metadata in sourceTable.columnMetadata. Works across projects for linked buckets
         + Default: metadata
     + metadataKey (optional, string) - string to search with exact match on one of existing metadata.key
         + Default: NULL
