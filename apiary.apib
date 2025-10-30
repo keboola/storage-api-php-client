@@ -3840,6 +3840,7 @@ attributes and information about the containing bucket.
             + columns
             + metadata
             + columnMetadata
+            + sourceMetadata - Include source table metadata (only KBC.description) for alias tables in sourceTable.metadata field
         + Default: metadata
 
 + Request
@@ -8956,6 +8957,7 @@ attributes and information about the containing bucket. At least one of paramete
             + columns
             + metadata
             + columnMetadata
+            + sourceMetadata - Include source table metadata (only KBC.description) for alias tables in sourceTable.metadata field
         + Default: metadata
     + metadataKey (optional, string) - string to search with exact match on one of existing metadata.key
         + Default: NULL
