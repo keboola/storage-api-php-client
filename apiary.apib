@@ -2320,7 +2320,7 @@ If there is no column datatype specified (column.definition.type or column.baset
 + Attributes
     + name (required) - New table name
     + primaryKeysNames[] (string) - Has to be subset of column names and not nullable.
-    + timestampType (optional, enum[string]) - Standard storage tables internally manage a _timestamp column which is each import updated with current timestamp. This option allows to prevent internal _timestamp column creation.
+    + timestampType (optional, enum[string]) - Standard storage tables internally manage a _timestamp column which is updated on each import with the current timestamp. This option allows to prevent internal _timestamp column creation.
         + Members
             + MANAGED
             + NONE
