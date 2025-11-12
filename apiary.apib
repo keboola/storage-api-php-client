@@ -5042,7 +5042,7 @@ Loads tables from Storage into a Workspace. BigQuery supports only loading as vi
                     + dataFileId (optional, number) - Required for loading file. File upload id. Can be used only to load file to file workspace.
                     + destination (required) - Destination table name or folder for file workspace
                     + rows (optional, number) - Limits the number of returned rows
-                    + seconds (optional, number) - Returns rows created or updated in the last X seconds.
+                    + seconds (optional, number) - **Deprecated** (use changedSince and changedUntil instead). Returns rows created or updated in the last X seconds.
                     + changedSince (optional) - Currently only supported for Snowflake - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp.
                         **If the `days` or `seconds` parameter is set, this value is ignored.**
                     + changedUntil (optional) - Currently only supported for snowflake - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp.
@@ -5073,13 +5073,14 @@ Loads tables from Storage into a Workspace. BigQuery supports only loading as vi
                                             + TEXT255
                                             + TEXT32K
                                             + ZSTD
-                    + whereColumn (optional) - Column for [filtering](#reference/tables/unload-data-asynchronously/asynchronous-export)
-                    + whereValues[] (optional) - Values for filtering
-                    + whereOperator (optional, enum[string]) - Comparison operator
+                    + whereColumn (optional) - **Deprecated** (use whereFilters instead). Column for [filtering](#reference/tables/unload-data-asynchronously/asynchronous-export)
+                    + whereValues[] (optional) - **Deprecated** (use whereFilters instead). Values for filtering
+                    + whereOperator (optional, enum[string]) - **Deprecated** (use whereFilters instead). Comparison operator
                         + Members
                             + eq - Equal to
                             + ne - Not equal to
                         + Default: eq
+                    + whereFilters (optional, array[WhereFiltersObject])
                     + sortKey[] (optional, array) - Redshift only - Column(s) to be used as a sort key
                     + distStyle (optional, enum[string]) - Redshift only - Distribution style (even, all, or key)
                         + Members
@@ -5189,7 +5190,7 @@ Loads tables from Storage into a Workspace in [Development Branch](#reference/de
                     + dataFileId (optional, number) - Required for loading file. File upload id. Can be used only to load file to file workspace.
                     + destination (required) - Destination table name or folder for file workspace
                     + rows (optional, number) - Limits the number of returned rows
-                    + seconds (optional, number) - Returns rows created or updated in the last X seconds.
+                    + seconds (optional, number) - **Deprecated** (use changedSince and changedUntil instead). Returns rows created or updated in the last X seconds.
                     + changedSince (optional) - Currently only supported for Snowflake - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp.
                         **If the `days` or `seconds` parameter is set, this value is ignored.**
                     + changedUntil (optional) - Currently only supported for snowflake - Filtering by import date - timestamp of import is stored within each row. Both until and since values can be a unix timestamp.
@@ -5220,13 +5221,14 @@ Loads tables from Storage into a Workspace in [Development Branch](#reference/de
                                             + TEXT255
                                             + TEXT32K
                                             + ZSTD
-                    + whereColumn (optional) - Column for [filtering](#reference/tables/unload-data-asynchronously/asynchronous-export)
-                    + whereValues[] (optional) - Values for filtering
-                    + whereOperator (optional, enum[string]) - Comparison operator
+                    + whereColumn (optional) - **Deprecated** (use whereFilters instead). Column for [filtering](#reference/tables/unload-data-asynchronously/asynchronous-export)
+                    + whereValues[] (optional) - **Deprecated** (use whereFilters instead). Values for filtering
+                    + whereOperator (optional, enum[string]) - **Deprecated** (use whereFilters instead). Comparison operator
                         + Members
                             + eq - Equal to
                             + ne - Not equal to
                         + Default: eq
+                    + whereFilters (optional, array[WhereFiltersObject])
                     + sortKey[] (optional, array) - Redshift only - Column(s) to be used as a sort key
                     + distStyle (optional, enum[string]) - Redshift only - Distribution style (even, all, or key)
                         + Members
