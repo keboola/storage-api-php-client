@@ -2320,6 +2320,11 @@ If there is no column datatype specified (column.definition.type or column.baset
 + Attributes
     + name (required) - New table name
     + primaryKeysNames[] (string) - Has to be subset of column names and not nullable.
+    + timestampType (optional, enum[string]) - Standard storage tables internally manage a _timestamp column which is updated on each import with the current timestamp. This option allows to prevent internal _timestamp column creation.
+        + Members
+            + MANAGED
+            + NONE
+        + Default: MANAGED
     + columns[] (required) - definition of table columns
        + name (required, string) - column name
        + definition (object) - column settings
@@ -10282,6 +10287,10 @@ Requesting changes will remove all approvals and move the Merge request to `deve
 + enclosure (optional) - Field enclosure used in the CSV file. The default value is '"'. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
 + escapedBy (optional) - Escape character used in the CSV file. The default value is an empty value - no escape character is used. (Note: you can specify either the `enclosure` or `escapedBy` parameter, not both.)
 + primaryKey (optional) - Primary key of a table. If the primary key is set, updates can be done on the table. See CSV incremental import. The primary key can be also composed by multiple columns; the columns must be separated by a comma.
++ timestampType (optional, enum[string]) - Type of internal timestamp column only MANAGED value now supported, meaning that _timestamp column managed by storage is created.
+        + Members
+            + MANAGED
+        + Default: MANAGED
 
 ### CreateTableDefinitionAsyncFile(CreateTableDefinitionAsyncBase)
 
