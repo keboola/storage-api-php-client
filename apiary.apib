@@ -3251,6 +3251,45 @@ Exported rows can be filtered by a single filter. Examples of filtering by `user
         ]
     }
     ```
+- Uses TIME_STRING type to filter by date/time values. Values are converted to timestamps. Equals to filtering by timestamp column.
+    ```
+    {
+        "whereFilters": [
+            {
+                "column": "created_at",
+                "values": [
+                    "2023-01-01 00:00:00",
+                ],
+                "operator": "ge",
+                "type": "TIME_STRING"
+            }
+        ]
+    }
+    {
+        "whereFilters": [
+            {
+                "column": "created_at",
+                "values": [
+                    "1672531200"
+                ],
+                "operator": "ge",
+                "type": "TIME_STRING"
+            }
+        ]
+    }
+    {
+        "whereFilters": [
+            {
+                "column": "created_at",
+                "values": [
+                    "-2 days"
+                ],
+                "operator": "ge",
+                "type": "TIME_STRING"
+            }
+        ]
+    }
+    ```
  - For multiple filters use multiple objects. All filters are joined by AND expression.
     ```
     {
@@ -4199,6 +4238,11 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
                 + BIGINT - for number without a decimal point (BigQuery)
                 + REAL - for number with a decimal point (BigQuery)
                 + DECIMAL - for numbers (BigQuery)
+        + type (optional, enum[string]) - type of filter values interpretation
+            + Members
+                + SCALAR - default value type interpretation (default)
+                + TIME_STRING - values are interpreted as date/time strings and converted to timestamps. When using TIME_STRING, dataType must be empty. Values must be valid date/time strings compatible with strtotime() or unix timestamps.
+            + Default: SCALAR
     + allowTruncate - (optional, boolean) is used to confirm that you really want to delete all rows in case you did not specify any filters.
         + default: false
 
@@ -10280,6 +10324,11 @@ Requesting changes will remove all approvals and move the Merge request to `deve
         + BIGINT - for number without a decimal point (BigQuery)
         + REAL - for number with a decimal point (BigQuery)
         + DECIMAL - for numbers (BigQuery)
++ type (optional, enum[string]) - type of filter values interpretation
+    + Members
+        + SCALAR - default value type interpretation (default)
+        + TIME_STRING - values are interpreted as date/time strings and converted to timestamps. When using TIME_STRING, dataType must be empty. Values must be valid date/time strings compatible with strtotime() or unix timestamps.
+    + Default: SCALAR
 
 
 ### CreateTableDefinitionAsyncBase
