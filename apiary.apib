@@ -4241,7 +4241,7 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
         + type (optional, enum[string]) - type of filter values interpretation
             + Members
                 + SCALAR - default value type interpretation (default)
-                + TIME_STRING - values are interpreted as date/time strings and converted to timestamps. When using TIME_STRING, dataType must be empty. Values must be valid date/time strings compatible with strtotime() or unix timestamps. All time strings are converted to UTC timezone.
+                + TIME_STRING - values are interpreted as date/time strings and converted to timestamps. When using TIME_STRING, dataType must be empty. Values must be valid date/time strings compatible with strtotime() or unix timestamps. All time strings are converted to UTC timezone. Be aware of your backend timezone settings and daylight saving time changes.
             + Default: SCALAR
     + allowTruncate - (optional, boolean) is used to confirm that you really want to delete all rows in case you did not specify any filters.
         + default: false
@@ -10327,7 +10327,7 @@ Requesting changes will remove all approvals and move the Merge request to `deve
 + type (optional, enum[string]) - type of filter values interpretation
     + Members
         + SCALAR - default value type interpretation (default)
-        + TIME_STRING - values are interpreted as date/time strings and converted to timestamps. When using TIME_STRING, dataType must be empty. Values must be valid date/time strings compatible with strtotime() or unix timestamps. All time strings are converted to UTC timezone.
+        + TIME_STRING - values are interpreted as date/time strings and converted to timestamps. When using TIME_STRING, dataType must be empty. Values must be valid date/time strings compatible with strtotime() or unix timestamps. All time strings are converted to UTC timezone. Be aware of your backend timezone settings and daylight saving time changes.
     + Default: SCALAR
 
 
