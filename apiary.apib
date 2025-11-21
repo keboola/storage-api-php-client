@@ -5098,13 +5098,13 @@ Loads tables from Storage into a Workspace. BigQuery supports only loading as vi
                             + CLONE
                             + VIEW
                             + AUTO
-                    + primaryKey - optional definition of primaryKey on created Workspace table. When PK created with this definition, it will respect nullabiltiy defined in `columns` field, which is different from inheriting PK from Storage, because inherited PK is forced to be non-nullable. Snowflake only.
+                    + primaryKey - optional definition of primaryKey on created Workspace table
                         + autority (required, enum[string])
                             + Members
                                 + storage - PK should be inherited from Storage
                                 + manual - manual list of columns to set as PK
                             + Default: storage
-                        + columns (optional, array) - list of columns to define private key on.
+                        + columns (optional, array) - list of columns to define private key on
                     + dropTimestampColumn (optional, boolean) - (CLONE loadType only) When true _timestamp column is removed after table load
                         Default: false
     + preserve (optional, boolean) - Keep existing tables in the workspace, otherwise the workspace will be purged before loading
