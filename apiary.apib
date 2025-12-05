@@ -6116,7 +6116,7 @@ the HTTP 400 response code is returned.
                 "uuid": "01958f48-b1fc-7f05-b9b9-8a4a7b385bc3"
             }
 
-### Events list [GET /v2/storage/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}&forceUuid={forceUuid}]
+### Events list [GET /v2/storage/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
 For admin tokens will endpoint lists all events in the project. For non-admin tokens will list only events created by the token.
 
 + Parameters
@@ -6130,8 +6130,6 @@ For admin tokens will endpoint lists all events in the project. For non-admin to
         + Default: 100
     + offset (optional, number) - Pagination offset
         + Default: 0
-    + forceUuid (optional, boolean) - If true events are ordered by uuid not by id, this will be default behavior in the future
-        + Default: false
 
 + Request
     + Headers
@@ -6141,7 +6139,7 @@ For admin tokens will endpoint lists all events in the project. For non-admin to
 + Response 200 (application/json)
     + Attributes (array[Event])
 
-### Development Branch Events list [GET /v2/storage/branch/{branch_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}&forceUuid={forceUuid}]
+### Development Branch Events list [GET /v2/storage/branch/{branch_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
 For admin tokens will endpoint lists all events in the project for [Development Branch](#reference/development-branches). For non-admin tokens will list only events created by the token in branch.
 
 + Parameters
@@ -6156,8 +6154,6 @@ For admin tokens will endpoint lists all events in the project for [Development 
         + Default: 100
     + offset (optional, number) - Pagination offset
         + Default: 0
-    + forceUuid (optional, boolean) - If true events are ordered by uuid not by id, this will be default behavior in the future
-        + Default: false
 
 + Request
     + Headers
@@ -6198,7 +6194,7 @@ Obtains information about a event for [Development Branch](#reference/developmen
     + Attributes (Event)
 
 
-## List Bucket Events [/v2/storage/buckets/{bucket_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}&forceUuid={forceUuid}]
+## List Bucket Events [/v2/storage/buckets/{bucket_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
 ### Bucket events list [GET]
 Lists all events associated with a particular bucket.
 
@@ -6213,8 +6209,6 @@ Lists all events associated with a particular bucket.
         + Default: 100
     + offset (optional, number) - Pagination offset
         + Default: 0
-    + forceUuid (optional, boolean) - If true events are ordered by uuid not by id, this will be default behavior in the future
-        + Default: false
 
 + Request
     + Headers
@@ -6224,7 +6218,7 @@ Lists all events associated with a particular bucket.
 + Response 200 (application/json)
    + Attributes (array[Event])
 
-## List Table Events [/v2/storage/tables/{table_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}&forceUuid={forceUuid}]
+## List Table Events [/v2/storage/tables/{table_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
 ### Table events list [GET]
 Lists all events associated with a particular table.
 
@@ -6239,8 +6233,6 @@ Lists all events associated with a particular table.
         + Default: 100
     + offset (optional, number) - Pagination offset
         + Default: 0
-    + forceUuid (optional, boolean) - If true events are ordered by uuid not by id, this will be default behavior in the future
-        + Default: false
 
 + Request
     + Headers
@@ -6250,7 +6242,7 @@ Lists all events associated with a particular table.
 + Response 200 (application/json)
    + Attributes (array[Event])
 
-## List Token Events [/v2/storage/tokens/{token_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}&forceUuid={forceUuid}]
+## List Token Events [/v2/storage/tokens/{token_id}/events?sinceId={sinceId}&maxId={maxId}&component={component}&configurationId={configurationId}&runId={runId}&q={q}&limit={limit}&offset={offset}]
 ### Token events list [GET]
 Lists all events associated with a particular token.
 
@@ -6265,8 +6257,6 @@ Lists all events associated with a particular token.
         + Default: 100
     + offset (optional, number) - Pagination offset
         + Default: 0
-    + forceUuid (optional, boolean) - If true events are ordered by uuid not by id, this will be default behavior in the future
-        + Default: false
 
 + Request
     + Headers
