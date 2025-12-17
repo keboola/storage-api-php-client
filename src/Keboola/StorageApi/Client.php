@@ -212,6 +212,7 @@ class Client
         $this->client = new \GuzzleHttp\Client([
             'base_uri' => $this->apiUrl,
             'handler' => $handlerStack,
+            'connect_timeout' => RequestTimeoutMiddleware::REQUEST_TIMEOUT_DEFAULT,
         ]);
     }
 
