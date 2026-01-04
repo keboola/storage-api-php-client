@@ -34,7 +34,7 @@ class GlobalSearchOptions
         ?array $types = null,
         ?array $projectIds = null,
         ?array $branchTypes = null,
-        ?array $branchIds = null
+        ?array $branchIds = null,
     ) {
         $this->limit = $limit;
         $this->offset = $offset;

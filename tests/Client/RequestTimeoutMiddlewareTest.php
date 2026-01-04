@@ -9,9 +9,6 @@ use PHPUnit\Framework\TestCase;
 
 class RequestTimeoutMiddlewareTest extends TestCase
 {
-    /**
-     * @return void
-     */
     public function testWillSetDefaultTimeout(): void
     {
         $assertingHandler = function ($request, $options) {
@@ -24,9 +21,6 @@ class RequestTimeoutMiddlewareTest extends TestCase
         $middleware($requestMock, []);
     }
 
-    /**
-     * @return void
-     */
     public function testWillOverrideTimeout(): void
     {
         $assertingHandler = function ($request, $options) {
@@ -39,9 +33,6 @@ class RequestTimeoutMiddlewareTest extends TestCase
         $middleware($requestMock, ['timeout' => 300]);
     }
 
-    /**
-     * @return void
-     */
     public function testWillSetDeleteTimeout(): void
     {
         $assertingHandler = function ($request, $options) {
@@ -54,9 +45,6 @@ class RequestTimeoutMiddlewareTest extends TestCase
         $middleware($requestMock, []);
     }
 
-    /**
-     * @return void
-     */
     public function testWillSetManualExtendedTimeout(): void
     {
         $assertingHandler = function ($request, $options) {

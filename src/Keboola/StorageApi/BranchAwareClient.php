@@ -25,9 +25,6 @@ class BranchAwareClient extends Client
      */
     private array $config;
 
-    /**
-     * @param array $config
-     */
     public function __construct(int|string $branchId, array $config = [])
     {
         parent::__construct($config);

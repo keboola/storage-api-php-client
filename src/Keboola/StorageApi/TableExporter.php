@@ -54,9 +54,6 @@ class TableExporter
      */
     private $client;
 
-    /**
-     * @param Client $client
-     */
     public function __construct(Client $client)
     {
         $this->client = $client;
@@ -268,7 +265,7 @@ class TableExporter
     private function downloadSlices(
         array $getFileResponse,
         DownloaderInterface $downloader,
-        string $tmpFilePath
+        string $tmpFilePath,
     ): array {
         // Download manifest with all sliced files
         $client = new HttpClient([

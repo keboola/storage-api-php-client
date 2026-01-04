@@ -11,7 +11,7 @@ class BlobClientFactory
      * @return BlobRestProxy
      */
     public static function createClientFromConnectionString(
-        $connectionString
+        $connectionString,
     ) {
         $client = BlobRestProxy::createBlobService($connectionString, [
             'http' => [

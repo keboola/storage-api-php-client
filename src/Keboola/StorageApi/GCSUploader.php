@@ -34,7 +34,7 @@ class GCSUploader
         array $options,
         RefreshFileCredentialsWrapper $refreshFileCredentialsWrapper,
         ?LoggerInterface $logger = null,
-        ?FileUploadTransferOptions $transferOptions = null
+        ?FileUploadTransferOptions $transferOptions = null,
     ) {
         $this->gcsClient = $this->initClient($options);
         $this->refreshFileCredentialsWrapper = $refreshFileCredentialsWrapper;
@@ -53,7 +53,7 @@ class GCSUploader
 
     private function getFailedUploads(
         array $preparedSlices,
-        Bucket $bucket
+        Bucket $bucket,
     ): array {
         $failedUploads = [];
         foreach ($preparedSlices as $filePath => $blobName) {
@@ -231,7 +231,7 @@ class GCSUploader
             private array $creds;
 
             public function __construct(
-                array $creds
+                array $creds,
             ) {
                 $this->creds = $creds;
             }

@@ -10,7 +10,7 @@ class BackendConfiguration
 {
     public function __construct(
         public readonly ?string $context = null,
-        public readonly ?string $size = null
+        public readonly ?string $size = null,
     ) {
     }
 

@@ -6,10 +6,10 @@ use Keboola\StorageApi\Options\Metadata\TableMetadataUpdateOptions;
 
 class Metadata
 {
-    const PROVIDER_SYSTEM = 'system';
-    const PROVIDER_STORAGE = 'storage';
+    public const PROVIDER_SYSTEM = 'system';
+    public const PROVIDER_STORAGE = 'storage';
 
-    const BUCKET_METADATA_KEY_ID_BRANCH = 'KBC.createdBy.branch.id';
+    public const BUCKET_METADATA_KEY_ID_BRANCH = 'KBC.createdBy.branch.id';
 
     /**
      * @var Client

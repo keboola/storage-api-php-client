@@ -8,14 +8,13 @@ use Keboola\StorageApi\ABSUploader\PromiseHelper;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\CommitBlobBlocksOptions;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
-use MicrosoftAzure\Storage\Common\Models\ServiceOptions;
 
 /** @internal class used by the client for uploading files to file storage */
 class ABSUploader
 {
-    const CHUNK_SIZE = 4 * 1024 * 1024; // 4MiB
-    const MAX_PARALLEL_CHUNKS = 125;
-    const PADLENGTH = 5; // Size of the string used for the block ID, modify if needed.
+    public const CHUNK_SIZE = 4 * 1024 * 1024; // 4MiB
+    public const MAX_PARALLEL_CHUNKS = 125;
+    public const PADLENGTH = 5; // Size of the string used for the block ID, modify if needed.
 
     /** @var BlobRestProxy */
     private $blobClient;
@@ -75,7 +74,7 @@ class ABSUploader
             $options = new CommitBlobBlocksOptions();
         }
         $promise = new Promise(\Closure::bind(function () use (&$promise, $container, $blobName, $file, $options) {
-            list($promises, $blockIds) = $this->uploadByBlocks($container, $blobName, $file);
+            [$promises, $blockIds] = $this->uploadByBlocks($container, $blobName, $file);
             PromiseHelper::all($promises);
             $promise->resolve($this->blobClient->commitBlobBlocks($container, $blobName, $blockIds, $options));
         }, $this));
