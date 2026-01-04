@@ -504,7 +504,6 @@ class Client
         $url = 'buckets/' . $bucketId . '/refresh';
 
         // Method Keboola\StorageApi\Client::refreshBucket() should return array{id: string, uri: string, name: string, stage: string, tables: string, backend: string, created: string, sharing: string|null, ...} but returns mixed.
-        // @phpstan-ignore-next-line
         return $this->apiPutJson($url);
     }
 
@@ -519,7 +518,6 @@ class Client
     {
         $url = 'buckets/' . $bucketId . '/owner';
 
-        // @phpstan-ignore-next-line
         return $this->apiGet($url);
     }
 
