@@ -3333,25 +3333,35 @@ class Client
     private function getAuthTokenClass(array $credentials): FetchAuthTokenInterface
     {
         return new class ($credentials) implements FetchAuthTokenInterface {
+            /** @var array<mixed> */
             private array $creds;
 
+            /**
+             * @param array<mixed> $creds
+             */
             public function __construct(
                 array $creds,
             ) {
                 $this->creds = $creds;
             }
 
-            public function fetchAuthToken(?callable $httpHandler = null)
+            /**
+             * @return array<mixed>
+             */
+            public function fetchAuthToken(?callable $httpHandler = null): array
             {
                 return $this->creds;
             }
 
-            public function getCacheKey()
+            public function getCacheKey(): string
             {
                 return '';
             }
 
-            public function getLastReceivedToken()
+            /**
+             * @return array<mixed>
+             */
+            public function getLastReceivedToken(): array
             {
                 return $this->creds;
             }
