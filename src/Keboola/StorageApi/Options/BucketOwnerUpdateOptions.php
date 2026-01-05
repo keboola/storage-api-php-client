@@ -11,10 +11,6 @@ class BucketOwnerUpdateOptions
     private ?int $id;
     private ?string $email;
 
-    /**
-     * @param int|null $id
-     * @param string|null $email
-     */
     public function __construct(?int $id = null, ?string $email = null)
     {
         $this->id = $id;

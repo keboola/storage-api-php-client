@@ -7,14 +7,14 @@ use Psr\Http\Message\RequestInterface;
 
 class RequestTimeoutMiddleware
 {
-    const REQUEST_TIMEOUT_DEFAULT = 120;
-    const REQUEST_TIMEOUT_EXTENDED = 7200;
+    public const REQUEST_TIMEOUT_DEFAULT = 120;
+    public const REQUEST_TIMEOUT_EXTENDED = 7200;
 
     /** @var callable */
     private $nextHandler;
 
     private function __construct(
-        callable $nextHandler
+        callable $nextHandler,
     ) {
         $this->nextHandler = $nextHandler;
     }
@@ -34,7 +34,7 @@ class RequestTimeoutMiddleware
      */
     public function __invoke(
         RequestInterface $request,
-        array $options
+        array $options,
     ) {
         $nextHander = $this->nextHandler;
 

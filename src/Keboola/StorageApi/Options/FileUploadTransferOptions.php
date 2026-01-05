@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by JetBrains PhpStorm.
- * User: martinhalamicek
- * Date: 23/01/14
- * Time: 15:02
- * To change this template use File | Settings | File Templates.
- */
 
 namespace Keboola\StorageApi\Options;
 

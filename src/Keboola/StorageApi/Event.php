@@ -1,20 +1,13 @@
 <?php
-/**
- *
- * User: Martin Halamíček
- * Date: 30.11.12
- * Time: 16:12
- *
- */
 
 namespace Keboola\StorageApi;
 
 class Event
 {
-    const TYPE_INFO = 'info';
-    const TYPE_SUCCESS = 'success';
-    const TYPE_WARN = 'warn';
-    const TYPE_ERROR = 'error';
+    public const TYPE_INFO = 'info';
+    public const TYPE_SUCCESS = 'success';
+    public const TYPE_WARN = 'warn';
+    public const TYPE_ERROR = 'error';
 
     /**
      * @var

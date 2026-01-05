@@ -10,14 +10,14 @@ class BlobStorageRetryMiddleware
 {
     //The interval will be increased linearly, the nth retry will have a
     //wait time equal to n * interval.
-    const LINEAR_INTERVAL_ACCUMULATION = 'Linear';
+    public const LINEAR_INTERVAL_ACCUMULATION = 'Linear';
     //The interval will be increased exponentially, the nth retry will have a
     //wait time equal to pow(2, n) * interval.
-    const EXPONENTIAL_INTERVAL_ACCUMULATION = 'Exponential';
+    public const EXPONENTIAL_INTERVAL_ACCUMULATION = 'Exponential';
     //This is for the general type of logic that handles retry.
-    const GENERAL_RETRY_TYPE = 'General';
-    const DEFAULT_NUMBER_OF_RETRIES = 5;
-    const DEFAULT_RETRY_INTERVAL = Resources::DEFAULT_RETRY_INTERVAL;
+    public const GENERAL_RETRY_TYPE = 'General';
+    public const DEFAULT_NUMBER_OF_RETRIES = 5;
+    public const DEFAULT_RETRY_INTERVAL = Resources::DEFAULT_RETRY_INTERVAL;
 
     /**
      * @param int $numberOfRetries The maximum number of retries.
@@ -34,7 +34,7 @@ class BlobStorageRetryMiddleware
     public static function create(
         $numberOfRetries = self::DEFAULT_NUMBER_OF_RETRIES,
         $interval = self::DEFAULT_RETRY_INTERVAL,
-        $accumulationMethod = self::EXPONENTIAL_INTERVAL_ACCUMULATION
+        $accumulationMethod = self::EXPONENTIAL_INTERVAL_ACCUMULATION,
     ) {
         //Validate the input parameters
         //numberOfRetries
@@ -127,9 +127,9 @@ class BlobStorageRetryMiddleware
             $request,
             $response = null,
             $exception = null,
-            $isSecondary = false
+            $isSecondary = false,
         ) use (
-            $maxRetries
+            $maxRetries,
         ) {
             //Exceeds the retry limit. No retry.
             if ($retries >= $maxRetries) {

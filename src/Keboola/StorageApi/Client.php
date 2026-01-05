@@ -46,28 +46,28 @@ use Symfony\Component\Filesystem\Filesystem;
 class Client
 {
     // Request options
-    const ALLOWED_REQUEST_OPTIONS = [
+    public const ALLOWED_REQUEST_OPTIONS = [
         Client::REQUEST_OPTION_EXTENDED_TIMEOUT,
         Client::REQUEST_OPTION_HEADERS,
     ];
-    const REQUEST_OPTION_EXTENDED_TIMEOUT = 'isExtendedTimeout';
+    public const REQUEST_OPTION_EXTENDED_TIMEOUT = 'isExtendedTimeout';
     public const REQUEST_OPTION_HEADERS = 'headers';
 
     // Stage names
-    const DEFAULT_RETRIES_COUNT = 15;
-    const STAGE_IN = 'in';
-    const STAGE_OUT = 'out';
-    const STAGE_SYS = 'sys';
-    const API_VERSION = 'v2';
+    public const DEFAULT_RETRIES_COUNT = 15;
+    public const STAGE_IN = 'in';
+    public const STAGE_OUT = 'out';
+    public const STAGE_SYS = 'sys';
+    public const API_VERSION = 'v2';
 
-    const VERSION = '14';
+    public const VERSION = '14';
 
-    const FILE_PROVIDER_AWS = 'aws';
-    const FILE_PROVIDER_AZURE = 'azure';
-    const FILE_PROVIDER_GCP = 'gcp';
+    public const FILE_PROVIDER_AWS = 'aws';
+    public const FILE_PROVIDER_AZURE = 'azure';
+    public const FILE_PROVIDER_GCP = 'gcp';
 
     // Errors
-    const ERROR_CANNOT_DOWNLOAD_FILE = 'Cannot download file "%s" (ID %s) from Storage, please verify the contents of the file and that the file has not expired.';
+    public const ERROR_CANNOT_DOWNLOAD_FILE = 'Cannot download file "%s" (ID %s) from Storage, please verify the contents of the file and that the file has not expired.';
 
     // Token string
     public $token;
@@ -504,7 +504,6 @@ class Client
         $url = 'buckets/' . $bucketId . '/refresh';
 
         // Method Keboola\StorageApi\Client::refreshBucket() should return array{id: string, uri: string, name: string, stage: string, tables: string, backend: string, created: string, sharing: string|null, ...} but returns mixed.
-        // @phpstan-ignore-next-line
         return $this->apiPutJson($url);
     }
 
@@ -519,7 +518,6 @@ class Client
     {
         $url = 'buckets/' . $bucketId . '/owner';
 
-        // @phpstan-ignore-next-line
         return $this->apiGet($url);
     }
 
@@ -926,7 +924,7 @@ class Client
     public function updateTableColumnDefinition(
         string $tableId,
         string $columnName,
-        array $columnDefinition
+        array $columnDefinition,
     ): array {
         /** @var array $updatedTable */
         $updatedTable = $this->apiPutJson("tables/{$tableId}/columns/{$columnName}/definition", $columnDefinition);
@@ -1875,7 +1873,7 @@ class Client
     private function uploadFileToGcs(
         array $prepareResult,
         string $filePath,
-        bool $isPermanent
+        bool $isPermanent,
     ): void {
         $refreshCallableWrapper = new RefreshFileCredentialsWrapper($this, $prepareResult['id']);
         $gcsUploader = new GCSUploader([
@@ -1901,7 +1899,7 @@ class Client
      */
     private function uploadFileToAbs(
         array $prepareResult,
-        $filePath
+        $filePath,
     ) {
         $blobClient = BlobClientFactory::createClientFromConnectionString(
             $prepareResult['absUploadParams']['absCredentials']['SASConnectionString'],
@@ -1939,7 +1937,7 @@ class Client
         array $prepareResult,
         $filePath,
         FileUploadOptions $newOptions,
-        ?FileUploadTransferOptions $transferOptions = null
+        ?FileUploadTransferOptions $transferOptions = null,
     ) {
         $uploadParams = $prepareResult['uploadParams'];
         $s3options = [
@@ -2081,7 +2079,7 @@ class Client
 
     private function uploadSlicedFileToAbs(
         array $prepareResult,
-        array $slices
+        array $slices,
     ) {
         $blobClient = BlobClientFactory::createClientFromConnectionString(
             $prepareResult['absUploadParams']['absCredentials']['SASConnectionString'],
@@ -2116,7 +2114,7 @@ class Client
         array $preparedFileResult,
         array $slices,
         FileUploadOptions $newOptions,
-        ?FileUploadTransferOptions $transferOptions = null
+        ?FileUploadTransferOptions $transferOptions = null,
     ) {
         $uploadParams = $preparedFileResult['uploadParams'];
         $options = [
@@ -3035,9 +3033,6 @@ class Client
         $this->logger->debug($message, $context);
     }
 
-    /**
-     * @param LoggerInterface $logger
-     */
     private function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
@@ -3334,7 +3329,7 @@ class Client
             private array $creds;
 
             public function __construct(
-                array $creds
+                array $creds,
             ) {
                 $this->creds = $creds;
             }

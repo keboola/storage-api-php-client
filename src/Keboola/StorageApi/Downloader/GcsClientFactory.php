@@ -13,7 +13,7 @@ class GcsClientFactory
      * @return StorageClient
      */
     public static function createClientFromCredentialsArray(
-        $fileResponse
+        $fileResponse,
     ) {
         $options = [
             'credentials' => [
@@ -28,7 +28,7 @@ class GcsClientFactory
             private array $creds;
 
             public function __construct(
-                array $creds
+                array $creds,
             ) {
                 $this->creds = $creds;
             }

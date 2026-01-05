@@ -4,8 +4,8 @@ namespace Keboola\StorageApi\Options;
 
 abstract class TokenAbstractOptions
 {
-    const BUCKET_PERMISSION_WRITE = 'write';
-    const BUCKET_PERMISSION_READ = 'read';
+    public const BUCKET_PERMISSION_WRITE = 'write';
+    public const BUCKET_PERMISSION_READ = 'read';
 
     /** @var string|null */
     private $description;

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: martinhalamicek
- * Date: 11/11/15
- * Time: 16:09
- */
 namespace Keboola\StorageApi;
 
 use GuzzleHttp\BodySummarizer;
@@ -56,10 +50,10 @@ final class HandlerStack
             $retries,
             RequestInterface $request,
             ?ResponseInterface $response = null,
-            $error = null
+            $error = null,
         ) use (
             $maxRetries,
-            $retryOnMaintenance
+            $retryOnMaintenance,
         ) {
             // don't do retry if server returns 501 not implemented
             if ($response && $response->getStatusCode() === 501) {

@@ -30,7 +30,6 @@
 		"google/cloud-storage": "^1.27",
 		"guzzlehttp/guzzle": "~7.0",
 		"keboola/csv": "^1",
-		"keboola/php-datatypes": "^8.0",
 		"microsoft/azure-storage-blob": "^1.5",
 		"psr/log": "^1.1|^2.0|^3.0",
 		"symfony/filesystem": "^7.0||^6.0||^5.0||^4.0",
@@ -38,22 +37,11 @@
 	},
 	"require-dev": {
 		"ext-curl": "*",
-		"keboola/coding-standard": "^15.0",
-		"phpstan/phpstan": "^1",
-		"phpstan/phpstan-phpunit": "^1.0",
-		"phpunit/phpunit": "^9.0|^10",
-		"rector/rector": "^0.12.23",
-		"squizlabs/php_codesniffer": "^3",
-		"tomasfejfar/phpstan-phpunit": "^0.1.0"
+		"phpunit/phpunit": "^9.0|^10"
 	},
 	"scripts": {
-		"phpcs": "phpcs -n .",
-		"phpcbf": "phpcbf -n .",
-		"phpstan": "phpstan analyse --no-progress --level=max . -c phpstan.neon",
 		"tests": "phpunit --testsuite=unit",
 		"ci": [
-			"@phpcs",
-			"@phpstan",
 			"@tests"
 		]
 	}

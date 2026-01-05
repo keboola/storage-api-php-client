@@ -200,7 +200,7 @@ class S3Uploader
         $concurrency,
         $encryption = null,
         $name = null,
-        ?UploadState $state = null
+        ?UploadState $state = null,
     ) {
         $uploaderOptions = [
             'Bucket' => $bucket,

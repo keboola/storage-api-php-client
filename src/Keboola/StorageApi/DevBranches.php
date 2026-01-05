@@ -37,7 +37,7 @@ class DevBranches
     public function updateBranch(
         $branchId,
         $branchName = '',
-        $branchDescription = ''
+        $branchDescription = '',
     ) {
         $params = [];
         if ($branchName) {
@@ -79,9 +79,6 @@ class DevBranches
         return $result;
     }
 
-    /**
-     * @return array
-     */
     public function getDefaultBranch(): array
     {
         $branches = $this->listBranches();

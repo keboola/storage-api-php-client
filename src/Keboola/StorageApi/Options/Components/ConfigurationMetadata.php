@@ -13,7 +13,7 @@ class ConfigurationMetadata
     private $metadata;
 
     public function __construct(
-        Configuration $componentConfiguration
+        Configuration $componentConfiguration,
     ) {
         $this->componentConfiguration = $componentConfiguration;
     }
