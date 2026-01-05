@@ -216,8 +216,6 @@ class Client
             'curl' => [
                 CURLOPT_LOW_SPEED_LIMIT => 1,
                 CURLOPT_LOW_SPEED_TIME => 120,
-                CURLOPT_FORBID_REUSE => true,
-                CURLOPT_FRESH_CONNECT => true,
                 CURLOPT_TCP_KEEPALIVE => 1,
                 CURLOPT_TCP_KEEPIDLE => 60,
                 CURLOPT_TCP_KEEPINTVL => 30,
