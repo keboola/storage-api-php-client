@@ -72,6 +72,9 @@ class Client
     // Token string
     public $token;
 
+    // Authentication type: 'storage-token' (default) or 'bearer'
+    private string $authType = 'storage-token';
+
     // current run id sent with all request
     private $runId = null;
 
@@ -136,7 +139,7 @@ class Client
      *     ]);
      *
      * @param array $config Client configuration settings
-     *     - token: (required) Storage API token
+     *     - token: (required) Storage API token or OAuth access token (without "Bearer " prefix)
      *     - url: (required) Storage API URL
      *     - userAgent: custom user agent
      *     - backoffMaxTries: backoff maximum number of attempts
@@ -145,6 +148,7 @@ class Client
      *     - logger: instance of Psr\Log\LoggerInterface
      *     - jobPollRetryDelay: callable method which determines wait period for job polling
      *     - handler: custom Guzzle handler, allows mocking responses in tests
+     *     - authType: authentication type, either 'storage-token' (default) or 'bearer'
      */
     public function __construct(array $config = [])
     {
@@ -162,6 +166,13 @@ class Client
             throw new \InvalidArgumentException('token must be set');
         }
         $this->token = $config['token'];
+
+        if (isset($config['authType'])) {
+            if (!in_array($config['authType'], ['storage-token', 'bearer'], true)) {
+                throw new \InvalidArgumentException('authType must be either "storage-token" or "bearer"');
+            }
+            $this->authType = $config['authType'];
+        }
 
         if (isset($config['backoffMaxTries'])) {
             $this->backoffMaxTries = (int) $config['backoffMaxTries'];
@@ -2878,10 +2889,14 @@ class Client
         }
 
         $defaultHeaders = [
-            'X-StorageApi-Token' => $this->token,
             'Accept-Encoding' => 'gzip',
             'User-Agent' => $this->getUserAgent(),
         ];
+        if ($this->authType === 'bearer') {
+            $defaultHeaders['Authorization'] = 'Bearer ' . $this->token;
+        } else {
+            $defaultHeaders['X-StorageApi-Token'] = $this->token;
+        }
         if (isset($options['headers'])) {
             $requestOptions['headers'] = array_merge($options['headers'], $defaultHeaders);
         } else {
