@@ -76,7 +76,9 @@ class Client
     // Token string
     public $token;
 
-    // Authentication type: AUTH_TYPE_STORAGE_TOKEN (default) or AUTH_TYPE_BEARER
+    /**
+     * @phpstan-var self::AUTH_TYPE_* Authentication type
+     */
     private string $authType = self::AUTH_TYPE_STORAGE_TOKEN;
 
     // current run id sent with all request
@@ -152,7 +154,8 @@ class Client
      *     - logger: instance of Psr\Log\LoggerInterface
      *     - jobPollRetryDelay: callable method which determines wait period for job polling
      *     - handler: custom Guzzle handler, allows mocking responses in tests
-     *     - authType: authentication type, either 'storage-token' (default) or 'bearer'
+     *     - authType: authentication type (AUTH_TYPE_STORAGE_TOKEN or AUTH_TYPE_BEARER)
+     * @phpstan-param array{token: string, url: string, userAgent?: string, backoffMaxTries?: int, retryOnMaintenance?: bool, awsRetries?: int, logger?: \Psr\Log\LoggerInterface, jobPollRetryDelay?: callable, handler?: mixed, authType?: self::AUTH_TYPE_*} $config
      */
     public function __construct(array $config = [])
     {
