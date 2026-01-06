@@ -66,14 +66,18 @@ class Client
     public const FILE_PROVIDER_AZURE = 'azure';
     public const FILE_PROVIDER_GCP = 'gcp';
 
+    // Authentication types
+    public const AUTH_TYPE_STORAGE_TOKEN = 'storage-token';
+    public const AUTH_TYPE_BEARER = 'bearer';
+
     // Errors
     public const ERROR_CANNOT_DOWNLOAD_FILE = 'Cannot download file "%s" (ID %s) from Storage, please verify the contents of the file and that the file has not expired.';
 
     // Token string
     public $token;
 
-    // Authentication type: 'storage-token' (default) or 'bearer'
-    private string $authType = 'storage-token';
+    // Authentication type: AUTH_TYPE_STORAGE_TOKEN (default) or AUTH_TYPE_BEARER
+    private string $authType = self::AUTH_TYPE_STORAGE_TOKEN;
 
     // current run id sent with all request
     private $runId = null;
@@ -168,8 +172,12 @@ class Client
         $this->token = $config['token'];
 
         if (isset($config['authType'])) {
-            if (!in_array($config['authType'], ['storage-token', 'bearer'], true)) {
-                throw new \InvalidArgumentException('authType must be either "storage-token" or "bearer"');
+            if (!in_array($config['authType'], [self::AUTH_TYPE_STORAGE_TOKEN, self::AUTH_TYPE_BEARER], true)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'authType must be either "%s" or "%s"',
+                    self::AUTH_TYPE_STORAGE_TOKEN,
+                    self::AUTH_TYPE_BEARER,
+                ));
             }
             $this->authType = $config['authType'];
         }
@@ -2892,7 +2900,7 @@ class Client
             'Accept-Encoding' => 'gzip',
             'User-Agent' => $this->getUserAgent(),
         ];
-        if ($this->authType === 'bearer') {
+        if ($this->authType === self::AUTH_TYPE_BEARER) {
             $defaultHeaders['Authorization'] = 'Bearer ' . $this->token;
         } else {
             $defaultHeaders['X-StorageApi-Token'] = $this->token;
