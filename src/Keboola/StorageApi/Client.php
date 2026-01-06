@@ -155,7 +155,7 @@ class Client
      *     - jobPollRetryDelay: callable method which determines wait period for job polling
      *     - handler: custom Guzzle handler, allows mocking responses in tests
      *     - authType: authentication type (AUTH_TYPE_STORAGE_TOKEN or AUTH_TYPE_BEARER)
-     * @phpstan-param array{token: string, url: string, userAgent?: string, backoffMaxTries?: int, retryOnMaintenance?: bool, awsRetries?: int, logger?: \Psr\Log\LoggerInterface, jobPollRetryDelay?: callable, handler?: mixed, authType?: self::AUTH_TYPE_*} $config
+     * @phpstan-param array{token?: string, url?: string, userAgent?: string, backoffMaxTries?: int, retryOnMaintenance?: bool, awsRetries?: int, logger?: \Psr\Log\LoggerInterface, jobPollRetryDelay?: callable, handler?: mixed, authType?: self::AUTH_TYPE_*} $config
      */
     public function __construct(array $config = [])
     {
