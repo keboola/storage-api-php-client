@@ -1730,7 +1730,7 @@ class Client
     /**
      * Export a table from workspace to file storage
      *
-     * @param string|null $format Optional format (csv or parquet), defaults to csv
+     * @param string|null $fileType Optional format (csv or parquet), defaults to csv
      * @return array{
      *     file: array{
      *         id: int
@@ -1741,15 +1741,15 @@ class Client
         int $workspaceId,
         string $tableName,
         string $fileName,
-        ?string $format = null
+        ?string $fileType = null,
     ): array {
         $params = [
             'tableName' => $tableName,
             'fileName' => $fileName,
         ];
 
-        if ($format !== null) {
-            $params['format'] = $format;
+        if ($fileType !== null) {
+            $params['fileType'] = $fileType;
         }
 
         return $this->apiPostJson("workspaces/{$workspaceId}/table-export", $params);
