@@ -1349,6 +1349,26 @@ class Client
         return $job['id'];
     }
 
+    public function queueWorkspaceTableExport(
+        int $workspaceId,
+        string $tableName,
+        string $fileName,
+        ?string $fileType = null,
+    ): int {
+        $params = [
+            'tableName' => $tableName,
+            'fileName' => $fileName,
+        ];
+
+        if ($fileType !== null) {
+            $params['fileType'] = $fileType;
+        }
+
+        $job = $this->apiPostJson("workspaces/{$workspaceId}/table-export", $params, false);
+
+        return $job['id'];
+    }
+
     private function writeTableOptionsPrepare($options)
     {
         $allowedOptions = [

@@ -77,7 +77,8 @@ class TableExporter
         );
 
         // Temporary folder to save downloaded files
-        $workingDir = sys_get_temp_dir();
+//        $workingDir = sys_get_temp_dir();
+        $workingDir = 'hoho';
         $tmpFilePath = $workingDir . '/' . uniqid('sapi-export-', true);
 
         $fs = new Filesystem();
@@ -119,7 +120,11 @@ class TableExporter
                 $columns[] = '_timestamp';
             }
 
-            $header = $enclosure . join($enclosure . $delimiter . $enclosure, $columns) . $enclosure . "\n";
+            if (!empty($table['columns'])) {
+                $header = $enclosure . join($enclosure . $delimiter . $enclosure, $columns) . $enclosure . "\n";
+            } else {
+                $header = '';
+            }
             $fs->dumpFile($destination . '.tmp', $header);
 
             // Concat all files into one, compressed files need to be decompressed first
@@ -256,6 +261,84 @@ class TableExporter
                 $isGzip,
             );
         }
+        return $jobResults;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function exportWorkspaceTable(
+        int $workspaceId,
+        string $tableName,
+        string $fileName,
+        string $destination,
+        ?string $fileType = null,
+    ): void {
+        $this->exportWorkspaceTables([
+            [
+                'workspaceId' => $workspaceId,
+                'tableName' => $tableName,
+                'fileName' => $fileName,
+                'destination' => $destination,
+                'fileType' => $fileType,
+            ],
+        ]);
+    }
+
+    /**
+     * @param array<array{
+     *     workspaceId: int,
+     *     tableName: string,
+     *     fileName: string,
+     *     destination: string,
+     *     fileType?: FileType,
+     * }> $tables
+     * @return array Job results
+     * @throws Exception
+     */
+    public function exportWorkspaceTables(array $tables = [])
+    {
+        $exportJobs = [];
+        foreach ($tables as $table) {
+            if (empty($table['workspaceId'])) {
+                throw new Exception('Missing workspaceId');
+            }
+
+            if (empty($table['tableName'])) {
+                throw new Exception('Missing tableName');
+            }
+
+            if (empty($table['destination'])) {
+                throw new Exception('Missing destination');
+            }
+
+            if (empty($table['fileName'])) {
+                throw new Exception('Missing fileName');
+            }
+
+            $jobId = $this->client->queueWorkspaceTableExport(
+                $table['workspaceId'],
+                $table['tableName'],
+                $table['fileName'],
+                $table['fileType'] ?? null,
+            );
+
+            $exportJobs[$jobId] = $table;
+        }
+
+        $jobResults = $this->client->handleAsyncTasks(array_keys($exportJobs));
+        foreach ($jobResults as $jobResult) {
+            $exportJob = $exportJobs[$jobResult['id']];
+
+            $this->handleExportedFile(
+                null,
+                $jobResult['results']['file']['id'],
+                $exportJob['destination'],
+                [],
+                false,
+            );
+        }
+
         return $jobResults;
     }
 
