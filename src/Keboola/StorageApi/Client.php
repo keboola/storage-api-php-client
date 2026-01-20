@@ -3233,7 +3233,7 @@ class Client
      *
      * @param string $tableId
      * @param array $columns
-     * @param array $options
+     * @param array{skipDuplicatesCheck?: bool} $options
      */
     public function createTablePrimaryKey($tableId, $columns, $options = [])
     {
