@@ -4142,6 +4142,7 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
 
 + Attributes
     + columns[] (required) - Array of columns used as the primary key
+    + skipDuplicatesCheck (optional, boolean) - If set to true, the duplicity check will be skipped when creating the primary key. This allows creating a primary key on a table with duplicate values in the key columns. Only supported for Snowflake and Redshift backends. Default: false
 
 + Request (application/json)
     + Headers
@@ -4153,7 +4154,8 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
             {
                 "columns": [
                     "id"
-                ]
+                ],
+                "skipDuplicatesCheck": false
             }
 
 + Response 202 (application/json)
@@ -4166,7 +4168,8 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
                "tableId":"in.c-main.another",
                "operationName":"tablePrimaryKeyAdd",
                "operationParams":{
-                  "columns":["id"]
+                  "columns":["id"],
+                  "skipDuplicatesCheck":false
                },
                "createdTime":"2013-07-08T10:01:03+0200",
                "startTime":null,
