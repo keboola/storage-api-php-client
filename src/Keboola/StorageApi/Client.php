@@ -3233,12 +3233,16 @@ class Client
      *
      * @param string $tableId
      * @param array $columns
+     * @param array $options
      */
-    public function createTablePrimaryKey($tableId, $columns)
+    public function createTablePrimaryKey($tableId, $columns, $options = [])
     {
         $data = [
             'columns' => $columns,
         ];
+        if (isset($options['skipDuplicatesCheck'])) {
+            $data['skipDuplicatesCheck'] = $options['skipDuplicatesCheck'];
+        }
         $this->apiPostJson("tables/$tableId/primary-key", $data);
     }
 
