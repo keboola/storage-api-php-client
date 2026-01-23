@@ -66,6 +66,9 @@ final class HandlerStack
 
             if ($retries >= $maxRetries) {
                 return false;
+            } elseif ($response && $response->getStatusCode() === 409) {
+                // Retry on 409 Conflict if it's a version conflict (deadlock) error
+                return self::isVersionConflictResponse($response);
             } elseif ($response && $response->getStatusCode() > 499) {
                 return true;
             } elseif ($error) {
@@ -74,6 +77,19 @@ final class HandlerStack
                 return false;
             }
         };
+    }
+
+    private static function isVersionConflictResponse(ResponseInterface $response): bool
+    {
+        $body = (string) $response->getBody();
+        $response->getBody()->rewind();
+
+        $data = json_decode($body, true);
+        if (!is_array($data)) {
+            return false;
+        }
+
+        return isset($data['code']) && $data['code'] === 'storage.components.configurations.versionConflict';
     }
 
     private static function createExponentialDelay(): callable
