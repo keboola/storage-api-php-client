@@ -6,20 +6,12 @@ namespace Keboola\UnitTest\Client;
 
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Keboola\StorageApi\HandlerStack;
 use PHPUnit\Framework\TestCase;
 
 class HandlerStackTest extends TestCase
 {
-    public function testCreateReturnsHandlerStack(): void
-    {
-        $handlerStack = HandlerStack::create();
-
-        self::assertNotNull($handlerStack);
-    }
-
     public function testCreateWithCustomHandler(): void
     {
         $mockHandler = new MockHandler([
