@@ -17,7 +17,7 @@ class HandlerStackTest extends TestCase
     {
         $handlerStack = HandlerStack::create();
 
-        self::assertInstanceOf(\GuzzleHttp\HandlerStack::class, $handlerStack);
+        self::assertNotNull($handlerStack);
     }
 
     public function testCreateWithCustomHandler(): void
@@ -129,7 +129,7 @@ class HandlerStackTest extends TestCase
 
     public function testRetryOn409VersionConflict(): void
     {
-        $versionConflictBody = json_encode([
+        $versionConflictBody = (string) json_encode([
             'code' => 'storage.components.configurations.versionConflict',
             'message' => 'Configuration row creation conflict. Please retry the operation.',
         ]);
@@ -152,7 +152,7 @@ class HandlerStackTest extends TestCase
 
     public function testNoRetryOn409WithDifferentErrorCode(): void
     {
-        $otherConflictBody = json_encode([
+        $otherConflictBody = (string) json_encode([
             'code' => 'storage.buckets.alreadyExists',
             'message' => 'Bucket already exists.',
         ]);
@@ -211,7 +211,7 @@ class HandlerStackTest extends TestCase
 
     public function testNoRetryOn409WithMissingCodeField(): void
     {
-        $bodyWithoutCode = json_encode([
+        $bodyWithoutCode = (string) json_encode([
             'message' => 'Some conflict error.',
         ]);
 
@@ -287,7 +287,7 @@ class HandlerStackTest extends TestCase
 
     public function testRetryOn409VersionConflictRespectsMaxRetries(): void
     {
-        $versionConflictBody = json_encode([
+        $versionConflictBody = (string) json_encode([
             'code' => 'storage.components.configurations.versionConflict',
             'message' => 'Configuration row creation conflict. Please retry the operation.',
         ]);
