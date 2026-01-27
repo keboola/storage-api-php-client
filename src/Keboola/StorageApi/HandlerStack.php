@@ -82,7 +82,9 @@ final class HandlerStack
     private static function isVersionConflictResponse(ResponseInterface $response): bool
     {
         $body = (string) $response->getBody();
-        $response->getBody()->rewind();
+        if ($response->getBody()->isSeekable()) {
+            $response->getBody()->rewind();
+        }
 
         $data = json_decode($body, true);
         if (!is_array($data)) {
