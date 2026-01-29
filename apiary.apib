@@ -5465,6 +5465,98 @@ when any of the row values were changed during an incremental import.
                     "outBytes": 0,
                     "outBytesUncompressed": 0
                 }
+
+## Export Table from Workspace [/v2/storage/workspaces/{workspace_id}/table-export]
+
+### Export Table from Workspace [POST /v2/storage/workspaces/{workspace_id}/table-export]
+
+Export a table from a workspace to file storage. This endpoint creates an asynchronous job that exports the specified table
+from the workspace schema to file storage. The exported file can then be downloaded using the file ID returned in the job results.
+
+**Note:** Currently only supported for Snowflake workspaces.
+
++ Parameters
+    + workspace_id (required, number) - The workspace ID
+
++ Attributes
+    + tableName (required, string) - Name of the table to export from the workspace
+    + fileName (optional, string) - Custom filename for the exported file. If not provided, a default filename will be generated.
+    + fileType (optional, enum[string]) - File type of the exported file
+        + Members
+            + csv - Export as CSV format
+            + parquet - Export as Parquet format (requires project feature support)
+        + Default: csv
+
++ Request (application/json)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+                "tableName": "my_table",
+                "fileName": "custom_export",
+                "fileType": "csv"
+            }
+
++ Response 202 (application/json)
+    + Body
+
+            {
+                "id": 12345678,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/12345678",
+                "tableId": null,
+                "operationName": "workspaceTableExport",
+                "operationParams": {
+                    "workspaceId": 504345774,
+                    "tableName": "my_table",
+                    "fileName": "custom_export.csv",
+                    "format": "csv"
+                },
+                "createdTime": "2025-10-12T21:43:00+0000",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "user@example.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
++ Response 404 (application/json)
+
+    Workspace not found
+
+    + Body
+
+            {
+                "error": "Workspace \"999999\" not found",
+                "code": 404
+            }
+
++ Response 400 (application/json)
+
+    Table not found in workspace or workspace is not a table workspace
+
+    + Body
+
+            {
+                "error": "Table \"non_existent_table\" not found in workspace \"504345774\"",
+                "code": 400
+            }
+
+
             }
 
 
