@@ -81,12 +81,8 @@ class DevBranches
 
     public function getDefaultBranch(): array
     {
-        $branches = $this->listBranches();
-        foreach ($branches as $branch) {
-            if ($branch['isDefault'] === true) {
-                return $branch;
-            }
-        }
-        throw new \LogicException('Default branch not found');
+        $result = $this->client->apiGet('dev-branches/default');
+        assert(is_array($result));
+        return $result;
     }
 }
