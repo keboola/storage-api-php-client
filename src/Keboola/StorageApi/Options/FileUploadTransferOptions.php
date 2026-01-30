@@ -6,7 +6,6 @@ use Keboola\StorageApi\ClientException;
 
 class FileUploadTransferOptions
 {
-
     /**
      *
      * Files in a chunk (for parallel multipart upload)

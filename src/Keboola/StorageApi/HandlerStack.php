@@ -1,4 +1,5 @@
 <?php
+
 namespace Keboola\StorageApi;
 
 use GuzzleHttp\BodySummarizer;
@@ -15,7 +16,7 @@ use Psr\Http\Message\ResponseInterface;
  */
 final class HandlerStack
 {
-    private const MAX_HTTP_ERROR_MESSAGE_LENGTH = 1024*1024;
+    private const MAX_HTTP_ERROR_MESSAGE_LENGTH = 1024 * 1024;
 
     /**
      * @param array{

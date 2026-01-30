@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package storage-api-php-client
  * @copyright 2015 Keboola

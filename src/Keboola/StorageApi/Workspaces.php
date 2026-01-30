@@ -47,7 +47,6 @@ use Keboola\StorageApi\Workspaces\SetPublicKeyRequest;
  */
 class Workspaces
 {
-
     /**
      * @var Client
      */

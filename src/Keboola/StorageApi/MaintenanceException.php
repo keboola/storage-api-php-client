@@ -1,9 +1,9 @@
 <?php
+
 namespace Keboola\StorageApi;
 
 class MaintenanceException extends ClientException
 {
-
     /**
      * @var int
      */
