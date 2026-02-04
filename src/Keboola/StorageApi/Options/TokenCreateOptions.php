@@ -10,6 +10,8 @@ class TokenCreateOptions extends TokenAbstractOptions
     /** @var bool */
     private $canManageBuckets = false;
 
+    private bool $canManageTokens = false;
+
     private bool $canManageProtectedDefaultBranch = false;
 
     private bool $canCreateJobs = false;
@@ -50,6 +52,17 @@ class TokenCreateOptions extends TokenAbstractOptions
         return $this;
     }
 
+    public function setCanManageTokens(bool $canManageTokens): static
+    {
+        $this->canManageTokens = $canManageTokens;
+        return $this;
+    }
+
+    public function canManageTokens(): bool
+    {
+        return $this->canManageTokens;
+    }
+
     public function setCanManageProtectedDefaultBranch(bool $canManageProtectedDefaultBranch): static
     {
         $this->canManageProtectedDefaultBranch = $canManageProtectedDefaultBranch;
@@ -81,6 +94,10 @@ class TokenCreateOptions extends TokenAbstractOptions
 
         if ($this->getCanManageBuckets()) {
             $params['canManageBuckets'] = true;
+        }
+
+        if ($this->canManageTokens()) {
+            $params['canManageTokens'] = true;
         }
 
         if ($this->getExpiresIn() !== null) {
