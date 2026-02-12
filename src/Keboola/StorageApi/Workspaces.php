@@ -324,9 +324,12 @@ class Workspaces
         ));
     }
 
-    public function createCredentials(int|string $workspaceId): array
+    /**
+     * @param array{publicKey?: string, certificateLifetimeSeconds?: int} $options
+     */
+    public function createCredentials(int|string $workspaceId, array $options = []): array
     {
-        $result = $this->client->apiPostJson("workspaces/{$workspaceId}/credentials");
+        $result = $this->client->apiPostJson("workspaces/{$workspaceId}/credentials", $options);
         assert(is_array($result));
         return $result;
     }
