@@ -4,7 +4,6 @@ namespace Keboola\StorageApi\Options;
 
 class FileUploadOptions
 {
-
     private $fileName;
     private $notify = false;
     private $isPublic = false;

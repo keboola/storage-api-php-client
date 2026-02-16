@@ -1,4 +1,5 @@
 <?php
+
 namespace Keboola\StorageApi\S3Uploader;
 
 class Chunker

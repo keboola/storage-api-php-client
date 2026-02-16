@@ -1,4 +1,5 @@
 <?php
+
 namespace Keboola\StorageApi;
 
 use Aws\S3\Exception\S3Exception;
@@ -1535,7 +1536,7 @@ class Client
 
     public function listJobs($options = [])
     {
-        return $this->apiGet('jobs?' . http_build_query($options), null, [Client::REQUEST_OPTION_EXTENDED_TIMEOUT=>true]);
+        return $this->apiGet('jobs?' . http_build_query($options), null, [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true]);
     }
 
     /**
@@ -2266,7 +2267,7 @@ class Client
 
     public function downloadFile($fileId, $destination, ?GetFileOptions $getOptions = null)
     {
-        $getOptions = ($getOptions)? $getOptions : new GetFileOptions();
+        $getOptions = ($getOptions) ? $getOptions : new GetFileOptions();
         $getOptions->setFederationToken(true);
         $fileInfo = $this->getFile($fileId, $getOptions);
         switch ($fileInfo['provider']) {
@@ -3292,7 +3293,7 @@ class Client
      */
     public function updateTrigger($triggerId, $options)
     {
-        $result = $this->apiPutJson('triggers/' . $triggerId .'/', $options);
+        $result = $this->apiPutJson('triggers/' . $triggerId . '/', $options);
         assert(is_array($result));
         return $result;
     }
@@ -3303,7 +3304,7 @@ class Client
      */
     public function getTrigger($triggerId)
     {
-        $result = $this->apiGet('triggers/' . $triggerId .'/');
+        $result = $this->apiGet('triggers/' . $triggerId . '/');
         assert(is_array($result));
         return $result;
     }
@@ -3314,7 +3315,7 @@ class Client
      */
     public function deleteTrigger($triggerId)
     {
-        $this->apiDelete('triggers/' . $triggerId .'/');
+        $this->apiDelete('triggers/' . $triggerId . '/');
     }
 
     /**

@@ -15,14 +15,15 @@ final class AbsUrlParser
         $matched = [];
         if (preg_match(
             '/^(https|azure):\/\/'
-            . '(.*?)' // account
-            . '\.blob\.core\.windows\.net\/'
-            . '(.*?)' // container
-            . '\/'
-            . '(.*)$/', // filepath
+                . '(.*?)' // account
+                . '\.blob\.core\.windows\.net\/'
+                . '(.*?)' // container
+                . '\/'
+                . '(.*)$/', // filepath
             $url,
             $matched,
-        ) === 1 && count($matched) === 5) {
+        ) === 1 && count($matched) === 5
+        ) {
             [$full, $protocol, $account, $container, $file] = $matched;
             return [$protocol, $account, $container, $file];
         }

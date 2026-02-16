@@ -1,4 +1,5 @@
 <?php
+
 namespace Keboola\StorageApi\S3Uploader;
 
 use Aws\S3\Exception\S3MultipartUploadException;

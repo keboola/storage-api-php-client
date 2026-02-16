@@ -1,4 +1,5 @@
 <?php
+
 namespace Keboola\StorageApi;
 
 use Keboola\StorageApi\Options\Components\Configuration;
@@ -145,7 +146,7 @@ class Components
     public function getPublicComponentDetail(string $componentId): array
     {
         /** @var Component $result */
-        $result = $this->client->apiGet('components/'.$componentId);
+        $result = $this->client->apiGet('components/' . $componentId);
         return $result;
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace Keboola\StorageApi;
 
 use Keboola\StorageApi\Options\TokenCreateOptions;
