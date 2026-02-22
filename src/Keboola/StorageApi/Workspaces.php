@@ -103,6 +103,22 @@ class Workspaces
     }
 
     /**
+     * @return list<array{name: string, type: 'table'|'view'}>
+     */
+    public function listObjects(int $workspaceId): array
+    {
+        /**
+         * @var list<array{
+         *     name: string,
+         *     type: 'table'|'view'
+         * }> $result
+         */
+        $result = $this->client->apiGet("workspaces/{$workspaceId}/objects");
+
+        return $result;
+    }
+
+    /**
      * @param int $id
      * @param array $options (boolean) async
      * @return void
