@@ -1771,6 +1771,7 @@ class Client
             'fulltextSearch',
             'includeInternalTimestamp',
             'fileType',
+            'timezone',
         ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
