@@ -3415,6 +3415,7 @@ will show information about the created file and caching:
             + csv - CSV file
             + parquet - Parquet file
         + Default: csv
+    + timezone (optional, string) - IANA timezone name (e.g. `America/Los_Angeles`, `Europe/Prague`). When set, Snowflake session timezone is configured before export, affecting TIMESTAMP_LTZ column display. Not supported for Parquet exports. Available only for Snowflake backend.
 
 + Request (application/json)
     + Headers
@@ -3443,6 +3444,7 @@ will show information about the created file and caching:
                         "format": "rfc",
                         "whereFilters": [],
                         "fileType": "csv",
+                        "timezone": null
                     },
                     "queue": "main_fast"
                 },
