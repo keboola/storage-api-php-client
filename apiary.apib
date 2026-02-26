@@ -3835,51 +3835,6 @@ Use the optional `force` parameter to delete its aliases too.
 
 
 
-## Table Optimize [/v2/storage/tables/{table_id}/optimize]
-
-### Optimize table [POST]
-This is a utility command implemented only for projects with the Redshift backend.
-Redshift tables with a lot of small-increment loads bloat in size. An optimize command is automatically scheduled to fix
-this issue. This API call can be used to trigger immediate optimization of a table.
-
-+ Parameters
-    + table_id (required) - Table Id
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-+ Response 200 (application/json)
-
-            {
-                "id": 245,
-                "status": "waiting",
-                "url": "/v2/storage/jobs/245",
-                "tableId": "in.c-API-tests.MyLanguages_test",
-                "operationName": "tableOptimize",
-                "operationParams": {
-                    "queue": "main_fast"
-                },
-                "createdTime": "2016-10-17T10:31:52+0200",
-                "startTime": null,
-                "endTime": null,
-                "runId": null,
-                "results": null,
-                "creatorToken": {
-                    "id": "31",
-                    "description": "dev@keboola.com"
-                },
-                "metrics": {
-                    "inCompressed": false,
-                    "inBytes": 0,
-                    "inBytesUncompressed": 0,
-                    "outCompressed": false,
-                    "outBytes": 0,
-                    "outBytesUncompressed": 0
-                }
-            }
-
 
 ## List Tables [/v2/storage/tables?include={include}]
 
