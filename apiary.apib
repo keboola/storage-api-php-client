@@ -589,7 +589,6 @@ and the associated administrator (`admin`) with organization (if any). If the pr
                     "rowsCount": 1036,
                     "hasMysql": false,
                     "hasSynapse": false,
-                    "hasRedshift": false,
                     "hasSnowflake": true,
                     "hasExasol": false,
                     "hasTeradata": false,
@@ -742,7 +741,6 @@ This call can be executed by all tokens.
                     "rowsCount": 1036,
                     "hasMysql": false,
                     "hasSynapse": false,
-                    "hasRedshift": false,
                     "hasSnowflake": true,
                     "hasExasol": false,
                     "hasTeradata": false,
@@ -958,8 +956,8 @@ the KBC Component architecture, see the [Developers documentation](https://devel
 # Group Buckets
 [Buckets](https://help.keboola.com/storage/buckets/) are containers for one or more data tables.
 Access to buckets can be limited by access tokens. Each bucket has a *backend* in which all tables are created:
-- Snowlake (default)
-- Redshift
+- Snowflake (default)
+- BigQuery
 
 ## Create or List Buckets [/v2/storage/buckets]
 ### List all buckets [GET /v2/storage/buckets?include={include}]
@@ -1063,7 +1061,6 @@ existing bucket from another project (see below).
     + backend (optional, enum[string]) - Bucket backend type; the default value is determined by the project settings.
         + Members
             + snowflake
-            + redshift
             + bigquery
     + displayName (optional) - Bucket displayName, this name is displayed in UI and can be changed anytime; only alphanumeric characters,underscores and dashes are allowed.
     + color (optional) - Bucket color. Accept valid CSS values for colors.
@@ -3133,7 +3130,7 @@ To enable compression of API response traffic, please include the following HTTP
             + json - will return JSON formatted output
         + Default: rfc
     + whereFilters (optional, array[WhereFiltersObject])
-    + orderBy (optional, array[OrderByObject]) - Not supported for Redshift
+    + orderBy (optional, array[OrderByObject])
     + fulltextSearch (optional, string) - Makes fulltext search over all data in table. It cannot be combined with `whereFilters`. Snowflake/BigQuery only
 
 + Request with default `rfc` format (`CSV` data)
@@ -3407,7 +3404,7 @@ will show information about the created file and caching:
             + ne - Not equals - can be used with multiple values.
         + Default: eq
     + whereFilters (optional, array[WhereFiltersObject])
-    + orderBy (optional, array[OrderByObject]) - Not supported for Redshift
+    + orderBy (optional, array[OrderByObject])
     + gzip (optional, boolean) - The response will be gzipped if set to true.
     + includeInternalTimestamp (optional, boolean) - Include internal _timestamp column in the exported data (column is included even when not in columns list). This is timestamp of row last change. (Available only for Snowflake)
     + fileType (optional, enum[string]) - Type of the file to be created in File Storage.
@@ -3995,7 +3992,7 @@ attributes and information about the containing bucket.
 ### Add Column to Table [POST]
 Adds a new column to an existing table. This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls).
 
-*Attribute definition and basetype is allowed (and required) for typed tables created via [table definition](#reference/tables/create-table-definition)*. Redshift backend is not supported.
+*Attribute definition and basetype is allowed (and required) for typed tables created via [table definition](#reference/tables/create-table-definition)*.
 
 + Parameters
     + table_id (required) - Table Id
@@ -4207,7 +4204,7 @@ This request is [asynchronous](#introduction/synchronous-and-asynchronous-calls)
             + table (string) - Exact name of table present in the workspace when doing this API call
             + column (string) - Name of the column, which values (all rows) will be used as values to DELETE rows by. Datatype of this column has to match with datatype of the column specified in root of this API call.
 
-        + dataType (optional, enum[string]) - Not supported for Redshift - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type. BigQuery supports all listed types and converts them to BigQuery equivalent in the background
+        + dataType (optional, enum[string]) - For comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type. BigQuery supports all listed types and converts them to BigQuery equivalent in the background
             + Members
                 + INTEGER - for numbers without a decimal point (Snowflake, BigQuery)
                 + DOUBLE - for number with a decimal point (Snowflake, BigQuery)
@@ -4799,7 +4796,6 @@ NOTE: To create reader workspace, use Create Configuration Workspaces endpoint i
 + Attributes
     + backend: snowflake (optional, enum[string]) - Workspace backend. When omitted, the default backend is used.
         + Members
-            + redshift
             + snowflake
             + bigquery
             + abs - Azure blob storage file workspace
@@ -4881,7 +4877,6 @@ Creates a new workspace for [Development Branch](#reference/development-branches
 + Attributes
     + backend: snowflake (optional, enum[string]) - Workspace backend. When omitted, the default backend is used.
         + Members
-            + redshift
             + snowflake
             + bigquery
             + abs - Azure blob storage file workspace
@@ -5079,20 +5074,7 @@ Loads tables from Storage into a Workspace. BigQuery supports only loading as vi
                                         Default: true
                                     + convertEmptyValuesToNull (optional, boolean) - Empty values replaced by NULL (ignored for tables with types)
                                         Default: false
-                                    + compression (optional, enum[string]) - For Redshift only
-                                        + Members
-                                            + RAW
-                                            + BYTEDICT
-                                            + DELTA
-                                            + DELTA32K
-                                            + LZO
-                                            + MOSTLY8
-                                            + MOSTLY16
-                                            + MOSTLY32
-                                            + RUNLENGTH
-                                            + TEXT255
-                                            + TEXT32K
-                                            + ZSTD
+
                     + whereColumn (optional) - **Deprecated** (use whereFilters instead). Column for [filtering](#reference/tables/unload-data-asynchronously/asynchronous-export)
                     + whereValues[] (optional) - **Deprecated** (use whereFilters instead). Values for filtering
                     + whereOperator (optional, enum[string]) - **Deprecated** (use whereFilters instead). Comparison operator
@@ -5220,20 +5202,7 @@ Loads tables from Storage into a Workspace in [Development Branch](#reference/de
                                         Default: true
                                     + convertEmptyValuesToNull (optional, boolean) - Empty values replaced by NULL
                                         Default: false
-                                    + compression (optional, enum[string]) - For Redshift only
-                                        + Members
-                                            + RAW
-                                            + BYTEDICT
-                                            + DELTA
-                                            + DELTA32K
-                                            + LZO
-                                            + MOSTLY8
-                                            + MOSTLY16
-                                            + MOSTLY32
-                                            + RUNLENGTH
-                                            + TEXT255
-                                            + TEXT32K
-                                            + ZSTD
+
                     + whereColumn (optional) - **Deprecated** (use whereFilters instead). Column for [filtering](#reference/tables/unload-data-asynchronously/asynchronous-export)
                     + whereValues[] (optional) - **Deprecated** (use whereFilters instead). Values for filtering
                     + whereOperator (optional, enum[string]) - **Deprecated** (use whereFilters instead). Comparison operator
@@ -8918,7 +8887,6 @@ Creates a new workspace for an existing configuration in [Development Branch](#r
 + Attributes
     + backend: snowflake (optional, enum[string]) - Workspace backend. When omitted, the default backend is used.
         + Members
-            + redshift
             + snowflake
             + bigquery
             + abs - Azure blob storage file workspace
@@ -10363,7 +10331,7 @@ Requesting changes will remove all approvals and move the Merge request to `deve
         + le - Less than or equals  - Snowflake only
     + Default: eq
 + values (required, array[string]) - array of variables to compare
-+ dataType (optional, enum[string]) - Not supported for Redshift - for comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type. BigQuery supports all listed types and converts them to BigQuery equivalent in the background
++ dataType (optional, enum[string]) - For comparing (`[gt|lt|le|ge]`) numeric values you have to specify data type. BigQuery supports all listed types and converts them to BigQuery equivalent in the background
     + Members
         + INTEGER - for numbers without a decimal point (Snowflake, BigQuery)
         + DOUBLE - for number with a decimal point (Snowflake, BigQuery)
