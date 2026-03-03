@@ -5101,13 +5101,6 @@ Loads tables from Storage into a Workspace. BigQuery supports only loading as vi
                             + ne - Not equal to
                         + Default: eq
                     + whereFilters (optional, array[WhereFiltersObject])
-                    + sortKey[] (optional, array) - Redshift only - Column(s) to be used as a sort key
-                    + distStyle (optional, enum[string]) - Redshift only - Distribution style (even, all, or key)
-                        + Members
-                            + even
-                            + all
-                            + key
-                    + distKey (optional) - Redshift only - Column to use for the key distribution style
                     + incremental (optional, boolean) - Rows will be appended to an existing table, not supported in file workspaces (load is always full)
                         Default: false
                     + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
@@ -5249,13 +5242,6 @@ Loads tables from Storage into a Workspace in [Development Branch](#reference/de
                             + ne - Not equal to
                         + Default: eq
                     + whereFilters (optional, array[WhereFiltersObject])
-                    + sortKey[] (optional, array) - Redshift only - Column(s) to be used as a sort key
-                    + distStyle (optional, enum[string]) - Redshift only - Distribution style (even, all, or key)
-                        + Members
-                            + even
-                            + all
-                            + key
-                    + distKey (optional) - Redshift only - Column to use for the key distribution style
                     + incremental (optional, boolean) - Rows will be appended to an existing table, not supported in file workspaces (load is always full)
                         Default: false
                     + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
