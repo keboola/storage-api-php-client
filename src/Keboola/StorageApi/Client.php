@@ -1731,6 +1731,7 @@ class Client
      * Export a table from workspace to file storage
      *
      * @param string|null $fileType Optional format (csv or parquet), defaults to csv
+     * @param bool|null $gzip Whether to gzip the exported file
      * @return array{
      *     file: array{
      *         id: int
@@ -1742,6 +1743,7 @@ class Client
         string $tableName,
         string $fileName,
         ?string $fileType = null,
+        ?bool $gzip = null,
     ): array {
         $params = [
             'tableName' => $tableName,
@@ -1750,6 +1752,10 @@ class Client
 
         if ($fileType !== null) {
             $params['fileType'] = $fileType;
+        }
+
+        if ($gzip !== null) {
+            $params['gzip'] = $gzip;
         }
 
         return $this->apiPostJson("workspaces/{$workspaceId}/table-export", $params);
