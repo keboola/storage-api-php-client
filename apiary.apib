@@ -5398,6 +5398,7 @@ from the workspace schema to file storage. The exported file can then be downloa
             + csv - Export as CSV format
             + parquet - Export as Parquet format (requires project feature support)
         + Default: csv
+    + gzip (optional, boolean) - If true, the exported file will be gzip-compressed. Defaults to false.
 
 + Request (application/json)
     + Headers
@@ -5409,7 +5410,8 @@ from the workspace schema to file storage. The exported file can then be downloa
             {
                 "tableName": "my_table",
                 "fileName": "custom_export",
-                "fileType": "csv"
+                "fileType": "csv",
+                "gzip": true
             }
 
 + Response 202 (application/json)
@@ -5425,7 +5427,8 @@ from the workspace schema to file storage. The exported file can then be downloa
                     "workspaceId": 504345774,
                     "tableName": "my_table",
                     "fileName": "custom_export.csv",
-                    "format": "csv"
+                    "format": "csv",
+                    "gzip": true
                 },
                 "createdTime": "2025-10-12T21:43:00+0000",
                 "startTime": null,
