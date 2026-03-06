@@ -5974,6 +5974,43 @@ Returns an array of jobs instead of a single job.
                 }
             ]
 
+## Workspace Objects [/v2/storage/branch/{branch_id}/workspaces/{workspace_id}/objects]
+
+### List Development Branch Workspace Objects [GET]
+
+Returns a list of objects (tables and views) present in the workspace schema in [Development Branch](#reference/development-branches). Supported on Snowflake and BigQuery backends.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + workspace_id (required, number) - Workspace ID
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+
+    + Body
+
+            [
+                {
+                    "name": "MY_TABLE",
+                    "type": "table"
+                },
+                {
+                    "name": "MY_VIEW",
+                    "type": "view"
+                }
+            ]
+
++ Response 404 (application/json)
+
++ Response 422 (application/json)
+
+    Returned when the workspace backend is not supported.
+
+
 ## Data Structures
 
 ### Workspace
