@@ -1011,7 +1011,8 @@ All buckets are returned.
                         "email": "jan.dev@keboola.com"
                     },
                     "updated": "2024-11-28T13:03:13+0100",
-                    "color": null
+                    "color": null,
+                    "isLinkedBucket": false,
                     "backendPath": [
                         "KBC_PRJ_123",
                         "in.c-main"
@@ -1042,7 +1043,8 @@ All buckets are returned.
                     },
                     "owner": null,
                     "updated": "2024-11-28T13:03:13+0100",
-                    "color": "#FF0000"
+                    "color": "#FF0000",
+                    "isLinkedBucket": true
                 }
             ]
 
@@ -1102,6 +1104,7 @@ existing bucket from another project (see below).
                 "sharing": null,
                 "updated": "2024-11-28T13:03:13+0100",
                 "color": null,
+                "isLinkedBucket": false,
                 "backendPath": [
                     "KBC_PRJ_123",
                     "in.c-main"
@@ -1167,6 +1170,7 @@ Synchronous call response (async=false)
                 },
                 "owner": null,
                 "updated": "2024-11-28T13:03:13+0100",
+                "isLinkedBucket": true,
                 "backendPath": [
                     "KBC_PRJ_123",
                     "in.c-main"
@@ -1387,6 +1391,7 @@ Obtains information about a bucket.
                     "email": "jan.dev@keboola.com"
                 },
                 "updated": "2024-11-28T13:03:13+0100",
+                "isLinkedBucket": false,
                 "backendPath": [
                     "KBC_PRJ_123",
                     "in.c-main"
@@ -2283,6 +2288,7 @@ Lists tables in a given bucket.
                     "sourceTable": {
                         "id": "in.c-keboola-ex-db-snowflake-528221294.datatypes",
                         "uri": "https://connection.keboola.com/v2/storage/tables/in.c-keboola-ex-db-snowflake-528221294.datatypes",
+                        "isAlias": false,
                         "project": {
                             "id": 578,
                             "name": "Some source project"
@@ -3551,6 +3557,7 @@ Obtains information about a table.
                 "sourceTable": {
                     "id": "in.c-application-testing.cashier-data",
                     "uri": "https://connection.keboola.com/v2/storage/tables/in.c-application-testing.cashier-data",
+                    "isAlias": false,
                     "project": {
                         "id": 123,
                         "name": "Some source project"
@@ -3702,6 +3709,7 @@ Synchronous call response (async=false)
                 "sourceTable": {
                     "id": "in.c-application-testing.cashier-data",
                     "uri": "https://connection.keboola.com/v2/storage/tables/in.c-application-testing.cashier-data",
+                    "isAlias": false,
                     "project": {
                         "id": 123,
                         "name": "Some source project"
@@ -3938,6 +3946,7 @@ attributes and information about the containing bucket.
                     "sourceTable": {
                         "id": "in.c-application-testing.cashier-data",
                         "uri": "https:\/\/connection.keboola.com\/v2\/storage\/tables\/in.c-application-testing.cashier-data",
+                        "isAlias": false,
                         "project": {
                             "id": 578,
                             "name": "Some source project"
@@ -4441,6 +4450,7 @@ An alias cannot be created from tables in an external bucket or from a table in 
                 "sourceTable": {
                     "id": "in.c-main.data",
                     "uri": "https://connection.keboola.com/v2/storage/tables/in.c-main.data",
+                    "isAlias": false,
                     "project": {
                         "id": 578,
                         "name": "Odinuv Sandbox"
@@ -4534,6 +4544,7 @@ alias must be created with the `aliasFilter` parameter.
                 "sourceTable": {
                     "id": "in.c-main.data",
                     "uri": "https://connection.keboola.com/v2/storage/tables/in.c-main.data",
+                    "isAlias": false,
                     "project": {
                         "id": 578,
                         "name": "Odinuv Sandbox"
@@ -9152,6 +9163,7 @@ attributes and information about the containing bucket. At least one of paramete
                     "sourceTable": {
                         "id": "in.c-application-testing.cashier-data",
                         "uri": "https:\/\/connection.keboola.com\/v2\/storage\/tables\/in.c-application-testing.cashier-data",
+                        "isAlias": false,
                         "project": {
                             "id": 578,
                             "name": "Some source project"
