@@ -9902,6 +9902,11 @@ other buckets (production buckets or buckets belongs the other development branc
     + title (required, string) - title of the merge request
     + description (optional, string) - description of the merge request
     + externalId (optional, string) - identifier of the merge request in an external system
+    + autoMergeStrategy (optional, enum[string]) - auto-merge strategy
+        + Members
+            + `immediately`
+            + `scheduled`
+    + autoMergeAt (optional, string) - ISO 8601 datetime for scheduled auto-merge, required when autoMergeStrategy is "scheduled" (e.g. "2026-04-01T12:00:00+00:00")
 
 + Request (application/json)
 
@@ -9916,7 +9921,9 @@ other buckets (production buckets or buckets belongs the other development branc
                 "branchIntoId": 123,
                 "title": "Refactor DB extractors",
                 "description": "DB exctractor have new columns now",
-                "externalId": "ticket-123"
+                "externalId": "ticket-123",
+                "autoMergeStrategy": "scheduled",
+                "autoMergeAt": "2026-04-01T12:00:00+00:00"
             }
 
 + Response 201 (application/json)
@@ -9942,6 +9949,8 @@ other buckets (production buckets or buckets belongs the other development branc
                   "mergerName": ""
             },
             "externalId": "ticket-123",
+            "autoMergeStrategy": "scheduled",
+            "autoMergeAt": "2026-04-01T12:00:00+00:00",
             "approvals": [
             {
                   "approverId": 123,
@@ -9959,6 +9968,11 @@ other buckets (production buckets or buckets belongs the other development branc
     + title (required, string) - title of the merge request
     + description (optional, string) - description of the merge request
     + externalId (optional, string) - identifier of the merge request in an external system
+    + autoMergeStrategy (optional, enum[string]) - auto-merge strategy
+        + Members
+            + `immediately`
+            + `scheduled`
+    + autoMergeAt (optional, string) - ISO 8601 datetime for scheduled auto-merge, required when autoMergeStrategy is "scheduled" (e.g. "2026-04-01T12:00:00+00:00")
 
 + Request (application/json)
 
@@ -9971,7 +9985,8 @@ other buckets (production buckets or buckets belongs the other development branc
             {
                 "title": "New title",
                 "description": "New desc",
-                "externalId": "ticket-123"
+                "externalId": "ticket-123",
+                "autoMergeStrategy": "immediately"
             }
 
 + Response 200 (application/json)
@@ -9997,6 +10012,8 @@ other buckets (production buckets or buckets belongs the other development branc
                   "mergerName": ""
             },
             "externalId": "ticket-123",
+            "autoMergeStrategy": "immediately",
+            "autoMergeAt": null,
             "approvals": [
             {
                   "approverId": 123,
@@ -10041,6 +10058,8 @@ List all merge requests available in the project defined by token.
                       "mergerName": ""
                 },
                 "externalId": "ticket-123",
+                "autoMergeStrategy": "scheduled",
+                "autoMergeAt": "2026-04-01T12:00:00+00:00",
                 "approvals": [
                 {
                       "approverId": 123,
@@ -10105,6 +10124,8 @@ Detail of Merge request also contains `content` of changed objects.
                   "mergerName": ""
             },
             "externalId": "ticket-123",
+            "autoMergeStrategy": "scheduled",
+            "autoMergeAt": "2026-04-01T12:00:00+00:00",
             "approvals": [
             {
                   "approverId": 123,
@@ -10166,6 +10187,8 @@ Will move Merge request state `development` -> `in_review`. If branch has an ope
                   "mergerName": ""
             },
             "externalId": "ticket-123",
+            "autoMergeStrategy": "scheduled",
+            "autoMergeAt": "2026-04-01T12:00:00+00:00",
             "approvals": [
             {
                   "approverId": 123,
@@ -10228,6 +10251,8 @@ Each project has defined required number of approvals. If the last approval arri
                   "mergerName": ""
             },
             "externalId": "ticket-123",
+            "autoMergeStrategy": "scheduled",
+            "autoMergeAt": "2026-04-01T12:00:00+00:00",
             "approvals": [
             {
                   "approverId": 123,
@@ -10320,6 +10345,8 @@ Requesting changes will remove all approvals and move the Merge request to `deve
                   "mergerName": ""
             },
             "externalId": "ticket-123",
+            "autoMergeStrategy": "scheduled",
+            "autoMergeAt": "2026-04-01T12:00:00+00:00",
             "approvals": [
             {
                   "approverId": 123,
