@@ -9896,6 +9896,7 @@ other buckets (production buckets or buckets belongs the other development branc
     + branchIntoId (required, number) - ID of the branch to merge into (default branch)
     + title (required, string) - title of the merge request
     + description (optional, string) - description of the merge request
+    + externalId (optional, string) - identifier of the merge request in an external system
 
 + Request (application/json)
 
@@ -9910,6 +9911,7 @@ other buckets (production buckets or buckets belongs the other development branc
                 "branchIntoId": 123,
                 "title": "Refactor DB extractors",
                 "description": "DB exctractor have new columns now",
+                "externalId": "ticket-123"
             }
 
 + Response 201 (application/json)
@@ -9934,6 +9936,7 @@ other buckets (production buckets or buckets belongs the other development branc
                   "mergerId": null,
                   "mergerName": ""
             },
+            "externalId": "ticket-123",
             "approvals": [
             {
                   "approverId": 123,
@@ -9950,6 +9953,7 @@ other buckets (production buckets or buckets belongs the other development branc
 + Attributes
     + title (required, string) - title of the merge request
     + description (optional, string) - description of the merge request
+    + externalId (optional, string) - identifier of the merge request in an external system
 
 + Request (application/json)
 
@@ -9962,6 +9966,7 @@ other buckets (production buckets or buckets belongs the other development branc
             {
                 "title": "New title",
                 "description": "New desc",
+                "externalId": "ticket-123"
             }
 
 + Response 200 (application/json)
@@ -9986,6 +9991,7 @@ other buckets (production buckets or buckets belongs the other development branc
                   "mergerId": null,
                   "mergerName": ""
             },
+            "externalId": "ticket-123",
             "approvals": [
             {
                   "approverId": 123,
@@ -10029,6 +10035,7 @@ List all merge requests available in the project defined by token.
                       "mergerId": null,
                       "mergerName": ""
                 },
+                "externalId": "ticket-123",
                 "approvals": [
                 {
                       "approverId": 123,
@@ -10092,6 +10099,7 @@ Detail of Merge request also contains `content` of changed objects.
                   "mergerId": null,
                   "mergerName": ""
             },
+            "externalId": "ticket-123",
             "approvals": [
             {
                   "approverId": 123,
@@ -10152,6 +10160,7 @@ Will move Merge request state `development` -> `in_review`. If branch has an ope
                   "mergerId": null,
                   "mergerName": ""
             },
+            "externalId": "ticket-123",
             "approvals": [
             {
                   "approverId": 123,
@@ -10203,7 +10212,7 @@ Each project has defined required number of approvals. If the last approval arri
                         "lastVersionIdentifier": "01H5M1B47BX3W4GM4CDH40J330"
                     }
                 ]
-            }
+            },
             "branches": {
                   "branchFromId": 124,
                   "branchIntoId": 123
@@ -10213,6 +10222,7 @@ Each project has defined required number of approvals. If the last approval arri
                   "mergerId": null,
                   "mergerName": ""
             },
+            "externalId": "ticket-123",
             "approvals": [
             {
                   "approverId": 123,
@@ -10294,7 +10304,7 @@ Requesting changes will remove all approvals and move the Merge request to `deve
                         "lastVersionIdentifier": "01H5M1B47BX3W4GM4CDH40J330"
                     }
                 ]
-            }
+            },
             "branches": {
                   "branchFromId": 124,
                   "branchIntoId": 123
@@ -10304,6 +10314,7 @@ Requesting changes will remove all approvals and move the Merge request to `deve
                   "mergerId": null,
                   "mergerName": ""
             },
+            "externalId": "ticket-123",
             "approvals": [
             {
                   "approverId": 123,
