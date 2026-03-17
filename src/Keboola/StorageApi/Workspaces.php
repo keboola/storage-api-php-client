@@ -12,6 +12,7 @@ use Keboola\StorageApi\Workspaces\SetPublicKeyRequest;
  *      name: string|null,
  *      component: string|null,
  *      configurationId: string|null,
+ *      configurationVersion: int|null,
  *      created: string,
  *      connection: array{
  *       backend: string,
@@ -40,6 +41,7 @@ use Keboola\StorageApi\Workspaces\SetPublicKeyRequest;
  * @phpstan-type CreateWorkspaceOptions array{
  *      backend?: string,
  *      backendSize?: string,
+ *      configurationVersion?: int,
  *      loginType?: WorkspaceLoginType,
  *      networkPolicy?: string,
  *      readOnlyStorageAccess?: bool,
