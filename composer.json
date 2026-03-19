@@ -1,0 +1,48 @@
+{
+	"name": "keboola/storage-api-client",
+	"description": "Keboola Storage API PHP Client",
+	"homepage": "http://keboola.com",
+	"license": "MIT",
+	"config": {
+		"lock": false,
+		"sort-packages": true,
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": false
+		}
+	},
+	"autoload": {
+		"psr-4": {
+			"Keboola\\StorageApi\\": "src/Keboola/StorageApi/"
+		},
+		"files": [
+			"src/Keboola/StorageApi/createSimpleJobPollDelay.php"
+		]
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Keboola\\UnitTest\\": "tests/"
+		}
+	},
+	"require": {
+		"php": ">=8.2",
+		"ext-json": "*",
+		"aws/aws-sdk-php": "~3.2",
+		"google/cloud-storage": "^1.27",
+		"guzzlehttp/guzzle": "~7.0",
+		"keboola/csv": "^1",
+		"microsoft/azure-storage-blob": "^1.5",
+		"psr/log": "^1.1|^2.0|^3.0",
+		"symfony/filesystem": "^7.0||^6.0||^5.0||^4.0",
+		"symfony/process": "^7.0||^6.0||^5.0||^4.0"
+	},
+	"require-dev": {
+		"ext-curl": "*",
+		"phpunit/phpunit": "^9.0|^10"
+	},
+	"scripts": {
+		"tests": "phpunit --testsuite=unit",
+		"ci": [
+			"@tests"
+		]
+	}
+}

@@ -1,0 +1,14 @@
+services:
+  dev: &dev
+    build:
+      context: .
+    image: keboola/storage-api-client
+    volumes:
+      - ./:/code
+
+  dev-xdebug:
+    <<: *dev
+    build:
+      context: docker/xdebug
+    image: keboola/storage-api-client-xdebug
+    command: tail -f /dev/null

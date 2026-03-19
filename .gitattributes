@@ -1,0 +1,4 @@
+ text=auto
+
+ # disable auto line ending conversion
+ *.csv binary
