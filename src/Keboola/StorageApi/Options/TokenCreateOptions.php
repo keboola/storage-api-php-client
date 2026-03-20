@@ -14,6 +14,10 @@ class TokenCreateOptions extends TokenAbstractOptions
 
     private bool $canCreateJobs = false;
 
+    private bool $canReadAllProjectEvents = false;
+
+    private bool $canManageDevBranches = false;
+
     /**
      * @return int|null
      */
@@ -72,6 +76,28 @@ class TokenCreateOptions extends TokenAbstractOptions
         return $this->canCreateJobs;
     }
 
+    public function setCanReadAllProjectEvents(bool $canReadAllProjectEvents = true): self
+    {
+        $this->canReadAllProjectEvents = $canReadAllProjectEvents;
+        return $this;
+    }
+
+    public function canReadAllProjectEvents(): bool
+    {
+        return $this->canReadAllProjectEvents;
+    }
+
+    public function setCanManageDevBranches(bool $canManageDevBranches = true): self
+    {
+        $this->canManageDevBranches = $canManageDevBranches;
+        return $this;
+    }
+
+    public function canManageDevBranches(): bool
+    {
+        return $this->canManageDevBranches;
+    }
+
     /**
      * @param bool $forJson return structure for form-data (false) or for JSON (true)
      */
@@ -93,6 +119,14 @@ class TokenCreateOptions extends TokenAbstractOptions
 
         if ($this->canCreateJobs()) {
             $params['canCreateJobs'] = $this->canCreateJobs();
+        }
+
+        if ($this->canReadAllProjectEvents()) {
+            $params['canReadAllProjectEvents'] = $this->canReadAllProjectEvents();
+        }
+
+        if ($this->canManageDevBranches()) {
+            $params['canManageDevBranches'] = $this->canManageDevBranches();
         }
 
         return $params;
