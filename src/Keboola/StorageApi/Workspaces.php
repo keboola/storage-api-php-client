@@ -121,6 +121,47 @@ class Workspaces
     }
 
     /**
+     * Batch delete objects from a workspace. Waits for the async job to complete.
+     *
+     * @param list<string> $objects
+     * @return array{deleted: list<array{objectName: string}>, failed: list<array{objectName: string, error: string}>}
+     * @throws ClientException when any object deletion fails (stringCode: storage.workspace.batchDeleteFailed)
+     */
+    public function batchDeleteObjects(int $workspaceId, array $objects): array
+    {
+        /**
+         * @var array{
+         *     deleted: list<array{objectName: string}>,
+         *     failed: list<array{objectName: string, error: string}>
+         * } $result
+         */
+        $result = $this->client->apiPostJson(
+            "workspaces/{$workspaceId}/objects/batch-delete",
+            ['objects' => $objects],
+        );
+
+        return $result;
+    }
+
+    /**
+     * Queue batch delete objects from a workspace. Returns job ID immediately.
+     *
+     * @param list<string> $objects
+     * @return int jobId
+     */
+    public function queueBatchDeleteObjects(int $workspaceId, array $objects): int
+    {
+        /** @var array{id: int} $job */
+        $job = $this->client->apiPostJson(
+            "workspaces/{$workspaceId}/objects/batch-delete",
+            ['objects' => $objects],
+            false,
+        );
+
+        return (int) $job['id'];
+    }
+
+    /**
      * @param int $id
      * @param array $options (boolean) async
      * @return void
