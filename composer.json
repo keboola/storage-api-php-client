@@ -37,7 +37,7 @@
 	},
 	"require-dev": {
 		"ext-curl": "*",
-		"phpunit/phpunit": "^9.0|^10"
+		"phpunit/phpunit": "^12"
 	},
 	"scripts": {
 		"tests": "phpunit --testsuite=unit",
