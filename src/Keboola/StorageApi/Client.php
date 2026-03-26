@@ -978,7 +978,15 @@ class Client
     }
 
     /**
-     * @param array{branchFromId: int, branchIntoId: int, title: string, description: ?string} $data
+     * @param array{
+     *     branchFromId: int,
+     *     branchIntoId: int,
+     *     title: string,
+     *     description?: ?string,
+     *     externalId?: ?string,
+     *     autoMergeStrategy?: ?string,
+     *     autoMergeAt?: ?string
+     * } $data
      * @return int - created MR id
      */
     public function createMergeRequest(array $data): int
@@ -1005,15 +1013,22 @@ class Client
         return $mrDetail;
     }
 
-    public function updateMergeRequest(int $mergeRequestId, string $title, ?string $description = null): array
+    /**
+     * @param array{
+     *     title: string,
+     *     description?: ?string,
+     *     externalId?: ?string,
+     *     autoMergeStrategy?: ?string,
+     *     autoMergeAt?: ?string
+     * } $data
+     * @return array mrData
+     */
+    public function updateMergeRequest(int $mergeRequestId, array $data): array
     {
         /** @var array $mrDetail */
         $mrDetail = $this->apiPutJson(
             "merge-request/{$mergeRequestId}",
-            [
-                'title' => $title,
-                'description' => $description,
-            ],
+            $data,
         );
         return $mrDetail;
     }
@@ -1942,10 +1957,10 @@ class Client
         $refreshCallableWrapper = new RefreshFileCredentialsWrapper($this, $prepareResult['id']);
         $gcsUploader = new GCSUploader([
             'credentials' => [
-                 'access_token' => $prepareResult['gcsUploadParams']['access_token'],
-                 'expires_in' => $prepareResult['gcsUploadParams']['expires_in'],
-                 'token_type' => $prepareResult['gcsUploadParams']['token_type'],
-                ],
+                'access_token' => $prepareResult['gcsUploadParams']['access_token'],
+                'expires_in' => $prepareResult['gcsUploadParams']['expires_in'],
+                'token_type' => $prepareResult['gcsUploadParams']['token_type'],
+            ],
             'projectId' => $prepareResult['gcsUploadParams']['projectId'],
         ], $refreshCallableWrapper);
 
