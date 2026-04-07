@@ -102,7 +102,7 @@ class BranchAwareClientTest extends TestCase
         yield 'createAliasTable' => [
             'methodCall' => ['createAliasTable', ['foo', ['bar']]],
             'httpMethod' => 'POST',
-            'expectedPath' => 'v2/storage/buckets/foo/table-aliases',
+            'expectedPath' => 'v2/storage/branch/123/buckets/foo/table-aliases',
             'result' => ['id' => '123'],
         ];
         yield 'test other' => [

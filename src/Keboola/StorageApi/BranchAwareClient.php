@@ -15,7 +15,6 @@ class BranchAwareClient extends Client
     ];
     private const END_ENDPOINTS_WITHOUT_BRANCH = [
         '/alias-filter', // filtered aliases are deprecated and not supported in branches
-        '/table-aliases', // table aliases are not supported in branches
     ];
 
     private string|int $branchId;
