@@ -5332,9 +5332,7 @@ Load tables from Storage into a Workspace using zero-copy cloning. Supported on 
 This load type does not support any filtering, processing parameters, or incremental loading.
 Linked buckets are not supported on BigQuery.
 
-The cloned table will contain all columns of the source table and a `_timestamp` system column.
-This column contains a unix timestamp value when the row was added to the table or
-when any of the row values were changed during an incremental import.
+The cloned table is an exact copy of the source table, including the `_timestamp` system column.
 
 + Parameters
 
@@ -5513,9 +5511,7 @@ Load tables from Storage into a Workspace in [Development Branch](#reference/dev
 This load type does not support any filtering, processing parameters, or incremental loading.
 Linked buckets are not supported on BigQuery.
 
-The cloned table will contain all columns of the source table and a `_timestamp` system column.
-This column contains a unix timestamp value when the row was added to the table or
-when any of the row values were changed during an incremental import.
+The cloned table is an exact copy of the source table, including the `_timestamp` system column.
 
 + Parameters
     + branch_id (required) - Id of the development branch
