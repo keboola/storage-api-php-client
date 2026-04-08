@@ -5118,7 +5118,7 @@ Loads tables from Storage into a Workspace. BigQuery supports only loading as vi
                         Default: false
                     + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
                         Default: false
-                    + loadType (optional, enum[string]) - Select load type. Default: COPY. Use AUTO to let Storage API decide the best load type. Copy will be used always when filters or columns are set. Clone accepts only "source","destination" and "overwrite" options. View load type is experimental for SNFLK requires feature `input-mapping-read-only-storage`, aliases are not supported, for BigQuery working without feature, aliases are not supported. View will be created in workspace instead of loading table (View accepts only "source","destination" and "overwrite" options).
+                    + loadType (optional, enum[string]) - Select load type. Default: COPY. Use AUTO to let Storage API decide the best load type. Copy will be used always when filters, columns, or incremental are set. Clone is supported on Snowflake and BigQuery backends and accepts only "source", "destination", "overwrite" and "dropTimestampColumn" options. Clone is not supported with incremental loading or for linked buckets on BigQuery. View load type is experimental for SNFLK requires feature `input-mapping-read-only-storage`, aliases are not supported, for BigQuery working without feature, aliases are not supported. View will be created in workspace instead of loading table (View accepts only "source","destination" and "overwrite" options).
                         + Members
                             + COPY
                             + CLONE
@@ -5246,7 +5246,7 @@ Loads tables from Storage into a Workspace in [Development Branch](#reference/de
                         Default: false
                     + overwrite (optional, boolean) - When preserve is true duplicate tables will be overwritten
                         Default: false
-                    + loadType (optional, enum[string]) - Select load type. Default: COPY. Use AUTO to let Storage API decide the best load type. Copy will be used always when filters or columns are set. Clone accepts only "source","destination" and "overwrite" options. View load type is experimental for SNFLK requires feature `input-mapping-read-only-storage`, aliases are not supported, for BigQuery working without feature, aliases are not supported. View will be created in workspace instead of loading table (View accepts only "source","destination" and "overwrite" options).
+                    + loadType (optional, enum[string]) - Select load type. Default: COPY. Use AUTO to let Storage API decide the best load type. Copy will be used always when filters, columns, or incremental are set. Clone is supported on Snowflake and BigQuery backends and accepts only "source", "destination", "overwrite" and "dropTimestampColumn" options. Clone is not supported with incremental loading or for linked buckets on BigQuery. View load type is experimental for SNFLK requires feature `input-mapping-read-only-storage`, aliases are not supported, for BigQuery working without feature, aliases are not supported. View will be created in workspace instead of loading table (View accepts only "source","destination" and "overwrite" options).
                         + Members
                             + COPY
                             + CLONE
@@ -5328,13 +5328,11 @@ Loads tables from Storage into a Workspace in [Development Branch](#reference/de
 ### Load Data using CLONE [POST /v2/storage/branch/{branch_id}/workspaces/{workspace_id}/load-clone]
 **Deprecated use /load endpoint with loadType:CLONE**
 
-Load tables from Storage into a Workspace using zero-copy cloning functionality in Snowflake. This load type does not
-support any filtering or processing parameters. Only tables stored in Snowflake are supported.
+Load tables from Storage into a Workspace using zero-copy cloning. Supported on Snowflake and BigQuery backends.
+This load type does not support any filtering, processing parameters, or incremental loading.
+Linked buckets are not supported on BigQuery.
 
-The cloned table will contain all columns of the source table (all of them as `VARCHAR(1048576)`)
-and a `_timestamp` system column.
-This column contains a unix timestamp value (`TIMESTAMP_NTZ(9)`) when the row was added to the table or
-when any of the row values were changed during an incremental import.
+The cloned table is an exact copy of the source table, including the `_timestamp` system column.
 
 + Parameters
 
@@ -5509,13 +5507,11 @@ from the workspace schema to file storage. The exported file can then be downloa
 ### Load Data using CLONE into Development Branch Workspace [POST /v2/storage/branch/{branch_id}/workspaces/{workspace_id}/load-clone]
 **Deprecated use /load endpoint with loadType:CLONE**
 
-Load tables from Storage into a Workspace in [Development Branch](#reference/development-branches) using zero-copy cloning functionality in Snowflake. This load type does not
-support any filtering or processing parameters. Only tables stored in Snowflake are supported.
+Load tables from Storage into a Workspace in [Development Branch](#reference/development-branches) using zero-copy cloning. Supported on Snowflake and BigQuery backends.
+This load type does not support any filtering, processing parameters, or incremental loading.
+Linked buckets are not supported on BigQuery.
 
-The cloned table will contain all columns of the source table (all of them as `VARCHAR(1048576)`)
-and a `_timestamp` system column.
-This column contains a unix timestamp value (`TIMESTAMP_NTZ(9)`) when the row was added to the table or
-when any of the row values were changed during an incremental import.
+The cloned table is an exact copy of the source table, including the `_timestamp` system column.
 
 + Parameters
     + branch_id (required) - Id of the development branch
