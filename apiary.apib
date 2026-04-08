@@ -6041,59 +6041,6 @@ Returns a list of objects (tables and views) present in the workspace schema in 
     Returned when the workspace backend is not supported.
 
 
-## Batch Delete Workspace Objects [/v2/storage/workspaces/{workspace_id}/objects/batch-delete]
-
-### Batch Delete Workspace Objects [POST]
-
-Deletes multiple tables and views from a workspace in a single async operation. Returns a job. All objects are attempted even if some fail, but the job will be marked as failed if any deletion fails.
-
-+ Parameters
-    + workspace_id (required, number) - Workspace ID
-
-+ Request (application/json)
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            {
-                "objects": ["MY_TABLE", "MY_VIEW"]
-            }
-
-+ Response 202 (application/json)
-
-    + Body
-
-            {
-                "id": 12345,
-                "status": "waiting",
-                "url": "https://connection.keboola.com/v2/storage/jobs/12345",
-                "operationName": "workspaceBatchDeleteObjects",
-                "operationParams": {
-                    "params": {
-                        "objects": ["MY_TABLE", "MY_VIEW"]
-                    }
-                },
-                "createdTime": "2013-05-31T16:11:05+0200",
-                "startTime": null,
-                "endTime": null,
-                "runId": null,
-                "results": null,
-                "creatorToken": {
-                    "id": "27978",
-                    "description": "user@keboola.com"
-                }
-            }
-
-+ Response 404 (application/json)
-
-    Returned when the workspace is not found.
-
-+ Response 422 (application/json)
-
-    Returned when the request body is invalid (e.g. empty objects list).
-
 ## Batch Delete Development Branch Workspace Objects [/v2/storage/branch/{branch_id}/workspaces/{workspace_id}/objects/batch-delete]
 
 ### Batch Delete Development Branch Workspace Objects [POST]
