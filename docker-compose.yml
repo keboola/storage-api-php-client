@@ -11,6 +11,7 @@ services:
   # Alias for standalone repo workflow compatibility
   tests:
     <<: *dev
+    image: keboola/storage-api-tests
 
   dev-xdebug:
     build:
