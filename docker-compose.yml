@@ -1,5 +1,5 @@
 services:
-  dev:
+  dev: &dev
     build:
       context: ../..
       dockerfile: Dockerfile
@@ -7,6 +7,10 @@ services:
     image: keboola/storage-api-client
     volumes:
       - ./:/code
+
+  # Alias for standalone repo workflow compatibility
+  tests:
+    <<: *dev
 
   dev-xdebug:
     build:
