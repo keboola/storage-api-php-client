@@ -1,14 +1,23 @@
 services:
   dev: &dev
     build:
-      context: .
+      context: ../..
+      dockerfile: Dockerfile
+      target: package-ci
     image: keboola/storage-api-client
     volumes:
       - ./:/code
 
-  dev-xdebug:
+  # Alias for standalone repo workflow compatibility
+  tests:
     <<: *dev
+    image: keboola/storage-api-tests
+
+  dev-xdebug:
     build:
-      context: docker/xdebug
+      context: ../..
+      dockerfile: Dockerfile
+      target: package-ci-xdebug
     image: keboola/storage-api-client-xdebug
-    command: tail -f /dev/null
+    volumes:
+      - ./:/code
