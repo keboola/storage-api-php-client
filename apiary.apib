@@ -9955,6 +9955,7 @@ other buckets (production buckets or buckets belongs the other development branc
         + Members
             + `immediately`
             + `scheduled`
+            + `none`
     + autoMergeAt (optional, string) - ISO 8601 datetime for scheduled auto-merge, required when autoMergeStrategy is "scheduled" (e.g. "2026-04-01T12:00:00+00:00")
 
 + Request (application/json)
@@ -10017,10 +10018,11 @@ other buckets (production buckets or buckets belongs the other development branc
     + title (required, string) - title of the merge request
     + description (optional, string) - description of the merge request
     + externalId (optional, string) - identifier of the merge request in an external system; omit to keep unchanged, send empty string to clear
-    + autoMergeStrategy (optional, enum[string]) - auto-merge strategy
+    + autoMergeStrategy (optional, enum[string]) - auto-merge strategy; omit to keep unchanged, send "none" to disable
         + Members
             + `immediately`
             + `scheduled`
+            + `none`
     + autoMergeAt (optional, string) - ISO 8601 datetime for scheduled auto-merge, required when autoMergeStrategy is "scheduled" (e.g. "2026-04-01T12:00:00+00:00")
 
 + Request (application/json)
