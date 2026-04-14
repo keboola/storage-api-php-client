@@ -1019,7 +1019,8 @@ class Client
      *     description?: ?string,
      *     externalId?: ?string,
      *     autoMergeStrategy?: ?string,
-     *     autoMergeAt?: ?string
+     *     autoMergeAt?: ?string,
+     *     reviewers?: list<int>
      * } $data
      * @return array mrData
      */
