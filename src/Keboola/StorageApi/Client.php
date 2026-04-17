@@ -1016,9 +1016,9 @@ class Client
 
     /**
      * @param array{
-     *     title: string,
-     *     description?: ?string,
-     *     externalId?: ?string,
+     *     title?: string,
+     *     description?: string,
+     *     externalId?: string,
      *     autoMergeStrategy?: ?string,
      *     autoMergeAt?: ?string,
      *     reviewers?: list<int>
