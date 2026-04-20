@@ -10131,8 +10131,8 @@ Detail of Merge request also contains `content` of changed objects.
     + id (required, number) - merge request ID
 
 + Attributes
-    + title (required, string) - title of the merge request
-    + description (optional, string) - description of the merge request
+    + title (optional, string) - title of the merge request; omit to keep unchanged, empty string is not allowed
+    + description (optional, string) - description of the merge request; omit to keep unchanged, send empty string to clear
     + externalId (optional, string) - identifier of the merge request in an external system; omit to keep unchanged, send empty string to clear
     + autoMergeStrategy (optional, enum[string]) - auto-merge strategy; omit to keep unchanged, send "none" to disable
         + Members
