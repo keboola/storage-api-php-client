@@ -10012,70 +10012,6 @@ other buckets (production buckets or buckets belongs the other development branc
             }
 
 
-### Update merge request [PUT]
-
-+ Attributes
-    + title (required, string) - title of the merge request
-    + description (optional, string) - description of the merge request
-    + externalId (optional, string) - identifier of the merge request in an external system; omit to keep unchanged, send empty string to clear
-    + autoMergeStrategy (optional, enum[string]) - auto-merge strategy; omit to keep unchanged, send "none" to disable
-        + Members
-            + `immediately`
-            + `scheduled`
-            + `none`
-    + autoMergeAt (optional, string) - ISO 8601 datetime for scheduled auto-merge, required when autoMergeStrategy is "scheduled" (e.g. "2026-04-01T12:00:00+00:00")
-
-+ Request (application/json)
-
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-    + Body
-
-            {
-                "title": "New title",
-                "description": "New desc",
-                "externalId": "ticket-123",
-                "autoMergeStrategy": "immediately"
-            }
-
-+ Response 200 (application/json)
-
-    + Body
-
-            {
-            "id": 11,
-            "creator": {
-                  "id": 7,
-                  "name": "John Doe"
-            },
-            "title": "New title",
-            "description": "New desc",
-            "state": "development",
-            "branches": {
-                  "branchFromId": 124,
-                  "branchIntoId": 123
-            },
-            "merge": {
-                  "mergedAt": null,
-                  "mergerId": null,
-                  "mergerName": ""
-            },
-            "externalId": "ticket-123",
-            "autoMergeStrategy": "immediately",
-            "autoMergeAt": null,
-            "approvals": [
-            {
-                  "approverId": 123,
-                  "approverName": "John Doe",
-                  "createdAt": "2023-06-16T10:20:58+0200"
-            }
-            ],
-            "createdAt": "2023-06-15T10:20:58+0200"
-            }
-
-
 ### List Merge requests [GET /v2/storage/merge-request]
 List all merge requests available in the project defined by token.
 
@@ -10123,7 +10059,9 @@ List all merge requests available in the project defined by token.
             ]
 
 
-### Merge request detail [GET /v2/storage/merge-request/{id}]
+## Merge request [/v2/storage/merge-request/{id}]
+
+### Merge request detail [GET]
 
 Detail of Merge request also contains `content` of changed objects.
 + Parameters
@@ -10187,7 +10125,75 @@ Detail of Merge request also contains `content` of changed objects.
             "createdAt": "2023-06-15T10:20:58+0200"
             }
 
-### Put MR in review [PUT /v2/storage/merge-request/{id}/request-review]
+### Update merge request [PUT]
+
++ Parameters
+    + id (required, number) - merge request ID
+
++ Attributes
+    + title (required, string) - title of the merge request
+    + description (optional, string) - description of the merge request
+    + externalId (optional, string) - identifier of the merge request in an external system; omit to keep unchanged, send empty string to clear
+    + autoMergeStrategy (optional, enum[string]) - auto-merge strategy; omit to keep unchanged, send "none" to disable
+        + Members
+            + `immediately`
+            + `scheduled`
+            + `none`
+    + autoMergeAt (optional, string) - ISO 8601 datetime for scheduled auto-merge, required when autoMergeStrategy is "scheduled" (e.g. "2026-04-01T12:00:00+00:00")
+
++ Request (application/json)
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+                "title": "New title",
+                "description": "New desc",
+                "externalId": "ticket-123",
+                "autoMergeStrategy": "immediately"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+            "id": 11,
+            "creator": {
+                  "id": 7,
+                  "name": "John Doe"
+            },
+            "title": "New title",
+            "description": "New desc",
+            "state": "development",
+            "branches": {
+                  "branchFromId": 124,
+                  "branchIntoId": 123
+            },
+            "merge": {
+                  "mergedAt": null,
+                  "mergerId": null,
+                  "mergerName": ""
+            },
+            "externalId": "ticket-123",
+            "autoMergeStrategy": "immediately",
+            "autoMergeAt": null,
+            "approvals": [
+            {
+                  "approverId": 123,
+                  "approverName": "John Doe",
+                  "createdAt": "2023-06-16T10:20:58+0200"
+            }
+            ],
+            "createdAt": "2023-06-15T10:20:58+0200"
+            }
+
+## Put MR in review [/v2/storage/merge-request/{id}/request-review]
+
+### Put MR in review [PUT]
 Will move Merge request state `development` -> `in_review`. If branch has an open Merge request in state different from `development`, it is considered as locked and no updates on it are available.
 + Parameters
     + id (required, number) - merge request ID
@@ -10250,7 +10256,9 @@ Will move Merge request state `development` -> `in_review`. If branch has an ope
             "createdAt": "2023-06-15T10:20:58+0200"
             }
 
-### Approve [PUT /v2/storage/merge-request/{id}/approve]
+## Approve [/v2/storage/merge-request/{id}/approve]
+
+### Approve [PUT]
 
 Each project has defined required number of approvals. If the last approval arrives, MR changes it state to `approved`.
 + Parameters
@@ -10314,7 +10322,9 @@ Each project has defined required number of approvals. If the last approval arri
             "createdAt": "2023-06-15T10:20:58+0200"
             }
 
-### Merge MR [PUT /v2/storage/merge-request/{id}/merge]
+## Merge MR [/v2/storage/merge-request/{id}/merge]
+
+### Merge MR [PUT]
 Apply changes in MR and all changes in configurations are moved to the production (default) branch. Returns a job that tracks the merge progress.
 + Parameters
     + id (required, number) - merge request ID
@@ -10343,7 +10353,9 @@ Asynchronous call response that creates a new job. To see job detail use [Job De
             }
 
 
-### Request merge request changes [PUT /v2/storage/merge-request/{id}/request-changes]
+## Request merge request changes [/v2/storage/merge-request/{id}/request-changes]
+
+### Request merge request changes [PUT]
 
 Requesting changes will remove all approvals and move the Merge request to `development` state.
 
