@@ -986,7 +986,7 @@ class Client
      *     externalId?: ?string,
      *     autoMergeStrategy?: ?string,
      *     autoMergeAt?: ?string,
-     *     reviewers?: list<int>
+     *     reviewerIds?: list<int>
      * } $data
      * @return int - created MR id
      */
@@ -1021,7 +1021,7 @@ class Client
      *     externalId?: string,
      *     autoMergeStrategy?: ?string,
      *     autoMergeAt?: ?string,
-     *     reviewers?: list<int>
+     *     reviewerIds?: list<int>
      * } $data
      * @return array mrData
      */
