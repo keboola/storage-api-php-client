@@ -9957,6 +9957,7 @@ other buckets (production buckets or buckets belongs the other development branc
             + `scheduled`
             + `none`
     + autoMergeAt (optional, string) - ISO 8601 datetime for scheduled auto-merge, required when autoMergeStrategy is "scheduled" (e.g. "2026-04-01T12:00:00+00:00")
+    + reviewerIds (optional, array[number]) - list of user IDs to assign as reviewers
 
 + Request (application/json)
 
@@ -10140,6 +10141,7 @@ Detail of Merge request also contains `content` of changed objects.
             + `scheduled`
             + `none`
     + autoMergeAt (optional, string) - ISO 8601 datetime for scheduled auto-merge, required when autoMergeStrategy is "scheduled" (e.g. "2026-04-01T12:00:00+00:00")
+    + reviewerIds (optional, array[number]) - list of user IDs to assign as reviewers; omit to keep unchanged, send empty array to clear
 
 + Request (application/json)
 
