@@ -1431,6 +1431,37 @@ class Client
     }
 
     /**
+     * Rename a table.
+     *
+     * @return array<string, mixed>
+     */
+    public function renameTable(string $tableId, string $newName): array
+    {
+        /** @var array<string, mixed> $result */
+        $result = $this->apiPostJson("tables/{$tableId}/rename", [
+            'name' => $newName,
+        ]);
+        $this->log("Table {$tableId} renamed to {$newName}");
+        return $result;
+    }
+
+    /**
+     * Swap two tables.
+     *
+     * @return array<string, mixed>
+     */
+    public function swapTable(string $tableId, string $targetTableId, bool $preserveAliases = false): array
+    {
+        /** @var array<string, mixed> $result */
+        $result = $this->apiPostJson("tables/{$tableId}/swap", [
+            'targetTableId' => $targetTableId,
+            'preserveAliases' => $preserveAliases,
+        ]);
+        $this->log("Table {$tableId} swapped with {$targetTableId}");
+        return $result;
+    }
+
+    /**
      *
      * Add column to table
      *
