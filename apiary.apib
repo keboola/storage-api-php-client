@@ -2027,6 +2027,54 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
             }
 
 
+### Stop Bucket Exposure [DELETE /v2/storage/buckets/{bucket_id}/exposure]
+Removes the bucket exposure. The listing is removed from the Analytics Hub exchange
+and the exposure record is deleted. The underlying exchange is retained for future
+exposures in the same project. The operation is idempotent: if the listing has
+already been removed in the target backend, the job still completes successfully.
+
++ Parameters
+    + bucket_id (required) - Bucket Id
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 202
+Asynchronous call response (async=true) that creates a new job. To see job detail use [Job Detail API endpoint](#reference/jobs/manage-jobs/job-detail)
+    + Body
+
+            {
+                "id": 11,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/11",
+                "operationName": "bucketExposureDelete",
+                "operationParams": {
+                    "params": {
+                        "queue": "main"
+                    }
+                },
+                "createdTime": "2026-04-24T16:11:05+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "ondrej.popelka@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
+
 ### Force unlink a bucket from a project  [DELETE /v2/storage/buckets/{bucket_id}/links/{linkedProjectId}?async={async}]
 
 When bucket is shared and someone links it, it effectively prevents the owner of the data from revoking the share.
