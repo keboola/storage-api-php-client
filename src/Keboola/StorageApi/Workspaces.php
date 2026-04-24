@@ -230,6 +230,39 @@ class Workspaces
     }
 
     /**
+     * Load tables into a workspace using a component-style input-mapping config.
+     *
+     * When `$dryRun` is true the endpoint returns HTTP 200 with the resolved load
+     * types per table instead of creating a job. When false (default) a workspace
+     * load job is created and the job array is returned.
+     *
+     * @param array<string, mixed> $options required `input` (IM-format items), optional `preserve`
+     * @return array<string, mixed> dry-run response, or created-job response when $dryRun=false
+     */
+    public function inputMappingLoad(int|string $id, array $options = [], bool $dryRun = false): array
+    {
+        $url = "workspaces/{$id}/input-mapping-load";
+        if ($dryRun) {
+            $url .= '?' . http_build_query(['dryRun' => 'true']);
+        }
+        $result = $this->client->apiPostJson($url, $options, !$dryRun);
+        assert(is_array($result));
+        return $result;
+    }
+
+    /**
+     * Queue variant of {@see self::inputMappingLoad()} for the job-creating path.
+     *
+     * @param array<string, mixed> $options required `input` (IM-format items), optional `preserve`
+     */
+    public function queueInputMappingLoad(int|string $id, array $options = []): int
+    {
+        /** @var array{id: int} $job */
+        $job = $this->client->apiPostJson("workspaces/{$id}/input-mapping-load", $options, false);
+        return (int) $job['id'];
+    }
+
+    /**
      * @param array $options -- required input[mappings], optional preserve
      */
     public function queueWorkspaceCloneInto(int $id, array $options = []): int
