@@ -1431,6 +1431,23 @@ class Client
     }
 
     /**
+     * Swap two tables. Aliases are not transferred — they keep pointing at
+     * the same physical position, so after the swap they expose the data of
+     * the other table.
+     *
+     * @return array<string, mixed>
+     */
+    public function swapTable(string $tableId, string $targetTableId): array
+    {
+        /** @var array<string, mixed> $result */
+        $result = $this->apiPostJson("tables/{$tableId}/swap", [
+            'targetTableId' => $targetTableId,
+        ]);
+        $this->log("Table {$tableId} swapped with {$targetTableId}");
+        return $result;
+    }
+
+    /**
      *
      * Add column to table
      *
