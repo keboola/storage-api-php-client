@@ -1437,7 +1437,7 @@ class Client
      *
      * @return array<string, mixed>
      */
-    public function swapTable(string $tableId, string $targetTableId): array
+    public function swapTables(string $tableId, string $targetTableId): array
     {
         /** @var array<string, mixed> $result */
         $result = $this->apiPostJson("tables/{$tableId}/swap", [
