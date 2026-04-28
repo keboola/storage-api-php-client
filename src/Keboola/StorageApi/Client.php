@@ -1439,6 +1439,10 @@ class Client
      */
     public function swapTables(string $tableId, string $targetTableId): array
     {
+        if (!$this instanceof BranchAwareClient) {
+            throw new ClientException('Swapping tables is supported only in dev branch. Use BranchAwareClient instance.');
+        }
+
         /** @var array<string, mixed> $result */
         $result = $this->apiPostJson("tables/{$tableId}/swap", [
             'targetTableId' => $targetTableId,
