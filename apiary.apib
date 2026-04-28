@@ -2027,10 +2027,10 @@ Asynchronous call response (async=true) that creates a new job. To see job detai
             }
 
 
-### Stop Bucket Exposure [DELETE /v2/storage/buckets/{bucket_id}/exposure]
-Removes the bucket exposure. The listing is removed from the Analytics Hub exchange
-and the exposure record is deleted. The underlying exchange is retained for future
-exposures in the same project. The operation is idempotent: if the listing has
+### Delete Bucket Listing [DELETE /v2/storage/buckets/{bucket_id}/listing]
+Removes the bucket listing. The listing is removed from the Analytics Hub exchange
+and the listing record is deleted. The underlying exchange is retained for future
+listings in the same project. The operation is idempotent: if the listing has
 already been removed in the target backend, the job still completes successfully.
 
 + Parameters
