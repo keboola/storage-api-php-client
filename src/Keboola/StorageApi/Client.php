@@ -1056,10 +1056,11 @@ class Client
         return $mrDetail;
     }
 
-    public function requestMergeRequestChanges(int $mergeRequestId): array
+    public function requestMergeRequestChanges(int $mergeRequestId, ?string $reason = null): array
     {
+        $body = $reason !== null ? ['reason' => $reason] : [];
         /** @var array $mrDetail */
-        $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/request-changes", []);
+        $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/request-changes", $body);
         return $mrDetail;
     }
 

@@ -10714,11 +10714,20 @@ Requesting changes will remove all approvals and move the Merge request to `deve
 + Parameters
     + id (required, number) - merge request ID
 
++ Attributes
+    + reason (optional, string) - explanation why the merge request is being rejected, max 1000 characters; stored in the activity log
+
 + Request (application/json)
 
     + Headers
 
             X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+                "reason": "Please address the failing tests before merging."
+            }
 
 
 + Response 200 (application/json)
