@@ -5369,6 +5369,308 @@ Loads tables from Storage into a Workspace in [Development Branch](#reference/de
             }
 
 
+## Input Mapping Load [/v2/storage/workspaces/{workspace_id}/input-mapping-load]
+
+### Input Mapping Load [POST]
+
+Loads tables from Storage into a Workspace using a `keboola/input-mapping` `Configuration\Table` payload (snake_case) accepted unchanged. This mirrors what component code already produces and removes the need to translate to the SAPI camelCase `/load` shape.
+
+The endpoint resolves the load type per input item via the canonical `LoadTypeDecider` with priority **CLONE > VIEW > COPY**. CLONE is gated by the `bq-enable-clone` feature on BigQuery; VIEW on Snowflake is gated by the `input-mapping-read-only-storage` feature.
+
+Each input item must reference its source exactly one of two ways:
+* `source` — full source table id (e.g. `in.c-bucket.mytable`),
+* `source_search` — `{key, value}` metadata lookup that resolves to a single table across buckets the caller can read. Zero or multiple matches return HTTP 400.
+
+`where_column` and `where_values` must be provided together (setting one without the other returns HTTP 400).
+
++ Parameters
+    + workspace_id (required, number)
+
++ Attributes
+    + input[] (required, array) - Input-mapping items (keboola/input-mapping `Configuration\Table` rows, snake_case)
+        + Items
+            + (object)
+                + Properties
+                    + source (optional, string) - Full source table id (e.g. `in.c-bucket.mytable`). Required unless `source_search` is provided.
+                    + source_branch_id (optional, number) - Branch id where to load `source` from. Defaults to the current branch.
+                    + source_search (optional, object) - Alternative to `source`. Resolves to a single matching table via table-level metadata. Zero or multiple matches return HTTP 400.
+                        + Properties
+                            + key (required, string) - Metadata key to match
+                            + value (required, string) - Metadata value to match
+                    + destination (required, string) - Destination table name in the workspace
+                    + days (optional, number) - **Deprecated** (use `changed_since` instead).
+                    + changed_since (optional, string) - Unix timestamp or relative time (e.g. `-7 days`); filters rows by import timestamp.
+                    + columns (optional, array[string]) - Column whitelist; by default all columns are exported.
+                    + column_types (optional, array) - Typed column definitions
+                        + Items
+                            + (object)
+                                + Properties
+                                    + source (required, string) - Source column name
+                                    + type (required, string) - Data type, e.g. `VARCHAR`
+                                    + destination (optional, string) - Destination column name. Defaults to `source`.
+                                    + length (optional, string) - Data type size, e.g. `255` or `10,2`
+                                    + nullable (optional, boolean) - Allow NULL values
+                                        Default: true
+                                    + convert_empty_values_to_null (optional, boolean) - Replace empty strings with NULL
+                                        Default: false
+                                    + compression (optional, string) - Column compression hint
+                    + where_column (optional, string) - **Deprecated** column filter. Must be set together with `where_values`.
+                    + where_values (optional, array[string]) - Values for the `where_column` filter. Must be non-empty when `where_column` is set.
+                    + where_operator (optional, enum[string]) - Comparison operator for `where_column` / `where_values`.
+                        + Members
+                            + eq - Equal to
+                            + ne - Not equal to
+                        + Default: eq
+                    + limit (optional, number) - Row limit
+                    + overwrite (optional, boolean) - When `preserve` is true, duplicate tables in the workspace will be overwritten.
+                        Default: false
+                    + use_view (optional, boolean) - Load as a VIEW if the backend supports it. The actual load type is still resolved by `LoadTypeDecider`.
+                        Default: false
+                    + keep_internal_timestamp_column (optional, boolean) - When `false`, the `_timestamp` column is dropped after the load.
+                        Default: true
+                    + file_type (optional, string) - Accepted for compatibility with the IM payload; no SAPI counterpart, value is ignored.
+    + preserve (optional, boolean) - Keep existing tables in the workspace; otherwise the workspace is purged before loading.
+        Default: false
+
++ Request (application/json)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+                "input": [
+                    {
+                        "source": "in.c-main.orders",
+                        "destination": "orders"
+                    },
+                    {
+                        "source_search": {
+                            "key": "KBC.dataType",
+                            "value": "customers"
+                        },
+                        "destination": "customers",
+                        "columns": ["id", "email"],
+                        "where_column": "country",
+                        "where_values": ["CZ", "SK"],
+                        "where_operator": "eq",
+                        "keep_internal_timestamp_column": false
+                    }
+                ]
+            }
+
++ Response 201 (application/json)
+    + Body
+
+            {
+                "id": 75682259,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/75682259",
+                "tableId": null,
+                "operationName": "workspaceLoad",
+                "operationParams": {
+                    "workspaceId": "504345774",
+                    "preserve": false,
+                    "input": [
+                        {
+                            "source": "in.c-main.orders",
+                            "destination": "orders"
+                        },
+                        {
+                            "source": "in.c-main.customers",
+                            "destination": "customers",
+                            "columns": ["id", "email"],
+                            "where_column": "country",
+                            "where_values": ["CZ", "SK"],
+                            "where_operator": "eq",
+                            "keep_internal_timestamp_column": false
+                        }
+                    ],
+                    "queue": "main"
+                },
+                "createdTime": "2026-05-12T10:15:52+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "vojtech.biberle@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
+### Input Mapping Load (dry-run) [POST /v2/storage/workspaces/{workspace_id}/input-mapping-load?dryRun=true]
+
+Preflight variant that resolves the load type per input item via `LoadTypeDecider` **without** creating a job. The dry-run runs the same validations the real load runs — a successful 200 dry-run guarantees the same payload submitted with `dryRun=false` will not be rejected by validation (modulo source state changing between calls).
+
+Returns HTTP 200 (not 201) with the resolved load types per input item:
+* `loadType` — the type `LoadTypeDecider` would pick (priority CLONE > VIEW > COPY).
+* `possibleLoadTypes` — all types acceptable for the item; useful for driving a UI dropdown.
+
++ Parameters
+    + workspace_id (required, number)
+    + dryRun (required, boolean) - Must be `true` to invoke the dry-run variant.
+
++ Request (application/json)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+                "input": [
+                    {
+                        "source": "in.c-main.orders",
+                        "destination": "orders"
+                    },
+                    {
+                        "source": "in.c-main.customers",
+                        "destination": "customers",
+                        "columns": ["id", "email"]
+                    }
+                ]
+            }
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "input": [
+                    {
+                        "source": "in.c-main.orders",
+                        "destination": "orders",
+                        "loadType": "CLONE",
+                        "possibleLoadTypes": ["COPY", "CLONE"]
+                    },
+                    {
+                        "source": "in.c-main.customers",
+                        "destination": "customers",
+                        "loadType": "COPY",
+                        "possibleLoadTypes": ["COPY"]
+                    }
+                ]
+            }
+
+### Input Mapping Load into Development Branch Workspace [POST /v2/storage/branch/{branch_id}/workspaces/{workspace_id}/input-mapping-load]
+
+Same as [Input Mapping Load](#reference/workspaces/input-mapping-load) but scoped to a workspace inside a [Development Branch](#reference/development-branches). The `dryRun=true` query parameter is supported here too and behaves identically to the non-branch variant (returns HTTP 200 with `loadType` / `possibleLoadTypes` per item, no job created).
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + workspace_id (required, number)
+
++ Attributes
+    + input[] (required, array) - Input-mapping items (keboola/input-mapping `Configuration\Table` rows, snake_case)
+        + Items
+            + (object)
+                + Properties
+                    + source (optional, string) - Full source table id (e.g. `in.c-bucket.mytable`). Required unless `source_search` is provided.
+                    + source_branch_id (optional, number) - Branch id where to load `source` from. Defaults to the current branch.
+                    + source_search (optional, object) - Alternative to `source`. Resolves to a single matching table via table-level metadata. Zero or multiple matches return HTTP 400.
+                        + Properties
+                            + key (required, string) - Metadata key to match
+                            + value (required, string) - Metadata value to match
+                    + destination (required, string) - Destination table name in the workspace
+                    + days (optional, number) - **Deprecated** (use `changed_since` instead).
+                    + changed_since (optional, string) - Unix timestamp or relative time; filters rows by import timestamp.
+                    + columns (optional, array[string]) - Column whitelist; by default all columns are exported.
+                    + column_types (optional, array) - Typed column definitions
+                        + Items
+                            + (object)
+                                + Properties
+                                    + source (required, string) - Source column name
+                                    + type (required, string) - Data type, e.g. `VARCHAR`
+                                    + destination (optional, string) - Destination column name. Defaults to `source`.
+                                    + length (optional, string) - Data type size, e.g. `255` or `10,2`
+                                    + nullable (optional, boolean) - Allow NULL values
+                                        Default: true
+                                    + convert_empty_values_to_null (optional, boolean) - Replace empty strings with NULL
+                                        Default: false
+                                    + compression (optional, string) - Column compression hint
+                    + where_column (optional, string) - **Deprecated** column filter. Must be set together with `where_values`.
+                    + where_values (optional, array[string]) - Values for the `where_column` filter. Must be non-empty when `where_column` is set.
+                    + where_operator (optional, enum[string]) - Comparison operator for `where_column` / `where_values`.
+                        + Members
+                            + eq - Equal to
+                            + ne - Not equal to
+                        + Default: eq
+                    + limit (optional, number) - Row limit
+                    + overwrite (optional, boolean) - When `preserve` is true, duplicate tables in the workspace will be overwritten.
+                        Default: false
+                    + use_view (optional, boolean) - Load as a VIEW if the backend supports it. The actual load type is still resolved by `LoadTypeDecider`.
+                        Default: false
+                    + keep_internal_timestamp_column (optional, boolean) - When `false`, the `_timestamp` column is dropped after the load.
+                        Default: true
+                    + file_type (optional, string) - Accepted for compatibility with the IM payload; no SAPI counterpart, value is ignored.
+    + preserve (optional, boolean) - Keep existing tables in the workspace; otherwise the workspace is purged before loading.
+        Default: false
+
++ Request (application/json)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+                "input": [
+                    {
+                        "source": "in.c-main.orders",
+                        "destination": "orders"
+                    }
+                ]
+            }
+
++ Response 201 (application/json)
+    + Body
+
+            {
+                "id": 75682259,
+                "status": "waiting",
+                "url": "https://connection.keboola.com/v2/storage/jobs/75682259",
+                "tableId": null,
+                "operationName": "workspaceLoad",
+                "operationParams": {
+                    "workspaceId": "504345774",
+                    "preserve": false,
+                    "input": [
+                        {
+                            "source": "in.c-main.orders",
+                            "destination": "orders"
+                        }
+                    ],
+                    "queue": "main"
+                },
+                "createdTime": "2026-05-12T10:15:52+0200",
+                "startTime": null,
+                "endTime": null,
+                "runId": null,
+                "results": null,
+                "creatorToken": {
+                    "id": "27978",
+                    "description": "vojtech.biberle@keboola.com"
+                },
+                "metrics": {
+                    "inCompressed": false,
+                    "inBytes": 0,
+                    "inBytesUncompressed": 0,
+                    "outCompressed": false,
+                    "outBytes": 0,
+                    "outBytesUncompressed": 0
+                }
+            }
+
+
 ## DEPRECATED: Load Data using CLONE [/v2/storage/branch/{branch_id}/workspaces/{workspace_id}/load-clone]
 
 **Deprecated use /load endpoint with loadType:CLONE**
