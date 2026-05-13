@@ -234,20 +234,31 @@ class Workspaces
      *
      * When `$dryRun` is true the endpoint returns HTTP 200 with the resolved load
      * types per table instead of creating a job. When false (default) a workspace
-     * load job is created and the job array is returned.
+     * load job is created, polled to completion, and the final job envelope is returned
+     * (so callers can read `operationName`, `status`, `results`, etc.).
      *
      * @param array<string, mixed> $options required `input` (IM-format items), optional `preserve`
-     * @return array<string, mixed> dry-run response, or created-job response when $dryRun=false
+     * @return array<string, mixed> dry-run response, or the finished-job envelope when $dryRun=false
      */
     public function inputMappingLoad(int|string $id, array $options = [], bool $dryRun = false): array
     {
         $url = "workspaces/{$id}/input-mapping-load";
         if ($dryRun) {
             $url .= '?' . http_build_query(['dryRun' => 'true']);
+            $result = $this->client->apiPostJson($url, $options, false);
+            assert(is_array($result));
+            return $result;
         }
-        $result = $this->client->apiPostJson($url, $options, !$dryRun);
-        assert(is_array($result));
-        return $result;
+        // Submit the job, poll to completion, return the full envelope.
+        // We bypass apiPostJson's built-in handleAsyncTask because that returns only
+        // $job['results'] — callers want the full envelope (status, operationName, …).
+        $jobEnvelope = $this->client->apiPostJson($url, $options, false);
+        assert(is_array($jobEnvelope) && isset($jobEnvelope['id']));
+        $job = $this->client->waitForJob((int) $jobEnvelope['id']);
+        if ($job === null) {
+            throw new ClientException('StorageJob expected');
+        }
+        return $job;
     }
 
     /**
