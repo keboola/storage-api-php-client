@@ -10352,11 +10352,19 @@ other buckets (production buckets or buckets belongs the other development branc
             "externalId": "ticket-123",
             "autoMergeStrategy": "scheduled",
             "autoMergeAt": "2026-04-01T12:00:00+00:00",
-            "approvals": [
+            "approvals": [],
+            "reviewers": [
             {
-                  "approverId": 123,
-                  "approverName": "John Doe",
-                  "createdAt": "2023-06-16T10:20:58+0200"
+                  "id": 123,
+                  "name": "John Doe",
+                  "email": "john@example.com",
+                  "status": null
+            },
+            {
+                  "id": 124,
+                  "name": "Jane Roe",
+                  "email": "jane@example.com",
+                  "status": null
             }
             ],
             "createdAt": "2023-06-15T10:20:58+0200"
@@ -10403,6 +10411,20 @@ List all merge requests available in the project defined by token.
                       "approverId": 123,
                       "approverName": "John Doe",
                       "createdAt": "2023-06-16T10:20:58+0200"
+                }
+                ],
+                "reviewers": [
+                {
+                      "id": 123,
+                      "name": "John Doe",
+                      "email": "john@example.com",
+                      "status": "approved"
+                },
+                {
+                      "id": 124,
+                      "name": "Jane Roe",
+                      "email": "jane@example.com",
+                      "status": null
                 }
                 ],
                 "createdAt": "2023-06-15T10:20:58+0200"
@@ -10473,6 +10495,20 @@ Detail of Merge request also contains `content` of changed objects.
                   "createdAt": "2023-06-16T10:20:58+0200"
             }
             ],
+            "reviewers": [
+            {
+                  "id": 123,
+                  "name": "John Doe",
+                  "email": "john@example.com",
+                  "status": "approved"
+            },
+            {
+                  "id": 124,
+                  "name": "Jane Roe",
+                  "email": "jane@example.com",
+                  "status": null
+            }
+            ],
             "createdAt": "2023-06-15T10:20:58+0200"
             }
 
@@ -10533,11 +10569,13 @@ Detail of Merge request also contains `content` of changed objects.
             "externalId": "ticket-123",
             "autoMergeStrategy": "immediately",
             "autoMergeAt": null,
-            "approvals": [
+            "approvals": [],
+            "reviewers": [
             {
-                  "approverId": 123,
-                  "approverName": "John Doe",
-                  "createdAt": "2023-06-16T10:20:58+0200"
+                  "id": 123,
+                  "name": "John Doe",
+                  "email": "john@example.com",
+                  "status": null
             }
             ],
             "createdAt": "2023-06-15T10:20:58+0200"
@@ -10598,11 +10636,19 @@ Will move Merge request state `development` -> `in_review`. If branch has an ope
             "externalId": "ticket-123",
             "autoMergeStrategy": "scheduled",
             "autoMergeAt": "2026-04-01T12:00:00+00:00",
-            "approvals": [
+            "approvals": [],
+            "reviewers": [
             {
-                  "approverId": 123,
-                  "approverName": "John Doe",
-                  "createdAt": "2023-06-16T10:20:58+0200"
+                  "id": 123,
+                  "name": "John Doe",
+                  "email": "john@example.com",
+                  "status": null
+            },
+            {
+                  "id": 124,
+                  "name": "Jane Roe",
+                  "email": "jane@example.com",
+                  "status": null
             }
             ],
             "createdAt": "2023-06-15T10:20:58+0200"
@@ -10669,6 +10715,20 @@ Each project has defined required number of approvals. If the last approval arri
                   "approverId": 123,
                   "approverName": "John Doe",
                   "createdAt": "2023-06-16T10:20:58+0200"
+            }
+            ],
+            "reviewers": [
+            {
+                  "id": 123,
+                  "name": "John Doe",
+                  "email": "john@example.com",
+                  "status": "approved"
+            },
+            {
+                  "id": 124,
+                  "name": "Jane Roe",
+                  "email": "jane@example.com",
+                  "status": null
             }
             ],
             "createdAt": "2023-06-15T10:20:58+0200"
@@ -10771,11 +10831,19 @@ Requesting changes will remove all approvals and move the Merge request to `deve
             "externalId": "ticket-123",
             "autoMergeStrategy": "scheduled",
             "autoMergeAt": "2026-04-01T12:00:00+00:00",
-            "approvals": [
+            "approvals": [],
+            "reviewers": [
             {
-                  "approverId": 123,
-                  "approverName": "John Doe",
-                  "createdAt": "2023-06-16T10:20:58+0200"
+                  "id": 123,
+                  "name": "John Doe",
+                  "email": "john@example.com",
+                  "status": "rejected"
+            },
+            {
+                  "id": 124,
+                  "name": "Jane Roe",
+                  "email": "jane@example.com",
+                  "status": null
             }
             ],
             "createdAt": "2023-06-15T10:20:58+0200"
