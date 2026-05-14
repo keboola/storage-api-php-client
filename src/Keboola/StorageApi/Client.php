@@ -818,6 +818,19 @@ class Client
     }
 
     /**
+     * List all bucket exposures (Analytics Hub listings) in the project / branch.
+     *
+     * Returns an empty array when no listings exist. The endpoint is BigQuery-only;
+     * on Snowflake Partner Connect projects the server returns 501.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function listListings()
+    {
+        return $this->apiGet('listings');
+    }
+
+    /**
      *
      * Checks if a bucket exists
      *
