@@ -818,6 +818,75 @@ class Client
     }
 
     /**
+     * List all bucket exposures (Analytics Hub listings) in the project / branch.
+     *
+     * Returns an empty array when no listings exist. The endpoint is BigQuery-only;
+     * on Snowflake Partner Connect projects the server returns 501.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function listBucketListings()
+    {
+        return $this->apiGet('listings');
+    }
+
+    /**
+     * Get the bucket-listing detail.
+     *
+     * Returns the Analytics Hub listing record attached to the bucket. 404 when no
+     * listing exists. 403 when the token does not have manage privilege on the bucket.
+     *
+     * @return array<string, mixed>
+     */
+    public function getBucketListing(string $bucketId)
+    {
+        return $this->apiGet(sprintf('buckets/%s/listing', $bucketId));
+    }
+
+    /**
+     * Create a bucket listing (asynchronous job).
+     *
+     * @param array<string, mixed> $params
+     * @return mixed Job detail (handleAsyncTask=true → completed job result; false → 202 job).
+     */
+    public function createBucketListing(string $bucketId, array $params, bool $handleAsyncTask = true)
+    {
+        return $this->apiPostJson(
+            sprintf('buckets/%s/listing', $bucketId),
+            $params,
+            $handleAsyncTask,
+        );
+    }
+
+    /**
+     * Update a bucket listing (asynchronous job).
+     *
+     * @param array<string, mixed> $params
+     * @return mixed Job detail (handleAsyncTask=true → completed job result; false → 202 job).
+     */
+    public function updateBucketListing(string $bucketId, array $params, bool $handleAsyncTask = true)
+    {
+        return $this->apiPatchJson(
+            sprintf('buckets/%s/listing', $bucketId),
+            $params,
+            $handleAsyncTask,
+        );
+    }
+
+    /**
+     * Delete a bucket listing (asynchronous job).
+     *
+     * @return mixed Job detail (handleAsyncTask=true → completed job result; false → 202 job).
+     */
+    public function deleteBucketListing(string $bucketId, bool $handleAsyncTask = true)
+    {
+        return $this->apiDelete(
+            sprintf('buckets/%s/listing', $bucketId),
+            $handleAsyncTask,
+        );
+    }
+
+    /**
      *
      * Checks if a bucket exists
      *
@@ -2930,6 +2999,17 @@ class Client
     public function apiPutJson(string $url, array $data = [], bool $handleAsyncTask = true)
     {
         return $this->request('PUT', $url, [
+            'json' => $data,
+        ], null, $handleAsyncTask);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return mixed|string
+     */
+    public function apiPatchJson(string $url, array $data = [], bool $handleAsyncTask = true)
+    {
+        return $this->request('PATCH', $url, [
             'json' => $data,
         ], null, $handleAsyncTask);
     }

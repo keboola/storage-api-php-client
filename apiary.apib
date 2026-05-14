@@ -2184,6 +2184,50 @@ Lists buckets which may be shared to the project.
                 }
             ]
 
+## List Bucket Listings [/v2/storage/listings]
+Lists all bucket exposures (BigQuery Analytics Hub listings) in the project. Returns an
+empty array when no listings exist. The endpoint is BigQuery-only; Snowflake Partner
+Connect projects receive a 501 response. Each row mirrors the per-bucket
+`GET /v2/storage/buckets/{bucket_id}/listing` response and additionally carries the source
+`bucketId` so the listing can be cross-referenced without a second call.
+
+### List bucket listings [GET]
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+
++ Response 200 (application/json)
+    + Body
+
+            [
+                {
+                    "bucketId": "in.c-sales",
+                    "name": "Sales 2026",
+                    "description": "Monthly sales data aggregated by region",
+                    "backend": "bigquery",
+                    "bigquery": {
+                        "listingId": "sales_2026",
+                        "listingResourceName": "projects/proj-123/locations/US/dataExchanges/stk_bucket_exchanger_42_a1b2/listings/sales_2026",
+                        "subscribers": [
+                            "user:a@example.com",
+                            "group:data@example.com"
+                        ]
+                    },
+                    "createdAt": "2026-05-13T10:00:00+0000"
+                }
+            ]
+
++ Response 501 (application/json)
+Returned on Snowflake Partner Connect projects, where bucket listings are not supported.
+    + Body
+
+            {
+                "error": "Bucket listings are not supported on Snowflake Partner Connect projects.",
+                "code": "storage.notSupportedForSPCProject"
+            }
+
 # Group Tables
 
 ## Create or List Tables [/v2/storage/buckets/{bucket_id}/tables]
