@@ -1005,12 +1005,17 @@ class Client
 
     /**
      * @param int $mergeRequestId
+     * @param list<string>|null $include Optional list of additional response sections (e.g. ['activityLog']).
      * @return array mrData
      */
-    public function getMergeRequest(int $mergeRequestId): array
+    public function getMergeRequest(int $mergeRequestId, ?array $include = null): array
     {
+        $url = "merge-request/{$mergeRequestId}";
+        if ($include !== null && $include !== []) {
+            $url .= '?' . http_build_query(['include' => implode(',', $include)]);
+        }
         /** @var array $mrDetail */
-        $mrDetail = $this->apiGet("merge-request/{$mergeRequestId}");
+        $mrDetail = $this->apiGet($url);
         return $mrDetail;
     }
 
@@ -1056,10 +1061,11 @@ class Client
         return $mrDetail;
     }
 
-    public function requestMergeRequestChanges(int $mergeRequestId): array
+    public function requestMergeRequestChanges(int $mergeRequestId, ?string $reason = null): array
     {
+        $body = $reason !== null ? ['reason' => $reason] : [];
         /** @var array $mrDetail */
-        $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/request-changes", []);
+        $mrDetail = $this->apiPutJson("merge-request/{$mergeRequestId}/request-changes", $body);
         return $mrDetail;
     }
 
