@@ -252,13 +252,13 @@ class Workspaces
         // Submit the job, poll to completion, return the full envelope.
         // We bypass apiPostJson's built-in handleAsyncTask because that returns only
         // $job['results'] — callers want the full envelope (status, operationName, …).
+        // handleAsyncTasks gives us both: full envelope + ClientException throw on
+        // job error (same fail-fast contract as loadWorkspaceData), so callers don't
+        // have to check $job['status'] themselves to mirror /load semantics.
         $jobEnvelope = $this->client->apiPostJson($url, $options, false);
         assert(is_array($jobEnvelope) && isset($jobEnvelope['id']));
-        $job = $this->client->waitForJob((int) $jobEnvelope['id']);
-        if ($job === null) {
-            throw new ClientException('StorageJob expected');
-        }
-        return $job;
+        $envelopes = $this->client->handleAsyncTasks([(int) $jobEnvelope['id']]);
+        return $envelopes[0];
     }
 
     /**
