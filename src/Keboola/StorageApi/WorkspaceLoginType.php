@@ -15,7 +15,6 @@ enum WorkspaceLoginType: string
     public function isPasswordLogin(): bool
     {
         return match ($this) {
-            self::DEFAULT,
             self::SNOWFLAKE_LEGACY_SERVICE_PASSWORD => true,
             default => false,
         };

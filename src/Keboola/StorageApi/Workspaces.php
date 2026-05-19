@@ -359,6 +359,10 @@ class Workspaces
 
     private function internalCreateWorkspace(bool $async, array $options, bool $handleAsyncTask): array
     {
+        if (($options['loginType'] ?? null) === WorkspaceLoginType::DEFAULT) {
+            $options['loginType'] = WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR;
+        }
+
         $url = 'workspaces';
         $requestOptions = [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true];
         if ($async) {
