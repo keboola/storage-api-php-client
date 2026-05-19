@@ -360,6 +360,7 @@ class Workspaces
     private function internalCreateWorkspace(bool $async, array $options, bool $handleAsyncTask): array
     {
         $url = 'workspaces';
+        $options['loginType'] ??= WorkspaceLoginType::DEFAULT;
         $requestOptions = [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true];
         if ($async) {
             $url .= '?' . http_build_query(['async' => $async]);
