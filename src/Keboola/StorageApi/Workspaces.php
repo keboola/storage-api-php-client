@@ -324,8 +324,11 @@ class Workspaces
     public function decorateWorkspaceCreateWithCredentials(array $options, callable $createWorkspace): array
     {
         $workspaceResponse = $createWorkspace($options);
+        $loginType = WorkspaceLoginType::from(
+            $workspaceResponse['connection']['loginType'] ?? WorkspaceLoginType::DEFAULT->value,
+        );
 
-        if (($options['loginType'] ?? WorkspaceLoginType::DEFAULT)->isPasswordLogin()) {
+        if ($loginType->isPasswordLogin()) {
             $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
             $workspaceResponse = Workspaces::addCredentialsToWorkspaceResponse(
                 $workspaceResponse,
@@ -359,7 +362,9 @@ class Workspaces
 
     private function internalCreateWorkspace(bool $async, array $options, bool $handleAsyncTask): array
     {
-        if (($options['loginType'] ?? null) === WorkspaceLoginType::DEFAULT) {
+        if (($options['loginType'] ?? null) === WorkspaceLoginType::DEFAULT
+            && ($options['backend'] ?? null) === null
+        ) {
             $options['loginType'] = WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR;
         }
 
