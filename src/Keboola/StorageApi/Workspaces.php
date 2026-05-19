@@ -333,6 +333,16 @@ class Workspaces
             );
         }
 
+        $loginType = WorkspaceLoginType::tryFrom(
+            $workspaceResponse['connection']['loginType'] ?? WorkspaceLoginType::DEFAULT->value,
+        );
+        if ($loginType === WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR) {
+            $workspaceCredentials = $this->createCredentials($workspaceResponse['id']);
+            $workspaceResponse = array_replace_recursive($workspaceResponse, [
+                'connection' => $workspaceCredentials['connection'],
+            ]);
+        }
+
         return $workspaceResponse;
     }
 
@@ -359,7 +369,9 @@ class Workspaces
 
     private function internalCreateWorkspace(bool $async, array $options, bool $handleAsyncTask): array
     {
-        if (($options['loginType'] ?? null) === WorkspaceLoginType::DEFAULT) {
+        if (($options['loginType'] ?? null) === WorkspaceLoginType::DEFAULT
+            && !array_key_exists('backend', $options)
+        ) {
             $options['loginType'] = WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR;
         }
 
