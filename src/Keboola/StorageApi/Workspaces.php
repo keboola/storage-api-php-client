@@ -336,6 +336,7 @@ class Workspaces
         if (($requestLoginType === WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD->value)
             || ($responseLoginType === WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD->value)
             || ($backend === 'bigquery' && !$this->hasBigQueryCredentials($connection))
+            || (($workspaceResponse['type'] ?? null) === 'file' && !array_key_exists('connectionString', $connection))
         ) {
             $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
             $workspaceResponse = Workspaces::addCredentialsToWorkspaceResponse(
