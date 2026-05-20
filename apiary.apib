@@ -4935,6 +4935,7 @@ NOTE: To create reader workspace, use Create Configuration Workspaces endpoint i
     + loginType: (optional, enum[string]) - Request credentials type for new workspace. backend attribute is required when loginType is set.
         + Members
             + default
+            + `none` - No workspace user or credentials are created. Intended for QueryService; create direct credentials later using the [Create credentials](#reference/workspaces/workspace-credentials/create-credentials) endpoint.
             + `snowflake-legacy-service` - LEGACY_SERVICE type user is created with password
             + `snowflake-person-sso` - PERSON type user is created without password, login is possible only from Keboola Connection UI
             + `snowflake-person-keypair` - PERSON type user is created with keypair authentication (publicKey required)
@@ -5016,6 +5017,7 @@ Creates a new workspace for [Development Branch](#reference/development-branches
     + loginType: (optional, enum[string]) - Request credentials type for new workspace. backend attribute is required when loginType is set.
         + Members
             + default
+            + `none` - No workspace user or credentials are created. Intended for QueryService; create direct credentials later using the [Create credentials](#reference/workspaces/workspace-credentials/create-credentials) endpoint.
             + `snowflake-legacy-service` - LEGACY_SERVICE type user is created with password
             + `snowflake-person-sso` - PERSON type user is created without password, login is possible only from Keboola Connection UI
             + `snowflake-person-keypair` - PERSON type user is created with keypair authentication (publicKey required)
@@ -6229,7 +6231,8 @@ query, non-SELECT query and failed query.
 
 ## Workspace credentials [/v2/storage/workspaces/{workspaceId}/credentials]
 
-Manage dedicated workspace credentials to be used in Query Service
+Manage dedicated workspace credentials to be used in QueryService. Workspaces created with `loginType=none`
+do not contain direct connection credentials; create them with this endpoint when a client needs to connect directly.
 ### Create credentials [POST]
 
 + Request (application/json)
@@ -6509,7 +6512,7 @@ Deletes multiple tables and views from a workspace in a [Development Branch](#re
     + warehouse: `SAPI_PROD` (string)
     + user: `xzy` (string)
     + container: file workspace containerName (string) - Only for file workspaces
-    + loginType: `default` (string)
+    + loginType: `default` (string) - `none` means no direct credentials were created for the workspace. It is intended for QueryService; create direct credentials later using the [Create credentials](#reference/workspaces/workspace-credentials/create-credentials) endpoint.
 + creatorToken
     + id: 234 (number)
     + description: `martin@keboola.com` (string)
@@ -6534,7 +6537,7 @@ Deletes multiple tables and views from a workspace in a [Development Branch](#re
     + connectionString: `BlobEndpoint=https://<account>.blob.core.windows.net;SharedAccessSignature=sv=2017-11-09&sr=c&st=2020-11-03T10:31:36Z&se=2020-11-04T10:31:36Z&sp=rwl&sig=<SAS signature>` (string) only for file workspaces
     + credentials(GCPCredentials) only for BigQuery workspace
     + container: file workspace containerName (string) - Only for file workspaces
-    + loginType: `default` (string)
+    + loginType: `default` (string) - `none` means no direct credentials were created for the workspace. It is intended for QueryService; create direct credentials later using the [Create credentials](#reference/workspaces/workspace-credentials/create-credentials) endpoint.
 
 # Group Events
 Virtually every interaction of the client (an API call) creates an Event. Apart from that, external events may
@@ -9417,6 +9420,7 @@ Creates a new workspace for an existing configuration in [Development Branch](#r
     + loginType: (optional, enum[string]) - Request credentials type for new workspace. backend attribute is required when loginType is set.
         + Members
             + default
+            + `none` - No workspace user or credentials are created. Intended for QueryService; create direct credentials later using the [Create credentials](#reference/workspaces/workspace-credentials/create-credentials) endpoint.
             + `snowflake-legacy-service` - LEGACY_SERVICE type user is created with password
             + `snowflake-person-sso` - PERSON type user is created without password, login is possible only from Keboola Connection UI
             + `snowflake-person-keypair` - PERSON type user is created with keypair authentication (publicKey required)
