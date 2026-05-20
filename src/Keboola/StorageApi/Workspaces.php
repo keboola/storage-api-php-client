@@ -324,8 +324,19 @@ class Workspaces
     public function decorateWorkspaceCreateWithCredentials(array $options, callable $createWorkspace): array
     {
         $workspaceResponse = $createWorkspace($options);
+        $connection = $workspaceResponse['connection'];
+        $backend = $connection['backend'] ?? null;
 
-        if (($options['loginType'] ?? WorkspaceLoginType::DEFAULT)->isPasswordLogin()) {
+        $requestLoginType = $options['loginType'] ?? null;
+        if ($requestLoginType instanceof WorkspaceLoginType) {
+            $requestLoginType = $requestLoginType->value;
+        }
+        $responseLoginType = $connection['loginType'] ?? null;
+
+        if (($requestLoginType === WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD->value)
+            || ($responseLoginType === WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD->value)
+            || ($backend === 'bigquery' && !$this->hasBigQueryCredentials($connection))
+        ) {
             $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
             $workspaceResponse = Workspaces::addCredentialsToWorkspaceResponse(
                 $workspaceResponse,
@@ -333,10 +344,18 @@ class Workspaces
             );
         }
 
-        $loginType = WorkspaceLoginType::tryFrom(
-            $workspaceResponse['connection']['loginType'] ?? WorkspaceLoginType::DEFAULT->value,
-        );
-        if ($loginType === WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR) {
+        $connection = $workspaceResponse['connection'];
+        if (($connection['backend'] ?? null) === 'snowflake'
+            && !$this->hasSnowflakeCredentials($connection)
+            && in_array(
+                $connection['loginType'] ?? $requestLoginType ?? WorkspaceLoginType::DEFAULT->value,
+                [
+                    WorkspaceLoginType::DEFAULT->value,
+                    WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR->value,
+                ],
+                true,
+            )
+        ) {
             $workspaceCredentials = $this->createCredentials($workspaceResponse['id']);
             $workspaceResponse = array_replace_recursive($workspaceResponse, [
                 'connection' => $workspaceCredentials['connection'],
@@ -344,6 +363,25 @@ class Workspaces
         }
 
         return $workspaceResponse;
+    }
+
+    /**
+     * @param array<string, mixed> $connection
+     */
+    private function hasBigQueryCredentials(array $connection): bool
+    {
+        return isset($connection['credentials'])
+            && is_array($connection['credentials'])
+            && array_key_exists('project_id', $connection['credentials']);
+    }
+
+    /**
+     * @param array<string, mixed> $connection
+     */
+    private function hasSnowflakeCredentials(array $connection): bool
+    {
+        return array_key_exists('password', $connection)
+            || array_key_exists('privateKey', $connection);
     }
 
     public static function addCredentialsToWorkspaceResponse(
