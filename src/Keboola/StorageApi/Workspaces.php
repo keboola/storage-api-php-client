@@ -44,6 +44,8 @@ use Keboola\StorageApi\Workspaces\SetPublicKeyRequest;
  *      configurationVersion?: int,
  *      loginType?: WorkspaceLoginType,
  *      networkPolicy?: string,
+ *      privateKey?: string,
+ *      publicKey?: string,
  *      readOnlyStorageAccess?: bool,
  *  }
  */
@@ -332,6 +334,8 @@ class Workspaces
             $requestLoginType = $requestLoginType->value;
         }
         $responseLoginType = $connection['loginType'] ?? null;
+        $requestHasPublicKey = array_key_exists('publicKey', $options);
+        $requestPrivateKey = $options['privateKey'] ?? null;
 
         if (($requestLoginType === WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD->value)
             || ($responseLoginType === WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD->value)
@@ -348,6 +352,27 @@ class Workspaces
         $connection = $workspaceResponse['connection'];
         if (($connection['backend'] ?? null) === 'snowflake'
             && !$this->hasSnowflakeCredentials($connection)
+            && is_string($requestPrivateKey)
+            && in_array(
+                $connection['loginType'] ?? $requestLoginType ?? WorkspaceLoginType::DEFAULT->value,
+                [
+                    WorkspaceLoginType::DEFAULT->value,
+                    WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR->value,
+                ],
+                true,
+            )
+        ) {
+            $workspaceResponse = array_replace_recursive($workspaceResponse, [
+                'connection' => [
+                    'privateKey' => $requestPrivateKey,
+                ],
+            ]);
+        }
+
+        $connection = $workspaceResponse['connection'];
+        if (($connection['backend'] ?? null) === 'snowflake'
+            && !$this->hasSnowflakeCredentials($connection)
+            && !$requestHasPublicKey
             && in_array(
                 $connection['loginType'] ?? $requestLoginType ?? WorkspaceLoginType::DEFAULT->value,
                 [
@@ -408,6 +433,8 @@ class Workspaces
 
     private function internalCreateWorkspace(bool $async, array $options, bool $handleAsyncTask): array
     {
+        unset($options['privateKey']);
+
         if (($options['loginType'] ?? null) === WorkspaceLoginType::DEFAULT
             && !array_key_exists('backend', $options)
         ) {
