@@ -44,8 +44,6 @@ use Keboola\StorageApi\Workspaces\SetPublicKeyRequest;
  *      configurationVersion?: int,
  *      loginType?: WorkspaceLoginType,
  *      networkPolicy?: string,
- *      privateKey?: string,
- *      publicKey?: string,
  *      readOnlyStorageAccess?: bool,
  *  }
  */
@@ -326,22 +324,8 @@ class Workspaces
     public function decorateWorkspaceCreateWithCredentials(array $options, callable $createWorkspace): array
     {
         $workspaceResponse = $createWorkspace($options);
-        $connection = $workspaceResponse['connection'];
-        $backend = $connection['backend'] ?? null;
 
-        $requestLoginType = $options['loginType'] ?? null;
-        if ($requestLoginType instanceof WorkspaceLoginType) {
-            $requestLoginType = $requestLoginType->value;
-        }
-        $responseLoginType = $connection['loginType'] ?? null;
-        $requestHasPublicKey = array_key_exists('publicKey', $options);
-        $requestPrivateKey = $options['privateKey'] ?? null;
-
-        if (($requestLoginType === WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD->value)
-            || ($responseLoginType === WorkspaceLoginType::SNOWFLAKE_LEGACY_SERVICE_PASSWORD->value)
-            || ($backend === 'bigquery' && !$this->hasBigQueryCredentials($connection))
-            || (($workspaceResponse['type'] ?? null) === 'file' && !array_key_exists('connectionString', $connection))
-        ) {
+        if (($options['loginType'] ?? WorkspaceLoginType::DEFAULT)->isPasswordLogin()) {
             $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
             $workspaceResponse = Workspaces::addCredentialsToWorkspaceResponse(
                 $workspaceResponse,
@@ -349,65 +333,7 @@ class Workspaces
             );
         }
 
-        $connection = $workspaceResponse['connection'];
-        if (($connection['backend'] ?? null) === 'snowflake'
-            && !$this->hasSnowflakeCredentials($connection)
-            && is_string($requestPrivateKey)
-            && in_array(
-                $connection['loginType'] ?? $requestLoginType ?? WorkspaceLoginType::DEFAULT->value,
-                [
-                    WorkspaceLoginType::DEFAULT->value,
-                    WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR->value,
-                ],
-                true,
-            )
-        ) {
-            $workspaceResponse = array_replace_recursive($workspaceResponse, [
-                'connection' => [
-                    'privateKey' => $requestPrivateKey,
-                ],
-            ]);
-        }
-
-        $connection = $workspaceResponse['connection'];
-        if (($connection['backend'] ?? null) === 'snowflake'
-            && !$this->hasSnowflakeCredentials($connection)
-            && !$requestHasPublicKey
-            && in_array(
-                $connection['loginType'] ?? $requestLoginType ?? WorkspaceLoginType::DEFAULT->value,
-                [
-                    WorkspaceLoginType::DEFAULT->value,
-                    WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR->value,
-                ],
-                true,
-            )
-        ) {
-            $workspaceCredentials = $this->createCredentials($workspaceResponse['id']);
-            $workspaceResponse = array_replace_recursive($workspaceResponse, [
-                'connection' => $workspaceCredentials['connection'],
-            ]);
-        }
-
         return $workspaceResponse;
-    }
-
-    /**
-     * @param array<string, mixed> $connection
-     */
-    private function hasBigQueryCredentials(array $connection): bool
-    {
-        return isset($connection['credentials'])
-            && is_array($connection['credentials'])
-            && array_key_exists('project_id', $connection['credentials']);
-    }
-
-    /**
-     * @param array<string, mixed> $connection
-     */
-    private function hasSnowflakeCredentials(array $connection): bool
-    {
-        return array_key_exists('password', $connection)
-            || array_key_exists('privateKey', $connection);
     }
 
     public static function addCredentialsToWorkspaceResponse(
@@ -433,11 +359,7 @@ class Workspaces
 
     private function internalCreateWorkspace(bool $async, array $options, bool $handleAsyncTask): array
     {
-        unset($options['privateKey']);
-
-        if (($options['loginType'] ?? null) === WorkspaceLoginType::DEFAULT
-            && !array_key_exists('backend', $options)
-        ) {
+        if (($options['loginType'] ?? null) === WorkspaceLoginType::DEFAULT) {
             $options['loginType'] = WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR;
         }
 
