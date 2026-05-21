@@ -325,7 +325,12 @@ class Workspaces
     {
         $workspaceResponse = $createWorkspace($options);
 
-        if (($options['loginType'] ?? WorkspaceLoginType::DEFAULT)->isPasswordLogin()) {
+        $loginType = $options['loginType'] ?? WorkspaceLoginType::DEFAULT;
+        if (is_string($loginType)) {
+            $loginType = WorkspaceLoginType::from($loginType);
+        }
+
+        if (($workspaceResponse['type'] ?? null) === 'file' || $loginType->isPasswordLogin()) {
             $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
             $workspaceResponse = Workspaces::addCredentialsToWorkspaceResponse(
                 $workspaceResponse,
