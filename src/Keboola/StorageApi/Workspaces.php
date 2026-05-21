@@ -325,7 +325,12 @@ class Workspaces
     {
         $workspaceResponse = $createWorkspace($options);
 
-        if (($options['loginType'] ?? WorkspaceLoginType::DEFAULT)->isPasswordLogin()) {
+        $loginType = $options['loginType'] ?? WorkspaceLoginType::DEFAULT;
+        if (is_string($loginType)) {
+            $loginType = WorkspaceLoginType::from($loginType);
+        }
+
+        if (($workspaceResponse['type'] ?? null) === 'file' || $loginType->isPasswordLogin()) {
             $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
             $workspaceResponse = Workspaces::addCredentialsToWorkspaceResponse(
                 $workspaceResponse,
@@ -359,10 +364,6 @@ class Workspaces
 
     private function internalCreateWorkspace(bool $async, array $options, bool $handleAsyncTask): array
     {
-        if (($options['loginType'] ?? null) === WorkspaceLoginType::DEFAULT) {
-            $options['loginType'] = WorkspaceLoginType::SNOWFLAKE_SERVICE_KEYPAIR;
-        }
-
         $url = 'workspaces';
         $requestOptions = [Client::REQUEST_OPTION_EXTENDED_TIMEOUT => true];
         if ($async) {
