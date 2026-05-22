@@ -345,6 +345,9 @@ class Workspaces
         return $workspaceResponse;
     }
 
+    /**
+     * @param array<string, mixed> $workspaceResponse
+     */
     private function isDefaultBigQueryWorkspace(array $workspaceResponse, WorkspaceLoginType $loginType): bool
     {
         return $loginType === WorkspaceLoginType::DEFAULT
