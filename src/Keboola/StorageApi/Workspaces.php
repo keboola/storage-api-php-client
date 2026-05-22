@@ -330,7 +330,11 @@ class Workspaces
             $loginType = WorkspaceLoginType::from($loginType);
         }
 
-        if (($workspaceResponse['type'] ?? null) === 'file' || $loginType->isPasswordLogin()) {
+        if (
+            ($workspaceResponse['type'] ?? null) === 'file'
+            || $loginType->isPasswordLogin()
+            || $this->isDefaultBigQueryWorkspace($workspaceResponse, $loginType)
+        ) {
             $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
             $workspaceResponse = Workspaces::addCredentialsToWorkspaceResponse(
                 $workspaceResponse,
@@ -339,6 +343,15 @@ class Workspaces
         }
 
         return $workspaceResponse;
+    }
+
+    /**
+     * @param array<string, mixed> $workspaceResponse
+     */
+    private function isDefaultBigQueryWorkspace(array $workspaceResponse, WorkspaceLoginType $loginType): bool
+    {
+        return $loginType === WorkspaceLoginType::DEFAULT
+            && ($workspaceResponse['connection']['backend'] ?? null) === 'bigquery';
     }
 
     public static function addCredentialsToWorkspaceResponse(
