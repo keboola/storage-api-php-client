@@ -348,17 +348,16 @@ class Workspaces
     private function isDefaultBigQueryWorkspace(array $workspaceResponse, WorkspaceLoginType $loginType): bool
     {
         return $loginType === WorkspaceLoginType::DEFAULT
-            && $this->getWorkspaceBackend($workspaceResponse) === 'bigquery';
+            && ($workspaceResponse['connection']['backend'] ?? null) === 'bigquery';
     }
 
     public static function addCredentialsToWorkspaceResponse(
         array $workspaceResponse,
         array $resetPasswordResponse,
     ): array {
-        $backend = $workspaceResponse['backend'] ?? $workspaceResponse['connection']['backend'] ?? null;
         if ($workspaceResponse['type'] === 'file') {
             $secret = 'connectionString';
-        } elseif ($backend === 'bigquery') {
+        } elseif ($workspaceResponse['connection']['backend'] === 'bigquery') {
             $secret = 'credentials';
         } else {
             $secret = 'password';
@@ -371,11 +370,6 @@ class Workspaces
                 $secret => $resetPasswordResponse[$secret],
             ],
         ]);
-    }
-
-    private function getWorkspaceBackend(array $workspaceResponse): ?string
-    {
-        return $workspaceResponse['backend'] ?? $workspaceResponse['connection']['backend'] ?? null;
     }
 
     private function internalCreateWorkspace(bool $async, array $options, bool $handleAsyncTask): array
