@@ -1089,6 +1089,21 @@ class Client
     }
 
     /**
+     * @return list<array{
+     *     message: string,
+     *     componentId: string,
+     *     configurationId: string,
+     *     isDeleted: bool,
+     *     devBranchVersionIdentifier: string,
+     *     defaultBranchVersionIdentifier: string,
+     * }>
+     */
+    public function getMergeRequestConflicts(int $mergeRequestId): array
+    {
+        return $this->apiGet("merge-request/{$mergeRequestId}/conflicts");
+    }
+
+    /**
      * @param array{
      *     title?: string,
      *     description?: string,
