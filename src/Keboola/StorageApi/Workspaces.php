@@ -330,7 +330,11 @@ class Workspaces
             $loginType = WorkspaceLoginType::from($loginType);
         }
 
-        if (($workspaceResponse['type'] ?? null) === 'file' || $loginType->isPasswordLogin()) {
+        if (
+            ($workspaceResponse['type'] ?? null) === 'file'
+            || $loginType->isPasswordLogin()
+            || self::isDefaultBigQueryWorkspace($workspaceResponse, $loginType)
+        ) {
             $resetPasswordResponse = $this->resetWorkspacePassword($workspaceResponse['id']);
             $workspaceResponse = Workspaces::addCredentialsToWorkspaceResponse(
                 $workspaceResponse,
@@ -341,13 +345,19 @@ class Workspaces
         return $workspaceResponse;
     }
 
+    private static function isDefaultBigQueryWorkspace(array $workspaceResponse, WorkspaceLoginType $loginType): bool
+    {
+        return $loginType === WorkspaceLoginType::DEFAULT
+            && self::getWorkspaceBackend($workspaceResponse) === 'bigquery';
+    }
+
     public static function addCredentialsToWorkspaceResponse(
         array $workspaceResponse,
         array $resetPasswordResponse,
     ): array {
         if ($workspaceResponse['type'] === 'file') {
             $secret = 'connectionString';
-        } elseif ($workspaceResponse['connection']['backend'] === 'bigquery') {
+        } elseif (self::getWorkspaceBackend($workspaceResponse) === 'bigquery') {
             $secret = 'credentials';
         } else {
             $secret = 'password';
@@ -360,6 +370,11 @@ class Workspaces
                 $secret => $resetPasswordResponse[$secret],
             ],
         ]);
+    }
+
+    private static function getWorkspaceBackend(array $workspaceResponse): ?string
+    {
+        return $workspaceResponse['backend'] ?? $workspaceResponse['connection']['backend'] ?? null;
     }
 
     private function internalCreateWorkspace(bool $async, array $options, bool $handleAsyncTask): array
