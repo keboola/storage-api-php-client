@@ -330,8 +330,7 @@ class Workspaces
             $loginType = WorkspaceLoginType::from($loginType);
         }
 
-        if (
-            ($workspaceResponse['type'] ?? null) === 'file'
+        if (($workspaceResponse['type'] ?? null) === 'file'
             || $loginType->isPasswordLogin()
             || $this->isDefaultBigQueryWorkspace($workspaceResponse, $loginType)
         ) {
