@@ -1038,9 +1038,9 @@ class Client
      */
     public function updateTableDefinition(string $tableId, array $tableDefinitionUpdate): array
     {
-        /** @var array<string, mixed> $job */
-        $job = $this->apiPutJson("tables/{$tableId}/definition", $tableDefinitionUpdate, false);
-        return $job;
+        /** @var array<string, mixed> $updatedTable */
+        $updatedTable = $this->apiPutJson("tables/{$tableId}/definition", $tableDefinitionUpdate);
+        return $updatedTable;
     }
 
 
