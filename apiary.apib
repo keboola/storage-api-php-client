@@ -10820,6 +10820,83 @@ The endpoint is primarily intended for UI consumption — callers can detect con
             }
 
 
+## Resolve merge request conflict [/v2/storage/merge-request/{id}/resolve-conflict]
+
+### Resolve a single conflicting configuration [POST]
+Applies a resolution strategy to one conflicting `(componentId, configurationId)` pair inside the merge request. All strategies clear the conflict by re-anchoring the dev-branch configuration onto the current default-branch version (the same effect as calling `/components/{componentId}/configs/{configurationId}/reset-to-default`), and then optionally applying additional content on top.
+
+Strategies:
+* `keep_default` — replace the dev-branch config with the latest default-branch version. **Implemented.**
+* `keep_branch` — preserve dev-branch content while re-anchoring onto default. *Not yet implemented (DMD-1097); returns 501.*
+* `merged` — apply user-supplied merged content on top of the rebased config. *Not yet implemented (DMD-1097); returns 501.*
+
+Returns 204 No Content on success.
+
++ Parameters
+    + id (required, number) - merge request ID
+
++ Request keep_default (application/json)
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+                "componentId": "wr-db",
+                "configurationId": "main-1",
+                "strategy": "keep_default"
+            }
+
++ Request merged (application/json)
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+                "componentId": "wr-db",
+                "configurationId": "main-1",
+                "strategy": "merged",
+                "name": "Main",
+                "description": "Resolved via merge editor",
+                "configuration": "{\"endpoint\":\"/api/v2\"}",
+                "rowsSortOrder": ["row-1"],
+                "changeDescription": "Resolved merge conflict"
+            }
+
++ Response 204
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "error": "Merge request not found",
+                "code": "storage.mergeRequests.notFound"
+            }
+
++ Response 409 (application/json)
+
+    + Body
+
+            {
+                "error": "Configuration \"main-1\" for component \"wr-db\" is not currently in conflict on merge request 42."
+            }
+
++ Response 501 (application/json)
+
+    + Body
+
+            {
+                "error": "Resolution strategy \"keep_branch\" is not yet implemented on the backend. Track in DMD-1097.",
+                "code": "notImplemented"
+            }
+
+
 ## Merge MR [/v2/storage/merge-request/{id}/merge]
 
 ### Merge MR [PUT]

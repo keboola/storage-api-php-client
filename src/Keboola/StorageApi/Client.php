@@ -1104,6 +1104,25 @@ class Client
     }
 
     /**
+     * Resolve a single conflicting configuration inside a merge request.
+     *
+     * @param array{
+     *     componentId: string,
+     *     configurationId: string,
+     *     strategy: 'keep_default'|'keep_branch'|'merged',
+     *     name?: string,
+     *     description?: string,
+     *     configuration?: string,
+     *     rowsSortOrder?: list<string>,
+     *     changeDescription?: string,
+     * } $body
+     */
+    public function resolveMergeRequestConflict(int $mergeRequestId, array $body): void
+    {
+        $this->apiPostJson("merge-request/{$mergeRequestId}/resolve-conflict", $body);
+    }
+
+    /**
      * @param array{
      *     title?: string,
      *     description?: string,
