@@ -10782,6 +10782,48 @@ Each project has defined required number of approvals. If the last approval arri
             "createdAt": "2023-06-15T10:20:58+0200"
             }
 
+## Merge request conflicts [/v2/storage/merge-request/{id}/conflicts]
+
+### Get merge request conflicts [GET]
+Returns the list of conflicting configurations between the source (dev) branch and the target (default) branch of the merge request. A conflict means the merge cannot proceed without resolving it (for example, the configuration was changed in the default branch after the dev branch was created).
+
+The endpoint is primarily intended for UI consumption — callers can detect conflicts before attempting a merge. An empty array means the merge request can be merged without conflicts.
+
++ Parameters
+    + id (required, number) - merge request ID
+
++ Request (application/json)
+
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+
++ Response 200 (application/json)
+
+    + Body
+
+            [
+                {
+                    "message": "Configuration \"main-1\" for component \"wr-db\" in the dev branch is not based on the latest version from the default branch. Version identifier in the dev branch: \"abc123\". Version identifier in the default branch: \"def456\".",
+                    "componentId": "wr-db",
+                    "configurationId": "main-1",
+                    "isDeleted": false,
+                    "devBranchVersionIdentifier": "abc123",
+                    "defaultBranchVersionIdentifier": "def456"
+                }
+            ]
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "error": "Merge request not found",
+                "code": "storage.mergeRequests.notFound"
+            }
+
+
 ## Merge MR [/v2/storage/merge-request/{id}/merge]
 
 ### Merge MR [PUT]
