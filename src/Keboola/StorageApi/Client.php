@@ -42,7 +42,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @phpstan-type StorageJob array{id: int, status: string, url: string, tableId: ?string, operationName: string, operationParams: array<string, mixed>, createdTime: string, startTime: ?string, endTime: ?string, runId: ?string, results: ?array<string, mixed>, creatorToken: array{id: ?string, description: ?string}, metrics: array{inCompressed: bool, inBytes: int, inBytesUncompressed: int, outCompressed: bool, outBytes: int, outBytesUncompressed: int}, error?: array{code: string, message: string, exceptionId: string, contextParams: ?array<mixed>, uuid: ?string}}
  * @phpstan-type GlobalSearchResult array{all: int, items: array<mixed>, aggregations: array<mixed>}
- * @phpstan-type TableDefinitionColumnUpdate array{name: string, type?: string, length?: string, nullable?: bool, default?: string|null, description?: string|null}
+ * @phpstan-type TableDefinitionColumnUpdate array{name: string, length?: string, nullable?: bool, default?: string|null, description?: string|null}
  * @phpstan-type TableDefinitionUpdate array{displayName?: string, description?: string|null, columns?: list<TableDefinitionColumnUpdate>}
  * @phpstan-import-type ExportOptions from TableExporter
  */
