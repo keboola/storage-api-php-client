@@ -2656,6 +2656,97 @@ Supported alterations:
             }
         }
 
+### Update Table Definition [PUT /v2/storage/tables/{table_id}/definition]
+
+Updates table display name, table description, and multiple column definition patches for a table with typed columns. *Snowflake, BigQuery only.*
+
+Request is handled asynchronously. The request is added to a queue and the job resource URL for status polling is returned.
+
+Supported column alterations are the same as for [Update Column Definition](#reference/tables/update-definition/update-column-definition), except this endpoint does not support changing a column data type.
+
++ Parameters
+    + table_id (required) - The table Id
+
++ Attributes
+    + displayName (string) - optional, new table display name
+    + description (string, nullable) - optional, table description; null or an empty string clears the description
+    + columns (array) - optional, list of column definition patches
+        + (object)
+            + name (string, required) - column name
+            + length (string) - optional, supports numeric value for all columns (e.g. `12`) and complex length for numeric columns (e.g. `12,2`)
+            + nullable (boolean) - optional, on BigQuery operation "set as required" (nullable=true -> nullable=false) is not allowed
+            + default (string, nullable) - optional, default value for column; null unsets default value
+            + description (string, nullable) - optional, column description; null or an empty string clears the description
+
++ Request (application/json)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+                "displayName": "Orders",
+                "description": "Orders fact table",
+                "columns": [
+                    {
+                        "name": "amount",
+                        "length": "12,2",
+                        "nullable": false,
+                        "default": null,
+                        "description": "Order amount"
+                    }
+                ]
+            }
+
++ Response 202 (application/json)
+
+        {
+            "id": 2867,
+            "status": "waiting",
+            "url": "https:\/\/localhost:8700\/v2\/storage\/jobs\/2867",
+            "tableId": "in.c-API-tests.orders",
+            "operationName": "tableDefinitionUpdate",
+            "operationParams": {
+                "queue": "main",
+                "branchId": 18,
+                "tableStringId": "in.c-API-tests.orders",
+                "displayName": "Orders",
+                "displayNameSet": true,
+                "description": "Orders fact table",
+                "descriptionSet": true,
+                "columns": [
+                    {
+                        "name": "amount",
+                        "length": "12,2",
+                        "nullable": false,
+                        "nullableSet": true,
+                        "default": null,
+                        "defaultSet": true,
+                        "description": "Order amount",
+                        "descriptionSet": true
+                    }
+                ]
+            },
+            "createdTime": "2024-02-13T12:48:44+0100",
+            "startTime": null,
+            "endTime": null,
+            "runId": "5748",
+            "results": null,
+            "creatorToken": {
+                "id": "51",
+                "description": "devel-tests+test-backend_admin@keboola.com"
+            },
+            "metrics": {
+                "inCompressed": false,
+                "inBytes": 0,
+                "inBytesUncompressed": 0,
+                "outCompressed": false,
+                "outBytes": 0,
+                "outBytesUncompressed": 0
+            }
+        }
+
 ## Pull table from default branch to dev branch [/v2/storage/branch/{branch_id}/tables/{table_id}/pull]
 
 ### Pull table from default branch to dev branch [POST]
