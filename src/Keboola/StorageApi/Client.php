@@ -1562,8 +1562,13 @@ class Client
      * @param string $tableId
      * @param string $name
      */
-    public function addTableColumn(string $tableId, string $name, ?array $definition = null, ?string $basetype = null)
-    {
+    public function addTableColumn(
+        string $tableId,
+        string $name,
+        ?array $definition = null,
+        ?string $basetype = null,
+        ?string $description = null,
+    ) {
         $data = [
             'name' => $name,
         ];
@@ -1572,6 +1577,9 @@ class Client
         }
         if ($basetype !== null) {
             $data['basetype'] = $basetype;
+        }
+        if ($description !== null) {
+            $data['description'] = $description;
         }
         $this->apiPostJson("tables/$tableId/columns", $data);
     }
