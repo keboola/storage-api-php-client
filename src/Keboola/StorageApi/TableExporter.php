@@ -202,6 +202,7 @@ class TableExporter
     /**
      * @param array $tables
      * @return array Job results
+     * @throws ClientException
      * @throws Exception
      */
     public function exportTables(array $tables = [])
