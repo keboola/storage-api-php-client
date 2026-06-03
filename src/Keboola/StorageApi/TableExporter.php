@@ -220,7 +220,8 @@ class TableExporter
      *
      * @param array<array{tableId?: string, destination?: string, exportOptions?: ExportOptions}> $tables
      * @return array<int|string, array{tableId: string, destination: string, exportOptions: ExportOptions}>
-     *  Map of jobId => table spec with the original export options, to be passed to downloadExportedFiles()
+     *  Map of jobId => table spec with the resolved export options (columns defaulted from table detail,
+     *  without the forced gzip flag), to be passed to downloadExportedFiles()
      * @throws ClientException
      */
     public function queueTableExports(array $tables): array
