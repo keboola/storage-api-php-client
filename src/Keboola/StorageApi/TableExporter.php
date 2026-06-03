@@ -254,7 +254,11 @@ class TableExporter
             $queueOptions = $table['exportOptions'];
             $queueOptions['gzip'] = true;
             $jobId = $this->client->queueTableExport($table['tableId'], $queueOptions);
-            $exportJobs[$jobId] = $table;
+            $exportJobs[$jobId] = [
+                'tableId' => $table['tableId'],
+                'destination' => $table['destination'],
+                'exportOptions' => $table['exportOptions'],
+            ];
         }
         return $exportJobs;
     }
