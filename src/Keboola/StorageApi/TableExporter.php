@@ -271,6 +271,7 @@ class TableExporter
      * @param array<int|string, array{tableId: string, destination: string, exportOptions: ExportOptions}> $exportJobs
      *  Map of jobId => table spec as returned by queueTableExports()
      * @throws ClientException
+     * @throws Exception
      */
     public function downloadExportedFiles(array $jobResults, array $exportJobs): void
     {
