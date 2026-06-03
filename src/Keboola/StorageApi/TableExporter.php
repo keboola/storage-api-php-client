@@ -261,7 +261,7 @@ class TableExporter
      * Completion half of exportTables(): given results of successfully finished export jobs, downloads the exported
      * files to their destinations (incl. sliced-file merging and gzip handling).
      *
-     * @param array $jobResults Results of the finished export jobs, e.g. from Client::handleAsyncTasks()
+     * @param array<array<mixed>> $jobResults Results of the finished export jobs, e.g. from Client::handleAsyncTasks()
      * @param array<int|string, array{tableId: string, destination: string, exportOptions: ExportOptions}> $exportJobs
      *  Map of jobId => table spec as returned by queueTableExports()
      * @throws ClientException
