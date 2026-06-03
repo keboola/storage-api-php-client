@@ -206,14 +206,31 @@ class TableExporter
      */
     public function exportTables(array $tables = [])
     {
+        $exportJobs = $this->queueTableExports($tables);
+        $jobResults = $this->client->handleAsyncTasks(array_keys($exportJobs));
+        $this->downloadExportedFiles($jobResults, $exportJobs);
+        return $jobResults;
+    }
+
+    /**
+     * Submission half of exportTables(): validates the table specs, defaults columns from table detail and queues
+     * one export job per table. The files are always exported gzipped regardless of the gzip export option -
+     * the gzip option only controls how downloadExportedFiles() presents the resulting file.
+     *
+     * @param array<array{tableId?: string, destination?: string, exportOptions?: ExportOptions}> $tables
+     * @return array<int|string, array{tableId: string, destination: string, exportOptions: ExportOptions}>
+     *  Map of jobId => table spec with the original export options, to be passed to downloadExportedFiles()
+     * @throws ClientException
+     */
+    public function queueTableExports(array $tables): array
+    {
         $exportJobs = [];
-        $exportOptions = [];
         foreach ($tables as $table) {
             if (empty($table['tableId'])) {
-                throw new Exception('Missing tableId');
+                throw new ClientException('Missing tableId');
             }
             if (empty($table['destination'])) {
-                throw new Exception('Missing destination');
+                throw new ClientException('Missing destination');
             }
             if (!isset($table['exportOptions'])) {
                 $table['exportOptions'] = [];
@@ -231,19 +248,35 @@ class TableExporter
                 }
                 $table['exportOptions']['columns'] = $tableDetail['columns'];
             }
-            $exportOptions[$table['tableId']] = $table['exportOptions'];
 
-            $table['exportOptions']['gzip'] = true;
-            $jobId = $this->client->queueTableExport($table['tableId'], $table['exportOptions']);
+            $queueOptions = $table['exportOptions'];
+            $queueOptions['gzip'] = true;
+            $jobId = $this->client->queueTableExport($table['tableId'], $queueOptions);
             $exportJobs[$jobId] = $table;
         }
-        $jobResults = $this->client->handleAsyncTasks(array_keys($exportJobs));
+        return $exportJobs;
+    }
+
+    /**
+     * Completion half of exportTables(): given results of successfully finished export jobs, downloads the exported
+     * files to their destinations (incl. sliced-file merging and gzip handling).
+     *
+     * @param array $jobResults Results of the finished export jobs, e.g. from Client::handleAsyncTasks()
+     * @param array<int|string, array{tableId: string, destination: string, exportOptions: ExportOptions}> $exportJobs
+     *  Map of jobId => table spec as returned by queueTableExports()
+     * @throws ClientException
+     */
+    public function downloadExportedFiles(array $jobResults, array $exportJobs): void
+    {
         foreach ($jobResults as $jobResult) {
+            if (!isset($exportJobs[$jobResult['id']])) {
+                throw new ClientException(sprintf('Job "%s" not found in the export jobs map', $jobResult['id']));
+            }
             $exportJob = $exportJobs[$jobResult['id']];
             $isGzip = false;
-            if (isset($exportOptions[$exportJob['tableId']]['gzip']) && $exportOptions[$exportJob['tableId']]['gzip'] === true) {
+            if (isset($exportJob['exportOptions']['gzip']) && $exportJob['exportOptions']['gzip'] === true) {
                 $isGzip = true;
-                if (isset($exportOptions[$exportJob['tableId']]['fileType']) && $exportOptions[$exportJob['tableId']]['fileType'] === 'parquet') {
+                if (isset($exportJob['exportOptions']['fileType']) && $exportJob['exportOptions']['fileType'] === 'parquet') {
                     // parquet files are not gzipped, but snappy compressed
                     $isGzip = false;
                 }
@@ -256,7 +289,6 @@ class TableExporter
                 $isGzip,
             );
         }
-        return $jobResults;
     }
 
     /**
