@@ -271,10 +271,14 @@ class TableExporter
     public function downloadExportedFiles(array $jobResults, array $exportJobs): void
     {
         foreach ($jobResults as $jobResult) {
-            if (!isset($exportJobs[$jobResult['id']])) {
-                throw new ClientException(sprintf('Job "%s" not found in the export jobs map', $jobResult['id']));
+            if (!isset($jobResult['id'])) {
+                throw new ClientException('Job result is missing "id"');
             }
-            $exportJob = $exportJobs[$jobResult['id']];
+            $jobId = $jobResult['id'];
+            if (!isset($exportJobs[$jobId])) {
+                throw new ClientException(sprintf('Job "%s" not found in the export jobs map', $jobId));
+            }
+            $exportJob = $exportJobs[$jobId];
             $isGzip = false;
             if (isset($exportJob['exportOptions']['gzip']) && $exportJob['exportOptions']['gzip'] === true) {
                 $isGzip = true;
