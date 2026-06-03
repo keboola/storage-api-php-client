@@ -284,6 +284,10 @@ class TableExporter
                 throw new ClientException(sprintf('Job "%s" not found in the export jobs map', $jobId));
             }
             $exportJob = $exportJobs[$jobId];
+            $fileId = $jobResult['results']['file']['id'] ?? null;
+            if ($fileId === null) {
+                throw new ClientException(sprintf('Result of job "%s" is missing the exported file id', $jobId));
+            }
             $isGzip = false;
             if (isset($exportJob['exportOptions']['gzip']) && $exportJob['exportOptions']['gzip'] === true) {
                 $isGzip = true;
@@ -294,7 +298,7 @@ class TableExporter
             }
             $this->handleExportedFile(
                 $exportJob['tableId'],
-                $jobResult['results']['file']['id'],
+                $fileId,
                 $exportJob['destination'],
                 $exportJob['exportOptions'],
                 $isGzip,
