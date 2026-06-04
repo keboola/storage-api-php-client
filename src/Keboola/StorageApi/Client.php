@@ -1559,15 +1559,19 @@ class Client
      *
      * Add column to table
      *
+     * The column description is always part of the definition:
+     *  - typed table:   ['type' => 'VARCHAR', 'length' => '255', 'description' => '...']
+     *  - untyped table: ['description' => '...'] (only description is allowed without a type)
+     *
      * @param string $tableId
      * @param string $name
+     * @param array<string, mixed>|null $definition
      */
     public function addTableColumn(
         string $tableId,
         string $name,
         ?array $definition = null,
         ?string $basetype = null,
-        ?string $description = null,
     ) {
         $data = [
             'name' => $name,
@@ -1577,9 +1581,6 @@ class Client
         }
         if ($basetype !== null) {
             $data['basetype'] = $basetype;
-        }
-        if ($description !== null) {
-            $data['description'] = $description;
         }
         $this->apiPostJson("tables/$tableId/columns", $data);
     }
