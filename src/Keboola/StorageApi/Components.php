@@ -138,6 +138,14 @@ class Components
         return $this->client->apiGet($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/diff");
     }
 
+    public function rebaseConfiguration($componentId, $configurationId, $version)
+    {
+        return $this->client->apiPostJson(
+            $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rebase",
+            ['version' => $version],
+        );
+    }
+
     /** @return ComponentListItem[] */
     public function listComponents(?ListComponentsOptions $options = null): array
     {
