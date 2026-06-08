@@ -5555,9 +5555,7 @@ Each input item must reference its source via `source` — the full source table
                     + limit (optional, number) - Row limit
                     + overwrite (optional, boolean) - When `preserve` is true, duplicate tables in the workspace will be overwritten.
                         Default: false
-                    + use_view (optional, boolean) - Legacy shortcut for `load_type: VIEW`. Cannot be combined with `load_type`.
-                        Default: false
-                    + load_type (optional, enum[string]) - Explicitly selects the load type. Omit it (or use `AUTO`) to let the server pick the preferred type. A type that is not available for the source table/workspace (see `possibleLoadTypes` in the dry-run) returns HTTP 400. Cannot be combined with `use_view`.
+                    + load_type (optional, enum[string]) - Explicitly selects the load type. Omit it (or use `AUTO`) to let the server pick the preferred type. A type that is not available for the source table/workspace (see `possibleLoadTypes` in the dry-run) returns HTTP 400.
                         + Members
                             + AUTO - Server resolves the preferred load type (default).
                             + COPY - Copy the data into the workspace.
@@ -5737,9 +5735,7 @@ Same as [Input Mapping Load](#reference/workspaces/input-mapping-load) but scope
                     + limit (optional, number) - Row limit
                     + overwrite (optional, boolean) - When `preserve` is true, duplicate tables in the workspace will be overwritten.
                         Default: false
-                    + use_view (optional, boolean) - Legacy shortcut for `load_type: VIEW`. Cannot be combined with `load_type`.
-                        Default: false
-                    + load_type (optional, enum[string]) - Explicitly selects the load type. Omit it (or use `AUTO`) to let the server pick the preferred type. A type that is not available for the source table/workspace (see `possibleLoadTypes` in the dry-run) returns HTTP 400. Cannot be combined with `use_view`.
+                    + load_type (optional, enum[string]) - Explicitly selects the load type. Omit it (or use `AUTO`) to let the server pick the preferred type. A type that is not available for the source table/workspace (see `possibleLoadTypes` in the dry-run) returns HTTP 400.
                         + Members
                             + AUTO - Server resolves the preferred load type (default).
                             + COPY - Copy the data into the workspace.
