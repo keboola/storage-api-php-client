@@ -5514,9 +5514,7 @@ Loads tables from Storage into a Workspace using a `keboola/input-mapping` `Conf
 
 The endpoint resolves the load type per input item via the canonical `LoadTypeDecider` with priority **CLONE > VIEW > COPY**. CLONE is gated by the `bq-enable-clone` feature on BigQuery; VIEW on Snowflake is gated by the `input-mapping-read-only-storage` feature.
 
-Each input item must reference its source exactly one of two ways:
-* `source` — full source table id (e.g. `in.c-bucket.mytable`),
-* `source_search` — `{key, value}` metadata lookup that resolves to a single table across buckets the caller can read. Zero or multiple matches return HTTP 400.
+Each input item must reference its source via `source` — the full source table id (e.g. `in.c-bucket.mytable`).
 
 `where_column` and `where_values` must be provided together (setting one without the other returns HTTP 400).
 
@@ -5528,12 +5526,8 @@ Each input item must reference its source exactly one of two ways:
         + Items
             + (object)
                 + Properties
-                    + source (optional, string) - Full source table id (e.g. `in.c-bucket.mytable`). Required unless `source_search` is provided.
+                    + source (required, string) - Full source table id (e.g. `in.c-bucket.mytable`).
                     + source_branch_id (optional, number) - Branch id where to load `source` from. Defaults to the current branch.
-                    + source_search (optional, object) - Alternative to `source`. Resolves to a single matching table via table-level metadata. Zero or multiple matches return HTTP 400.
-                        + Properties
-                            + key (required, string) - Metadata key to match
-                            + value (required, string) - Metadata value to match
                     + destination (required, string) - Destination table name in the workspace
                     + days (optional, number) - **Deprecated** (use `changed_since` instead).
                     + changed_since (optional, string) - Unix timestamp or relative time (e.g. `-7 days`); filters rows by import timestamp.
@@ -5583,10 +5577,7 @@ Each input item must reference its source exactly one of two ways:
                         "destination": "orders"
                     },
                     {
-                        "source_search": {
-                            "key": "KBC.dataType",
-                            "value": "customers"
-                        },
+                        "source": "in.c-main.customers",
                         "destination": "customers",
                         "columns": ["id", "email"],
                         "where_column": "country",
@@ -5711,12 +5702,8 @@ Same as [Input Mapping Load](#reference/workspaces/input-mapping-load) but scope
         + Items
             + (object)
                 + Properties
-                    + source (optional, string) - Full source table id (e.g. `in.c-bucket.mytable`). Required unless `source_search` is provided.
+                    + source (required, string) - Full source table id (e.g. `in.c-bucket.mytable`).
                     + source_branch_id (optional, number) - Branch id where to load `source` from. Defaults to the current branch.
-                    + source_search (optional, object) - Alternative to `source`. Resolves to a single matching table via table-level metadata. Zero or multiple matches return HTTP 400.
-                        + Properties
-                            + key (required, string) - Metadata key to match
-                            + value (required, string) - Metadata value to match
                     + destination (required, string) - Destination table name in the workspace
                     + days (optional, number) - **Deprecated** (use `changed_since` instead).
                     + changed_since (optional, string) - Unix timestamp or relative time; filters rows by import timestamp.
