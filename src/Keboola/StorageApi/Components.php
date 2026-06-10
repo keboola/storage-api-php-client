@@ -138,11 +138,11 @@ class Components
         return $this->client->apiGet($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/diff");
     }
 
-    public function rebaseConfiguration($componentId, $configurationId, $version)
+    public function rebaseConfiguration($componentId, $configurationId, $version, $head = [])
     {
         return $this->client->apiPostJson(
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rebase",
-            ['version' => $version],
+            array_merge(['version' => $version], $head),
         );
     }
 
