@@ -122,6 +122,22 @@ class Components
         return $this->client->apiPostJson($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/reset-to-default");
     }
 
+    /**
+     * @return array{base: mixed, ours: mixed, theirs: mixed}
+     */
+    public function getConfigurationDiff(string $componentId, string $configurationId): array
+    {
+        return $this->client->apiGet($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/diff");
+    }
+
+    /**
+     * @return array{base: mixed, ours: mixed, theirs: mixed}
+     */
+    public function getConfigurationRowDiff(string $componentId, string $configurationId, string $rowId): array
+    {
+        return $this->client->apiGet($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/diff");
+    }
+
     /** @return ComponentListItem[] */
     public function listComponents(?ListComponentsOptions $options = null): array
     {
