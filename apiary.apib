@@ -5561,6 +5561,8 @@ Each input item must reference its source via `source` — the full source table
                             + COPY - Copy the data into the workspace.
                             + CLONE - Clone the source table (when supported).
                             + VIEW - Expose the source table as a view (when supported).
+                    + use_view (optional, boolean) - Legacy alias for `load_type: VIEW`, kept for backward compatibility. Cannot be combined with a conflicting `load_type` (`COPY`/`CLONE`).
+                        Default: false
                     + keep_internal_timestamp_column (optional, boolean) - When `false`, the `_timestamp` column is dropped after the load.
                         Default: true
                     + file_type (optional, string) - Accepted for compatibility with the IM payload; no SAPI counterpart, value is ignored.
@@ -5741,6 +5743,8 @@ Same as [Input Mapping Load](#reference/workspaces/input-mapping-load) but scope
                             + COPY - Copy the data into the workspace.
                             + CLONE - Clone the source table (when supported).
                             + VIEW - Expose the source table as a view (when supported).
+                    + use_view (optional, boolean) - Legacy alias for `load_type: VIEW`, kept for backward compatibility. Cannot be combined with a conflicting `load_type` (`COPY`/`CLONE`).
+                        Default: false
                     + keep_internal_timestamp_column (optional, boolean) - When `false`, the `_timestamp` column is dropped after the load.
                         Default: true
                     + file_type (optional, string) - Accepted for compatibility with the IM payload; no SAPI counterpart, value is ignored.
