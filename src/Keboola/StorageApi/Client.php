@@ -534,8 +534,9 @@ class Client
      * @param bool $force when true, the bucket's stored lastChangeDate is ignored and all
      *     tables/views are refreshed (works around stale Snowflake LAST_ALTERED on data shares).
      *     Takes precedence over $lastChangeDate.
-     * @param ?string $lastChangeDate optional ISO 8601 override of the lastChangeDate used to
-     *     detect altered tables; ignored when $force is true
+     * @param ?string $lastChangeDate optional override of the lastChangeDate used to detect
+     *     altered tables; accepts a unix timestamp or any strtotime()-compatible string
+     *     (e.g. "-2 days", "1360138863", "2013-02-12T15:19:21+00:00"); ignored when $force is true
      */
     public function refreshBucket(string $bucketId, bool $force = false, ?string $lastChangeDate = null)
     {

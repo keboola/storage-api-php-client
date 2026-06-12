@@ -1499,7 +1499,7 @@ By default only tables whose backend `LAST_ALTERED` is newer than the bucket's s
 + Parameters
     + bucket_id (required) - Bucket Id
     + force (optional, boolean) - When true, ignore the stored lastChangeDate and refresh all tables and views.
-    + lastChangeDate (optional, string) - ISO 8601 override of the lastChangeDate used to detect altered tables (e.g. `2025-11-14T19:00:47+01:00`). Ignored when `force` is true.
+    + lastChangeDate (optional, string) - Override of the lastChangeDate used to detect altered tables. Can be a unix timestamp or any date accepted by [strtotime](http://www.php.net/manual/en/function.strtotime.php). Examples: `-2 days`, `1360138863`, `2013-02-12T15:19:21+00:00`. Ignored when `force` is true.
 
 + Request
     + Headers
