@@ -530,10 +530,27 @@ class Client
      *     lastChangeDate: string,
      *     hasExternalSchema: bool,
      * }
+     *
+     * @param bool $force when true, the bucket's stored lastChangeDate is ignored and all
+     *     tables/views are refreshed (works around stale Snowflake LAST_ALTERED on data shares).
+     *     Takes precedence over $lastChangeDate.
+     * @param ?string $lastChangeDate optional ISO 8601 override of the lastChangeDate used to
+     *     detect altered tables; ignored when $force is true
      */
-    public function refreshBucket(string $bucketId)
+    public function refreshBucket(string $bucketId, bool $force = false, ?string $lastChangeDate = null)
     {
         $url = 'buckets/' . $bucketId . '/refresh';
+
+        $query = [];
+        if ($force) {
+            $query['force'] = '1';
+        }
+        if ($lastChangeDate !== null) {
+            $query['lastChangeDate'] = $lastChangeDate;
+        }
+        if ($query !== []) {
+            $url .= '?' . http_build_query($query);
+        }
 
         // Method Keboola\StorageApi\Client::refreshBucket() should return array{id: string, uri: string, name: string, stage: string, tables: string, backend: string, created: string, sharing: string|null, ...} but returns mixed.
         return $this->apiPutJson($url);
