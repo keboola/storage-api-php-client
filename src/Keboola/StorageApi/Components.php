@@ -17,6 +17,7 @@ use Keboola\StorageApi\Options\Components\ListConfigurationWorkspacesOptions;
 /**
  * @phpstan-type Component array{id: string, type: string, name: string, description: string, longDescription: string, version: int, complexity: string, categories: list<string>, hasUI: bool, hasRun: bool, ico32: string, ico64: string, ico128: string, data: array, flags: list<string>, configurationSchema: array, configurationRowSchema: array, emptyConfiguration: array, emptyConfigurationRow: array, createConfigurationRowSchema: array, uiOptions: array, configurationDescription: string, features: list<string>, expiredOn: string, dataTypesConfiguration: array, processorConfiguration: array, uri: string, documentationUrl: string}
  * @phpstan-type ComponentListItem array{id: string, type: string, name: string, description: string, longDescription: string, version: int, complexity: string, categories: list<string>, hasUI: bool, hasRun: bool, ico32: string, ico64: string, ico128: string, data: array, flags: list<string>, configurationSchema: array, configurationRowSchema: array, emptyConfiguration: array, emptyConfigurationRow: array, createConfigurationRowSchema: array, uiOptions: array, configurationDescription: string, features: list<string>, expiredOn: string, dataTypesConfiguration: array, configurations: array, processorConfiguration: array, uri: string, documentationUrl: string}
+ * @phpstan-type ComponentConfiguration array{id: string, name: string, description: string, created: string, creatorToken: array{id: int, description: string}, version: int, changeDescription: string|null, isDisabled: bool, isDeleted: bool, configuration: array<string, mixed>, state: array<string, mixed>, rowsSortOrder: list<string>, rows: list<array<string, mixed>>, currentVersion: array{created: string, creatorToken: array{id: int, description: string}, changeDescription: string|null, versionIdentifier: string|null}}
  */
 class Components
 {
@@ -136,6 +137,33 @@ class Components
     public function getConfigurationRowDiff(string $componentId, string $configurationId, string $rowId): array
     {
         return $this->client->apiGet($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/diff");
+    }
+
+    /**
+     * @param array<string, mixed>|null $configuration null omits the body (reserved for a future delete resolution)
+     * @return ComponentConfiguration
+     */
+    public function rebaseConfiguration(
+        string $componentId,
+        string $configurationId,
+        int $version,
+        string $name,
+        ?string $description = null,
+        ?array $configuration = null,
+        ?string $changeDescription = null,
+        bool $isDisabled = false,
+    ): array {
+        return $this->client->apiPostJson(
+            $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rebase",
+            [
+                'version' => $version,
+                'name' => $name,
+                'description' => $description,
+                'configuration' => $configuration === null ? null : ($configuration ?: (object) []),
+                'changeDescription' => $changeDescription,
+                'isDisabled' => $isDisabled,
+            ],
+        );
     }
 
     /** @return ComponentListItem[] */
