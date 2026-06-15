@@ -262,6 +262,30 @@ class Workspaces
     }
 
     /**
+     * Preview the resolved load types for a component-style input-mapping config without a workspace.
+     *
+     * Posts to the workspace-less `/input-mapping-load/preview` endpoint and returns the resolved
+     * load types per table (HTTP 200) without creating a job. The backend is resolved per item:
+     * the item's `backend` field, then the `$backend` query parameter, then the project's default
+     * backend; the winner must be one of the project's assigned backends.
+     *
+     * @param array<string, mixed> $options required `input` (IM-format items, each may carry an
+     *        optional `backend`), optional `preserve`
+     * @param string|null $backend default backend for items that do not set their own
+     * @return array<string, mixed> preview response: `{input: [{source, destination, loadType, possibleLoadTypes}]}`
+     */
+    public function inputMappingLoadPreview(array $options = [], ?string $backend = null): array
+    {
+        $url = 'input-mapping-load/preview';
+        if ($backend !== null) {
+            $url .= '?' . http_build_query(['backend' => $backend]);
+        }
+        $result = $this->client->apiPostJson($url, $options, false);
+        assert(is_array($result));
+        return $result;
+    }
+
+    /**
      * Queue variant of {@see self::inputMappingLoad()} for the job-creating path.
      *
      * @param array<string, mixed> $options required `input` (IM-format items), optional `preserve`
