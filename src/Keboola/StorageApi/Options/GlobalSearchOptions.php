@@ -22,6 +22,8 @@ class GlobalSearchOptions
     /** @var int[]|null  */
     private ?array $branchIds;
 
+    private ?GlobalSearchMode $mode;
+
     /**
      * @param int[]|null $projectIds
      * @param string[]|null $types
@@ -35,6 +37,7 @@ class GlobalSearchOptions
         ?array $projectIds = null,
         ?array $branchTypes = null,
         ?array $branchIds = null,
+        ?GlobalSearchMode $mode = null,
     ) {
         $this->limit = $limit;
         $this->offset = $offset;
@@ -42,6 +45,7 @@ class GlobalSearchOptions
         $this->projectIds = $projectIds;
         $this->branchTypes = $branchTypes;
         $this->branchIds = $branchIds;
+        $this->mode = $mode;
     }
 
     public function toParamsArray(): array
@@ -70,6 +74,10 @@ class GlobalSearchOptions
 
         if ($this->branchIds !== null) {
             $params['branchIds'] = $this->branchIds;
+        }
+
+        if ($this->mode !== null) {
+            $params['mode'] = $this->mode->value;
         }
 
         return $params;
