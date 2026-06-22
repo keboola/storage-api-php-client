@@ -57,9 +57,13 @@ class Tokens
         TokenCreateOptions $options,
         ?string $applicationToken = null,
     ): array {
+        // Non-empty manage token -> X-KBC-ManageApiToken; null -> connection ServiceAccount
+        // (X-Kubernetes-Authorization). An empty string is passed through and rejected by
+        // ManageApiTokenAuthenticator at runtime (InvalidArgumentException), so the
+        // non-empty-string param type is enforced there, not here.
         $authenticator = $applicationToken !== null
-            ? new ManageApiTokenAuthenticator($applicationToken)   // X-KBC-ManageApiToken
-            : new KeboolaServiceAccountAuthenticator();            // X-Kubernetes-Authorization (connection SA)
+            ? new ManageApiTokenAuthenticator($applicationToken) // @phpstan-ignore argument.type
+            : new KeboolaServiceAccountAuthenticator();
 
         // Authenticators decorate a PSR-7 request; apply to a blank one and lift the
         // header(s) out, since Client works with Guzzle option-arrays, not PSR-7 requests.
