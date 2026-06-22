@@ -1775,8 +1775,13 @@ class Client
         return $result['id'];
     }
 
-    public function createTokenPrivilegedInProtectedDefaultBranch(TokenCreateOptions $options, string $applicationToken): string
-    {
+    /**
+     * @param null|non-empty-string $applicationToken
+     */
+    public function createTokenPrivilegedInProtectedDefaultBranch(
+        TokenCreateOptions $options,
+        ?string $applicationToken = null,
+    ): string {
         $result = $this->tokens->createTokenPrivilegedInProtectedDefaultBranch($options, $applicationToken);
 
         $this->log("Token {$result["id"]} created on behalf of user", ['options' => $options->toParamsArray(), 'result' => $result]);
