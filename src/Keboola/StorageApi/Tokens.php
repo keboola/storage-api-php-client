@@ -50,8 +50,8 @@ class Tokens
     }
 
     /**
-     * @param null|non-empty-string $applicationToken Manage API token to authorize the
-     *     privileged flag. When null, the connection ServiceAccount token is used instead.
+     * @param string|null $applicationToken Manage API token to authorize the privileged
+     *     flag. When null, the connection ServiceAccount token is used instead.
      */
     public function createTokenPrivilegedInProtectedDefaultBranch(
         TokenCreateOptions $options,

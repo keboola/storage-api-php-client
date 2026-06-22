@@ -1775,9 +1775,6 @@ class Client
         return $result['id'];
     }
 
-    /**
-     * @param null|non-empty-string $applicationToken
-     */
     public function createTokenPrivilegedInProtectedDefaultBranch(
         TokenCreateOptions $options,
         ?string $applicationToken = null,
