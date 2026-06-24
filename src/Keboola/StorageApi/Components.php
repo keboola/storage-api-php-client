@@ -124,19 +124,15 @@ class Components
     }
 
     /**
-     * @return array{base: mixed, ours: mixed, theirs: mixed}
+     * @return array{
+     *     base: array{version: int, isDeleted: bool, diff: array<string, mixed>}|null,
+     *     ours: array{version: int, isDeleted: bool, diff: array<string, mixed>}|null,
+     *     theirs: array{version: int, isDeleted: bool, diff: array<string, mixed>}|null,
+     * }
      */
     public function getConfigurationDiff(string $componentId, string $configurationId): array
     {
         return $this->client->apiGet($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/diff");
-    }
-
-    /**
-     * @return array{base: mixed, ours: mixed, theirs: mixed}
-     */
-    public function getConfigurationRowDiff(string $componentId, string $configurationId, string $rowId): array
-    {
-        return $this->client->apiGet($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/diff");
     }
 
     /**
