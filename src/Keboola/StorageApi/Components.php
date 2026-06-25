@@ -136,7 +136,10 @@ class Components
     }
 
     /**
-     * @param array<string, mixed>|null $configuration null omits the body (reserved for a future delete resolution)
+     * Rebases the dev branch configuration onto the given default branch version, keeping the resolved head content.
+     * To resolve the conflict by deleting the configuration instead, use rebaseConfigurationToDeleted().
+     *
+     * @param array<string, mixed>|null $configuration
      * @return ComponentConfiguration
      */
     public function rebaseConfiguration(
@@ -158,6 +161,26 @@ class Components
                 'configuration' => $configuration === null ? null : ($configuration ?: (object) []),
                 'changeDescription' => $changeDescription,
                 'isDisabled' => $isDisabled,
+            ],
+        );
+    }
+
+    /**
+     * Rebases the dev branch configuration onto the given default branch version, resolving the conflict by deleting
+     * the configuration: the request carries only "version" (no content fields), so the new head version is a
+     * tombstone (isDeleted = true).
+     *
+     * @return ComponentConfiguration
+     */
+    public function rebaseConfigurationToDeleted(
+        string $componentId,
+        string $configurationId,
+        int $version,
+    ): array {
+        return $this->client->apiPostJson(
+            $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rebase",
+            [
+                'version' => $version,
             ],
         );
     }
