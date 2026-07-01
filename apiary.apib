@@ -8772,7 +8772,7 @@ Calling this API call on a deleted configuration in a **default branch** will pu
 
 ## Configuration Diff [/v2/storage/components/{component_id}/configs/{config_id}/diff]
 ### Configuration Three-Way Diff [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/diff]
-Returns the three sides needed to resolve a merge conflict for a configuration in a [Development Branch](#reference/development-branches): `base` (the configuration version at branch creation, or after the last rebase), `ours` (the dev branch head) and `theirs` (the default branch head). Each side is the configuration version snapshot, or `null` when the configuration does not exist on that side. When there is no conflict, `base` equals `theirs`; `ours` may still differ if the dev branch has its own changes, so the endpoint also works as a "compare with default" tool.
+Returns the three sides needed to resolve a merge conflict for a configuration in a [Development Branch](#reference/development-branches): `base` (the configuration version at branch creation, or after the last rebase), `ours` (the dev branch head) and `theirs` (the default branch head). Each side carries per-side metadata (`version`, `isDeleted`) and the user-editable content in `diff` — the payload a client feeds directly into a three-way diff editor and, once resolved, sends back to the rebase endpoint. A side is `null` when the configuration never existed on that side; `isDeleted: true` marks a deletion tombstone (it existed but was soft-deleted). When there is no conflict, `base` equals `theirs`; `ours` may still differ if the dev branch has its own changes, so the endpoint also works as a "compare with default" tool.
 
 Only available in development branches.
 
@@ -8791,53 +8791,41 @@ Only available in development branches.
             {
                 "base": {
                     "version": 1,
-                    "created": "2017-02-14T14:38:26+0100",
-                    "versionIdentifier": "01H2W8N0ZJJB6V126C8ZSND28N",
-                    "creatorToken": {
-                        "id": 27978,
-                        "description": "name@example.com"
-                    },
-                    "changeDescription": "Initial configuration",
-                    "isDisabled": false,
                     "isDeleted": false,
-                    "name": "My configuration",
-                    "description": "",
-                    "configuration": {
-                        "key": "value"
+                    "diff": {
+                        "name": "My configuration",
+                        "description": "",
+                        "changeDescription": "Initial configuration",
+                        "isDisabled": false,
+                        "configuration": {
+                            "key": "value"
+                        }
                     }
                 },
                 "ours": {
                     "version": 5,
-                    "created": "2017-02-15T09:10:00+0100",
-                    "versionIdentifier": "01H2W9MABCDT78NZQ2BD2BZT4S",
-                    "creatorToken": {
-                        "id": 27978,
-                        "description": "name@example.com"
-                    },
-                    "changeDescription": "Dev branch change",
-                    "isDisabled": false,
                     "isDeleted": false,
-                    "name": "My configuration",
-                    "description": "",
-                    "configuration": {
-                        "key": "dev-value"
+                    "diff": {
+                        "name": "My configuration",
+                        "description": "",
+                        "changeDescription": "Dev branch change",
+                        "isDisabled": false,
+                        "configuration": {
+                            "key": "dev-value"
+                        }
                     }
                 },
                 "theirs": {
                     "version": 3,
-                    "created": "2017-02-15T08:00:00+0100",
-                    "versionIdentifier": "01H2WAXYZJB6V126C8ZSND99Q",
-                    "creatorToken": {
-                        "id": 27978,
-                        "description": "name@example.com"
-                    },
-                    "changeDescription": "Default branch change",
-                    "isDisabled": false,
                     "isDeleted": false,
-                    "name": "My configuration",
-                    "description": "",
-                    "configuration": {
-                        "key": "default-value"
+                    "diff": {
+                        "name": "My configuration",
+                        "description": "",
+                        "changeDescription": "Default branch change",
+                        "isDisabled": false,
+                        "configuration": {
+                            "key": "default-value"
+                        }
                     }
                 }
             }
@@ -9389,97 +9377,6 @@ A configuration row is deleted permanently and cannot be restored.
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
 + Response 204
-
-## Configuration Row Diff [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/diff]
-### Configuration Row Three-Way Diff [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/diff]
-Returns the three sides needed to resolve a merge conflict for a single configuration row in a [Development Branch](#reference/development-branches): `base` (the row at branch creation, or after the last rebase), `ours` (the dev branch head) and `theirs` (the default branch head). Each side is the row version snapshot, or `null` when the row does not exist on that side (for example a row added only in one branch). When there is no conflict, `base` equals `theirs`; `ours` may still differ if the dev branch has its own changes.
-
-Only available in development branches.
-
-+ Parameters
-    + branch_id (required) - Id of the development branch
-    + component_id (required) - Id of the component - e.g. `keboola.ex-db-mysql`
-    + config_id (required) - Id of the configuration
-    + row_id (required) - Id of the configuration row
-
-+ Request
-    + Headers
-
-            X-StorageApi-Token: your_token
-
-+ Response 200 (application/json)
-
-            {
-                "base": {
-                    "id": "236781529",
-                    "name": "",
-                    "description": "",
-                    "isDisabled": false,
-                    "version": 1,
-                    "created": "2017-02-15T00:04:42+0100",
-                    "creatorToken": {
-                        "id": 27978,
-                        "description": "name@example.com"
-                    },
-                    "changeDescription": "Row 236781529 added",
-                    "versionIdentifier": "01H59WQGTDQT8AC7XNWKQDS75P",
-                    "configuration": {
-                        "value": "original"
-                    }
-                },
-                "ours": {
-                    "id": "236781529",
-                    "name": "",
-                    "description": "",
-                    "isDisabled": false,
-                    "version": 4,
-                    "created": "2017-02-15T09:10:00+0100",
-                    "creatorToken": {
-                        "id": 27978,
-                        "description": "name@example.com"
-                    },
-                    "changeDescription": "Dev branch change",
-                    "versionIdentifier": "01H59XABCDQT8AC7XNWKQDS99R",
-                    "configuration": {
-                        "value": "dev"
-                    }
-                },
-                "theirs": {
-                    "id": "236781529",
-                    "name": "",
-                    "description": "",
-                    "isDisabled": false,
-                    "version": 2,
-                    "created": "2017-02-15T08:00:00+0100",
-                    "creatorToken": {
-                        "id": 27978,
-                        "description": "name@example.com"
-                    },
-                    "changeDescription": "Default branch change",
-                    "versionIdentifier": "01H59YXYZTDQT8AC7XNWKQDS11S",
-                    "configuration": {
-                        "value": "default"
-                    }
-                }
-            }
-
-+ Response 400 (application/json)
-
-    + Body
-
-            {
-                "error": "Configuration row diff is only available in dev branches",
-                "code": "storage.configurationRow.diffNotAvailableOnDefaultBranch"
-            }
-
-+ Response 404 (application/json)
-
-    + Body
-
-            {
-                "error": "Row \"first-row\" not found",
-                "code": "storage.configurationRow.notFound"
-            }
 
 ## List Configuration Row Versions [/v2/storage/components/{component_id}/configs/{config_id}/rows/{row_id}/versions]
 ### Versions list [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rows/{row_id}/versions?include={include}&limit={limit}&offset={offset}]
