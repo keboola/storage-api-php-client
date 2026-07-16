@@ -8772,7 +8772,7 @@ Calling this API call on a deleted configuration in a **default branch** will pu
 
 ## Configuration Diff [/v2/storage/components/{component_id}/configs/{config_id}/diff]
 ### Configuration Three-Way Diff [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/diff]
-Returns the three sides needed to resolve a merge conflict for a configuration in a [Development Branch](#reference/development-branches): `base` (the configuration version at branch creation, or after the last rebase), `ours` (the dev branch head) and `theirs` (the default branch head). Each side carries per-side metadata (`version`, `isDeleted`) and the user-editable content in `diff` — the payload a client feeds directly into a three-way diff editor and, once resolved, sends back to the rebase endpoint. A side is `null` when the configuration never existed on that side; `isDeleted: true` marks a deletion tombstone (it existed but was soft-deleted). When there is no conflict, `base` equals `theirs`; `ours` may still differ if the dev branch has its own changes, so the endpoint also works as a "compare with default" tool.
+Returns the three sides needed to resolve a merge conflict for a configuration in a [Development Branch](#reference/development-branches): `base` (the configuration version at branch creation, or after the last rebase), `ours` (the dev branch head) and `theirs` (the default branch head). Each side carries per-side metadata (`version`, `isDeleted`) and the user-editable content in `diff` — the payload a client feeds directly into a three-way diff editor and, once resolved, sends back to the rebase endpoint. `diff.rows` are the configuration rows valid at that side's version, in their sort order — the same editable-content contract as the configuration body, with no per-row metadata; a row deleted on one side is detected by its absence relative to `base` (which acts as the reference set of "what existed"). A side is `null` when the configuration never existed on that side; `isDeleted: true` marks a deletion tombstone (it existed but was soft-deleted). When there is no conflict, `base` equals `theirs`; `ours` may still differ if the dev branch has its own changes, so the endpoint also works as a "compare with default" tool.
 
 Only available in development branches.
 
@@ -8799,7 +8799,18 @@ Only available in development branches.
                         "isDisabled": false,
                         "configuration": {
                             "key": "value"
-                        }
+                        },
+                        "rows": [
+                            {
+                                "id": "row-1",
+                                "name": "First row",
+                                "description": "",
+                                "isDisabled": false,
+                                "configuration": {
+                                    "key": "value"
+                                }
+                            }
+                        ]
                     }
                 },
                 "ours": {
@@ -8812,7 +8823,27 @@ Only available in development branches.
                         "isDisabled": false,
                         "configuration": {
                             "key": "dev-value"
-                        }
+                        },
+                        "rows": [
+                            {
+                                "id": "row-1",
+                                "name": "First row",
+                                "description": "",
+                                "isDisabled": false,
+                                "configuration": {
+                                    "key": "dev-value"
+                                }
+                            },
+                            {
+                                "id": "row-2",
+                                "name": "Added in dev branch",
+                                "description": "",
+                                "isDisabled": false,
+                                "configuration": {
+                                    "key": "new"
+                                }
+                            }
+                        ]
                     }
                 },
                 "theirs": {
@@ -8825,7 +8856,18 @@ Only available in development branches.
                         "isDisabled": false,
                         "configuration": {
                             "key": "default-value"
-                        }
+                        },
+                        "rows": [
+                            {
+                                "id": "row-1",
+                                "name": "First row",
+                                "description": "",
+                                "isDisabled": false,
+                                "configuration": {
+                                    "key": "default-value"
+                                }
+                            }
+                        ]
                     }
                 }
             }
