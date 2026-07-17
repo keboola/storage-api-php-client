@@ -139,6 +139,11 @@ class Components
      * Rebases the dev branch configuration onto the given default branch version, keeping the resolved head content.
      * To resolve the conflict by deleting the configuration instead, use rebaseConfigurationToDeleted().
      *
+     * $rows is the complete resolved row set (the diff's `diff.rows` posted back) and is required for a keep
+     * rebase: an empty array deletes all rows, the array order becomes the row sort order. A row without an id is
+     * created with a generated id.
+     *
+     * @param list<array{id?: string, name?: string, description?: string, isDisabled?: bool, configuration?: array<string, mixed>|object}> $rows
      * @param array<string, mixed>|null $configuration
      * @return ComponentConfiguration
      */
@@ -147,6 +152,7 @@ class Components
         string $configurationId,
         int $version,
         string $name,
+        array $rows,
         ?string $description = null,
         ?array $configuration = null,
         ?string $changeDescription = null,
@@ -157,6 +163,7 @@ class Components
             [
                 'version' => $version,
                 'name' => $name,
+                'rows' => array_values($rows),
                 'description' => $description,
                 'configuration' => $configuration === null ? null : ($configuration ?: (object) []),
                 'changeDescription' => $changeDescription,
