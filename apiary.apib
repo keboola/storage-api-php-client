@@ -8890,6 +8890,79 @@ Only available in development branches.
                 "code": "storage.configuration.notFound"
             }
 
+## Configuration Rebase [/v2/storage/components/{component_id}/configs/{config_id}/rebase]
+### Rebase Configuration onto Default Branch [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/rebase]
+Re-anchors a [Development Branch](#reference/development-branches) configuration onto the given `version` of the default branch, preserving the dev branch work. The result is exactly two versions: version 1 = a faithful snapshot of the chosen default branch version (the new base, including its rows) and version 2 = the resolved head sent in the request body — typically the content of the three-way diff (`diff`) after the user resolved it.
+
+`rows` is the **complete resolved row set** (the diff's `diff.rows` posted back) and is required for a keep rebase — omitting it is an error, `[]` deletes all rows. Rows are reconciled against the re-anchored base: an `id` present in the base with changed content updates that row, identical content is kept without a new row version, an `id` not present in the base (or a row without an `id`) creates a new row, and a base row whose `id` is missing from the request is deleted. The array order becomes the row sort order.
+
+To resolve the conflict by **deleting the configuration**, send only `version` (omit all content fields including `rows`) — the new head version is a tombstone and the rows are deleted with it.
+
+Only available in development branches.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component
+    + config_id (required) - Id of the configuration
+
++ Request (application/json)
+    + Headers
+
+            X-StorageApi-Token: your_token
+
+    + Body
+
+            {
+                "version": 3,
+                "name": "My configuration",
+                "description": "resolved description",
+                "changeDescription": "Conflict resolved via rebase",
+                "isDisabled": false,
+                "configuration": {
+                    "key": "resolved-value"
+                },
+                "rows": [
+                    {
+                        "id": "row-1",
+                        "name": "First row",
+                        "description": "",
+                        "isDisabled": false,
+                        "configuration": {
+                            "key": "resolved-value"
+                        }
+                    },
+                    {
+                        "id": "row-2",
+                        "name": "Added in dev branch",
+                        "description": "",
+                        "isDisabled": false,
+                        "configuration": {
+                            "key": "new"
+                        }
+                    }
+                ]
+            }
+
++ Response 200 (application/json)
+
++ Response 400 (application/json)
+
+    + Body
+
+            {
+                "error": "Configuration rebase is only available in dev branches",
+                "code": "storage.configuration.rebaseNotAvailableOnDefaultBranch"
+            }
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "error": "Version 999 not found",
+                "code": "storage.configuration.versionNotFound"
+            }
+
 ## Configuration Restore [/v2/storage/components/{component_id}/configs/{config_id}/restore]
 ### Restore Deleted Configuration [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/restore]
 Removes the `isDeleted` flag of a deleted configuration for [Development Branch](#reference/development-branches). This makes a new version of the configuration
