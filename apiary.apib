@@ -8586,12 +8586,23 @@ Gets the component configuration detail for [Development Branch](#reference/deve
 ### Update Configuration [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}]
 Updates an existing configuration for [Development Branch](#reference/development-branches). When the configuration is updated in a development branch, it does not affect `currentVersion` of the configuration.
 
-The optional `X-KBC-ExpectedVersion` header turns the update into an optimistic-concurrency
-operation: the change is applied only if the configuration is still at the given version,
-otherwise the request fails with `409` and nothing is written. Take the value from the `version`
-field of a configuration detail response. The version covers the whole configuration including
-its rows and row order, but not `state` — job state writes never invalidate it. Without the
-header the update is unconditional and overwrites concurrent changes.
+An optional version precondition turns the update into an optimistic-concurrency operation: the
+change is applied only if the configuration is still at the given version, otherwise nothing is
+written. Take the value from the `version` field of a configuration detail response. Two spellings
+are accepted, and sending both is rejected with `400`:
+
+- `If-Match: "5"` — RFC 9110 form, fails with `412 Precondition Failed`. `If-Match: *` only
+  requires that the configuration still exists. Weak validators (`W/"5"`) and tag lists are
+  rejected with `400`, because `If-Match` mandates strong comparison and a configuration has a
+  single version.
+- `X-KBC-ExpectedVersion: 5` — plain integer, fails with `409 Conflict`.
+
+Reads deliberately do **not** emit an `ETag`. The version covers the whole configuration including
+its rows and row order, but not `state`, so job state writes never invalidate a caller's
+precondition — which also means the version is not a valid strong validator for the full
+representation and must not be used for caching.
+
+Without either header the update is unconditional and overwrites concurrent changes.
 
 + Parameters
     + branch_id (required) - Id of the development branch
@@ -8663,6 +8674,24 @@ header the update is unconditional and overwrites concurrent changes.
     Returned when `X-KBC-ExpectedVersion` does not match the current version. Re-read the
     configuration, reapply the change on top of the current content, and send the update again
     with the new version.
+
+    + Body
+
+            {
+                "error": "Configuration \"main-1\" is at version 9, expected version 5. Reload the configuration and reapply your change.",
+                "code": "storage.components.configurations.versionMismatch",
+                "params": {
+                    "projectId": 123,
+                    "componentId": "keboola.ex-db-mysql",
+                    "configurationId": "main-1",
+                    "branchId": null,
+                    "expectedVersion": 5,
+                    "currentVersion": 9
+                }
+            }
+
++ Response 412 (application/json)
+    The `If-Match` spelling of the same condition. Body is identical to the `409` above.
 
     + Body
 
@@ -8784,7 +8813,14 @@ Calling this API call on a deleted configuration in a **default branch** will pu
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
+Accepts the same optimistic-concurrency preconditions as the branch endpoint —
+`If-Match: "<version>"` (`412` on mismatch) or `X-KBC-ExpectedVersion: <version>` (`409` on mismatch).
+
 + Response 200 (application/json)
+
++ Response 409 (application/json)
+
++ Response 412 (application/json)
 
 ### Update Configuration State - without branch in URL (deprecated) [PUT /v2/storage/components/{component_id}/configs/{config_id}/state]
 
