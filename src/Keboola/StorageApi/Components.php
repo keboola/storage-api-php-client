@@ -86,16 +86,18 @@ class Components
             $data['rowsSortOrder'] = $options->getRowsSortOrder();
         }
 
-        $headers = [];
+        $requestOptions = [];
         if ($options->getExpectedVersion() !== null) {
-            $headers[self::HEADER_EXPECTED_VERSION] = (string) $options->getExpectedVersion();
+            $requestOptions[Client::REQUEST_OPTION_HEADERS] = [
+                self::HEADER_EXPECTED_VERSION => (string) $options->getExpectedVersion(),
+            ];
         }
 
         return $this->client->apiPutJson(
             $this->branchPrefix . "components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}",
             $data,
             true,
-            $headers,
+            $requestOptions,
         );
     }
 

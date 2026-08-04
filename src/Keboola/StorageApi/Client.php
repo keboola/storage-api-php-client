@@ -3052,17 +3052,15 @@ class Client
     }
 
     /**
-     * @param array<string, string> $headers
+     * @param array<string, mixed> $requestOptions
      * @return mixed|string
      */
-    public function apiPutJson(string $url, array $data = [], bool $handleAsyncTask = true, array $headers = [])
+    public function apiPutJson(string $url, array $data = [], bool $handleAsyncTask = true, array $requestOptions = [])
     {
-        $options = ['json' => $data];
-        if ($headers !== []) {
-            $options['headers'] = $headers;
-        }
+        $requestOptions = $this->filterRequestOptions($requestOptions);
+        $requestOptions['json'] = $data;
 
-        return $this->request('PUT', $url, $options, null, $handleAsyncTask);
+        return $this->request('PUT', $url, $requestOptions, null, $handleAsyncTask);
     }
 
     /**
