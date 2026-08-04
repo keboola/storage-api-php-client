@@ -23,6 +23,8 @@ class Configuration
 
     private $rowsSortOrder = [];
 
+    private ?int $expectedVersion = null;
+
     /**
      * @return mixed
      */
@@ -182,6 +184,23 @@ class Configuration
     public function setRowsSortOrder(array $rowsSortOrder): static
     {
         $this->rowsSortOrder = $rowsSortOrder;
+        return $this;
+    }
+
+    public function getExpectedVersion(): ?int
+    {
+        return $this->expectedVersion;
+    }
+
+    /**
+     * Rejects the update with 409 unless the configuration is still at this version. Take it from
+     * the `version` field of a configuration detail; null leaves the update unconditional.
+     *
+     * @return $this
+     */
+    public function setExpectedVersion(?int $expectedVersion): static
+    {
+        $this->expectedVersion = $expectedVersion;
         return $this;
     }
 }

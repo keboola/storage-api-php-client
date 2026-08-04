@@ -8586,6 +8586,13 @@ Gets the component configuration detail for [Development Branch](#reference/deve
 ### Update Configuration [PUT /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}]
 Updates an existing configuration for [Development Branch](#reference/development-branches). When the configuration is updated in a development branch, it does not affect `currentVersion` of the configuration.
 
+The optional `X-KBC-ExpectedVersion` header turns the update into an optimistic-concurrency
+operation: the change is applied only if the configuration is still at the given version,
+otherwise the request fails with `409` and nothing is written. Take the value from the `version`
+field of a configuration detail response. The version covers the whole configuration including
+its rows and row order, but not `state` — job state writes never invalidate it. Without the
+header the update is unconditional and overwrites concurrent changes.
+
 + Parameters
     + branch_id (required) - Id of the development branch
     + component_id (required) - Id of the component
@@ -8604,6 +8611,7 @@ Updates an existing configuration for [Development Branch](#reference/developmen
     + Headers
 
             X-StorageApi-Token: your_token
+            X-KBC-ExpectedVersion: 1
 
     + Body
 
@@ -8648,6 +8656,26 @@ Updates an existing configuration for [Development Branch](#reference/developmen
                     },
                     "changeDescription": "Added new key",
                     "versionIdentifier": "01H2W8N0ZJJB6V126C8ZSND28N"
+                }
+            }
+
++ Response 409 (application/json)
+    Returned when `X-KBC-ExpectedVersion` does not match the current version. Re-read the
+    configuration, reapply the change on top of the current content, and send the update again
+    with the new version.
+
+    + Body
+
+            {
+                "error": "Configuration \"main-1\" is at version 9, expected version 5. Reload the configuration and reapply your change.",
+                "code": "storage.components.configurations.versionMismatch",
+                "params": {
+                    "projectId": 123,
+                    "componentId": "keboola.ex-db-mysql",
+                    "configurationId": "main-1",
+                    "branchId": null,
+                    "expectedVersion": 5,
+                    "currentVersion": 9
                 }
             }
 

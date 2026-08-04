@@ -21,6 +21,8 @@ use Keboola\StorageApi\Options\Components\ListConfigurationWorkspacesOptions;
  */
 class Components
 {
+    public const HEADER_EXPECTED_VERSION = 'X-KBC-ExpectedVersion';
+
     private string $branchPrefix = '';
 
     /**
@@ -84,9 +86,16 @@ class Components
             $data['rowsSortOrder'] = $options->getRowsSortOrder();
         }
 
+        $headers = [];
+        if ($options->getExpectedVersion() !== null) {
+            $headers[self::HEADER_EXPECTED_VERSION] = (string) $options->getExpectedVersion();
+        }
+
         return $this->client->apiPutJson(
             $this->branchPrefix . "components/{$options->getComponentId()}/configs/{$options->getConfigurationId()}",
             $data,
+            true,
+            $headers,
         );
     }
 

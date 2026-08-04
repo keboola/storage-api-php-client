@@ -3052,13 +3052,17 @@ class Client
     }
 
     /**
+     * @param array<string, string> $headers
      * @return mixed|string
      */
-    public function apiPutJson(string $url, array $data = [], bool $handleAsyncTask = true)
+    public function apiPutJson(string $url, array $data = [], bool $handleAsyncTask = true, array $headers = [])
     {
-        return $this->request('PUT', $url, [
-            'json' => $data,
-        ], null, $handleAsyncTask);
+        $options = ['json' => $data];
+        if ($headers !== []) {
+            $options['headers'] = $headers;
+        }
+
+        return $this->request('PUT', $url, $options, null, $handleAsyncTask);
     }
 
     /**
