@@ -193,8 +193,9 @@ class Configuration
     }
 
     /**
-     * Rejects the update with 409 unless the configuration is still at this version. Take it from
-     * the `version` field of a configuration detail; null leaves the update unconditional.
+     * Sent as `If-Match`, so the update fails with 412 unless the configuration is still at this
+     * version. Take it from the `version` field of a configuration detail; null leaves the update
+     * unconditional.
      *
      * @return $this
      */

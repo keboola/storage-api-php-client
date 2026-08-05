@@ -21,7 +21,7 @@ use Keboola\StorageApi\Options\Components\ListConfigurationWorkspacesOptions;
  */
 class Components
 {
-    public const HEADER_EXPECTED_VERSION = 'X-KBC-ExpectedVersion';
+    public const HEADER_IF_MATCH = 'If-Match';
 
     private string $branchPrefix = '';
 
@@ -89,7 +89,7 @@ class Components
         $requestOptions = [];
         if ($options->getExpectedVersion() !== null) {
             $requestOptions[Client::REQUEST_OPTION_HEADERS] = [
-                self::HEADER_EXPECTED_VERSION => (string) $options->getExpectedVersion(),
+                self::HEADER_IF_MATCH => sprintf('"%d"', $options->getExpectedVersion()),
             ];
         }
 
