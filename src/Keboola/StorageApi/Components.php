@@ -173,19 +173,21 @@ class Components
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rebase",
             [
                 'version' => $version,
-                'name' => $name,
-                'rows' => array_values($rows),
-                'description' => $description,
-                'configuration' => $configuration === null ? null : ($configuration ?: (object) []),
-                'changeDescription' => $changeDescription,
-                'isDisabled' => $isDisabled,
+                'diff' => [
+                    'name' => $name,
+                    'rows' => array_values($rows),
+                    'description' => $description,
+                    'configuration' => $configuration === null ? null : ($configuration ?: (object) []),
+                    'changeDescription' => $changeDescription,
+                    'isDisabled' => $isDisabled,
+                ],
             ],
         );
     }
 
     /**
      * Rebases the dev branch configuration onto the given default branch version, resolving the conflict by deleting
-     * the configuration: the request carries only "version" (no content fields), so the new head version is a
+     * the configuration: the request carries an empty "diff" (no resolved content), so the new head version is a
      * tombstone (isDeleted = true).
      *
      * @return ComponentConfiguration
@@ -199,6 +201,7 @@ class Components
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rebase",
             [
                 'version' => $version,
+                'diff' => (object) [],
             ],
         );
     }
