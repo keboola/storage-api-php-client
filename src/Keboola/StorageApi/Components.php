@@ -124,9 +124,48 @@ class Components
         return $this->client->apiGet($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}");
     }
 
-    public function deleteConfiguration($componentId, $configurationId)
+    /**
+     * Moves the configuration to the trash; a second call on an already trashed configuration
+     * purges it permanently. $expectedVersion guards both transitions: the call is rejected with
+     * 412 unless the configuration is still at that version. Take it from the `version` field of
+     * a configuration detail; null leaves the delete unconditional.
+     */
+    public function deleteConfiguration($componentId, $configurationId, ?int $expectedVersion = null)
     {
-        return $this->client->apiDelete($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}");
+        return $this->client->apiDelete(
+            $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}",
+            true,
+            $this->expectedVersionRequestOptions($expectedVersion),
+        );
+    }
+
+    /**
+     * Permanently removes a trashed configuration, including its versions, rows and metadata.
+     * Unlike a repeated deleteConfiguration() call, this fails with 400 when the configuration is
+     * not in the trash, so a stale caller cannot destroy a live configuration. Default branch
+     * only; requires the `canPurgeTrash` token permission.
+     */
+    public function purgeConfiguration($componentId, $configurationId, ?int $expectedVersion = null)
+    {
+        return $this->client->apiPostJson(
+            $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/purge",
+            [],
+            true,
+            $this->expectedVersionRequestOptions($expectedVersion),
+        );
+    }
+
+    private function expectedVersionRequestOptions(?int $expectedVersion): array
+    {
+        if ($expectedVersion === null) {
+            return [];
+        }
+
+        return [
+            Client::REQUEST_OPTION_HEADERS => [
+                self::HEADER_IF_MATCH => sprintf('"%d"', $expectedVersion),
+            ],
+        ];
     }
 
     public function resetToDefault($componentId, $configurationId)

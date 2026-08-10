@@ -3079,9 +3079,10 @@ class Client
      * @param bool $handleAsyncTask
      * @return mixed|string
      */
-    public function apiDelete($url, bool $handleAsyncTask = true)
+    public function apiDelete($url, bool $handleAsyncTask = true, array $requestOptions = [])
     {
-        return $this->request('DELETE', $url, handleAsyncTask: $handleAsyncTask);
+        $requestOptions = $this->filterRequestOptions($requestOptions);
+        return $this->request('DELETE', $url, $requestOptions, null, $handleAsyncTask);
     }
 
     /**

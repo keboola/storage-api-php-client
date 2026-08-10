@@ -8778,7 +8778,16 @@ You can [list deleted](#reference/components-and-configurations/component-config
 Other operations with deleted configurations are restricted.
 
 Calling this API call on a deleted configuration in a **development branch** will result in an error. Development branch configuration cannot be permanently removed.
-Calling this API call on a deleted configuration in a **default branch** will purge the configuration.
+Calling this API call on a deleted configuration in a **default branch** will purge the configuration. Prefer the explicit
+[purge endpoint](#reference/components-and-configurations/configuration-purge) for that — it states the destructive intent
+unambiguously and never falls back to a soft delete.
+
+The optional `If-Match` header carries the same optimistic-concurrency precondition as configuration update: the delete is
+applied only if the configuration is still at the given version, otherwise nothing is written and the request fails with
+`412 Precondition Failed`. This closes the double-delete race — a delete sent from a stale view (which still saw the live
+configuration) cannot purge a configuration that moved to the trash in the meantime. Send the `version` field of a
+configuration detail response as a strong entity tag, e.g. `If-Match: "5"`. `If-Match: *` only requires that the
+configuration still exists; weak validators and tag lists are rejected with `400`.
 
 + Parameters
     + branch_id (required) - Id of the development branch
@@ -8789,8 +8798,38 @@ Calling this API call on a deleted configuration in a **default branch** will pu
     + Headers
 
             X-StorageApi-Token: your_token
+            If-Match: "1"
 
 + Response 204
+
++ Response 412 (application/json)
+    Returned when `If-Match` does not match the current version. Re-read the configuration and decide again on the
+    current state.
+
+    + Body
+
+            {
+                "error": "Configuration \"main-1\" is at version 2, expected version 1. Reload the configuration and reapply your change.",
+                "code": "storage.components.configurations.versionMismatch",
+                "params": {
+                    "projectId": 123,
+                    "componentId": "keboola.ex-db-mysql",
+                    "configurationId": "main-1",
+                    "branchId": null,
+                    "expectedVersion": 1,
+                    "currentVersion": 2
+                }
+            }
+
++ Response 409 (application/json)
+    Another request is mid-write on the same configuration. Transient — retry the request.
+
+    + Body
+
+            {
+                "error": "Configuration row creation conflict. Please retry the operation.",
+                "code": "storage.components.configurations.versionConflict"
+            }
 
 ### Configuration Detail - without branch in URL (deprecated) [GET]
 
@@ -8819,7 +8858,12 @@ with `412` on mismatch.
 
 ***Deprecated**, use the branch endpoint and set `branch/default`.*
 
+Accepts the same `If-Match: "<version>"` optimistic-concurrency precondition as the branch endpoint,
+with `412` on mismatch.
+
 + Response 204
+
++ Response 412 (application/json)
 
 ## Configuration Diff [/v2/storage/components/{component_id}/configs/{config_id}/diff]
 ### Configuration Three-Way Diff [GET /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/diff]
@@ -9013,6 +9057,74 @@ Only available in development branches.
                 "error": "Version 999 not found",
                 "code": "storage.configuration.versionNotFound"
             }
+
+## Configuration Purge [/v2/storage/components/{component_id}/configs/{config_id}/purge]
+### Purge Deleted Configuration [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/purge]
+Permanently removes a configuration from the trash, including all its versions, rows and metadata. This cannot be undone.
+
+The configuration must already be deleted (in the trash) — purging a live configuration fails with `400` and
+`storage.components.configurations.notInTrash`. Unlike [deleting](#reference/components-and-configurations/component-configurations/delete-configuration)
+an already-deleted configuration (which also purges, for backward compatibility), this endpoint never falls back to a
+soft delete, so a stale caller can never destroy a live configuration.
+
+Only available in the **default branch**; development branch configurations cannot be permanently removed. Requires the
+`canPurgeTrash` token permission.
+
+The optional `If-Match` header carries the same optimistic-concurrency precondition as configuration update: the purge is
+applied only if the configuration is still at the given version, otherwise nothing is removed and the request fails with
+`412 Precondition Failed`. Send the `version` field of a configuration detail response as a strong entity tag, e.g.
+`If-Match: "5"`.
+
++ Parameters
+    + branch_id (required) - Id of the development branch
+    + component_id (required) - Id of the component
+    + config_id (required) - Id of the configuration
+
++ Request
+    + Headers
+
+            X-StorageApi-Token: your_token
+            If-Match: "2"
+
++ Response 204
+
++ Response 400 (application/json)
+    Returned when the configuration is not in the trash.
+
+    + Body
+
+            {
+                "error": "Component configuration \"main-1\" is not in trash. Only a deleted configuration can be purged.",
+                "code": "storage.components.configurations.notInTrash",
+                "params": {
+                    "componentConfigurationId": "main-1"
+                }
+            }
+
++ Response 412 (application/json)
+    Returned when `If-Match` does not match the current version. Re-read the configuration and decide again on the
+    current state.
+
+    + Body
+
+            {
+                "error": "Configuration \"main-1\" is at version 2, expected version 1. Reload the configuration and reapply your change.",
+                "code": "storage.components.configurations.versionMismatch",
+                "params": {
+                    "projectId": 123,
+                    "componentId": "keboola.ex-db-mysql",
+                    "configurationId": "main-1",
+                    "branchId": null,
+                    "expectedVersion": 1,
+                    "currentVersion": 2
+                }
+            }
+
+### Purge Deleted Configuration - without branch in URL [POST]
+
+Same as the branch endpoint with `branch/default`.
+
++ Response 204
 
 ## Configuration Restore [/v2/storage/components/{component_id}/configs/{config_id}/restore]
 ### Restore Deleted Configuration [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/restore]
