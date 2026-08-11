@@ -148,14 +148,15 @@ class Components
      * Permanently removes a trashed configuration, including its versions, rows and metadata.
      * Unlike a repeated deleteConfiguration() call, this fails with 400 when the configuration is
      * not in the trash, so a stale caller cannot destroy a live configuration. Default branch
-     * only; requires the `canPurgeTrash` token permission.
+     * only; requires the `canPurgeTrash` token permission. $expectedVersion is required — the purge
+     * is applied only if the configuration is still at that version (412 otherwise); take it from
+     * the `version` field of the trash listing.
      *
      * @param string $componentId
      * @param string $configurationId
-     * @param int|null $expectedVersion
      * @return mixed|string
      */
-    public function purgeConfiguration($componentId, $configurationId, ?int $expectedVersion = null)
+    public function purgeConfiguration($componentId, $configurationId, int $expectedVersion)
     {
         return $this->client->apiPostJson(
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/purge",

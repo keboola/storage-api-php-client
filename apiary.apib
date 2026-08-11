@@ -9070,10 +9070,11 @@ soft delete, so a stale caller can never destroy a live configuration.
 Only available in the **default branch**; development branch configurations cannot be permanently removed. Requires the
 `canPurgeTrash` token permission.
 
-The optional `If-Match` header carries the same optimistic-concurrency precondition as configuration update: the purge is
-applied only if the configuration is still at the given version, otherwise nothing is removed and the request fails with
-`412 Precondition Failed`. Send the `version` field of a configuration detail response as a strong entity tag, e.g.
-`If-Match: "5"`.
+The `If-Match` header is **required**: purge is irreversible, so the caller must state which version of the configuration
+it decided to destroy. Send the `version` field of the configuration (deleted configurations are listed with
+`?isDeleted=1`) as a strong entity tag, e.g. `If-Match: "5"`. The purge is applied only if the configuration is still at
+that version, otherwise nothing is removed and the request fails with `412 Precondition Failed`. A request without the
+header (or with `*`, which does not pin a version) fails with `428 Precondition Required`.
 
 + Parameters
     + branch_id (required) - Id of the development branch
@@ -9130,10 +9131,20 @@ applied only if the configuration is still at the given version, otherwise nothi
                 "code": "storage.components.configurations.versionConflict"
             }
 
++ Response 428 (application/json)
+    Returned when the required `If-Match` header is missing or does not pin a specific version (`*`).
+
+    + Body
+
+            {
+                "error": "Purging a configuration requires the \"If-Match\" precondition. Send the `version` field of the configuration as a strong entity tag, e.g. If-Match: \"5\".",
+                "code": "storage.components.configurations.missingExpectedVersion"
+            }
+
 ### Purge Deleted Configuration - without branch in URL [POST]
 
-Same as the branch endpoint with `branch/default`, including the optional `If-Match` precondition and the
-`400`/`409`/`412` outcomes.
+Same as the branch endpoint with `branch/default`, including the required `If-Match` precondition and the
+`400`/`409`/`412`/`428` outcomes.
 
 + Response 204
 
@@ -9142,6 +9153,8 @@ Same as the branch endpoint with `branch/default`, including the optional `If-Ma
 + Response 409 (application/json)
 
 + Response 412 (application/json)
+
++ Response 428 (application/json)
 
 ## Configuration Restore [/v2/storage/components/{component_id}/configs/{config_id}/restore]
 ### Restore Deleted Configuration [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/restore]
