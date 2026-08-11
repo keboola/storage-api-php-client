@@ -3077,6 +3077,7 @@ class Client
     /**
      * @param string $url
      * @param bool $handleAsyncTask
+     * @param array<string, mixed> $requestOptions
      * @return mixed|string
      */
     public function apiDelete($url, bool $handleAsyncTask = true, array $requestOptions = [])

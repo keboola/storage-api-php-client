@@ -129,6 +129,10 @@ class Components
      * purges it permanently. $expectedVersion guards both transitions: the call is rejected with
      * 412 unless the configuration is still at that version. Take it from the `version` field of
      * a configuration detail; null leaves the delete unconditional.
+     *
+     * @param string $componentId
+     * @param string $configurationId
+     * @return mixed|string
      */
     public function deleteConfiguration($componentId, $configurationId, ?int $expectedVersion = null)
     {
@@ -144,6 +148,10 @@ class Components
      * Unlike a repeated deleteConfiguration() call, this fails with 400 when the configuration is
      * not in the trash, so a stale caller cannot destroy a live configuration. Default branch
      * only; requires the `canPurgeTrash` token permission.
+     *
+     * @param string $componentId
+     * @param string $configurationId
+     * @return mixed|string
      */
     public function purgeConfiguration($componentId, $configurationId, ?int $expectedVersion = null)
     {
@@ -155,6 +163,9 @@ class Components
         );
     }
 
+    /**
+     * @return array<string, array<string, string>>
+     */
     private function expectedVersionRequestOptions(?int $expectedVersion): array
     {
         if ($expectedVersion === null) {
