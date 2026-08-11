@@ -9120,11 +9120,28 @@ applied only if the configuration is still at the given version, otherwise nothi
                 }
             }
 
++ Response 409 (application/json)
+    Another request is mid-write on the same configuration. Transient — retry the request.
+
+    + Body
+
+            {
+                "error": "Configuration row creation conflict. Please retry the operation.",
+                "code": "storage.components.configurations.versionConflict"
+            }
+
 ### Purge Deleted Configuration - without branch in URL [POST]
 
-Same as the branch endpoint with `branch/default`.
+Same as the branch endpoint with `branch/default`, including the optional `If-Match` precondition and the
+`400`/`409`/`412` outcomes.
 
 + Response 204
+
++ Response 400 (application/json)
+
++ Response 409 (application/json)
+
++ Response 412 (application/json)
 
 ## Configuration Restore [/v2/storage/components/{component_id}/configs/{config_id}/restore]
 ### Restore Deleted Configuration [POST /v2/storage/branch/{branch_id}/components/{component_id}/configs/{config_id}/restore]
