@@ -132,6 +132,7 @@ class Components
      *
      * @param string $componentId
      * @param string $configurationId
+     * @param int|null $expectedVersion
      * @return mixed|string
      */
     public function deleteConfiguration($componentId, $configurationId, ?int $expectedVersion = null)
@@ -151,6 +152,7 @@ class Components
      *
      * @param string $componentId
      * @param string $configurationId
+     * @param int|null $expectedVersion
      * @return mixed|string
      */
     public function purgeConfiguration($componentId, $configurationId, ?int $expectedVersion = null)
