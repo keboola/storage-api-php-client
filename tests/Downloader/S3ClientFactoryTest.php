@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\UnitTest\Downloader;
 
-use Aws\S3\S3Client;
 use Generator;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Downloader\S3ClientFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\TestCase;
 
 class S3ClientFactoryTest extends TestCase
@@ -55,6 +57,7 @@ class S3ClientFactoryTest extends TestCase
      * Guzzle's cURL handler ignores read_timeout, so the stall detection that actually applies
      * is cURL's low-speed abort.
      */
+    #[RequiresPhpExtension('curl')]
     public function testClientOptionsAbortStalledTransfers(): void
     {
         $http = self::options()['http'];
@@ -98,7 +101,6 @@ class S3ClientFactoryTest extends TestCase
             Client::DEFAULT_RETRIES_COUNT,
         );
 
-        self::assertInstanceOf(S3Client::class, $client);
         self::assertSame(self::REGION, $client->getRegion());
 
         $credentials = $client->getCredentials()->wait();

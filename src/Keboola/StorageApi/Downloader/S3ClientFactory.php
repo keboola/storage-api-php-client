@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\StorageApi\Downloader;
 
 use Aws\S3\S3Client;
@@ -70,11 +72,13 @@ class S3ClientFactory
                 'timeout' => 0,
                 // honoured only by Guzzle's StreamHandler
                 'read_timeout' => self::STALL_TIMEOUT_SECONDS,
-                // the cURL handler's equivalent: abort a transfer that has effectively stalled
-                'curl' => [
+                // the cURL handler's equivalent: abort a transfer that has effectively stalled.
+                // Without ext-curl Guzzle falls back to the StreamHandler, where read_timeout
+                // applies instead and the CURLOPT_* constants would not even be defined.
+                'curl' => extension_loaded('curl') ? [
                     CURLOPT_LOW_SPEED_LIMIT => self::MIN_TRANSFER_RATE_BYTES_PER_SECOND,
                     CURLOPT_LOW_SPEED_TIME => self::STALL_TIMEOUT_SECONDS,
-                ],
+                ] : [],
             ],
         ];
     }
