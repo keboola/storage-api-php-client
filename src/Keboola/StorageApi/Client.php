@@ -15,6 +15,7 @@ use GuzzleHttp\Utils;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client\RequestTimeoutMiddleware;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
+use Keboola\StorageApi\Downloader\S3ClientFactory;
 use Keboola\StorageApi\Options\BackendConfiguration;
 use Keboola\StorageApi\Options\BucketDetailOptions;
 use Keboola\StorageApi\Options\BucketOwnerUpdateOptions;
@@ -2487,21 +2488,13 @@ class Client
 
     private function downloadS3File(array $fileInfo, $destination)
     {
-        $s3Client = new S3Client([
-            'version' => 'latest',
-            'region' => $fileInfo['region'],
-            'retries' => 40,
-            'http' => [
-                'read_timeout' => 10,
-                'connect_timeout' => 10,
-                'timeout' => 500,
-            ],
-            'credentials' => [
-                'key' => $fileInfo['credentials']['AccessKeyId'],
-                'secret' => $fileInfo['credentials']['SecretAccessKey'],
-                'token' => $fileInfo['credentials']['SessionToken'],
-            ],
-        ]);
+        $s3Client = S3ClientFactory::createClient(
+            $fileInfo['region'],
+            $fileInfo['credentials']['AccessKeyId'],
+            $fileInfo['credentials']['SecretAccessKey'],
+            $fileInfo['credentials']['SessionToken'],
+            $this->getAwsRetries(),
+        );
 
         try {
             $s3Client->getObject([
@@ -2614,20 +2607,13 @@ class Client
 
     private function downloadS3SlicedFile(array $fileInfo, $destinationFolder)
     {
-        $s3Client = new S3Client([
-            'version' => 'latest',
-            'region' => $fileInfo['region'],
-            'retries' => 40,
-            'http' => [
-                'connect_timeout' => 10,
-                'timeout' => 120,
-            ],
-            'credentials' => [
-                'key' => $fileInfo['credentials']['AccessKeyId'],
-                'secret' => $fileInfo['credentials']['SecretAccessKey'],
-                'token' => $fileInfo['credentials']['SessionToken'],
-            ],
-        ]);
+        $s3Client = S3ClientFactory::createClient(
+            $fileInfo['region'],
+            $fileInfo['credentials']['AccessKeyId'],
+            $fileInfo['credentials']['SecretAccessKey'],
+            $fileInfo['credentials']['SessionToken'],
+            $this->getAwsRetries(),
+        );
 
         if (!file_exists($destinationFolder)) {
             $fs = new Filesystem();

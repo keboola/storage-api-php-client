@@ -79,6 +79,27 @@ $exporter->exportTable('in.c-main.my-table', './in.c-main.my-table.csv', []);
 
 ```
 
+## Download timeouts and retries
+
+File downloads (`Client::downloadFile()`, `Client::downloadSlicedFile()` and `TableExporter`) are
+not bounded by a total request deadline on AWS — a download of any size can finish, as long as it
+keeps making progress. Behaviour differs per file storage provider:
+
+| Provider | Total request deadline | Stall detection | Retries |
+| --- | --- | --- | --- |
+| AWS (`S3ClientFactory`) | none | aborts below 1 KB/s sustained for 60 s | `awsRetries` client option, default `Client::DEFAULT_RETRIES_COUNT` |
+| Azure (`BlobClientFactory`) | 120 s per blob request | none | `BlobStorageRetryMiddleware` defaults |
+| GCP (`GcsClientFactory`) | none | none | Google client defaults |
+
+Notes:
+
+- Retries restart the whole object transfer from the first byte, so each retry pays full egress.
+  Keep `awsRetries` low if you download very large files.
+- Guzzle's `read_timeout` option is honoured only by its `StreamHandler`. The AWS SDK uses the cURL
+  handler, where the equivalent is `CURLOPT_LOW_SPEED_LIMIT` / `CURLOPT_LOW_SPEED_TIME`.
+- The Azure 120 s deadline caps a single blob download (roughly 10 GB at 80 MB/s) and is a known
+  limitation, tracked separately.
+
 ## License
 
 See [LICENSE](./LICENSE) file.
