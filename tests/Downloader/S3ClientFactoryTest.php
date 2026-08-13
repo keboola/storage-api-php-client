@@ -45,12 +45,42 @@ class S3ClientFactoryTest extends TestCase
     }
 
     /**
-     * A total request timeout caps a download by object size rather than by connection health:
-     * at ~80 MB/s the previous 500s deadline made anything above ~40 GB undownloadable.
+     * A tight total request timeout caps a download by object size rather than by connection
+     * health: at ~80 MB/s the previous 500s deadline made anything above ~40 GB undownloadable.
+     * The deadline that remains is only a liveness backstop and must stay far above the largest
+     * transfer any real export could need.
      */
-    public function testClientOptionsHaveNoTotalTransferDeadline(): void
+    public function testTotalTransferDeadlineCannotBeReachedByALargeButHealthyDownload(): void
     {
-        self::assertSame(0, self::options()['http']['timeout']);
+        $timeout = self::options()['http']['timeout'];
+
+        self::assertSame(S3ClientFactory::MAX_TRANSFER_SECONDS, $timeout);
+
+        $bytesAtTypicalThroughput = 80 * 1024 * 1024 * $timeout;
+        self::assertGreaterThan(
+            1024 ** 4,
+            $bytesAtTypicalThroughput,
+            'the deadline must allow well over a terabyte at a normal transfer rate',
+        );
+    }
+
+    /**
+     * The stall detection only aborts below MIN_TRANSFER_RATE_BYTES_PER_SECOND, so a link that
+     * crawls just above it is not caught by it at all — the total deadline is what guarantees
+     * such a transfer terminates rather than running for months.
+     */
+    public function testTotalTransferDeadlineBoundsATransferThatCrawlsAboveTheStallThreshold(): void
+    {
+        $options = self::options();
+        $crawlingRate = S3ClientFactory::MIN_TRANSFER_RATE_BYTES_PER_SECOND + 1;
+
+        $secondsToCrawlThroughFortyGigabytes = intdiv(40 * 1024 ** 3, $crawlingRate);
+
+        self::assertGreaterThan(
+            $options['http']['timeout'],
+            $secondsToCrawlThroughFortyGigabytes,
+            'without the deadline such a transfer would be effectively unbounded',
+        );
     }
 
     /**

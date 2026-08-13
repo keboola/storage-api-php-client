@@ -82,17 +82,21 @@ $exporter->exportTable('in.c-main.my-table', './in.c-main.my-table.csv', []);
 ## Download timeouts and retries
 
 File downloads (`Client::downloadFile()`, `Client::downloadSlicedFile()` and `TableExporter`) are
-not bounded by a total request deadline on AWS — a download of any size can finish, as long as it
+not bounded by object size on AWS — a download of any realistic size can finish, as long as it
 keeps making progress. Behaviour differs per file storage provider:
 
 | Provider | Total request deadline | Stall detection | Retries |
 | --- | --- | --- | --- |
-| AWS (`S3ClientFactory`) | none | aborts below 1 KB/s sustained for 60 s | `awsRetries` client option, default `Client::DEFAULT_RETRIES_COUNT` |
+| AWS (`S3ClientFactory`) | 12 h liveness backstop (~3.4 TB at 80 MB/s) | aborts below 1 KB/s sustained for 60 s | `awsRetries` client option, default `Client::DEFAULT_RETRIES_COUNT` |
 | Azure (`BlobClientFactory`) | 120 s per blob request | none | `BlobStorageRetryMiddleware` defaults |
 | GCP (`GcsClientFactory`) | none | none | Google client defaults |
 
 Notes:
 
+- The AWS deadline is a liveness backstop, not a size cap. Stall detection alone cannot guarantee
+  termination: it only fires *below* 1 KB/s, so a link crawling just above that would otherwise run
+  for months (40 GB at 1 KB/s is over a year). The deadline is sized so no healthy transfer of any
+  plausible export can reach it.
 - Retries restart the whole object transfer from the first byte, so each retry pays full egress.
   Keep `awsRetries` low if you download very large files.
 - Guzzle's `read_timeout` option is honoured only by its `StreamHandler`. The AWS SDK uses the cURL
