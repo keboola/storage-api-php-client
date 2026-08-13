@@ -21,9 +21,7 @@ class S3ClientFactoryTest extends TestCase
     /**
      * @return array{
      *     version: string,
-     *     region: string,
      *     retries: int,
-     *     credentials: array{key: string, secret: string, token: string},
      *     http: array{
      *         decode_content: bool,
      *         connect_timeout: int,
@@ -35,13 +33,22 @@ class S3ClientFactoryTest extends TestCase
      */
     private static function options(int $retries = Client::DEFAULT_RETRIES_COUNT): array
     {
-        return S3ClientFactory::createClientOptions(
-            self::REGION,
-            self::ACCESS_KEY_ID,
-            self::SECRET_ACCESS_KEY,
-            self::SESSION_TOKEN,
-            $retries,
-        );
+        return S3ClientFactory::transferOptions($retries);
+    }
+
+    /**
+     * The transfer policy is deliberately credential-free: it is reachable from anywhere, and a
+     * failing assertion or a dump of the whole array must not be able to leak download credentials.
+     */
+    public function testTransferOptionsCarryNoCredentials(): void
+    {
+        $flattened = json_encode(self::options());
+        self::assertIsString($flattened);
+
+        self::assertArrayNotHasKey('credentials', self::options());
+        foreach ([self::ACCESS_KEY_ID, self::SECRET_ACCESS_KEY, self::SESSION_TOKEN] as $secret) {
+            self::assertStringNotContainsString($secret, $flattened);
+        }
     }
 
     /**

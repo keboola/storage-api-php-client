@@ -29,23 +29,24 @@ class S3ClientFactory
         string $sessionToken,
         int $retries,
     ): S3Client {
-        return new S3Client(self::createClientOptions(
-            $region,
-            $accessKeyId,
-            $secretAccessKey,
-            $sessionToken,
-            $retries,
-        ));
+        $options = self::transferOptions($retries);
+        $options['region'] = $region;
+        $options['credentials'] = [
+            'key' => $accessKeyId,
+            'secret' => $secretAccessKey,
+            'token' => $sessionToken,
+        ];
+
+        return new S3Client($options);
     }
 
     /**
      * @internal Single source of truth for download transfer settings, exposed so that the policy
-     *  can be asserted without a network call.
+     *  can be asserted without a network call. Deliberately credential-free, so that no caller and
+     *  no failing assertion on the returned array can surface download credentials.
      * @return array{
      *     version: string,
-     *     region: string,
      *     retries: int,
-     *     credentials: array{key: string, secret: string, token: string},
      *     http: array{
      *         decode_content: bool,
      *         connect_timeout: int,
@@ -55,22 +56,11 @@ class S3ClientFactory
      *     },
      * }
      */
-    public static function createClientOptions(
-        string $region,
-        string $accessKeyId,
-        string $secretAccessKey,
-        string $sessionToken,
-        int $retries,
-    ): array {
+    public static function transferOptions(int $retries): array
+    {
         return [
             'version' => '2006-03-01',
-            'region' => $region,
             'retries' => $retries,
-            'credentials' => [
-                'key' => $accessKeyId,
-                'secret' => $secretAccessKey,
-                'token' => $sessionToken,
-            ],
             'http' => [
                 'decode_content' => false,
                 'connect_timeout' => self::CONNECT_TIMEOUT_SECONDS,
