@@ -2635,12 +2635,14 @@ class Client
             $slices = [];
             /** @var array{url: string} $entry */
             foreach ($manifest['entries'] as $entry) {
-                $object = $s3Client->getObject([
+                $slices[] = $destinationFile = $destinationFolder . basename($entry['url']);
+                // SaveAs streams the slice to disk; without it Body is a PSR-7 stream that
+                // file_put_contents() would coerce via __toString(), buffering the whole slice.
+                $s3Client->getObject([
                     'Bucket' => $fileInfo['s3Path']['bucket'],
                     'Key' => strtr($entry['url'], ['s3://' . $fileInfo['s3Path']['bucket'] . '/' => '']),
+                    'SaveAs' => $destinationFile,
                 ]);
-                $slices[] = $destinationFile = $destinationFolder . basename($entry['url']);
-                file_put_contents($destinationFile, $object['Body']);
             }
         } catch (S3Exception $e) {
             if ($e->getAwsErrorCode() !== 'NoSuchKey') {
