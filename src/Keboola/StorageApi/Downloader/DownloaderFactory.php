@@ -2,7 +2,6 @@
 
 namespace Keboola\StorageApi\Downloader;
 
-use Aws\S3\S3Client;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Exception;
 
@@ -18,23 +17,13 @@ class DownloaderFactory
     {
         switch ($getFileResponse['provider']) {
             case Client::FILE_PROVIDER_AWS:
-                $s3Client = new S3Client([
-                    'version' => '2006-03-01',
-                    'region' => $getFileResponse['region'],
-                    'retries' => 40,
-                    'credentials' => [
-                        'key' => $getFileResponse['credentials']['AccessKeyId'],
-                        'secret' => $getFileResponse['credentials']['SecretAccessKey'],
-                        'token' => $getFileResponse['credentials']['SessionToken'],
-                    ],
-                    'http' => [
-                        'read_timeout' => 10,
-                        'decode_content' => false,
-                        'connect_timeout' => 10,
-                        'timeout' => 500,
-                    ],
-                ]);
-                return new S3Downloader($s3Client);
+                return new S3Downloader(S3ClientFactory::createClient(
+                    $getFileResponse['region'],
+                    $getFileResponse['credentials']['AccessKeyId'],
+                    $getFileResponse['credentials']['SecretAccessKey'],
+                    $getFileResponse['credentials']['SessionToken'],
+                    (int) $retries,
+                ));
             case Client::FILE_PROVIDER_AZURE:
                 $blobClient = BlobClientFactory::createClientFromConnectionString(
                     $getFileResponse['absCredentials']['SASConnectionString'],
