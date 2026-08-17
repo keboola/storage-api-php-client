@@ -3328,6 +3328,8 @@ To enable compression of API response traffic, please include the following HTTP
     + whereFilters (optional, array[WhereFiltersObject])
     + orderBy (optional, array[OrderByObject])
     + fulltextSearch (optional, string) - Makes fulltext search over all data in table. It cannot be combined with `whereFilters`. Snowflake/BigQuery only
+    + cache (optional, boolean) - A JSON preview requested without any other parameter is served from a cache that is refreshed whenever the table changes. Set to `0` to always read the data from the backend.
+        + Default: 1
 
 + Request with default `rfc` format (`CSV` data)
 

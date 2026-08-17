@@ -1950,6 +1950,8 @@ class Client
             'includeInternalTimestamp',
             'fileType',
             'timezone',
+            // data-preview only: cache=0 bypasses the cached default preview
+            'cache',
         ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
