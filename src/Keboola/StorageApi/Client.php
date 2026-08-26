@@ -15,6 +15,7 @@ use GuzzleHttp\Utils;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client\RequestTimeoutMiddleware;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
+use Keboola\StorageApi\Downloader\GcsClientFactory;
 use Keboola\StorageApi\Downloader\S3ClientFactory;
 use Keboola\StorageApi\Options\BackendConfiguration;
 use Keboola\StorageApi\Options\BucketDetailOptions;
@@ -2537,7 +2538,7 @@ class Client
         $retBucket = $gcsClient->bucket($fileInfo['gcsPath']['bucket']);
         $object = $retBucket->object($fileInfo['gcsPath']['key']);
         try {
-            $object->downloadToFile($destination);
+            $object->downloadToFile($destination, GcsClientFactory::downloadOptions());
         } catch (NotFoundException $e) {
             throw new ClientException(
                 sprintf(self::ERROR_CANNOT_DOWNLOAD_FILE, $fileInfo['name'], $fileInfo['id']),
@@ -2703,7 +2704,8 @@ class Client
                     $fileInfo['gcsPath']['bucket'],
                 );
                 $blobPath = explode($sprintf, $entry['url']);
-                $retBucket->object($blobPath[1])->downloadToFile($destinationFile);
+                $retBucket->object($blobPath[1])
+                    ->downloadToFile($destinationFile, GcsClientFactory::downloadOptions());
             }
         } catch (NotFoundException $e) {
             throw new ClientException(
