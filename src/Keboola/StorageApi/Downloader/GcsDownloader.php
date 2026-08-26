@@ -18,7 +18,7 @@ class GcsDownloader implements DownloaderInterface
     {
         $bucket = $this->client->bucket($fileResponse['gcsPath']['bucket']);
         $object = $bucket->object($fileResponse['gcsPath']['key']);
-        file_put_contents($tmpFilePath, $object->downloadAsString());
+        $object->downloadToFile($tmpFilePath);
     }
 
     public function downloadManifestEntry($fileResponse, $entry, $tmpFilePath)
@@ -28,7 +28,7 @@ class GcsDownloader implements DownloaderInterface
 
         $bucket = $this->client->bucket($fileResponse['gcsPath']['bucket']);
         $object = $bucket->object($fileKey);
-        file_put_contents($filePath, $object->downloadAsString());
+        $object->downloadToFile($filePath);
 
         return $filePath;
     }
