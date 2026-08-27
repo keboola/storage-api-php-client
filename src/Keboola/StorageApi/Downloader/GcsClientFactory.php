@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\StorageApi\Downloader;
 
 use Google\Auth\FetchAuthTokenInterface;
