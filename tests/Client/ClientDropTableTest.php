@@ -47,9 +47,10 @@ final class ClientDropTableTest extends TestCase
 
         $client->dropTable('in.c-main.orders', $options);
 
-        $this->assertCount(1, $historyContainer);
-        /** @var Request $request */
-        $request = $historyContainer[0]['request'];
+        /** @var array<int, array{request: Request}> $history */
+        $history = $historyContainer;
+        $this->assertCount(1, $history);
+        $request = $history[0]['request'];
         $this->assertSame('DELETE', $request->getMethod());
         $this->assertSame('/v2/storage/tables/in.c-main.orders', $request->getUri()->getPath());
         $this->assertSame($expectedQuery, $request->getUri()->getQuery());
@@ -80,9 +81,10 @@ final class ClientDropTableTest extends TestCase
 
         $client->dropTable('in.c-main.orders', ['force' => true]);
 
-        $this->assertCount(2, $historyContainer);
-        /** @var Request $jobRequest */
-        $jobRequest = $historyContainer[1]['request'];
+        /** @var array<int, array{request: Request}> $history */
+        $history = $historyContainer;
+        $this->assertCount(2, $history);
+        $jobRequest = $history[1]['request'];
         $this->assertSame('GET', $jobRequest->getMethod());
         $this->assertSame('/v2/storage/jobs/123', $jobRequest->getUri()->getPath());
     }
