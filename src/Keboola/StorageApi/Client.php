@@ -1532,10 +1532,10 @@ class Client
      * Drop a table
      *
      * @param string $tableId
-     * @param array $options - (bool) force, (bool) async (default true)
+     * @param array $options - (bool) force, (bool) async (default true, pass false for the deprecated sync route)
      * @return mixed|string
      */
-    public function dropTable($tableId, $options = ['async' => true])
+    public function dropTable($tableId, $options = [])
     {
         $url = 'tables/' . $tableId;
 
@@ -1543,6 +1543,10 @@ class Client
             'force',
             'async',
         ];
+
+        // the sync route runs the whole delete inside the HTTP request, so async stays on
+        // unless the caller explicitly opts out
+        $options += ['async' => true];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
 
