@@ -25,7 +25,7 @@ class DownloaderFactory
                     (int) $retries,
                 ));
             case Client::FILE_PROVIDER_AZURE:
-                $blobClient = BlobClientFactory::createClientFromConnectionString(
+                $blobClient = BlobClientFactory::createDownloadClient(
                     $getFileResponse['absCredentials']['SASConnectionString'],
                 );
                 return new AbsDownloader($blobClient);
