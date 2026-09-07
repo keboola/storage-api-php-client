@@ -2468,7 +2468,7 @@ class Client
 
     private function downloadAbsFile(array $fileInfo, $destination)
     {
-        $blobClient = BlobClientFactory::createClientFromConnectionString(
+        $blobClient = BlobClientFactory::createDownloadClient(
             $fileInfo['absCredentials']['SASConnectionString'],
         );
 
@@ -2565,7 +2565,7 @@ class Client
 
     private function downloadAbsSlicedFile(array $fileInfo, $destinationFolder)
     {
-        $blobClient = BlobClientFactory::createClientFromConnectionString(
+        $blobClient = BlobClientFactory::createDownloadClient(
             $fileInfo['absCredentials']['SASConnectionString'],
         );
         if (!file_exists($destinationFolder)) {
