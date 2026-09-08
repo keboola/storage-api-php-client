@@ -23,8 +23,17 @@ class BlobClientFactoryTest extends TestCase
     /** @var resource|null */
     private $server;
 
+    /** @var array<int, resource> */
+    private array $pipes = [];
+
     protected function tearDown(): void
     {
+        foreach ($this->pipes as $pipe) {
+            if (is_resource($pipe)) {
+                fclose($pipe);
+            }
+        }
+        $this->pipes = [];
         if (is_resource($this->server)) {
             proc_terminate($this->server);
             proc_close($this->server);
@@ -196,6 +205,7 @@ class BlobClientFactoryTest extends TestCase
         );
         self::assertIsResource($server);
         $this->server = $server;
+        $this->pipes = $pipes;
 
         $announcement = fgets($pipes[1]);
         self::assertIsString($announcement, 'the stalling server did not report its port');
