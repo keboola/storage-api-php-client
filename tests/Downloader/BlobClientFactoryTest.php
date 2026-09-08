@@ -164,10 +164,33 @@ class BlobClientFactoryTest extends TestCase
         }
     }
 
-    private function startStallingServer(int $stallSeconds): int
+    /**
+     * Everything else here exercises the policy on a client the test assembles itself, so it would
+     * all still pass if createDownloadClient() stopped clearing the stream option and put every
+     * download back on the StreamHandler. This pins the factory: the cURL handler buffers the body
+     * into a seekable php://temp sink, where the StreamHandler hands back the raw socket.
+     */
+    #[RequiresPhpExtension('curl')]
+    #[RequiresSetting('allow_url_fopen', '1')]
+    public function testDownloadClientKeepsTheBodyOffTheStreamHandler(): void
+    {
+        $port = $this->startStallingServer(0, self::BLOB_SIZE_BYTES);
+        $client = BlobClientFactory::createDownloadClient(
+            sprintf('BlobEndpoint=http://127.0.0.1:%d;SharedAccessSignature=sv=2020-08-04&sig=stub', $port),
+        );
+
+        $body = $client->getBlob('container', 'blob')->getContentStream();
+
+        self::assertTrue(
+            stream_get_meta_data($body)['seekable'],
+            'the body was left on the socket, so the download client no longer clears the stream option',
+        );
+    }
+
+    private function startStallingServer(int $stallSeconds, int $bodyBytes = 65536): int
     {
         $server = proc_open(
-            [PHP_BINARY, __DIR__ . '/stalling-blob-server.php', (string) $stallSeconds],
+            [PHP_BINARY, __DIR__ . '/stalling-blob-server.php', (string) $stallSeconds, (string) $bodyBytes],
             [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
             $pipes,
         );
