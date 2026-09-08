@@ -85,7 +85,6 @@ class BlobClientFactory
      * Download transfer policy, mirroring S3ClientFactory::transferOptions()['http'].
      *
      * @return array{
-     *     decode_content: bool,
      *     connect_timeout: int,
      *     timeout: int,
      *     read_timeout: int,
@@ -95,7 +94,6 @@ class BlobClientFactory
     public static function downloadTransferOptions(): array
     {
         return [
-            'decode_content' => false,
             'connect_timeout' => self::CONNECT_TIMEOUT_SECONDS,
             // Sized so that object size never decides the outcome; see MAX_TRANSFER_SECONDS.
             'timeout' => self::MAX_TRANSFER_SECONDS,
