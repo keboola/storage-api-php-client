@@ -109,8 +109,9 @@ Notes:
   (`Rest::downloadObject()`); any other failure restarts from the first byte.
 - Guzzle's `read_timeout` option is honoured only by its `StreamHandler`. With `ext-curl` present,
   which is the only supported runtime, all three download clients end up on the cURL handler, where
-  the equivalent is `CURLOPT_LOW_SPEED_LIMIT` / `CURLOPT_LOW_SPEED_TIME`. Without it the fallback
-  is the `StreamHandler`, where a stalled read still ends a copy silently.
+  the equivalent is `CURLOPT_LOW_SPEED_LIMIT` / `CURLOPT_LOW_SPEED_TIME`. Without it the fallback is
+  the `StreamHandler`, and there `read_timeout` becomes the stall detection: the body is no longer
+  requested as a stream, so the handler drains it itself and a stalled read raises there too.
 - Azure downloads go through `BlobClientFactory::createDownloadClient()`. The Azure SDK requests
   blob bodies with Guzzle's `stream` option, which routes them to the `StreamHandler`: there the
   `curl` options and `connect_timeout` are ignored, `timeout` is a per-read socket timeout rather
