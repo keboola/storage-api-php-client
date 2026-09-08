@@ -107,9 +107,10 @@ Notes:
   full egress. Keep `awsRetries` low if you download very large files. On GCP an interruption that
   still carried a 2xx response resumes from the last fetched byte with a `Range` header
   (`Rest::downloadObject()`); any other failure restarts from the first byte.
-- Guzzle's `read_timeout` option is honoured only by its `StreamHandler`. All three download
-  clients end up on the cURL handler, where the equivalent is `CURLOPT_LOW_SPEED_LIMIT` /
-  `CURLOPT_LOW_SPEED_TIME`.
+- Guzzle's `read_timeout` option is honoured only by its `StreamHandler`. With `ext-curl` present,
+  which is the only supported runtime, all three download clients end up on the cURL handler, where
+  the equivalent is `CURLOPT_LOW_SPEED_LIMIT` / `CURLOPT_LOW_SPEED_TIME`. Without it the fallback
+  is the `StreamHandler`, where a stalled read still ends a copy silently.
 - Azure downloads go through `BlobClientFactory::createDownloadClient()`. The Azure SDK requests
   blob bodies with Guzzle's `stream` option, which routes them to the `StreamHandler`: there the
   `curl` options and `connect_timeout` are ignored, `timeout` is a per-read socket timeout rather
