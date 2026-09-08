@@ -10,6 +10,7 @@ use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Downloader\S3ClientFactory;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
+use PHPUnit\Framework\Attributes\RequiresSetting;
 use PHPUnit\Framework\TestCase;
 
 class BlobClientFactoryTest extends TestCase
@@ -34,7 +35,6 @@ class BlobClientFactoryTest extends TestCase
 
     /**
      * @return array{
-     *     decode_content: bool,
      *     connect_timeout: int,
      *     timeout: int,
      *     read_timeout: int,
@@ -55,7 +55,7 @@ class BlobClientFactoryTest extends TestCase
     {
         $timeout = self::options()['timeout'];
 
-        self::assertSame(BlobClientFactory::MAX_TRANSFER_SECONDS, $timeout);
+        self::assertSame(12 * 3600, $timeout);
 
         $bytesAtTypicalThroughput = 80 * 1024 * 1024 * $timeout;
         self::assertGreaterThan(
@@ -72,7 +72,7 @@ class BlobClientFactoryTest extends TestCase
      */
     public function testTotalTransferDeadlineBoundsATransferThatCrawlsAboveTheStallThreshold(): void
     {
-        $crawlingRate = BlobClientFactory::MIN_TRANSFER_RATE_BYTES_PER_SECOND + 1;
+        $crawlingRate = 1024 + 1;
 
         $secondsToCrawlThroughFortyGigabytes = intdiv(40 * 1024 ** 3, $crawlingRate);
 
@@ -94,28 +94,27 @@ class BlobClientFactoryTest extends TestCase
 
         self::assertSame(
             [
-                CURLOPT_LOW_SPEED_LIMIT => BlobClientFactory::MIN_TRANSFER_RATE_BYTES_PER_SECOND,
-                CURLOPT_LOW_SPEED_TIME => BlobClientFactory::STALL_TIMEOUT_SECONDS,
+                CURLOPT_LOW_SPEED_LIMIT => 1024,
+                CURLOPT_LOW_SPEED_TIME => 60,
             ],
             $options['curl'],
         );
-        self::assertSame(BlobClientFactory::STALL_TIMEOUT_SECONDS, $options['read_timeout']);
-        self::assertSame(BlobClientFactory::CONNECT_TIMEOUT_SECONDS, $options['connect_timeout']);
+        self::assertSame(60, $options['read_timeout']);
+        self::assertSame(10, $options['connect_timeout']);
     }
 
     /**
-     * The three providers are meant to fail the same way on a stalled or slow download, so the
-     * policy is compared key by key rather than value by value — a key added on the AWS side has
-     * to be answered here too.
+     * The three providers are meant to fail the same way on a stalled or slow download. AWS also
+     * carries decode_content, which on Azure would never apply: the SDK sets that option per
+     * request, and per-request options win over client config.
      */
     public function testTransferPolicyMatchesTheAwsOne(): void
     {
         $aws = S3ClientFactory::transferOptions(Client::DEFAULT_RETRIES_COUNT)['http'];
         $azure = self::options();
 
-        self::assertSame(array_keys($aws), array_keys($azure));
-        foreach ($aws as $option => $value) {
-            self::assertSame($value, $azure[$option], sprintf('option "%s" differs from AWS', $option));
+        foreach (['connect_timeout', 'timeout', 'read_timeout', 'curl'] as $option) {
+            self::assertSame($aws[$option], $azure[$option], sprintf('option "%s" differs from AWS', $option));
         }
     }
 
@@ -139,8 +138,10 @@ class BlobClientFactoryTest extends TestCase
     /**
      * Guards the defect this client exists for: with the stream option left in place the body is
      * read by Guzzle's StreamHandler, where a stall ends the copy silently and the caller writes
-     * a truncated file without any error.
+     * a truncated file without any error. Without allow_url_fopen Guzzle never picks the
+     * StreamHandler, so there would be no defect to reproduce.
      */
+    #[RequiresSetting('allow_url_fopen', '1')]
     public function testStreamedBodyTruncatesSilentlyWithoutTheMiddleware(): void
     {
         $client = $this->createClientWithShortStallWindow($this->startStallingServer(2), false);

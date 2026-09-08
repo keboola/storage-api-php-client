@@ -15,7 +15,10 @@ if ($server === false) {
 }
 
 $address = stream_socket_get_name($server, false);
-assert(is_string($address));
+if ($address === false) {
+    fwrite(STDERR, 'cannot read the listening address');
+    exit(1);
+}
 printf("PORT=%s\n", substr($address, (int) strrpos($address, ':') + 1));
 
 $connection = stream_socket_accept($server, 30);
