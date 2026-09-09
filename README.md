@@ -5,7 +5,7 @@
 [![Total Downloads](https://poser.pugx.org/keboola/storage-api-client/downloads.svg)](https://packagist.org/packages/keboola/storage-api-client)
 [![Build on tag](https://github.com/keboola/storage-api-php-client/actions/workflows/tag.yml/badge.svg)](https://github.com/keboola/storage-api-php-client/actions/workflows/tag.yml)
 
-Simple PHP wrapper library for [Keboola Storage API](http://docs.keboola.apiary.io/).
+Simple PHP wrapper library for [Keboola Storage API](https://api.keboola.com/?service=storage).
 
 ## Installation
 

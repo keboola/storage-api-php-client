@@ -1443,7 +1443,7 @@ class Client
 
     /**
      * Performs asynchronous write and waits for result
-     * Executes http://docs.keboola.apiary.io/#post-%2Fv2%2Fstorage%2Fbuckets%2F%7Bbucket_id%7D%2Ftables-async
+     * Executes POST /v2/storage/buckets/{bucket_id}/tables-async, see https://api.keboola.com/?service=storage#tag/Tables
      * @param $tableId
      * @param array $options
      * @return array
@@ -1883,7 +1883,7 @@ class Client
     /**
      * Exports table content into File Uploads asynchronously. Waits for async operation result. Created file id is
      * stored in returned job results.
-     * http://docs.keboola.apiary.io/#post-%2Fv2%2Fstorage%2Ftables%2F%7Btable_id%7D%2Fexport-async
+     * POST /v2/storage/tables/{table_id}/export-async, see https://api.keboola.com/?service=storage#tag/Tables
      *
      * @param string $tableId
      * @param ExportOptions $options
@@ -2720,7 +2720,7 @@ class Client
 
     /**
      * Prepares file metadata in Storage
-     * http://docs.keboola.apiary.io/#post-%2Fv2%2Fstorage%2Ffiles%2Fprepare
+     * POST /v2/storage/files/prepare, see https://api.keboola.com/?service=storage#tag/Files
      *
      * @param FileUploadOptions $options
      * @return array file info
