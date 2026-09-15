@@ -7,11 +7,14 @@ namespace Keboola\UnitTest\Downloader;
 use GuzzleHttp\Exception\ConnectException;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
+use Keboola\StorageApi\Downloader\BlobStorageRetryMiddleware;
 use Keboola\StorageApi\Downloader\S3ClientFactory;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
+use MicrosoftAzure\Storage\Common\Middlewares\RetryMiddleware;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\Attributes\RequiresSetting;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 
 class BlobClientFactoryTest extends TestCase
 {
@@ -145,10 +148,71 @@ class BlobClientFactoryTest extends TestCase
     }
 
     /**
+     * The download client exists so that a stall becomes retryable. Nothing else here observes a
+     * second attempt, so a regression in the middleware order — or in pushing the retry middleware
+     * at all — would otherwise pass CI.
+     */
+    #[RequiresPhpExtension('curl')]
+    public function testAStalledDownloadIsRetried(): void
+    {
+        $attemptLog = tempnam(sys_get_temp_dir(), 'abs-attempts-');
+        self::assertIsString($attemptLog);
+
+        $client = $this->createClientWithShortStallWindow(
+            $this->startStallingServer(30, 1024, $attemptLog),
+            true,
+        );
+        $client->pushMiddleware(BlobStorageRetryMiddleware::create(
+            2,
+            10,
+            BlobStorageRetryMiddleware::LINEAR_INTERVAL_ACCUMULATION,
+        ));
+
+        try {
+            $client->getBlob('container', 'blob');
+            self::fail('a stalled download must not be reported as success');
+        } catch (ConnectException) {
+            // the stall is what we want retried
+        }
+
+        try {
+            self::assertSame(
+                3,
+                substr_count((string) file_get_contents($attemptLog), "\n"),
+                'the stalled download must be retried, not given up on after one attempt',
+            );
+        } finally {
+            unlink($attemptLog);
+        }
+    }
+
+    /**
+     * The test above drives a client it assembles itself, because the production policy would make
+     * it wait out six 60 s stall windows. This pins the other half of the claim: that the factory
+     * puts a retry middleware on the client at all.
+     */
+    public function testDownloadClientCarriesTheRetryMiddleware(): void
+    {
+        $client = BlobClientFactory::createDownloadClient(
+            'BlobEndpoint=http://127.0.0.1:1;SharedAccessSignature=sv=2020-08-04&sig=stub',
+        );
+
+        $retryMiddlewares = array_filter(
+            $client->getMiddlewares(),
+            static fn (mixed $middleware): bool => $middleware instanceof RetryMiddleware,
+        );
+
+        self::assertCount(1, $retryMiddlewares, 'a stall would raise but never be retried');
+    }
+
+    /**
      * Guards the defect this client exists for: with the stream option left in place the body is
      * read by Guzzle's StreamHandler, where a stall ends the copy silently and the caller writes
      * a truncated file without any error. Without allow_url_fopen Guzzle never picks the
      * StreamHandler, so there would be no defect to reproduce.
+     *
+     * This pins third-party behaviour: if a Guzzle release ever makes a stalled StreamHandler read
+     * raise, this test starts failing. That is good news — delete it then, do not work around it.
      */
     #[RequiresSetting('allow_url_fopen', '1')]
     public function testStreamedBodyTruncatesSilentlyWithoutTheMiddleware(): void
@@ -196,10 +260,23 @@ class BlobClientFactoryTest extends TestCase
         );
     }
 
-    private function startStallingServer(int $stallSeconds, int $bodyBytes = 65536): int
-    {
+    private function startStallingServer(
+        int $stallSeconds,
+        int $bodyBytes = 65536,
+        ?string $attemptLog = null,
+    ): int {
+        $arguments = [
+            PHP_BINARY,
+            __DIR__ . '/stalling-blob-server.php',
+            (string) $stallSeconds,
+            (string) $bodyBytes,
+        ];
+        if ($attemptLog !== null) {
+            $arguments[] = $attemptLog;
+        }
+
         $server = proc_open(
-            [PHP_BINARY, __DIR__ . '/stalling-blob-server.php', (string) $stallSeconds, (string) $bodyBytes],
+            $arguments,
             [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
             $pipes,
         );
@@ -227,7 +304,11 @@ class BlobClientFactoryTest extends TestCase
             ['http' => $http],
         );
         if ($clearStreamOption) {
-            $client->pushMiddleware(BlobClientFactory::clearStreamOption());
+            // a copy of what createDownloadClient() pushes; that the factory really pushes it is
+            // what testDownloadClientKeepsTheBodyOffTheStreamHandler() covers
+            $client->pushMiddleware(static fn (callable $handler): callable
+                => static fn (RequestInterface $request, array $options)
+                    => $handler($request, ['stream' => false] + $options));
         }
 
         return $client;
