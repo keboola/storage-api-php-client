@@ -70,11 +70,9 @@ class BlobClientFactory
      * it in a middleware can, and unlike a hand-built handler it leaves the handler choice (cURL
      * availability, TLS fallback, transport sharing) to Guzzle.
      *
-     * @internal Public so that the middleware can be exercised against a stalling server without
-     *  waiting out STALL_TIMEOUT_SECONDS.
      * @return callable(callable): callable
      */
-    public static function clearStreamOption(): callable
+    private static function clearStreamOption(): callable
     {
         return static fn (callable $handler): callable
             => static fn (RequestInterface $request, array $options)
