@@ -82,6 +82,9 @@ class BlobClientFactory
     /**
      * Download transfer policy, mirroring S3ClientFactory::transferOptions()['http'].
      *
+     * @internal Single source of truth for the download transfer settings, exposed so that the
+     *  policy can be asserted without a network call. Deliberately credential-free: the connection
+     *  string is a separate argument and never enters the returned array.
      * @return array{
      *     connect_timeout: int,
      *     timeout: int,
