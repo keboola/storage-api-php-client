@@ -3237,8 +3237,9 @@ class Client
         // poll for status
         do {
             if ($retries > 0) {
-                $waitSeconds = call_user_func($this->jobPollRetryDelay, $retries);
-                sleep($waitSeconds);
+                // fractional delays are honoured: sleep() would floor 0.2 to 0 and hammer the API
+                $waitSeconds = (float) call_user_func($this->jobPollRetryDelay, $retries);
+                usleep((int) round($waitSeconds * 1000000));
             }
             $retries++;
 
