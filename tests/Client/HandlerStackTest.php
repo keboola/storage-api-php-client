@@ -142,6 +142,29 @@ class HandlerStackTest extends TestCase
         self::assertSame(0, $mockHandler->count(), 'Both responses should be consumed');
     }
 
+    public function testRetryOn409LockIsAlreadyUsed(): void
+    {
+        $lockConflictBody = (string) json_encode([
+            'code' => 'core.lock.lockIsAlreadyUsed',
+            'message' => 'Failed to acquire the "alias-recreate-in.c-main.alias" lock. Lock is already used.',
+        ]);
+
+        $mockHandler = new MockHandler([
+            new Response(409, [], $lockConflictBody),
+            new Response(200, [], 'ok'),
+        ]);
+
+        $handlerStack = HandlerStack::create([
+            'handler' => $mockHandler,
+            'backoffMaxTries' => 3,
+        ]);
+        $client = new GuzzleClient(['handler' => $handlerStack, 'http_errors' => false]);
+
+        $response = $client->request('GET', 'http://example.com');
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(0, $mockHandler->count(), 'Both responses should be consumed');
+    }
+
     public function testNoRetryOn409WithDifferentErrorCode(): void
     {
         $otherConflictBody = (string) json_encode([

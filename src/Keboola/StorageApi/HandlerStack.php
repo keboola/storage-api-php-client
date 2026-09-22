@@ -44,6 +44,15 @@ final class HandlerStack
         return $handlerStack;
     }
 
+    /**
+     * Conflicts that clear by themselves: a configuration version conflict (a deadlock between two
+     * writers) and an application lock a concurrent operation holds for the length of that operation.
+     */
+    private const RETRYABLE_CONFLICT_CODES = [
+        'storage.components.configurations.versionConflict',
+        'core.lock.lockIsAlreadyUsed',
+    ];
+
     private static function createDefaultDecider(int $maxRetries, bool $retryOnMaintenance): callable
     {
         return function (
@@ -67,8 +76,8 @@ final class HandlerStack
             if ($retries >= $maxRetries) {
                 return false;
             } elseif ($response && $response->getStatusCode() === 409) {
-                // Retry on 409 Conflict if it's a version conflict (deadlock) error
-                return self::isVersionConflictResponse($response);
+                // Retry on 409 Conflict only for the transient conflicts, never for a real one
+                return self::isRetryableConflictResponse($response);
             } elseif ($response && $response->getStatusCode() > 499) {
                 return true;
             } elseif ($error) {
@@ -79,7 +88,7 @@ final class HandlerStack
         };
     }
 
-    private static function isVersionConflictResponse(ResponseInterface $response): bool
+    private static function isRetryableConflictResponse(ResponseInterface $response): bool
     {
         $body = (string) $response->getBody();
         if ($response->getBody()->isSeekable()) {
@@ -91,7 +100,7 @@ final class HandlerStack
             return false;
         }
 
-        return isset($data['code']) && $data['code'] === 'storage.components.configurations.versionConflict';
+        return isset($data['code']) && in_array($data['code'], self::RETRYABLE_CONFLICT_CODES, true);
     }
 
     private static function createExponentialDelay(): callable
