@@ -1507,7 +1507,7 @@ class Client
             'ignoredLinesCount',
             'useTimestampFromDataFile',
             'deduplicationStrategy',
-            'partitionPruning',
+            'partitionAwareImport',
         ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
