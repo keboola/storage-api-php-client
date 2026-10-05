@@ -56,7 +56,7 @@ class S3Uploader
      * @param $acl
      * @param $file
      * @param string $name
-     * @param string $encryption
+     * @param 'AES256'|'aws:backup'|'aws:fsx'|'aws:kms'|'aws:kms:dsse'|null $encryption
      * @throws ClientException
      */
     public function uploadFile($bucket, $key, $acl, $file, $name, $encryption = null)
@@ -69,7 +69,7 @@ class S3Uploader
      * @param $key
      * @param $acl
      * @param $slices
-     * @param null $encryption
+     * @param 'AES256'|'aws:backup'|'aws:fsx'|'aws:kms'|'aws:kms:dsse'|null $encryption
      * @throws ClientException
      */
     public function uploadSlicedFile($bucket, $key, $acl, $slices, $encryption = null)
@@ -91,7 +91,7 @@ class S3Uploader
      * @param $key
      * @param $filePath
      * @param string $name
-     * @param string $encryption
+     * @param 'AES256'|'aws:backup'|'aws:fsx'|'aws:kms'|'aws:kms:dsse'|null $encryption
      * @throws ClientException
      */
     private function putFile($bucket, $key, $acl, $filePath, $name = null, $encryption = null)
@@ -122,7 +122,7 @@ class S3Uploader
      * @param $acl
      * @param array $files
      * @param string $name
-     * @param string $encryption
+     * @param 'AES256'|'aws:backup'|'aws:fsx'|'aws:kms'|'aws:kms:dsse'|null $encryption
      * @throws ClientException
      */
     private function upload($bucket, $acl, $files, $name = null, $encryption = null)
@@ -187,7 +187,7 @@ class S3Uploader
      * @param string $key
      * @param string $acl
      * @param int $concurrency
-     * @param string $encryption
+     * @param 'AES256'|'aws:backup'|'aws:fsx'|'aws:kms'|'aws:kms:dsse'|null $encryption
      * @param string $name
      * @param UploadState|null $state
      * @return \Aws\S3\MultipartUploader
