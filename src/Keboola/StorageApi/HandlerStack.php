@@ -22,6 +22,7 @@ final class HandlerStack
      *     handler?: callable(RequestInterface, array): PromiseInterface,
      *     backoffMaxTries?: int,
      *     retryOnMaintenance?: bool,
+     *     middlewares?: list<callable>,
      * } $options
      */
     public static function create(array $options = []): HandlerStackBase
@@ -42,11 +43,8 @@ final class HandlerStack
             self::createExponentialDelay(),
         ));
 
-        // E2E setup-cost measurement hooks in here; the global is set only by the PHPUnit
-        // timing extension (connection/src/Dev/PhpUnit/TimingExtension), never in production.
-        $timingMiddleware = $GLOBALS['KBC_HTTP_TIMING_MIDDLEWARE'] ?? null;
-        if (is_callable($timingMiddleware)) {
-            $handlerStack->push($timingMiddleware);
+        foreach ($options['middlewares'] ?? [] as $middleware) {
+            $handlerStack->push($middleware);
         }
 
         return $handlerStack;

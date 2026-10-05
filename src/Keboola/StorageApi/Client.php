@@ -159,8 +159,9 @@ class Client
      *     - logger: instance of Psr\Log\LoggerInterface
      *     - jobPollRetryDelay: callable method which determines wait period for job polling
      *     - handler: custom Guzzle handler, allows mocking responses in tests
+     *     - middlewares: extra Guzzle middlewares to push onto the stack
      *     - authType: authentication type (AUTH_TYPE_STORAGE_TOKEN or AUTH_TYPE_BEARER)
-     * @phpstan-param array{token?: string, url?: string, userAgent?: string, backoffMaxTries?: int, retryOnMaintenance?: bool, awsRetries?: int, logger?: \Psr\Log\LoggerInterface, jobPollRetryDelay?: callable, handler?: mixed, authType?: self::AUTH_TYPE_*} $config
+     * @phpstan-param array{token?: string, url?: string, userAgent?: string, backoffMaxTries?: int, retryOnMaintenance?: bool, awsRetries?: int, logger?: \Psr\Log\LoggerInterface, jobPollRetryDelay?: callable, handler?: mixed, middlewares?: list<callable>, authType?: self::AUTH_TYPE_*} $config
      */
     public function __construct(array $config = [])
     {
@@ -228,6 +229,7 @@ class Client
             'backoffMaxTries' => $this->backoffMaxTries,
             'retryOnMaintenance' => $this->retryOnMaintenance,
             'handler' => $config['handler'] ?? null,
+            'middlewares' => $config['middlewares'] ?? [],
         ]);
 
         $handlerStack->push((RequestTimeoutMiddleware::factory()));
@@ -3238,9 +3240,8 @@ class Client
         // poll for status
         do {
             if ($retries > 0) {
-                // fractional delays are honoured: sleep() would floor 0.2 to 0 and hammer the API
-                $waitSeconds = (float) call_user_func($this->jobPollRetryDelay, $retries);
-                usleep((int) round($waitSeconds * 1000000));
+                $waitSeconds = call_user_func($this->jobPollRetryDelay, $retries);
+                sleep($waitSeconds);
             }
             $retries++;
 
