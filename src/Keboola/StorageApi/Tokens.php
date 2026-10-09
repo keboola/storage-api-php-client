@@ -112,7 +112,8 @@ class Tokens
      * @param string $recipientEmail
      * @param string $message
      * @return void
-     * @deprecated The endpoint will be removed. Use refreshToken() to get a new token value.
+     * @deprecated The endpoint will be removed. Use refreshToken() to get a new token value;
+     *             it generates a new value and the old token value becomes immediately invalid.
      */
     public function shareToken($id, $recipientEmail, $message)
     {
