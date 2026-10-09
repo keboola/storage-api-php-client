@@ -2409,10 +2409,15 @@ class Client
                 'url' => 's3://' . $uploadParams['bucket'] . '/' . $uploadParams['key'] . basename($filePath),
             ];
         }
+        try {
+            $manifestBody = json_encode($manifest, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw new ClientException('Cannot encode slices manifest: ' . $e->getMessage(), null, $e);
+        }
         $manifestUploadOptions = [
             'Bucket' => $uploadParams['bucket'],
             'Key' => $uploadParams['key'] . 'manifest',
-            'Body' => json_encode($manifest, JSON_THROW_ON_ERROR),
+            'Body' => $manifestBody,
         ];
         if ($newOptions->getIsEncrypted()) {
             $manifestUploadOptions['ServerSideEncryption'] = $uploadParams['x-amz-server-side-encryption'];
