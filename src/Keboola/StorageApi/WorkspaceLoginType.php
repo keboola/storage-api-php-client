@@ -12,6 +12,7 @@ enum WorkspaceLoginType: string
     case SNOWFLAKE_PERSON_KEYPAIR = 'snowflake-person-keypair';
     case SNOWFLAKE_SERVICE_KEYPAIR = 'snowflake-service-keypair';
     case NONE = 'none';
+    case GOVERNED = 'governed';
 
     public function isPasswordLogin(): bool
     {
