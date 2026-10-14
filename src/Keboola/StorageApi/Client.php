@@ -2968,7 +2968,7 @@ class Client
     }
 
     /**
-     * @param null $previousRunId Allows runId hierarchy. If previous run Id is set, returned id will be in form of
+     * @param string|null $previousRunId Allows runId hierarchy. If previous run Id is set, returned id will be in form of
      * previousRunId.newRunId
      *
      * @return string
