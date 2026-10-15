@@ -1083,6 +1083,23 @@ class Client
     }
 
     /**
+     * Tables of the dev branch that are new or modified compared with the default branch as it is now.
+     * The endpoint exists only under the branch prefix, so a plain Client would get a 404.
+     *
+     * @return array{tables: list<array<string, mixed>>}
+     * @throws ClientException
+     */
+    public function listTableChanges(): array
+    {
+        if (!$this instanceof BranchAwareClient) {
+            throw new ClientException('Listing table changes is supported only in dev branch. Use BranchAwareClient instance.');
+        }
+        /** @var array{tables: list<array<string, mixed>>} $changes */
+        $changes = $this->apiGet('changes/tables');
+        return $changes;
+    }
+
+    /**
      * @param array{
      *     branchFromId: int,
      *     branchIntoId: int,
