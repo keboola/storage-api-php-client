@@ -1854,7 +1854,8 @@ class Client
      * @param string $recipientEmail
      * @param string $message
      * @return void
-     * @deprecated Will be removed in next major release. Use Tokens::shareToken()
+     * @deprecated The endpoint will be removed. Use Tokens::refreshToken() to get a new token value;
+     *             it generates a new value and the old token value becomes immediately invalid.
      */
     public function shareToken($tokenId, $recipientEmail, $message)
     {
