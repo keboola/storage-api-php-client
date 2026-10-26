@@ -859,7 +859,7 @@ class Client
      * Get the bucket-listing detail.
      *
      * Returns the Analytics Hub listing record attached to the bucket. 404 when no
-     * listing exists. 403 when the token does not have manage privilege on the bucket.
+     * listing exists. 403 when the token does not have read privilege on the bucket.
      *
      * @return array<string, mixed>
      */
