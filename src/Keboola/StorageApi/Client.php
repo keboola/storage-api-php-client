@@ -598,7 +598,7 @@ class Client
      *      endTime: string|null,
      *      runId: string|null,
      *      results: array<string, mixed>|null,
-     *      creatorToken: array{id: string, description: string|null},
+     *      creatorToken: array{id: string|null, description: string|null},
      *      metrics: array<string, mixed>,
      *      error?: array{code: string|null, message: string|null, exceptionId: string|null}
      *  }
