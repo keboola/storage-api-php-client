@@ -15,6 +15,7 @@ use GuzzleHttp\Utils;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client\RequestTimeoutMiddleware;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
+use Keboola\StorageApi\Downloader\BlobDownloadWriter;
 use Keboola\StorageApi\Downloader\GcsClientFactory;
 use Keboola\StorageApi\Downloader\S3ClientFactory;
 use Keboola\StorageApi\Options\BackendConfiguration;
@@ -2512,7 +2513,7 @@ class Client
             );
         }
 
-        (new Filesystem())->dumpFile($destination, $getResult->getContentStream());
+        BlobDownloadWriter::writeToFile($getResult, $destination);
     }
 
     private function downloadS3File(array $fileInfo, $destination)
@@ -2608,7 +2609,6 @@ class Client
             /** @var array{entries: array{url: string}} $manifest */
             $manifest = Utils::jsonDecode((string) stream_get_contents($getResult->getContentStream()), true);
             $slices = [];
-            $fs = new Filesystem();
             /** @var array{url:string} $entry */
             foreach ($manifest['entries'] as $entry) {
                 $blobPath = explode(sprintf(
@@ -2617,7 +2617,7 @@ class Client
                 ), $entry['url'])[1];
                 $getResult = $blobClient->getBlob($fileInfo['absPath']['container'], $blobPath);
                 $slices[] = $destinationFile = $destinationFolder . basename($entry['url']);
-                $fs->dumpFile($destinationFile, $getResult->getContentStream());
+                BlobDownloadWriter::writeToFile($getResult, $destinationFile);
             }
         } catch (ServiceException $e) {
             if (!in_array('BlobNotFound', $e->getResponse()->getHeader('x-ms-error-code'))) {
