@@ -9,41 +9,14 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Downloader\BlobStorageRetryMiddleware;
 use Keboola\StorageApi\Downloader\S3ClientFactory;
-use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Common\Middlewares\RetryMiddleware;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\Attributes\RequiresSetting;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\RequestInterface;
 
 class BlobClientFactoryTest extends TestCase
 {
-    /** Shortened stall window, so a stalled transfer does not hold the suite for a minute. */
-    private const STALL_WINDOW_SECONDS = 1;
-
-    private const BLOB_SIZE_BYTES = 262144;
-
-    /** @var resource|null */
-    private $server;
-
-    /** @var array<int, resource> */
-    private array $pipes = [];
-
-    protected function tearDown(): void
-    {
-        foreach ($this->pipes as $pipe) {
-            if (is_resource($pipe)) {
-                fclose($pipe);
-            }
-        }
-        $this->pipes = [];
-        if (is_resource($this->server)) {
-            proc_terminate($this->server);
-            proc_close($this->server);
-        }
-        $this->server = null;
-        parent::tearDown();
-    }
+    use StallingBlobServer;
 
     /**
      * @return array{
@@ -258,59 +231,5 @@ class BlobClientFactoryTest extends TestCase
             stream_get_meta_data($body)['seekable'],
             'the body was left on the socket, so the download client no longer clears the stream option',
         );
-    }
-
-    private function startStallingServer(
-        int $stallSeconds,
-        int $bodyBytes = 65536,
-        ?string $attemptLog = null,
-    ): int {
-        $arguments = [
-            PHP_BINARY,
-            __DIR__ . '/stalling-blob-server.php',
-            (string) $stallSeconds,
-            (string) $bodyBytes,
-        ];
-        if ($attemptLog !== null) {
-            $arguments[] = $attemptLog;
-        }
-
-        $server = proc_open(
-            $arguments,
-            [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
-            $pipes,
-        );
-        self::assertIsResource($server);
-        $this->server = $server;
-        $this->pipes = $pipes;
-
-        $announcement = fgets($pipes[1]);
-        self::assertIsString($announcement, 'the stalling server did not report its port');
-        self::assertStringStartsWith('PORT=', $announcement);
-
-        return (int) substr(trim($announcement), strlen('PORT='));
-    }
-
-    private function createClientWithShortStallWindow(int $port, bool $clearStreamOption): BlobRestProxy
-    {
-        $http = BlobClientFactory::downloadTransferOptions();
-        $http['read_timeout'] = self::STALL_WINDOW_SECONDS;
-        if ($http['curl'] !== []) {
-            $http['curl'][CURLOPT_LOW_SPEED_TIME] = self::STALL_WINDOW_SECONDS;
-        }
-
-        $client = BlobRestProxy::createBlobService(
-            sprintf('BlobEndpoint=http://127.0.0.1:%d;SharedAccessSignature=sv=2020-08-04&sig=stub', $port),
-            ['http' => $http],
-        );
-        if ($clearStreamOption) {
-            // a copy of what createDownloadClient() pushes; that the factory really pushes it is
-            // what testDownloadClientKeepsTheBodyOffTheStreamHandler() covers
-            $client->pushMiddleware(static fn (callable $handler): callable
-                => static fn (RequestInterface $request, array $options)
-                    => $handler($request, ['stream' => false] + $options));
-        }
-
-        return $client;
     }
 }
