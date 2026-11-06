@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-// Test fixture for BlobClientFactoryTest: answers every blob GET with a 256 KiB Content-Length.
+// Test fixture for the Downloader tests (via the StallingBlobServer trait): answers every blob GET
+// with a 256 KiB Content-Length.
 // Sends $argv[2] bytes of it (64 KiB by default, i.e. a body it never fulfils), then stops
 // sending for $argv[1] seconds and closes. Send the full length for a healthy response.
 // Serves connections one after another so a retried download reaches it too; $argv[3], when
