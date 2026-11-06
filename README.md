@@ -120,6 +120,17 @@ Notes:
   file as success. The download client clears that option in a middleware, so the body is read by
   the cURL handler Guzzle would pick anyway and a stall raises an exception that
   `BlobStorageRetryMiddleware` retries.
+- A connection closed mid-body on Azure (cURL errno 18 or 56) is also retried, but once the
+  retries are spent the SDK's `ServiceRestProxy::onRejected()` returns the last 200 response as
+  a success, with its body at EOF. Every Azure write therefore goes through
+  `BlobDownloadWriter`, which compares the file size with the blob's `Content-Length` after the
+  copy; a shorter file is removed and `Keboola\StorageApi\Exception` with string code
+  `incompleteDownload` is raised. The check does not depend on the HTTP handler, so it also
+  covers the `StreamHandler` fallback without `ext-curl`, where the same drop ends the copy
+  silently. It is not enforced when the response carries no `Content-Length` — Guzzle drops
+  the header for a blob stored with `Content-Encoding` and the SDK then reports a length of 0.
+  On AWS and GCP such a drop raises from the SDK itself (AWS keeps the partial `SaveAs` file,
+  GCP never opens the destination).
 - On Azure and GCP the body is buffered in `php://temp` (memory up to 2 MB, then a temporary file
   in the system temp dir) before it is copied to the destination, so a download needs its size in
   free temp space on top of the destination. Uploads are unaffected.

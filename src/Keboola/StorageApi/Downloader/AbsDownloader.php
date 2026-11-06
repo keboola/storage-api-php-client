@@ -25,7 +25,7 @@ class AbsDownloader implements DownloaderInterface
             $fileResponse['absPath']['container'],
             $fileResponse['absPath']['name'],
         );
-        file_put_contents($tmpFilePath, $result->getContentStream());
+        BlobDownloadWriter::writeToFile($result, $tmpFilePath);
     }
 
     /**
@@ -41,7 +41,7 @@ class AbsDownloader implements DownloaderInterface
             $container,
             $file,
         );
-        file_put_contents($filePath, $result->getContentStream());
+        BlobDownloadWriter::writeToFile($result, $filePath);
         return $filePath;
     }
 
