@@ -2607,7 +2607,7 @@ class Client
         try {
             $getResult = $blobClient->getblob($fileInfo['absPath']['container'], $fileInfo['absPath']['name'] . 'manifest');
             /** @var array{entries: array{url: string}} $manifest */
-            $manifest = Utils::jsonDecode((string) stream_get_contents($getResult->getContentStream()), true);
+            $manifest = Utils::jsonDecode(BlobDownloadWriter::readToString($getResult), true);
             $slices = [];
             /** @var array{url:string} $entry */
             foreach ($manifest['entries'] as $entry) {

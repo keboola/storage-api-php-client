@@ -122,9 +122,10 @@ Notes:
   `BlobStorageRetryMiddleware` retries.
 - A connection closed mid-body on Azure (cURL errno 18 or 56) is also retried, but once the
   retries are spent the SDK's `ServiceRestProxy::onRejected()` returns the last 200 response as
-  a success, with its body at EOF. Every Azure write therefore goes through
-  `BlobDownloadWriter`, which compares the file size with the blob's `Content-Length` after the
-  copy; a shorter file is removed and `Keboola\StorageApi\Exception` with string code
+  a success, with its body at EOF. Every Azure download therefore goes through
+  `BlobDownloadWriter`, which compares the file size (or, for the slices manifest that
+  `downloadSlicedFile()` reads into memory, the string length) with the blob's `Content-Length`;
+  a shorter result is discarded and `Keboola\StorageApi\Exception` with string code
   `incompleteDownload` is raised. The check does not depend on the HTTP handler, so it also
   covers the `StreamHandler` fallback without `ext-curl`, where the same drop ends the copy
   silently. It is not enforced when the response carries no `Content-Length` — Guzzle drops
