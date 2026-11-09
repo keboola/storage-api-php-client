@@ -9,7 +9,7 @@ use MicrosoftAzure\Storage\Blob\Models\GetBlobResult;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Writes a fetched blob body to disk and refuses one shorter than the blob.
+ * Writes or reads a fetched blob body and refuses one shorter than the blob.
  *
  * @internal Not part of the published package API.
  */
@@ -31,13 +31,30 @@ final class BlobDownloadWriter
         $expected = $result->getProperties()->getContentLength();
         if ($written === false || $written < $expected) {
             $filesystem->remove($destination);
-            throw new Exception(
-                sprintf('Blob download is incomplete: expected %d bytes, got %d.', $expected, (int) $written),
-                null,
-                null,
-                self::INCOMPLETE_DOWNLOAD,
-                ['expectedBytes' => $expected, 'writtenBytes' => (int) $written],
-            );
+            throw self::incomplete($expected, (int) $written);
         }
+    }
+
+    /** For a small blob read into memory (the slices manifest); same completeness rule as writeToFile(). */
+    public static function readToString(GetBlobResult $result): string
+    {
+        $body = (string) stream_get_contents($result->getContentStream());
+        $expected = $result->getProperties()->getContentLength();
+        if (strlen($body) < $expected) {
+            throw self::incomplete($expected, strlen($body));
+        }
+
+        return $body;
+    }
+
+    private static function incomplete(int $expected, int $received): Exception
+    {
+        return new Exception(
+            sprintf('Blob download is incomplete: expected %d bytes, got %d.', $expected, $received),
+            null,
+            null,
+            self::INCOMPLETE_DOWNLOAD,
+            ['expectedBytes' => $expected, 'writtenBytes' => $received],
+        );
     }
 }
