@@ -1528,6 +1528,7 @@ class Client
             'useTimestampFromDataFile',
             'deduplicationStrategy',
             'partitionAwareImport',
+            'importMethod',
         ];
 
         $filteredOptions = array_intersect_key($options, array_flip($allowedOptions));
