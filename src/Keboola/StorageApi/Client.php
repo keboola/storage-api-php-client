@@ -3119,13 +3119,15 @@ class Client
     }
 
     /**
+     * @param array<string, mixed> $requestOptions
      * @return mixed|string
      */
-    public function apiDeleteParamsJson(string $url, array $data = [])
+    public function apiDeleteParamsJson(string $url, array $data = [], array $requestOptions = [])
     {
-        return $this->request('DELETE', $url, [
-            'json' => $data,
-        ]);
+        $requestOptions = $this->filterRequestOptions($requestOptions);
+        $requestOptions['json'] = $data;
+
+        return $this->request('DELETE', $url, $requestOptions);
     }
 
     protected function request($method, $url, $options = [], $responseFileName = null, $handleAsyncTask = true)

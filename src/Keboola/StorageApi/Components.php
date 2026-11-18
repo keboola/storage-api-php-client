@@ -368,16 +368,24 @@ class Components
                 'description' => $options->getDescription(),
                 'isDisabled' => $options->getIsDisabled(),
             ],
+            true,
+            $this->expectedVersionRequestOptions($options->getExpectedVersion()),
         );
     }
 
-    public function deleteConfigurationRow($componentId, $configurationId, $rowId, $changeDescription = null)
+    /**
+     * $expectedVersion is the expected version of the configuration, not of the row: deleting a row
+     * bumps the configuration version. The delete is rejected with 412 unless the configuration is
+     * still at that version; null leaves the delete unconditional.
+     */
+    public function deleteConfigurationRow($componentId, $configurationId, $rowId, $changeDescription = null, ?int $expectedVersion = null)
     {
         return $this->client->apiDeleteParamsJson(
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}",
             [
                 'changeDescription' => $changeDescription,
             ],
+            $this->expectedVersionRequestOptions($expectedVersion),
         );
     }
 
@@ -424,6 +432,8 @@ class Components
                 $options->getRowId(),
             ),
             $data,
+            true,
+            $this->expectedVersionRequestOptions($options->getExpectedVersion()),
         );
     }
 

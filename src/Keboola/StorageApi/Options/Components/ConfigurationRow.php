@@ -17,6 +17,8 @@ class ConfigurationRow
 
     private $state;
 
+    private ?int $expectedVersion = null;
+
     /**
      * @var Configuration
      */
@@ -158,6 +160,25 @@ class ConfigurationRow
     public function setState($state): static
     {
         $this->state = $state;
+        return $this;
+    }
+
+    public function getExpectedVersion(): ?int
+    {
+        return $this->expectedVersion;
+    }
+
+    /**
+     * Sent as `If-Match` on row create and update, so the write fails with 412 unless the
+     * configuration is still at this version. It is the version of the configuration, not of the
+     * row: every row write bumps the configuration version. Take it from the `version` field of a
+     * configuration detail; null leaves the write unconditional.
+     *
+     * @return $this
+     */
+    public function setExpectedVersion(?int $expectedVersion): static
+    {
+        $this->expectedVersion = $expectedVersion;
         return $this;
     }
 }
