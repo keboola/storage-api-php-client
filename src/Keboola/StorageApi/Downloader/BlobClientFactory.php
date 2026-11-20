@@ -47,6 +47,8 @@ class BlobClientFactory
             ],
         ]);
         $client->pushMiddleware(BlobStorageRetryMiddleware::create());
+        // pushed last, so it sits next to Guzzle and every other middleware sees the redacted failure
+        $client->pushMiddleware(new BlobQueryRedactionMiddleware());
 
         return $client;
     }
@@ -58,6 +60,8 @@ class BlobClientFactory
         ]);
         $client->pushMiddleware(self::clearStreamOption());
         $client->pushMiddleware(BlobStorageRetryMiddleware::create());
+        // pushed last, so it sits next to Guzzle and every other middleware sees the redacted failure
+        $client->pushMiddleware(new BlobQueryRedactionMiddleware());
 
         return $client;
     }

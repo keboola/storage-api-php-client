@@ -139,6 +139,11 @@ Notes:
   connect timeout and a 120 s deadline per request, i.e. per 4 MiB block (`ABSUploader::CHUNK_SIZE`)
   or per whole blob for a small single-request upload. Uploads never request a streamed body, so
   there the deadline has always applied.
+- Both Azure clients carry `BlobQueryRedactionMiddleware`. Azure puts the whole SAS into the query
+  string, and a failed request's Guzzle exception repeats the URL in its message, its handler
+  context and its request. The middleware replaces that exception with one of the same class
+  without the query string and without the original chained, so the operation parameters
+  (`comp`, `blockid`) are missing from the error as well.
 - The GCP policy is passed per download call (`GcsClientFactory::downloadOptions()`) rather than
   configured on the `StorageClient`, because client-level options never reach a download:
   `Rest::downloadObject()` always sets its own `restOptions`, and
