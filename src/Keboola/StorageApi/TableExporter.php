@@ -14,6 +14,7 @@ namespace Keboola\StorageApi;
 use GuzzleHttp\Client as HttpClient;
 use Keboola\StorageApi\Downloader\DownloaderFactory;
 use Keboola\StorageApi\Downloader\DownloaderInterface;
+use Keboola\StorageApi\Downloader\FailureTranslatingDownloader;
 use Keboola\StorageApi\Exporter\DownloadedSliceEntry;
 use Keboola\StorageApi\Exporter\FileType;
 use Symfony\Component\Filesystem\Filesystem;
@@ -89,10 +90,10 @@ class TableExporter
             $fs->remove($destination);
         }
 
-        $downloader = DownloaderFactory::createDownloaderForFileResponse(
+        $downloader = new FailureTranslatingDownloader(DownloaderFactory::createDownloaderForFileResponse(
             $getFileResponse,
             $this->client->getAwsRetries(),
-        );
+        ));
 
         if ($getFileResponse['isSliced'] === true && $getFileResponse['fileType'] === 'csv') {
             /**
