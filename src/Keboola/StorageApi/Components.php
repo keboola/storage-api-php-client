@@ -478,11 +478,17 @@ class Components
         return $this->client->apiGet($this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}");
     }
 
-    public function rollbackConfigurationRow($componentId, $configurationId, $rowId, $version, $changeDescription = null)
+    /**
+     * @param int|null $expectedVersion expected version of the configuration (not of the row); the
+     *     rollback fails with 412 when the configuration has moved since
+     */
+    public function rollbackConfigurationRow($componentId, $configurationId, $rowId, $version, $changeDescription = null, ?int $expectedVersion = null)
     {
         return $this->client->apiPostJson(
             $this->branchPrefix . "components/{$componentId}/configs/{$configurationId}/rows/{$rowId}/versions/{$version}/rollback",
             ['changeDescription' => $changeDescription],
+            true,
+            $this->expectedVersionRequestOptions($expectedVersion),
         );
     }
 
