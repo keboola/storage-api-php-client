@@ -314,20 +314,6 @@ class Client
         return $this->apiGet($url);
     }
 
-    /**
-     * The BigQuery policy tags a column of this project can be assigned: the backend taxonomy's tags
-     * with their parents.
-     *
-     * @return array{taxonomy: string, enforced: bool, policyTags: list<array{name: string, displayName: string, description: string, parent: ?string}>}
-     */
-    public function listPolicyTags(): array
-    {
-        /** @var array{taxonomy: string, enforced: bool, policyTags: list<array{name: string, displayName: string, description: string, parent: ?string}>} $result */
-        $result = $this->apiGet('policy-tags');
-
-        return $result;
-    }
-
     public function webalizeDisplayName($displayName)
     {
         return $this->apiPostJson(
