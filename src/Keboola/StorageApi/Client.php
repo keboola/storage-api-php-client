@@ -18,7 +18,6 @@ use Keboola\StorageApi\Downloader\BlobClientFactory;
 use Keboola\StorageApi\Downloader\BlobDownloadWriter;
 use Keboola\StorageApi\Downloader\GcsClientFactory;
 use Keboola\StorageApi\Downloader\S3ClientFactory;
-use Keboola\StorageApi\Downloader\TransportFailure;
 use Keboola\StorageApi\Options\BackendConfiguration;
 use Keboola\StorageApi\Options\BucketDetailOptions;
 use Keboola\StorageApi\Options\BucketOwnerUpdateOptions;
@@ -42,7 +41,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
-use Throwable;
 
 /**
  * @phpstan-type StorageJob array{id: int, status: string, url: string, tableId: ?string, operationName: string, operationParams: array<string, mixed>, createdTime: string, startTime: ?string, endTime: ?string, runId: ?string, results: ?array<string, mixed>, creatorToken: array{id: ?string, description: ?string}, actor: array{type: string, id: string, name: string, adminId: ?int}|null, metrics: array{inCompressed: bool, inBytes: int, inBytesUncompressed: int, outCompressed: bool, outBytes: int, outBytesUncompressed: int}, error?: array{code: string, message: string, exceptionId: string, contextParams: ?array<mixed>, uuid: ?string}}
@@ -314,20 +312,6 @@ class Client
             $url .= '?' . http_build_query($options->toArray());
         }
         return $this->apiGet($url);
-    }
-
-    /**
-     * The BigQuery policy tags a column of this project can be assigned: the backend taxonomy's tags
-     * with their parents.
-     *
-     * @return array{taxonomy: string, enforced: bool, policyTags: list<array{name: string, displayName: string, description: string, parent: ?string}>}
-     */
-    public function listPolicyTags(): array
-    {
-        /** @var array{taxonomy: string, enforced: bool, policyTags: list<array{name: string, displayName: string, description: string, parent: ?string}>} $result */
-        $result = $this->apiGet('policy-tags');
-
-        return $result;
     }
 
     public function webalizeDisplayName($displayName)
@@ -2495,22 +2479,18 @@ class Client
         $getOptions = ($getOptions)? $getOptions : new GetFileOptions();
         $getOptions->setFederationToken(true);
         $fileInfo = $this->getFile($fileId, $getOptions);
-        try {
-            switch ($fileInfo['provider']) {
-                case self::FILE_PROVIDER_AZURE:
-                    $this->downloadAbsFile($fileInfo, $destination);
-                    break;
-                case self::FILE_PROVIDER_AWS:
-                    $this->downloadS3File($fileInfo, $destination);
-                    break;
-                case self::FILE_PROVIDER_GCP:
-                    $this->downloadGcsFile($fileInfo, $destination);
-                    break;
-                default:
-                    throw new Exception('Invalid File Provider: ' . $fileInfo['provider']);
-            }
-        } catch (Throwable $e) {
-            throw TransportFailure::translate($e, $fileInfo);
+        switch ($fileInfo['provider']) {
+            case self::FILE_PROVIDER_AZURE:
+                $this->downloadAbsFile($fileInfo, $destination);
+                break;
+            case self::FILE_PROVIDER_AWS:
+                $this->downloadS3File($fileInfo, $destination);
+                break;
+            case self::FILE_PROVIDER_GCP:
+                $this->downloadGcsFile($fileInfo, $destination);
+                break;
+            default:
+                throw new Exception('Invalid File Provider: ' . $fileInfo['provider']);
         }
     }
 
@@ -2599,19 +2579,15 @@ class Client
     public function downloadSlicedFile($fileId, $destinationFolder)
     {
         $fileInfo = $this->getFile($fileId, (new GetFileOptions())->setFederationToken(true));
-        try {
-            switch ($fileInfo['provider']) {
-                case self::FILE_PROVIDER_AZURE:
-                    return $this->downloadAbsSlicedFile($fileInfo, $destinationFolder);
-                case self::FILE_PROVIDER_AWS:
-                    return $this->downloadS3SlicedFile($fileInfo, $destinationFolder);
-                case self::FILE_PROVIDER_GCP:
-                    return $this->downloadGcsSlicedFile($fileInfo, $destinationFolder);
-                default:
-                    throw new Exception('Invalid File Provider: ' . $fileInfo['provider']);
-            }
-        } catch (Throwable $e) {
-            throw TransportFailure::translate($e, $fileInfo);
+        switch ($fileInfo['provider']) {
+            case self::FILE_PROVIDER_AZURE:
+                return $this->downloadAbsSlicedFile($fileInfo, $destinationFolder);
+            case self::FILE_PROVIDER_AWS:
+                return $this->downloadS3SlicedFile($fileInfo, $destinationFolder);
+            case self::FILE_PROVIDER_GCP:
+                return $this->downloadGcsSlicedFile($fileInfo, $destinationFolder);
+            default:
+                throw new Exception('Invalid File Provider: ' . $fileInfo['provider']);
         }
     }
 
