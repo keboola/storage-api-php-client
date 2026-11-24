@@ -125,19 +125,13 @@ Notes:
   a success, with its body at EOF. Every Azure download therefore goes through
   `BlobDownloadWriter`, which compares the file size (or, for the slices manifest that
   `downloadSlicedFile()` reads into memory, the string length) with the blob's `Content-Length`;
-  a shorter result is discarded and the download fails as a transport failure (see the next
-  point). The check does not depend on the HTTP handler, so it also
+  a shorter result is discarded and `Keboola\StorageApi\Exception` with string code
+  `incompleteDownload` is raised. The check does not depend on the HTTP handler, so it also
   covers the `StreamHandler` fallback without `ext-curl`, where the same drop ends the copy
   silently. It is not enforced when the response carries no `Content-Length` — Guzzle drops
   the header for a blob stored with `Content-Encoding` and the SDK then reports a length of 0.
   On AWS and GCP such a drop raises from the SDK itself (AWS keeps the partial `SaveAs` file,
   GCP never opens the destination).
-- A download that fails on the transport (no connection, timeout, stalled or cut transfer,
-  incomplete Azure blob) raises `Keboola\StorageApi\ClientException` with string code
-  `downloadTransportFailure` from `Client::downloadFile()`, `Client::downloadSlicedFile()` and
-  `TableExporter`, on every provider. The message names the file and the cURL error; the provider
-  SDK exception is not chained as `previous`, because it carries the request URL. A failure that
-  has an HTTP response (403, missing object) still raises the provider's own exception.
 - On Azure and GCP the body is buffered in `php://temp` (memory up to 2 MB, then a temporary file
   in the system temp dir) before it is copied to the destination, so a download needs its size in
   free temp space on top of the destination. Uploads are unaffected.
